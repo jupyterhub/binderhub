@@ -96,6 +96,10 @@ class GitHubBuildHandler(web.RequestHandler):
 
         build_thread.start()
 
+        # We gonna send out event streams!
+        self.set_header('content-type', 'text/event-stream')
+        self.set_header('cache-control', 'no-cache')
+
         while True:
             try:
                 progress = q.get_nowait()
@@ -104,7 +108,7 @@ class GitHubBuildHandler(web.RequestHandler):
                 continue
 
             try:
-                self.write(json.dumps(progress))
+                self.write('data: {}\n\n'.format(json.dumps(progress)))
                 q.task_done()
             except StreamClosedError:
                 # Client has gone away!
