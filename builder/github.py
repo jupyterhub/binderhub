@@ -118,6 +118,6 @@ class GitHubBuildHandler(web.RequestHandler):
                 if progress['payload'] == 'Running':
                     log_thread.start()
                 elif progress['payload'] == 'Succeeded' or progress['payload'] == 'Failed':
-                    # TODO: Wait to cleanup the two threads?
+                    # TODO: Wait to cleanup the two threads? A simple join will block, unfortunately
                     break
             yield self.flush()

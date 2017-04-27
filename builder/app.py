@@ -49,6 +49,7 @@ class BuilderApp(Application):
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
+
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix
