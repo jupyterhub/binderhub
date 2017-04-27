@@ -1,19 +1,29 @@
-<html>
+<!DOCTYPE html>
+<html">
     <head>
-        <script src="/static/jquery-3.2.1.min.js" > </script>
+        <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> </script>
         <script src="/static/index.js"></script>
     </head>
     <body>
-        <h1>Hello world!</h1>
-        <form id="build-form">
-            <input type="text"
-                   id="repo"
-            />
-            <button type="submit">Build</button>
-        </form>
-        <div>
-            <ul id="log">
-            </ul>
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Jupyter Build</a>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <form id="build-form">
+                <input type="text"
+                    id="repo"
+                />
+                <button type="submit">Build</button>
+            </form>
+            <div>
+                <ul id="log">
+                </ul>
+            </div>
         </div>
     </body>
 </html>
