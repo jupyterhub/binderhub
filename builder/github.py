@@ -2,6 +2,7 @@ from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.iostream import StreamClosedError
 from kubernetes import client, config, watch
+import hashlib
 import threading
 import json
 from .build import Build
@@ -32,16 +33,40 @@ class GitHubBuildHandler(web.RequestHandler):
         return ref_info
 
 
+    def _generate_build_name(self, user, repo, ref, limit=63, hash_length=6, ref_length=6):
+        """
+        Generate a unique build name that is within limit characters
+
+        Is guaranteed (to acceptable level) to be unique for a given user, repo and ref.
+
+        We really, *really* care that we always end up with the same build_name for any
+        particular repo + ref, but max limit for build names is 63. So we include a prefixed
+        hash of the user / repo in all build names and do some length limiting :)
+
+        Note that build names only need to be unique over a shorter period of time, while
+        image names need to be unique for longer - hence different strategies.
+
+        TODO: Make sure that the returned value matches the k8s name validation regex,
+        which is [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+        """
+        user_repo_name = '{user}-{repo}'.format(user=user, repo=repo)
+
+        user_repo_hash = hashlib.sha256(user_repo_name.encode('utf-8')).hexdigest()
+
+        return '{name}-{hash}-{ref}'.format(
+            name=user_repo_name[:limit - hash_length - ref_length - 2],
+            hash=user_repo_hash[:hash_length],
+            ref=ref[:ref_length]
+        )
+
     @gen.coroutine
     def get(self, user, repo, ref):
         ref_info = yield self.resolve_ref(user, repo, ref)
+
         sha = ref_info['sha']
+        build_name = self._generate_build_name(user, repo, sha).replace('_', '-')
 
-        # TODO: Truncate individual bits so we are still unique but < 63chars
-        build_name = '{user}-{repo}-{ref}'.format(
-            user=user, repo=repo, ref=sha[:6]
-        ).replace('_', '-')
-
+        # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = '{prefix}{user}-{repo}:{ref}'.format(
             prefix=self.settings['docker_image_prefix'],
             user=user, repo=repo, ref=sha
