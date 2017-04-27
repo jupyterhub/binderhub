@@ -119,6 +119,7 @@ class GitHubBuildHandler(web.RequestHandler):
 
             try:
                 self.write('data: {}\n\n'.format(json.dumps(progress)))
+                yield self.flush()
                 q.task_done()
             except StreamClosedError:
                 # Client has gone away!
@@ -129,5 +130,4 @@ class GitHubBuildHandler(web.RequestHandler):
                     log_thread.start()
                 elif progress['payload'] == 'Succeeded' or progress['payload'] == 'Failed':
                     # TODO: Wait to cleanup the two threads? A simple join will block, unfortunately
-                    break
-            yield self.flush()
+                    return

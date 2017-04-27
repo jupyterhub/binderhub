@@ -2,7 +2,10 @@ from traitlets import Unicode, Integer
 from traitlets.config import Application
 import tornado.ioloop
 import tornado.web
+import os
 from .github import GitHubBuildHandler
+from .main import MainHandler
+
 
 class BuilderApp(Application):
     config_file = Unicode(
@@ -65,11 +68,13 @@ class BuilderApp(Application):
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
+            "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token
         }
 
         self.tornado_app = tornado.web.Application([
             (r"/build/github/(\w+)/([a-zA-Z0-9_-]+)/(\w+)", GitHubBuildHandler),
+            (r"/", MainHandler)
         ], **self.tornado_settings)
 
     @classmethod
