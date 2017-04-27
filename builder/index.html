@@ -2,27 +2,40 @@
 <html">
     <head>
         <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
-        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> </script>
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="/static/vendor/bootstrap/css/paper.min.css" rel="stylesheet" />
+        <link href="/static/index.css" rel="stylesheet" />
+        <!-- FIXME: vendor this -->
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet" /> 
         <script src="/static/index.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">Jupyter Build</a>
                 </div>
             </div>
         </nav>
-        <div class="container">
-            <form id="build-form">
-                <input type="text"
-                    id="repo"
-                />
-                <button type="submit">Build</button>
-            </form>
-            <div>
-                <ul id="log">
-                </ul>
+        <div id="main" class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h2>Turn a GitHub repo into a collection of interactive notebooks</h2>
+
+                    <form id="build-form" class="form">
+                        <div class="form-group">
+                            <label for="repository">GitHub Repo</label>
+                            <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link"/>
+                        </div>
+                        <div class="form-group">
+                            <button class="form-control btn-primary"  type="submit">Build</button>
+                        </div>
+                    </form>
+                    <div>
+                        <ul id="log" class="list-unstyled">
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </body>
