@@ -23,11 +23,21 @@ class GitHubBuildHandler(web.RequestHandler):
         url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
             user=user, repo=repo, ref=ref
         )
+        if self.settings['github_auth_token']:
+            auth = {
+                'auth_username': 'yuvipanda',
+                'auth_password': self.settings['github_auth_token']
+            }
+        else:
+            auth = {}
+
         try:
-            resp = yield client.fetch(url, user_agent="JupyterHub Image Builder v0.1")
+            resp = yield client.fetch(url, user_agent="JupyterHub Image Builder v0.1", **auth)
         except HTTPError as e:
             if e.code == 404:
                 return None
+            else:
+                raise
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         return ref_info

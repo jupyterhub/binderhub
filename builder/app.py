@@ -46,13 +46,26 @@ class BuilderApp(Application):
         config=True
     )
 
+    # TODO: Factor this out!
+    github_auth_token = Unicode(
+        None,
+        allow_none=True,
+        help="""
+        GitHub OAuth token to use for talking to the GitHub API.
+
+        Might get throttled otherwise!
+        """,
+        config=True
+    )
+
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
 
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
-            "docker_image_prefix": self.docker_image_prefix
+            "docker_image_prefix": self.docker_image_prefix,
+            "github_auth_token": self.github_auth_token
         }
 
         self.tornado_app = tornado.web.Application([
