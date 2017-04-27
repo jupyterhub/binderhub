@@ -1,4 +1,4 @@
-from traitlets import Unicode, Integer
+from traitlets import Unicode, Integer, Bool
 from traitlets.config import Application
 import tornado.ioloop
 import tornado.web
@@ -61,6 +61,14 @@ class BuilderApp(Application):
         config=True
     )
 
+    debug = Bool(
+        False,
+        help="""
+        Turn on debugging.
+        """,
+        config=True
+    )
+
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
@@ -69,7 +77,8 @@ class BuilderApp(Application):
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
-            "github_auth_token": self.github_auth_token
+            "github_auth_token": self.github_auth_token,
+            "debug": self.debug
         }
 
         self.tornado_app = tornado.web.Application([
