@@ -128,6 +128,6 @@ class GitHubBuildHandler(web.RequestHandler):
             if progress['kind'] == 'pod.phasechange':
                 if progress['payload'] == 'Running':
                     log_thread.start()
-                elif progress['payload'] == 'Succeeded' or progress['payload'] == 'Failed':
+                elif progress['payload'] == 'Deleted':
                     # TODO: Wait to cleanup the two threads? A simple join will block, unfortunately
                     return

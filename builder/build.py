@@ -126,12 +126,15 @@ class Build:
         w = watch.Watch()
         try:
             for f in w.stream(self.api.list_namespaced_pod, self.namespace, label_selector="name={}".format(self.name)):
+                if f['type'] == 'DELETED':
+                    self.progress('pod.phasechange', 'Deleted')
+                    return
                 self.pod = f['object']
                 self.progress('pod.phasechange', self.pod.status.phase)
                 if self.pod.status.phase == 'Succeeded':
-                    return True
+                    self.cleanup()
                 elif self.pod.status.phase == 'Failed':
-                    return False
+                    self.cleanup()
         finally:
             w.stop()
 
@@ -143,3 +146,16 @@ class Build:
                 _preload_content=False):
 
             self.progress('log', line.decode('utf-8'))
+
+    def cleanup(self):
+        try:
+            self.api.delete_namespaced_pod(
+                name=self.name,
+                namespace=self.namespace,
+                body=client.V1DeleteOptions(grace_period_seconds=0))
+        except client.rest.ApiException as e:
+            if e.status == 404:
+                # Is ok, someone else has already deleted it
+                pass
+            else:
+                raise

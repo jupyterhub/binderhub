@@ -12,7 +12,7 @@ $(function(){
             $('#log').append($('<li>').text(data.payload));
             $('#log').animate({scrollTop: $('#log')[0].scrollHeight}, 1000);
             if (data.kind == 'pod.phasechange') {
-                if (data.payload == 'Succeeded' || data.payload == 'Failed') {
+                if (data.payload == 'Deleted') {
                     source.close()
                 }
             }
