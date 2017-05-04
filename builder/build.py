@@ -4,6 +4,21 @@ import threading
 from kubernetes import client, config, watch
 
 class Build:
+    """
+    Represents a build of a git repository into a docker image.
+
+    This ultimately maps to a single pod on a kubernetes cluster. This one pod can
+    have many different build objects pointing to it performing operations on it, so
+    code here needs to be careful & aware of this. Operations it tries might not succeed
+    because another Build object pointing to the same pod might've done something else.
+    This should be dealt with gracefully, and the build object should just reflect the state
+    of the pod as quickly as possible.
+
+    It assumes that the 'name' is unique and immutable - that's what is used to
+    sync to the pod. The name should be unique for a (git_url, ref, builder_image) tuple,
+    and the same tuple should produce the same name. This allows us to use the locking
+    that the k8s API provides instead of having to invent our own.
+    """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image, image_name, push_secret):
         self.q = q
         self.api = api
