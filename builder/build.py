@@ -119,7 +119,8 @@ class Build:
             ret = self.api.create_namespaced_pod(self.namespace, self.pod)
         except client.rest.ApiException as e:
             if e.status == 409:
-                self.already_exists = True
+                # Someone else created it!
+                pass
             else:
                 raise
 
