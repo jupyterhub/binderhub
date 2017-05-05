@@ -4,6 +4,7 @@ import tornado.ioloop
 import tornado.web
 import os
 from .github import GitHubBuildHandler
+from .redirect import RedirectHandler
 from .main import MainHandler
 
 
@@ -69,6 +70,20 @@ class BuilderApp(Application):
         config=True
     )
 
+    hub_redirect_url_template = Unicode(
+        None,
+        allow_none=True,
+        help="""
+        Template used to generate the URL to redirect user to after building.
+
+        {image} is replaced with the name of the built image.
+
+        For example, if your configured JupyterHub is at mydomain.org,
+        you would set this to 'mydomain.org/hub/tmplogin?image={image}'
+        """,
+        config=True
+    )
+
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
@@ -78,11 +93,13 @@ class BuilderApp(Application):
             "docker_image_prefix": self.docker_image_prefix,
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
-            "debug": self.debug
+            "debug": self.debug,
+            'hub_redirect_url_template': self.hub_redirect_url_template
         }
 
         self.tornado_app = tornado.web.Application([
-            (r"/build/github/(\w+)/([a-zA-Z0-9_-]+)/(\w+)", GitHubBuildHandler),
+            (r"/build/github/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/(\w+)", GitHubBuildHandler),
+            (r"/redirect", RedirectHandler),
             (r"/", MainHandler)
         ], **self.tornado_settings)
 

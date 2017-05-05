@@ -11,10 +11,10 @@ $(function(){
             var data = JSON.parse(e.data);
             $('#log').append($('<li>').text(data.payload));
             $('#log').animate({scrollTop: $('#log')[0].scrollHeight}, 1000);
-            if (data.kind == 'pod.phasechange') {
-                if (data.payload == 'Deleted') {
-                    source.close()
-                }
+            if (data.kind == 'buildComplete') {
+                var url = '/redirect?image=' + data.payload.imageName;
+                source.close()
+                window.location.href = url;
             }
         }, false)
         return false;

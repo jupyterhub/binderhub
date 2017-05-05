@@ -11,6 +11,11 @@ from queue import Queue, Empty
 
 class GitHubBuildHandler(web.RequestHandler):
     @gen.coroutine
+    def emit(self, data):
+        self.write('data: {}\n\n'.format(json.dumps(data)))
+        yield self.flush()
+
+    @gen.coroutine
     def resolve_ref(self, user, repo, ref):
         """
         Resolve a given ref in a github repo into a commit object.
@@ -118,8 +123,7 @@ class GitHubBuildHandler(web.RequestHandler):
                 continue
 
             try:
-                self.write('data: {}\n\n'.format(json.dumps(progress)))
-                yield self.flush()
+                yield self.emit(progress)
                 q.task_done()
             except StreamClosedError:
                 # Client has gone away!
@@ -130,4 +134,10 @@ class GitHubBuildHandler(web.RequestHandler):
                     log_thread.start()
                 elif progress['payload'] == 'Deleted':
                     # TODO: Wait to cleanup the two threads? A simple join will block, unfortunately
+                    yield self.emit({
+                        'kind': 'buildComplete',
+                        'payload': {
+                            'imageName': image_name
+                        }
+                    })
                     return
