@@ -67,7 +67,7 @@ class GitHubBuildHandler(web.RequestHandler):
             name=user_repo_name[:limit - hash_length - ref_length - 2],
             hash=user_repo_hash[:hash_length],
             ref=ref[:ref_length]
-        )
+        ).lower()
 
     @gen.coroutine
     def get(self, user, repo, ref):
@@ -80,7 +80,7 @@ class GitHubBuildHandler(web.RequestHandler):
         image_name = '{prefix}{user}-{repo}:{ref}'.format(
             prefix=self.settings['docker_image_prefix'],
             user=user, repo=repo, ref=sha
-        ).replace('_', '-')
+        ).replace('_', '-').lower()
 
         config.load_kube_config()
 
