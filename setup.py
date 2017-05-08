@@ -12,4 +12,5 @@ setup(
     author_email='yuvipanda@gmail.com',
     license='BSD',
     packages=find_packages(),
+    include_package_data=True
 )
