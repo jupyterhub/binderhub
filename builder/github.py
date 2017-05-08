@@ -87,7 +87,10 @@ class GitHubBuildHandler(web.RequestHandler):
             user=user, repo=repo, ref=sha
         ).replace('_', '-').lower()
 
-        config.load_kube_config()
+        try:
+            config.load_incluster_config()
+        except config.ConfigException:
+            config.load_kube_config()
 
         api = client.CoreV1Api()
 
