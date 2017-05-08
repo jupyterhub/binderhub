@@ -104,7 +104,7 @@ class GitHubBuildHandler(web.RequestHandler):
             namespace=self.settings["build_namespace"],
             git_url=github_url,
             ref=sha,
-            builder_image="jupyterhub/singleuser-builder:v0.1.1",
+            builder_image=self.settings["build_image_spec"],
             image_name=image_name,
             push_secret=self.settings['docker_push_secret']
         )

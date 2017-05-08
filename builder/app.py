@@ -94,6 +94,14 @@ class BuilderApp(Application):
         config=True
     )
 
+    build_image_spec = Unicode(
+        'jupyterhub/singleuser-builder:v0.1.1',
+        help="""
+        s2i builder image to use for doing builds.
+        """,
+        config=True
+    )
+
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
@@ -105,7 +113,8 @@ class BuilderApp(Application):
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
             'hub_redirect_url_template': self.hub_redirect_url_template,
-            "build_namespace": self.build_namespace
+            "build_namespace": self.build_namespace,
+            "build_image_spec": self.build_image_spec
         }
 
         self.tornado_app = tornado.web.Application([
