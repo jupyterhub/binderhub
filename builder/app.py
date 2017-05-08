@@ -84,6 +84,16 @@ class BuilderApp(Application):
         config=True
     )
 
+    build_namespace = Unicode(
+        'default',
+        help="""
+        Kubernetes namespace to spawn build pods in.
+
+        Note that the docker_push_secret must refer to a secret in this namespace.
+        """,
+        config=True
+    )
+
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
@@ -94,7 +104,8 @@ class BuilderApp(Application):
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_redirect_url_template': self.hub_redirect_url_template
+            'hub_redirect_url_template': self.hub_redirect_url_template,
+            "build_namespace": self.build_namespace
         }
 
         self.tornado_app = tornado.web.Application([

@@ -101,7 +101,7 @@ class GitHubBuildHandler(web.RequestHandler):
             q=q,
             api=api,
             name=build_name,
-            namespace="default",
+            namespace=self.settings["build_namespace"],
             git_url=github_url,
             ref=sha,
             builder_image="jupyterhub/singleuser-builder:v0.1.1",
