@@ -65,7 +65,7 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image="yuvipanda/builderhub-builder:v0.1.6",
+                        image="yuvipanda/builderhub-builder:v0.1.8",
                         name="builder",
                         args=self.get_cmd(),
                         volume_mounts=[
