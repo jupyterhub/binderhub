@@ -10,7 +10,7 @@ $(function(){
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
             $('#log').append($('<li>').text(data.payload));
-            $('#log').animate({scrollTop: $('#log')[0].scrollHeight}, 1000);
+            $('#log').animate({scrollTop: $('#log')[0].scrollHeight}, 50);
             if (data.kind == 'buildComplete') {
                 var url = '/redirect?image=' + data.payload.imageName;
                 source.close()
