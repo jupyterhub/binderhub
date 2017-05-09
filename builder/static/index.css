@@ -2,11 +2,6 @@
     padding-top: 96px;
 }
 
-ul#log {
+#log {
     height: 400px;
-    background-color: black;
-    color: white;
-    font-family: 'Roboto Mono', monospace;
-    padding: 16px;
-    overflow: scroll;
 }

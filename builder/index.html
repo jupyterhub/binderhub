@@ -4,9 +4,12 @@
         <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
         <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
         <link href="/static/vendor/bootstrap/css/paper.min.css" rel="stylesheet" />
+        <link href="/static/vendor/xterm.js-2.6.0/xterm.css" rel="stylesheet" />
         <link href="/static/index.css" rel="stylesheet" />
         <!-- FIXME: vendor this -->
         <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet" /> 
+        <script src="/static/vendor/xterm.js-2.6.0/xterm.js"></script>
+        <script src="/static/vendor/xterm.js-2.6.0/addons/fit/fit.js"></script>
         <script src="/static/index.js"></script>
     </head>
     <body>
@@ -31,10 +34,10 @@
                             <button class="form-control btn-primary"  type="submit">Build</button>
                         </div>
                     </form>
-                    <div>
-                        <ul id="log" class="list-unstyled">
-                        </ul>
-                    </div>
+                </div>
+            </div>
+            <div id="log-container" class="row">
+                <div id="log" class="col-md-8 col-md-offset-2">
                 </div>
             </div>
         </div>

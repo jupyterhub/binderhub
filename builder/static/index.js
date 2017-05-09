@@ -1,22 +1,28 @@
 $(function(){
+    var log = new Terminal({
+        convertEol: true,
+        disableStdin: true
+    });
+    log.open(document.getElementById('log'));
+    log.fit();
 
     $('#build-form').submit(function() {
         var repo =  ($('#repository').val());
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
         var url = '/build/github/' + repo + '/master';
-        $('#log').empty();
         var source = new EventSource(url);
+
+        log.clear();
 
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
-            $('#log').append($('<li>').text(data.payload));
-            $('#log').animate({scrollTop: $('#log')[0].scrollHeight}, 50);
+            log.writeln(JSON.stringify(data));
             if (data.kind == 'buildComplete') {
                 var url = '/redirect?image=' + data.payload.imageName;
-                source.close()
+                source.close();
                 window.location.href = url;
             }
-        }, false)
+        }, false);
         return false;
-    })
-})
+    });
+});
