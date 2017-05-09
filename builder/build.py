@@ -16,7 +16,7 @@ class Build:
     different build objects can point to this single pod and perform
     operations on the pod. The code in this class needs to be careful and take
     this into account.
-    
+
     For example, operations a Build object tries might not succeed because
     another Build object pointing to the same pod might have done something
     else. This should be handled gracefully, and the build object should
@@ -42,53 +42,14 @@ class Build:
         self.image_name = image_name
         self.push_secret = push_secret
 
-    def get_spec(self):
-        """Get a specification for image to be built from config."""
-        return {
-            "kind": "Build",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": self.name,
-                "namespace": self.namespace
-            },
-            "spec": {
-                # Blank, we don't use this for anything
-                "triggeredBy": [],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": self.git_url,
-                        "ref": self.ref
-                    }
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": self.builder_image,
-                        }
-                    }
-                },
-                "output": {
-                    # This isn't actually used, we have to set status.outputDockerImageReference
-                    # But we need to set this otherwise builder doesn't even attempt to push
-                    "to": {
-                        "kind": "DockerImage",
-                        "name": self.image_name
-                    },
-                    # This also isn't used - we mount the secret manually in our pod spec
-                    # Is here for completeness
-                    "pushSecret": {
-                        "name": self.push_secret
-                    }
-                }
-            },
-            "status": {
-                "outputDockerImageReference": self.image_name
-            }
-
-        }
+    def get_cmd(self):
+        """Get the cmd to run to build the image"""
+        return [
+            'python3', '-m', 'builder.app',
+            '-n', self.name,
+            '--source', self.git_url,
+            '--output', self.image_name
+        ]
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
@@ -104,9 +65,9 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image="openshift/origin-sti-builder:v1.5.0",
+                        image="yuvipanda/builderhub-builder:v0.1.6",
                         name="builder",
-                        env=[client.V1EnvVar(name="BUILD", value=json.dumps(self.get_spec()))],
+                        args=self.get_cmd(),
                         volume_mounts=[
                             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket"),
                             client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret')
