@@ -1,14 +1,19 @@
-from traitlets import Unicode, Integer, Bool
-from traitlets.config import Application
+"""The builderhub application"""
+
+import os
+
 import tornado.ioloop
 import tornado.web
-import os
+from traitlets import Unicode, Integer, Bool
+from traitlets.config import Application
+
 from .github import GitHubBuildHandler
 from .redirect import RedirectHandler
 from .main import MainHandler
 
 
 class BuilderApp(Application):
+    """An Application for starting a builder."""
     config_file = Unicode(
         'builder_config.py',
         help="""
@@ -103,6 +108,7 @@ class BuilderApp(Application):
     )
 
     def initialize(self, *args, **kwargs):
+        """Load configuration settings."""
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
 

@@ -1,25 +1,37 @@
+"""Contains build of a docker image from a git repository."""
+
 import json
 import threading
 
 from kubernetes import client, config, watch
 
+
 class Build:
     """
     Represents a build of a git repository into a docker image.
 
-    This ultimately maps to a single pod on a kubernetes cluster. This one pod can
-    have many different build objects pointing to it performing operations on it, so
-    code here needs to be careful & aware of this. Operations it tries might not succeed
-    because another Build object pointing to the same pod might've done something else.
-    This should be dealt with gracefully, and the build object should just reflect the state
-    of the pod as quickly as possible.
+    Behavior
+    --------
+    This ultimately maps to a single pod on a kubernetes cluster. Many
+    different build objects can point to this single pod and perform
+    operations on the pod. The code in this class needs to be careful and take
+    this into account.
+    
+    For example, operations a Build object tries might not succeed because
+    another Build object pointing to the same pod might have done something
+    else. This should be handled gracefully, and the build object should
+    reflect the state of the pod as quickly as possible.
 
-    It assumes that the 'name' is unique and immutable - that's what is used to
-    sync to the pod. The name should be unique for a (git_url, ref, builder_image) tuple,
-    and the same tuple should produce the same name. This allows us to use the locking
-    that the k8s API provides instead of having to invent our own.
+    'name'
+    ------
+    The 'name' should be unique and immutable since it is used to
+    sync to the pod. The 'name' should be unique for a 
+    (git_url, ref, builder_image) tuple, and the same tuple should correspond
+    to the same 'name'. This allows use of the locking provided by k8s API
+    instead of having to invent our own locking code.
     """
-    def __init__(self, q, api, name, namespace, git_url, ref, builder_image, image_name, push_secret):
+    def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
+                 image_name, push_secret):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -31,6 +43,7 @@ class Build:
         self.push_secret = push_secret
 
     def get_spec(self):
+        """Get a specification for image to be built from config."""
         return {
             "kind": "Build",
             "apiVersion": "v1",
@@ -78,12 +91,11 @@ class Build:
         }
 
     def progress(self, kind, obj):
+        """Put the current action item into the queue for execution."""
         self.q.put_nowait({'kind': kind, 'payload': obj})
 
     def submit(self):
-        """
-        Submits the given build spec and waits for 
-        """
+        """Submit a image spec to openshift's s2i and wait for completion """
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
@@ -140,6 +152,7 @@ class Build:
             w.stop()
 
     def stream_logs(self):
+        """Stream a pod's log."""
         for line in self.api.read_namespaced_pod_log(
                 self.name,
                 self.namespace,
@@ -149,6 +162,7 @@ class Build:
             self.progress('log', line.decode('utf-8'))
 
     def cleanup(self):
+        """Delete a kubernetes pod."""
         try:
             self.api.delete_namespaced_pod(
                 name=self.name,
