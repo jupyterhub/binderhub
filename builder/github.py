@@ -1,15 +1,20 @@
+"""Handler for working with GitHub for builds."""
+
+import hashlib
+import json
+from queue import Queue, Empty
+import threading
+
+from kubernetes import client, config, watch
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.iostream import StreamClosedError
-from kubernetes import client, config, watch
-import hashlib
-import threading
-import json
+
 from .build import Build
-from queue import Queue, Empty
 
 
 class GitHubBuildHandler(web.RequestHandler):
+    """A handler for working with GitHub."""
     @gen.coroutine
     def emit(self, data):
         self.write('data: {}\n\n'.format(json.dumps(data)))
@@ -18,11 +23,15 @@ class GitHubBuildHandler(web.RequestHandler):
     @gen.coroutine
     def resolve_ref(self, user, repo, ref):
         """
-        Resolve a given ref in a github repo into a commit object.
+        Resolve a given ref in a GitHub repo into a commit object.
 
-        Returns None if ref isn't found.
-
-        `ref` can be a commit sha or a branch / tag name.
+        Parameters
+        ----------
+        `ref` -- a commit sha or a branch / tag name.
+        
+        Returns
+        -------
+        None, if ref isn't found.
         """
         client = AsyncHTTPClient()
         url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
@@ -50,19 +59,24 @@ class GitHubBuildHandler(web.RequestHandler):
 
     def _generate_build_name(self, user, repo, ref, limit=63, hash_length=6, ref_length=6):
         """
-        Generate a unique build name that is within limit characters
+        Generate a unique build name that is within limited number of characters.
 
-        Is guaranteed (to acceptable level) to be unique for a given user, repo and ref.
+        Guaranteed (to acceptable level) to be unique for a given user, repo,
+        and ref.
 
-        We really, *really* care that we always end up with the same build_name for any
-        particular repo + ref, but max limit for build names is 63. So we include a prefixed
-        hash of the user / repo in all build names and do some length limiting :)
+        We really, *really* care that we always end up with the same
+        'build_name' for a particular repo + ref, but the default max
+        character limit for build names is 63. To meet this constraint, we
+        include a prefixed hash of the user / repo in all build names and do
+        some length limiting :)
 
-        Note that build names only need to be unique over a shorter period of time, while
-        image names need to be unique for longer - hence different strategies.
+        Note that 'build' names only need to be unique over a shorter period
+        of time, while 'image' names need to be unique for longer. Hence,
+        different strategies are used.
 
-        TODO: Make sure that the returned value matches the k8s name validation regex,
-        which is [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+        TODO: Make sure that the returned value matches the k8s name
+        validation regex, which is:
+        [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
         """
         user_repo_name = '{user}-{repo}'.format(user=user, repo=repo)
 
@@ -76,6 +90,7 @@ class GitHubBuildHandler(web.RequestHandler):
 
     @gen.coroutine
     def get(self, user, repo, ref):
+        """Get a built image for a given GitHub user, repo, and ref."""
         ref_info = yield self.resolve_ref(user, repo, ref)
 
         sha = ref_info['sha']
