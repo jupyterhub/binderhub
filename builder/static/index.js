@@ -22,10 +22,12 @@ $(function(){
                 source.close();
             }
             if (data.kind == 'buildComplete') {
+                // FIXME: make this proper and secure lol
                 var filepath = $('#filepath').val();
+                var filepathParts = filepath.split('#');
                 if (filepath == '') {
-                    filepath = '/tree'
-                } else if (filepath.endsWith('.ipynb')) {
+                    filepath = '/tree';
+                } else if (filepathParts[0].endsWith('.ipynb')) {
                     filepath = '/notebooks/' + filepath;
                 } else {
                     filepath = '/edit/' + filepath;
