@@ -124,7 +124,7 @@ class BuilderApp(Application):
         }
 
         self.tornado_app = tornado.web.Application([
-            (r"/build/github/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/(\w+)", GitHubBuildHandler),
+            (r"/build/github/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)", GitHubBuildHandler),
             (r"/redirect", RedirectHandler),
             (r"/", MainHandler)
         ], **self.tornado_settings)
