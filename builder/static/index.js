@@ -17,6 +17,9 @@ $(function(){
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
             log.writeln(JSON.stringify(data));
+            if (data.kind == 'pod.phasechange' && data.payload == 'Failed') {
+                source.close();
+            }
             if (data.kind == 'buildComplete') {
                 var url = '/redirect?image=' + data.payload.imageName;
                 source.close();
