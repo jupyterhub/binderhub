@@ -7,9 +7,10 @@ $(function(){
     log.fit();
 
     $('#build-form').submit(function() {
-        var repo =  ($('#repository').val());
+        var repo = $('#repository').val();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
-        var url = '/build/github/' + repo + '/master';
+        var ref =  $('#ref').val()
+        var url = '/build/github/' + repo + '/' + ref;
         var source = new EventSource(url);
 
         log.clear();
