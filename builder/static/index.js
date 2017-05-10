@@ -21,7 +21,15 @@ $(function(){
                 source.close();
             }
             if (data.kind == 'buildComplete') {
-                var url = '/redirect?image=' + data.payload.imageName;
+                var filepath = $('#filepath').val();
+                if (filepath == '') {
+                    filepath = '/tree'
+                } else if (filepath.endsWith('.ipynb')) {
+                    filepath = '/notebooks/' + filepath;
+                } else {
+                    filepath = '/edit/' + filepath;
+                }
+                var url = '/redirect?image=' + data.payload.imageName + '&default_url=' + filepath;
                 source.close();
                 window.location.href = url;
             }
