@@ -65,9 +65,10 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image="yuvipanda/builderhub-builder:v0.1.9",
+                        image="yuvipanda/builderhub-builder:v0.1.10",
                         name="builder",
                         args=self.get_cmd(),
+                        image_pull_policy='Always',
                         volume_mounts=[
                             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket"),
                             client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret')
