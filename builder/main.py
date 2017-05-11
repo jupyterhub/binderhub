@@ -6,7 +6,7 @@ class MainHandler(web.RequestHandler):
         # Hacks!
         url = self.get_argument('url', '', True)
         ref = self.get_argument('ref', 'master', True)
-        filepath = self.get_argument('filepath', '', True)
+        filepath = self.get_argument('filepath', '', True).replace('|', '#')
         submit = self.get_argument('submit', False, True)
         self.render(
             "index.html",
