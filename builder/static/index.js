@@ -39,4 +39,8 @@ $(function(){
         }, false);
         return false;
     });
+
+    if (window.submitBuild) {
+        $('#build-form').submit();
+    }
 });

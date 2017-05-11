@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html">
+<html>
     <head>
+        <script>
+         {% if submit %}
+         window.submitBuild = true;
+         {% end %}
+        </script>
         <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
         <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
         <link href="/static/vendor/bootstrap/css/paper.min.css" rel="stylesheet" />
@@ -28,15 +33,15 @@
                     <form id="build-form" class="form">
                         <div class="form-group">
                             <label for="repository">GitHub Repo</label>
-                            <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link"/>
+                            <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url }}"/>
                         </div>
                         <div class="form-group">
                             <label for="ref">Git branch / tag / commit</label>
-                            <input class="form-control" type="text" id="ref" value="master" placeholder="Git branch / tag / commit"/>
+                            <input class="form-control" type="text" id="ref" value="{{ ref }}" placeholder="Git branch / tag / commit"/>
                         </div>
                         <div class="form-group">
                             <label for="filepath">File</label>
-                            <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open"/>
+                            <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open" value="{{ filepath }}"/>
                         </div>
                         <div class="form-group">
                             <button class="form-control btn-primary"  type="submit">Build</button>
