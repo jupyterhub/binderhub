@@ -12,10 +12,10 @@ from .redirect import RedirectHandler
 from .main import MainHandler
 
 
-class BuilderApp(Application):
+class BuilderHub(Application):
     """An Application for starting a builder."""
     config_file = Unicode(
-        'builder_config.py',
+        'builderhub_config.py',
         help="""
         Config file to load.
 
@@ -137,4 +137,4 @@ class BuilderApp(Application):
         tornado.ioloop.IOLoop.current().start()
 
 if __name__ == '__main__':
-    BuilderApp.launch_instance()
+    BuilderHub.launch_instance()
