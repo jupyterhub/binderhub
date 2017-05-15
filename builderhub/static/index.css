@@ -1,5 +1,43 @@
+/* custom fonts we are going to be using. */
+
+@font-face {
+    font-family: ClearSans-Thin;
+    src: url('/static/vendor/clearsans/WOFF/ClearSans-Thin.woff');
+}
+
+@font-face {
+    font-family: ClearSans-Light;
+    src: url('/static/vendor/clearsans/WOFF/ClearSans-Light.woff');
+}
+
 #main {
-    padding-top: 96px;
+    padding-top: 32px;
+    font-family: "ClearSans-Light", sans-serif;
+}
+
+
+#logo-container {
+    text-align: center;
+    color: black;
+    font-family: "ClearSans-Thin", sans-serif;
+    padding: 16px;
+}
+
+#logo {
+    padding: 8px;
+    padding-bottom: 32px;
+}
+#logo-container #tagline {
+    font-size: 32px;
+    line-height: 1.5;
+    font-weight: bold;
+    padding: 16px;
+}
+
+#logo-container #explanation {
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: bold
 }
 
 #log {
