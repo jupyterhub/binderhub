@@ -51,6 +51,37 @@
                 <div id="log" class="col-md-8 col-md-offset-2">
                 </div>
             </div>
+            <div id="how-it-works">
+                <div id="how-it-works-header">How it works</div>
+
+                <div class="row">
+                    <div class="col-md-1 col-md-offset-2 point-container">
+                        <span class="point" style="border-color: rgb(243, 162, 83)">1</span>
+                    </div>
+                    <div class="col-md-7">
+                        In the field above, enter a GitHub repository that contains Jupyter notebooks, a branch / tag / commit hash and click Submit to start the build. You can also specify the path to the file to be opened in the browser when launching.
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-1 col-md-offset-2 point-container">
+                        <span class="point" style="border-color: rgb(208, 102, 129)">2</span>
+                    </div>
+                    <div class="col-md-7">
+                        We’ll search your repository for dependency files, in the following preference order: Dockerfile, then requirements.txt (for Python). The first one found will be used to build an image. If an image has already been built for the given repository at a particular commit, it will not be rebuilt.
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-1 col-md-offset-2 point-container">
+                        <span class="point" style="border-color: rgb(87, 154, 202)">3</span>
+                    </div>
+                    <div class="col-md-7">
+                        There is no step 3! Your notebooks are launched in an executable environment! You can also get a link / badge for your repository that when clicked will launch your environment immediately in the browser!
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

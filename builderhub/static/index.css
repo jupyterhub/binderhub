@@ -12,14 +12,13 @@
 
 #main {
     padding-top: 32px;
-    font-family: "ClearSans-Light", sans-serif;
+    font-family: "ClearSans-Thin", sans-serif;
 }
 
 
 #logo-container {
     text-align: center;
     color: black;
-    font-family: "ClearSans-Thin", sans-serif;
     padding: 16px;
 }
 
@@ -42,4 +41,35 @@
 
 #log {
     height: 400px;
+}
+
+#how-it-works {
+    padding: 18px;
+    line-height: 1.5;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#how-it-works div.row {
+    margin: 32px;
+}
+
+#how-it-works-header {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    padding: 16px;
+}
+
+.point {
+    border-radius: 50%;
+    border-width: 6px;
+    border-style: solid;
+    width: 30px;
+    height: 30px;
+    padding: 5px 10px;
+}
+
+.point-container {
+    padding-top: 16px;
 }
