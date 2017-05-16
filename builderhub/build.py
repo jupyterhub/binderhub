@@ -65,7 +65,7 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image="yuvipanda/builderhub-builder:v0.1.10",
+                        image="yuvipanda/builderhub-builder:v0.1.11",
                         name="builder",
                         args=self.get_cmd(),
                         image_pull_policy='Always',
