@@ -7,6 +7,18 @@ $(function(){
     log.open(document.getElementById('log'));
     log.fit();
 
+    $('#toggle-logs').click(function() {
+        var $panelBody = $('#log-container .panel-body');
+        if ($panelBody.hasClass('hidden')) {
+            $('#toggle-logs button').text('hide');
+            $panelBody.removeClass('hidden');
+        } else {
+            $('#toggle-logs button').text('show');
+            $panelBody.addClass('hidden');
+        }
+        return false;
+    });
+
     $('#build-form').submit(function() {
         var repo = $('#repository').val();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
@@ -14,9 +26,10 @@ $(function(){
         var url = '/build/github/' + repo + '/' + ref;
         var source = new EventSource(url);
 
-        $('#log-container').toggleClass('hidden');
         log.fit();
         log.clear();
+
+        $('#phase-waiting').removeClass('hidden');
 
 
         source.addEventListener('message', function(e){
@@ -25,6 +38,12 @@ $(function(){
                 log.writeln(data.message);
             } else {
                 log.writeln(JSON.stringify(data));
+            }
+            if (data.phase) {
+                if (data.phase == 'completed' && $('#phase-building').hasClass('hidden')) {
+                    $('#phase-already-built').removeClass('hidden');
+                }
+                $('#phase-' + data.phase).removeClass('hidden');
             }
             if (data.phase == 'completed') {
                 // FIXME: make this proper and secure lol

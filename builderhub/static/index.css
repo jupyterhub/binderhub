@@ -10,6 +10,11 @@
     src: url('/static/vendor/clearsans/WOFF/ClearSans-Light.woff');
 }
 
+@font-face {
+    font-family: ClearSans-Bold;
+    src: url('/static/vendor/clearsans/WOFF/ClearSans-Bold.woff');
+}
+
 .hidden {
     display: none;
 }
@@ -46,6 +51,18 @@ h3 {
 
 h4 {
     font-weight: bold;
+}
+
+#build-progress {
+    font-family: ClearSans-Bold, sans-serif;
+    font-size: 16px;
+    height: 28px;
+    text-shadow: black 1px 1px 1px;
+}
+
+#build-progress .progress-bar {
+    padding-top: 4px;
+
 }
 
 #logo-container #explanation {

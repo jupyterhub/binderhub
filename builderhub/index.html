@@ -49,9 +49,30 @@
                             </div>
                         </div>
 
-                        <div id="log-container" class="panel panel-default hidden">
-                            <div class="panel-heading">Build logs</div>
-                            <div class="panel-body">
+                        <div id="build-progress" class="progress">
+                            <div id="phase-waiting" class="progress-bar progress-bar-danger progress-bar-striped active hidden" style="width: 10%">
+                                Waiting
+                            </div>
+                            <div id="phase-already-built" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 80%">
+                                Already built!
+                            </div>
+                            <div id="phase-building" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 40%">
+                                Building
+                            </div>
+                            <div id="phase-pushing" class="progress-bar progress-bar-info progress-bar-striped active hidden" style="width: 40%">
+                                Pushing
+                            </div>
+                            <div id="phase-completed" class="progress-bar progress-bar-success progress-bar-striped active hidden" style="width: 10%">
+                                Launching
+                            </div>
+                        </div>
+
+                        <div id="log-container" class="panel panel-default">
+                            <div id="toggle-logs" class="panel-heading">
+                                Build logs
+                                <button class="btn btn-link btn-xs pull-right">show</button>
+                            </div>
+                            <div class="panel-body hidden">
                                 <div id="log"></div>
                             </div>
                         </div>
