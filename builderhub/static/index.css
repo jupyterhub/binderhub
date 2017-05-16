@@ -10,6 +10,10 @@
     src: url('/static/vendor/clearsans/WOFF/ClearSans-Light.woff');
 }
 
+.hidden {
+    display: none;
+}
+
 #main {
     padding-top: 32px;
     font-family: "ClearSans-Thin", sans-serif;
@@ -36,10 +40,18 @@ h3 {
     text-align: center;
 }
 
+h4 {
+    font-weight: bold;
+}
+
 #logo-container #explanation {
     font-size: 18px;
     line-height: 1.5;
     font-weight: bold
+}
+
+#submit {
+    margin-top: 24px;
 }
 
 #log {

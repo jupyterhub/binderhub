@@ -14,7 +14,10 @@ $(function(){
         var url = '/build/github/' + repo + '/' + ref;
         var source = new EventSource(url);
 
+        $('#log-container').toggleClass('hidden');
+        log.fit();
         log.clear();
+
 
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
