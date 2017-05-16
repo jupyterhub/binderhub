@@ -19,6 +19,10 @@
     font-family: "ClearSans-Thin", sans-serif;
 }
 
+form {
+    font-family: "ClearSans-Light", sans-serif;
+}
+
 
 #logo-container {
     text-align: center;
