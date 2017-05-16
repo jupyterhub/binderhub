@@ -17,7 +17,11 @@ class GitHubBuildHandler(web.RequestHandler):
     """A handler for working with GitHub."""
     @gen.coroutine
     def emit(self, data):
-        self.write('data: {}\n\n'.format(json.dumps(data)))
+        if type(data) is not str:
+            serialized_data = json.dumps(data)
+        else:
+            serialized_data = data
+        self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
     @gen.coroutine
@@ -119,7 +123,6 @@ class GitHubBuildHandler(web.RequestHandler):
             namespace=self.settings["build_namespace"],
             git_url=github_url,
             ref=sha,
-            builder_image=self.settings["build_image_spec"],
             image_name=image_name,
             push_secret=self.settings['docker_push_secret']
         )
@@ -133,6 +136,8 @@ class GitHubBuildHandler(web.RequestHandler):
         self.set_header('content-type', 'text/event-stream')
         self.set_header('cache-control', 'no-cache')
 
+        done = False
+
         while True:
             try:
                 progress = q.get_nowait()
@@ -140,22 +145,31 @@ class GitHubBuildHandler(web.RequestHandler):
                 yield gen.sleep(0.5)
                 continue
 
+
+            if progress['kind'] == 'pod.phasechange':
+                if progress['payload'] == 'Pending':
+                    event = {'message': 'Waiting for build to start...', 'phase': 'waiting'}
+                elif progress['payload'] == 'Deleted':
+                    event = {'phase': 'completed', 'message': 'Build completed, launching...', 'imageName': image_name}
+                    done = True
+                elif progress['payload'] == 'Running':
+                    if not log_thread.is_alive():
+                        log_thread.start()
+                    continue
+                elif progress['payload'] == 'Succeeded':
+                    # Do nothing, is ok!
+                    continue
+                else:
+                    event = {'phase': progress['payload']}
+            elif progress['kind'] == 'log':
+                # We expect logs to be already JSON structured anyway
+                event = progress['payload']
+
             try:
-                yield self.emit(progress)
+                yield self.emit(event)
                 q.task_done()
+                if done:
+                    break
             except StreamClosedError:
                 # Client has gone away!
                 break
-
-            if progress['kind'] == 'pod.phasechange':
-                if progress['payload'] == 'Running':
-                    log_thread.start()
-                elif progress['payload'] == 'Deleted':
-                    # TODO: Wait to cleanup the two threads? A simple join will block, unfortunately
-                    yield self.emit({
-                        'kind': 'buildComplete',
-                        'payload': {
-                            'imageName': image_name
-                        }
-                    })
-                    return

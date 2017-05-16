@@ -17,11 +17,12 @@ $(function(){
 
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
-            log.writeln(JSON.stringify(data));
-            if (data.kind == 'pod.phasechange' && data.payload == 'Failed') {
-                source.close();
+            if (data.message) {
+                log.writeln(data.message);
+            } else {
+                log.writeln(JSON.stringify(data));
             }
-            if (data.kind == 'buildComplete') {
+            if (data.phase == 'completed') {
                 // FIXME: make this proper and secure lol
                 var filepath = $('#filepath').val();
                 var filepathParts = filepath.split('#');
@@ -32,7 +33,7 @@ $(function(){
                 } else {
                     filepath = '/edit/' + filepath;
                 }
-                var url = '/redirect?image=' + data.payload.imageName + '&default_url=' + filepath;
+                var url = '/redirect?image=' + data.imageName + '&default_url=' + filepath;
                 source.close();
                 window.location.href = url;
             }
