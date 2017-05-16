@@ -87,3 +87,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# OS Stuff
+.DS_Store
+
+# Sphinx stuff
+_build/
+
