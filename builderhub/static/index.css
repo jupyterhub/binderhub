@@ -26,11 +26,14 @@
     padding: 8px;
     padding-bottom: 32px;
 }
-#logo-container #tagline {
+
+h3 {
     font-size: 32px;
     line-height: 1.5;
     font-weight: bold;
     padding: 16px;
+    display: block;
+    text-align: center;
 }
 
 #logo-container #explanation {
@@ -56,13 +59,6 @@
 
 #how-it-works div.row {
     margin: 32px;
-}
-
-#how-it-works-header {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    padding: 16px;
 }
 
 .point {
