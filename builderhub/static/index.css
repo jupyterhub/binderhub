@@ -54,6 +54,11 @@ h4 {
     font-weight: bold
 }
 
+#log-container .panel-body {
+    /* match color of terminal! */
+    background-color: black;
+}
+
 #submit {
     margin-top: 24px;
 }
