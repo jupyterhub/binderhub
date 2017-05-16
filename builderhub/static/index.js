@@ -1,3 +1,4 @@
+// If this file gets over 150 lines of code long, start using a framework
 $(function(){
     var log = new Terminal({
         convertEol: true,
