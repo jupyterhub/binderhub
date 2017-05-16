@@ -28,7 +28,7 @@ class GitHubBuildHandler(web.RequestHandler):
         Parameters
         ----------
         `ref` -- a commit sha or a branch / tag name.
-        
+
         Returns
         -------
         None, if ref isn't found.
