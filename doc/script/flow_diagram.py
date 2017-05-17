@@ -16,26 +16,26 @@ nodes = dict(
     jhub='JupyterHub',
     bhub='BuilderHub',
     gcr='gcr.io / DockerHub',
-    build='Build',
+    build='Build Machine\n(s2i / Dockerfile)',
     image="Docker Image",
     user='User Interface'
 )
 
-externals = ('jhub', 'gcr')
-internals = ('bhub', 'build', 'user', 'image')
+services = ('jhub', 'gcr', 'bhub', 'build', 'user')
+derivatives = ('image',)
 
 edges = (
-    ('bhub', 'jhub', 'SEND registry information'),
+    ('bhub', 'jhub', 'SEND image registry information\nREDIRECT user interface to'),
     ('bhub', 'build', 'SEND repo name,\nbranch'),
-    ('build', 'image', "USE s2i / Dockerfile\nto build image"),
-    ('build', 'bhub', "SEND image registry information"),
-    ('image', 'gcr', 'SEND image to\nregistry'),
+    ('build', 'image', "IF image not already registered, or diff found:\nBUILD a"),
+    ('build', 'bhub', "RETURN image registry information"),
+    ('image', 'gcr', 'REGISTERED and SENT to\nonline repository'),
     ('user', 'bhub', "SEND repo,\nbranch, file"),
 )
 
 subgraphs = (
     [('gcr', 'jhub'),
-     ''],
+     'External Services'],
 )
 
 
@@ -88,7 +88,7 @@ def generate_flow_diagram(app):
         e.attr['fontsize'] = edge_size
 
     # Change colors
-    for these_nodes, color in zip((externals, internals),
+    for these_nodes, color in zip((services, derivatives),
                                   (sensor_color, source_color)):
         for node in these_nodes:
             g.get_node(node).attr['fillcolor'] = color
