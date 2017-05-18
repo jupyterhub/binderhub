@@ -30,6 +30,7 @@ $(function(){
         log.clear();
 
         $('#phase-waiting').removeClass('hidden');
+        $('.on-build').removeClass('hidden');
 
 
         source.addEventListener('message', function(e){

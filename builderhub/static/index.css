@@ -44,7 +44,6 @@ h3 {
     font-size: 32px;
     line-height: 1.5;
     font-weight: bold;
-    padding: 16px;
     display: block;
     text-align: center;
 }
@@ -89,7 +88,6 @@ h4 {
 }
 
 #how-it-works {
-    padding: 18px;
     line-height: 1.5;
     font-weight: bold;
     font-size: 18px;
