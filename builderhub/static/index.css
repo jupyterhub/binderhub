@@ -109,3 +109,18 @@ h4 {
 .point-container {
     padding-top: 16px;
 }
+
+button.submit {
+    background-image: none;
+    font-size: larger;
+    font-family: Helvetica;
+    font-weight: 100;
+}
+
+span.front-em {
+    font-size: 1.5em;
+}
+
+div.front {
+    font-size: .9em;
+}

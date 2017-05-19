@@ -26,7 +26,7 @@
                         <img id="logo" src="/static/logo.svg" width="375px"  />
                         <h3>Turn a GitHub repo into a collection of interactive notebooks</h3>
                         <div id="explanation">
-                            Have a repository full of Jupyter notebooks? With Binder, you can add a badge that opens those notebooks in an executable environment, making your code immediately reproducible by anyone, anywhere.
+                            Have a repository full of Jupyter notebooks? With Binder, open those notebooks in an executable environment, making your code immediately reproducible by anyone, anywhere.
                         </div>
                     </div>
 
@@ -45,7 +45,7 @@
                                 <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open" value="{{ filepath }}"/>
                             </div>
                             <div class="form-group col-md-2">
-                                <button id="submit" class="form-control btn btn-primary"  type="submit">Submit</button>
+                                <button id="submit" class="form-control btn btn-primary submit" style="background-color: rgb(87, 154, 202)" type="submit">Launch</button>
                             </div>
                         </div>
 
@@ -86,9 +86,9 @@
                     <div class="col-md-1 col-md-offset-2 point-container">
                         <span class="point" style="border-color: rgb(243, 162, 83)">1</span>
                     </div>
-                    <div class="col-md-7">
-                        In the field above, enter a GitHub repository that contains Jupyter notebooks, as well as a branch | tag | commit hash. Click Submit to start the build. You can also specify the path to the file to be opened in the browser when launching.
-
+                    <div class="col-md-7 front">
+                        <span class="front-em">Enter your repository information in the field above.</span><br />This can be a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. <span style="color: rgb(87, 154, 202);">Launch</span> will build your Binder repository. If you specify a path
+                        path to a file, it will be opened in the browser after building.
                     </div>
                 </div>
 
@@ -96,8 +96,8 @@
                     <div class="col-md-1 col-md-offset-2 point-container">
                         <span class="point" style="border-color: rgb(208, 102, 129)">2</span>
                     </div>
-                    <div class="col-md-7">
-                        We’ll search your repository for dependency files, in the following preference order: Dockerfile, then requirements.txt (for Python). The first one found will be used to build an image. If an image has already been built for the given repository (at a particular commit), it will not be rebuilt.
+                    <div class="col-md-7 front">
+                        <span class="front-em">We build a Docker image of your repository.</span><br />We’ll search your repository for dependency files in the following order: Dockerfile, requirements.txt. The first one found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be re-built.
                     </div>
                 </div>
 
@@ -105,8 +105,8 @@
                     <div class="col-md-1 col-md-offset-2 point-container">
                         <span class="point" style="border-color: rgb(87, 154, 202)">3</span>
                     </div>
-                    <div class="col-md-7">
-                        There is no step 3! Your notebooks are launched in an executable environment! You can also get a link / badge for your repository that when clicked will launch your environment immediately in the browser!
+                    <div class="col-md-7 front">
+                        <span class="front-em">Interact with your notebooks in a live environment!</span><br />A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> server will host all contents of your repository. You can also get a link / badge for your live repository that you can distribute to others.
                     </div>
                 </div>
             </div>
