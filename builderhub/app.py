@@ -99,10 +99,10 @@ class BuilderHub(Application):
         config=True
     )
 
-    build_image_spec = Unicode(
-        'jupyterhub/singleuser-builder:v0.1.1',
+    builder_image_spec = Unicode(
+        'yuvipanda/builderhub-builder:v0.1.12',
         help="""
-        s2i builder image to use for doing builds.
+        The builder image to be used for doing builds
         """,
         config=True
     )
@@ -120,7 +120,7 @@ class BuilderHub(Application):
             "debug": self.debug,
             'hub_redirect_url_template': self.hub_redirect_url_template,
             "build_namespace": self.build_namespace,
-            "build_image_spec": self.build_image_spec
+            "builder_image_spec": self.builder_image_spec
         }
 
         self.tornado_app = tornado.web.Application([

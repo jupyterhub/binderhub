@@ -124,7 +124,8 @@ class GitHubBuildHandler(web.RequestHandler):
             git_url=github_url,
             ref=sha,
             image_name=image_name,
-            push_secret=self.settings['docker_push_secret']
+            push_secret=self.settings['docker_push_secret'],
+            builder_image=self.settings['builder_image_spec']
         )
 
         build_thread = threading.Thread(target=build.submit)

@@ -30,7 +30,7 @@ class Build:
     to the same 'name'. This allows use of the locking provided by k8s API
     instead of having to invent our own locking code.
     """
-    def __init__(self, q, api, name, namespace, git_url, ref,
+    def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
                  image_name, push_secret):
         self.q = q
         self.api = api
@@ -40,6 +40,7 @@ class Build:
         self.namespace = namespace
         self.image_name = image_name
         self.push_secret = push_secret
+        self.builder_image = builder_image
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -47,7 +48,8 @@ class Build:
             'python3', '-m', 'builder.app',
             '-n', self.name,
             '--source', self.git_url,
-            '--output', self.image_name
+            '--output', self.image_name,
+            '--ref', self.ref
         ]
 
     def progress(self, kind, obj):
@@ -64,7 +66,7 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image="yuvipanda/builderhub-builder:v0.1.11",
+                        image=self.builder_image,
                         name="builder",
                         args=self.get_cmd(),
                         image_pull_policy='Always',
