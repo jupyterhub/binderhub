@@ -100,7 +100,7 @@ class BuilderHub(Application):
     )
 
     builder_image_spec = Unicode(
-        'yuvipanda/builderhub-builder:v0.1.12',
+        'yuvipanda/builderhub-builder:v0.1.13',
         help="""
         The builder image to be used for doing builds
         """,
