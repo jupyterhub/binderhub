@@ -141,5 +141,7 @@ class BuilderHub(Application):
         self.tornado_app.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 
+main = BuilderHub.launch_instance
+
 if __name__ == '__main__':
-    BuilderHub.launch_instance()
+    main()
