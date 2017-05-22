@@ -129,11 +129,8 @@ class BuilderHub(Application):
             (r"/", MainHandler)
         ], **self.tornado_settings)
 
-    @classmethod
-    def launch_instance(cls, argv=None):
-        instance = cls.instance()
-        instance.initialize()
-        instance.tornado_app.listen(instance.port)
+    def start(self):
+        self.tornado_app.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 
 if __name__ == '__main__':
