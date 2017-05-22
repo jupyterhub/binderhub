@@ -1,8 +1,11 @@
 """The builderhub application"""
 
+import logging
 import os
 
 import tornado.ioloop
+import tornado.options
+import tornado.log
 import tornado.web
 from traitlets import Unicode, Integer, Bool
 from traitlets.config import Application
@@ -111,6 +114,10 @@ class BuilderHub(Application):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
+        # hook up tornado logging
+        tornado.options.logging = logging.getLevelName(self.log_level)
+        tornado.log.enable_pretty_logging()
+        self.log = tornado.log.app_log
 
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
@@ -129,12 +136,12 @@ class BuilderHub(Application):
             (r"/", MainHandler)
         ], **self.tornado_settings)
 
-    @classmethod
-    def launch_instance(cls, argv=None):
-        instance = cls.instance()
-        instance.initialize()
-        instance.tornado_app.listen(instance.port)
+    def start(self):
+        self.log.info("BuilderHub starting on port %i", self.port)
+        self.tornado_app.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 
+main = BuilderHub.launch_instance
+
 if __name__ == '__main__':
-    BuilderHub.launch_instance()
+    main()
