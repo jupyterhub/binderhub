@@ -1,5 +1,6 @@
 // If this file gets over 150 lines of code long, start using a framework
 $(function(){
+    var failed = false;
     var log = new Terminal({
         convertEol: true,
         disableStdin: true
@@ -41,7 +42,12 @@ $(function(){
             } else {
                 log.writeln(JSON.stringify(data));
             }
-            if (data.phase) {
+            if (data.phase === 'Failed') {
+                failed = true;
+                $('#build-progress .progress-bar').addClass('hidden');
+                $('#phase-failed').removeClass('hidden');
+            }
+            if (data.phase && !failed) {
                 if (data.phase == 'completed' && $('#phase-building').hasClass('hidden')) {
                     $('#phase-already-built').removeClass('hidden');
                 }
@@ -49,18 +55,20 @@ $(function(){
             }
             if (data.phase == 'completed') {
                 // FIXME: make this proper and secure lol
-                var filepath = $('#filepath').val();
-                var filepathParts = filepath.split('#');
-                if (filepath == '') {
-                    filepath = '/tree';
-                } else if (filepathParts[0].endsWith('.ipynb')) {
-                    filepath = '/notebooks/' + filepath;
-                } else {
-                    filepath = '/edit/' + filepath;
-                }
-                var url = '/redirect?image=' + data.imageName + '&default_url=' + filepath;
                 source.close();
-                window.location.href = url;
+                if (!failed) {
+                    var filepath = $('#filepath').val();
+                    var filepathParts = filepath.split('#');
+                    if (filepath == '') {
+                        filepath = '/tree';
+                    } else if (filepathParts[0].endsWith('.ipynb')) {
+                        filepath = '/notebooks/' + filepath;
+                    } else {
+                        filepath = '/edit/' + filepath;
+                    }
+                    var url = '/redirect?image=' + data.imageName + '&default_url=' + filepath;
+                    window.location.href = url;
+                }
             }
         }, false);
         return false;
