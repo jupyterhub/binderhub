@@ -49,7 +49,7 @@ class Build:
             self.git_url,
             '--ref', self.ref,
             '--image', self.image_name,
-            '--push', '--no-clean', '--no-run'
+            '--push', '--no-clean', '--no-run', '--json-logs',
         ]
 
     def progress(self, kind, obj):
