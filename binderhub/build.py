@@ -45,11 +45,11 @@ class Build:
     def get_cmd(self):
         """Get the cmd to run to build the image"""
         return [
-            'python3', '-m', 'builder.app',
-            '-n', self.name,
-            '--source', self.git_url,
-            '--output', self.image_name,
-            '--ref', self.ref
+            'jupyter-repo2docker',
+            self.git_url,
+            '--ref', self.ref,
+            '--image', self.image_name,
+            '--push', '--no-clean', '--no-run'
         ]
 
     def progress(self, kind, obj):
