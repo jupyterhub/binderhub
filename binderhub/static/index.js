@@ -5,28 +5,29 @@ $(function(){
         disableStdin: true
     });
     log.open(document.getElementById('log'));
-    log.fit();
 
     $('#toggle-logs').click(function() {
         var $panelBody = $('#log-container .panel-body');
         if ($panelBody.hasClass('hidden')) {
             $('#toggle-logs button').text('hide');
             $panelBody.removeClass('hidden');
+
         } else {
             $('#toggle-logs button').text('show');
             $panelBody.addClass('hidden');
         }
+
+        log.fit();
         return false;
     });
 
     $('#build-form').submit(function() {
         var repo = $('#repository').val();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
-        var ref =  $('#ref').val()
+        var ref =  $('#ref').val();
         var url = '/build/github/' + repo + '/' + ref;
         var source = new EventSource(url);
 
-        log.fit();
         log.clear();
 
         $('#phase-waiting').removeClass('hidden');
@@ -35,7 +36,7 @@ $(function(){
 
         source.addEventListener('message', function(e){
             var data = JSON.parse(e.data);
-            if (data.message) {
+            if (data.message !== undefined) {
                 log.writeln(data.message);
             } else {
                 log.writeln(JSON.stringify(data));
