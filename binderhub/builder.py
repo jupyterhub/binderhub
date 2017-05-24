@@ -114,9 +114,9 @@ class BuildHandler(web.RequestHandler):
 
             if progress['kind'] == 'pod.phasechange':
                 if progress['payload'] == 'Pending':
-                    event = {'message': 'Waiting for build to start...', 'phase': 'waiting'}
+                    event = {'message': 'Waiting for build to start...\n', 'phase': 'waiting'}
                 elif progress['payload'] == 'Deleted':
-                    event = {'phase': 'completed', 'message': 'Build completed, launching...', 'imageName': image_name}
+                    event = {'phase': 'completed', 'message': 'Build completed, launching...\n', 'imageName': image_name}
                     done = True
                 elif progress['payload'] == 'Running':
                     if not log_thread.is_alive():
