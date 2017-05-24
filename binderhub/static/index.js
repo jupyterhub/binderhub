@@ -26,7 +26,7 @@ $(function(){
         var repo = $('#repository').val();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
         var ref =  $('#ref').val();
-        var url = '/build/github/' + repo + '/' + ref;
+        var url = '/build/gh/' + repo + '/' + ref;
         var source = new EventSource(url);
 
         log.clear();

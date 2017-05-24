@@ -7,12 +7,13 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool
+from traitlets import Unicode, Integer, Bool, Dict
 from traitlets.config import Application
 
-from .github import GitHubBuildHandler
+from .builder import BuildHandler
 from .redirect import RedirectHandler
 from .main import MainHandler
+from .repoproviders import RepoProvider, GitHubRepoProvider
 
 
 class BinderHub(Application):
@@ -110,6 +111,14 @@ class BinderHub(Application):
         config=True
     )
 
+    repo_providers = Dict(
+        { 'gh': GitHubRepoProvider },
+        config=True,
+        help="""
+        List of Repo Providers to register and try
+        """
+    )
+
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
@@ -127,11 +136,13 @@ class BinderHub(Application):
             "debug": self.debug,
             'hub_redirect_url_template': self.hub_redirect_url_template,
             "build_namespace": self.build_namespace,
-            "builder_image_spec": self.builder_image_spec
+            "builder_image_spec": self.builder_image_spec,
+            'repo_providers': self.repo_providers,
+            'traitlets_config': self.config
         }
 
         self.tornado_app = tornado.web.Application([
-            (r"/build/github/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)", GitHubBuildHandler),
+            (r"/build/([a-z0-9]+)/([^?]+)", BuildHandler),
             (r"/redirect", RedirectHandler),
             (r"/", MainHandler)
         ], **self.tornado_settings)
