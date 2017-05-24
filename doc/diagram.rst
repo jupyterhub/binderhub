@@ -1,11 +1,11 @@
 .. _diagram:
 
-The BuilderHub Architecture
+The BinderHub Architecture
 ===========================
 
-BuilderHub connects several services together to provide on-the-fly creation
+BinderHub connects several services together to provide on-the-fly creation
 and registry of Docker images. Here is a high-level overview of the components
-that make up BuilderHub.
+that make up BinderHub.
 
 .. raw:: html
    

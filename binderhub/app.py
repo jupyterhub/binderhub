@@ -1,4 +1,4 @@
-"""The builderhub application"""
+"""The binderhub application"""
 
 import logging
 import os
@@ -15,10 +15,10 @@ from .redirect import RedirectHandler
 from .main import MainHandler
 
 
-class BuilderHub(Application):
+class BinderHub(Application):
     """An Application for starting a builder."""
     config_file = Unicode(
-        'builderhub_config.py',
+        'binderhub_config.py',
         help="""
         Config file to load.
 
@@ -137,11 +137,11 @@ class BuilderHub(Application):
         ], **self.tornado_settings)
 
     def start(self):
-        self.log.info("BuilderHub starting on port %i", self.port)
+        self.log.info("BinderHub starting on port %i", self.port)
         self.tornado_app.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 
-main = BuilderHub.launch_instance
+main = BinderHub.launch_instance
 
 if __name__ == '__main__':
     main()

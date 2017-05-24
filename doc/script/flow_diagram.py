@@ -14,7 +14,7 @@ source_color = '#ff6347'
 
 nodes = dict(
     jhub='JupyterHub',
-    bhub='BuilderHub',
+    bhub='BinderHub',
     gcr='gcr.io / DockerHub',
     build='Build Machine\n(s2i / Dockerfile)',
     image="Docker Image",

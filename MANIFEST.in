@@ -1,2 +1,2 @@
-include builderhub/*.html
-recursive-include builderhub/static *
+include binderhub/*.html
+recursive-include binderhub/static *

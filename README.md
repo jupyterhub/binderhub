@@ -1,5 +1,5 @@
-[binderhub][]
-=============
+[binderhub][https://github.com/jupyterhub/binderhub]
+===============
 
 *This project is under active development and subject to change.*
 
@@ -30,6 +30,3 @@ License
 -------
 
 See `LICENSE` file in this repository.
-
-
-[binderhub]: https://github.com/juypterhub/binderhub

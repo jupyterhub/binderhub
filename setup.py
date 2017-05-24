@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='builderhub',
+    name='binderhub',
     version='0.1',
     install_requires=[
         'kubernetes==1.*',
