@@ -20,3 +20,10 @@ class ParameterizedMainHandler(web.RequestHandler):
             filepath=self.get_argument('filepath', None),
             submit=True
         )
+
+class LegacyRedirectHandler(web.RequestHandler):
+    def get(self, user, repo):
+        url = '/v2/gh/{user}/{repo}/master'.format(
+            user=user, repo=repo
+        )
+        self.redirect(url)
