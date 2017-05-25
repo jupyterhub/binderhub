@@ -61,7 +61,7 @@ class GitHubRepoProvider(RepoProvider):
         super().__init__(*args, **kwargs)
         spec_parts = self.spec.split('/')
         if len(spec_parts) != 3:
-            raise ValueError('Spec is not of form username/repo/branch')
+            raise ValueError('Spec is not of form username/repo/branch, provided {spec}'.format(spec=spec))
 
         self.user, self.repo, self.unresolved_ref = spec_parts
         if self.repo.endswith('.git'):
