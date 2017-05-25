@@ -60,18 +60,16 @@ class BuildHandler(web.RequestHandler):
         """Get a built image for a given GitHub user, repo, and ref."""
         providers = self.settings['repo_providers']
         if provider_prefix not in self.settings['repo_providers']:
-            raise Exception('wat')
-        provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'])
+            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
+        provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
 
-        spec_info = yield provider.resolve_spec(spec)
-
-
-        build_name = self._generate_build_name(spec_info['repo_build_slug'], spec_info['ref']).replace('_', '-')
+        ref = yield provider.get_resolved_ref()
+        build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=self.settings['docker_image_prefix'],
-            build_slug=spec_info['repo_build_slug'], ref=spec_info['ref']
+            build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
 
         try:
@@ -88,8 +86,8 @@ class BuildHandler(web.RequestHandler):
             api=api,
             name=build_name,
             namespace=self.settings["build_namespace"],
-            git_url=spec_info['repo'],
-            ref=spec_info['ref'],
+            git_url=provider.get_repo_url(),
+            ref=ref,
             image_name=image_name,
             push_secret=self.settings['docker_push_secret'],
             builder_image=self.settings['builder_image_spec']

@@ -3,9 +3,7 @@
     <head>
         <title>Binder (beta)</title>
         <script>
-         {% if submit %}
-         window.submitBuild = true;
-         {% end %}
+         {% if submit %} window.submitBuild = true; {% end %}
         </script>
         <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
         <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
@@ -33,16 +31,16 @@
                     <form id="build-form" class="form jumbotron">
                         <h4>Build & Launch a Repository</h4>
                         <div class="form-group">
-                            <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url }}"/>
+                            <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or "" }}"/>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-4">
                                 <label for="ref">Git branch / tag / commit</label>
-                                <input class="form-control" type="text" id="ref" value="{{ ref }}" placeholder="Git branch / tag / commit"/>
+                                <input class="form-control" type="text" id="ref" value="{{ ref or "" }}" placeholder="Git branch / tag / commit"/>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="filepath">File to Launch</label>
-                                <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open" value="{{ filepath }}"/>
+                                <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open" value="{{ filepath or "" }}"/>
                             </div>
                             <div class="form-group col-md-2">
                                 <button id="submit" class="form-control btn btn-primary submit" type="submit">Launch</button>

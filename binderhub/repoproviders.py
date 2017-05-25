@@ -14,19 +14,23 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
+    spec = Unicode(
+        None,
+        allow_none=True,
+        help="""
+        The spec for this builder to parse
+        """
+    )
+
     @gen.coroutine
-    def resolve_spec(self, spec):
-        """
-        Takes a spec of build parameters and parses it into info we can use.
+    def get_resolved_ref(self):
+        raise NotImplementedError("Must be overridden in child class")
 
-        Should return a dict with at least 3 options:
-           - repo: URL to git repo that can be passed to 'git clone'
-           - ref: The git ref to check out before building
-           - repo_build_slug: A build slug that together with the ref can be used to fully
-                              specify this particular repository. Used in image and build names.
-        """
-        raise NotImplementedError('Must implement this in a subclass ')
+    def get_repo_url(self):
+        raise NotImplementedError("Must be overridden in the child class")
 
+    def get_build_slug(self):
+        raise NotImplementedError("Must be overriden in the child class")
 
 class GitHubRepoProvider(RepoProvider):
     name = Unicode('GitHub')
@@ -53,24 +57,29 @@ class GitHubRepoProvider(RepoProvider):
         """
     )
 
-    @gen.coroutine
-    def resolve_spec(self, spec):
-        """
-        Parses a URL spec and returns a git URL + ref to check out
-        """
-        # We want spec to be user/repo/branch
-        spec_parts = spec.split('/')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        spec_parts = self.spec.split('/')
         if len(spec_parts) != 3:
-            raise ValueError('Spec is not of form username/repo/branch')
+            raise ValueError('Spec is not of form username/repo/branch, provided {spec}'.format(spec=spec))
 
-        user, repo, ref = spec_parts
+        self.user, self.repo, self.unresolved_ref = spec_parts
+        if self.repo.endswith('.git'):
+            self.repo = self.repo[:len(self.repo) - 4]
 
-        repo_url = "https://github.com/{user}/{repo}.git".format(user=user, repo=repo)
+    def get_repo_url(self):
+        return "https://github.com/{user}/{repo}.git".format(user=self.user, repo=self.repo)
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
 
         client = AsyncHTTPClient()
         api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
-            user=user, repo=repo, ref=ref
+            user=self.user, repo=self.repo, ref=self.unresolved_ref
         )
+        print(api_url)
 
         if self.username and self.password:
             auth = {
@@ -90,16 +99,11 @@ class GitHubRepoProvider(RepoProvider):
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         if 'sha' not in ref_info:
+            # TODO: Figure out if we should raise an exception instead?
             return None
+        self.resolved_ref = ref_info['sha']
+        return self.resolved_ref
 
-        ref = ref_info['sha']
 
-        repo_build_slug = '{user}-{repo}'.format(
-            user=user, repo=repo
-        )
-
-        return {
-            'repo': repo_url,
-            'ref': ref_info['sha'],
-            'repo_build_slug': repo_build_slug
-        }
+    def get_build_slug(self):
+        return '{user}-{repo}'.format(user=self.user, repo=self.repo)
