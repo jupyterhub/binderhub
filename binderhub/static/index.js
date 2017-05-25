@@ -3,22 +3,24 @@ $(function(){
     var failed = false;
     var log = new Terminal({
         convertEol: true,
-        disableStdin: true
+        disableStdin: true,
     });
-    log.open(document.getElementById('log'));
+
+    log.open(document.getElementById('log'), false);
+    $(window).resize(function() {
+        log.fit();
+    });
 
     $('#toggle-logs').click(function() {
         var $panelBody = $('#log-container .panel-body');
         if ($panelBody.hasClass('hidden')) {
             $('#toggle-logs button').text('hide');
             $panelBody.removeClass('hidden');
-
         } else {
             $('#toggle-logs button').text('show');
             $panelBody.addClass('hidden');
         }
 
-        log.fit();
         return false;
     });
 
@@ -34,11 +36,11 @@ $(function(){
         $('#phase-waiting').removeClass('hidden');
         $('.on-build').removeClass('hidden');
 
-
         source.addEventListener('message', function(e){
+            log.fit();
             var data = JSON.parse(e.data);
             if (data.message !== undefined) {
-                log.writeln(data.message);
+                log.write(data.message);
             } else {
                 log.writeln(JSON.stringify(data));
             }
