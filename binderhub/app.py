@@ -142,9 +142,9 @@ class BinderHub(Application):
         }
 
         self.tornado_app = tornado.web.Application([
-            (r"/build/([a-z0-9]+)/([^?]+)", BuildHandler),
+            (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/redirect", RedirectHandler),
-            (r"/v2/([a-z0-9]+)/([^?]+)", ParameterizedMainHandler),
+            (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r'/', MainHandler)
         ], **self.tornado_settings)
 
