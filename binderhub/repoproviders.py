@@ -23,7 +23,7 @@ class RepoProvider(LoggingConfigurable):
     )
 
     @gen.coroutine
-    def get_resolved_ref(self)):
+    def get_resolved_ref(self):
         raise NotImplementedError("Must be overridden in child class")
 
     def get_repo_url(self):
