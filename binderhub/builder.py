@@ -60,7 +60,7 @@ class BuildHandler(web.RequestHandler):
         """Get a built image for a given GitHub user, repo, and ref."""
         providers = self.settings['repo_providers']
         if provider_prefix not in self.settings['repo_providers']:
-            raise Exception('wat')
+            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
         provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
 
         ref = yield provider.get_resolved_ref()

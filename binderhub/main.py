@@ -10,7 +10,7 @@ class ParameterizedMainHandler(web.RequestHandler):
     def get(self, provider_prefix, spec):
         providers = self.settings['repo_providers']
         if provider_prefix not in self.settings['repo_providers']:
-            raise Exception('wat')
+            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
         provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
 
         self.render(
