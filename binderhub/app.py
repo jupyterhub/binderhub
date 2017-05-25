@@ -12,7 +12,7 @@ from traitlets.config import Application
 
 from .builder import BuildHandler
 from .redirect import RedirectHandler
-from .main import MainHandler, ParameterizedMainHandler
+from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
 
 
@@ -145,6 +145,7 @@ class BinderHub(Application):
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/redirect", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
+            (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
             (r'/', MainHandler)
         ], **self.tornado_settings)
 
