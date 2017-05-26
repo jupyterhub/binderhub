@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'BinderHub'
-copyright = '2017, Yuvi Panda'
+copyright = '2017, The Jupyter Team'
 author = 'Yuvi Panda'
 
 # The version info for the project you're documenting, acts as replacement for
