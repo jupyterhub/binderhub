@@ -27,25 +27,4 @@ to set up kubernetes on most cloud computing providers. For instructions
 on how to do this, see the `Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io/en/latest/create-k8s-cluster.html>`_
 tutorial on setting up Kubernetes.
 
-Set up and configure JupyterHub
--------------------------------
-To set up JupyterHub on the cloud, see <<<zero to jupyterhub link>>>.
-
-Once you've got JupyterHub running, update your ``config.yaml`` file to
-include the following lines.::
-
-   somevariable:
-      somevalue: 'therightvalueprobablynotthisname'
-
-Choosing a Docker container registry
-------------------------------------
-The container registry is where your built Docker images will be registered
-so that JupyterHub can serve them. There are already several options
-for registering / hosting Docker images. The two most common ones are
-DockerHub and the Google Container Registry.
-
-To specify which of these you wish to use, add the following to your
-``config.yaml`` file.::
-
-   someothervariable:
-      somevalue: 'theotherrightvaluemaybethisisitthistime'
+<<TODO: Configure JupyterHub to use binder>>
