@@ -29,6 +29,8 @@ sys.path.append(os.path.abspath(os.path.join(curdir, 'script')))
 #
 # needs_sphinx = '1.0'
 
+html_logo = "_static/logo.png"
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -48,8 +50,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'BinderHub'
-copyright = '2017, Yuvi Panda'
-author = 'Yuvi Panda'
+copyright = '2017, The Jupyter Team'
+author = 'The Jupyter Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -153,6 +155,3 @@ texinfo_documents = [
      author, 'BinderHub', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
