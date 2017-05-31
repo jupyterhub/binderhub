@@ -11,7 +11,7 @@
         <link href="/static/vendor/xterm.js-2.6.0/xterm.css" rel="stylesheet" />
         <link href="/static/index.css" rel="stylesheet" />
         <!-- FIXME: vendor this -->
-        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet" /> 
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet" />
         <script src="/static/vendor/xterm.js-2.6.0/xterm.js"></script>
         <script src="/static/vendor/xterm.js-2.6.0/addons/fit/fit.js"></script>
         <script src="/static/index.js"></script>
@@ -29,18 +29,19 @@
                     </div>
 
                     <form id="build-form" class="form jumbotron">
-                        <h4>Build & Launch a Repository</h4>
+                        <h4>Build and Launch a Binder</h4>
                         <div class="form-group">
+                            <label for="repository">GitHub repo or URL</label>
                             <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or "" }}"/>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-4">
-                                <label for="ref">Git branch / tag / commit</label>
-                                <input class="form-control" type="text" id="ref" value="{{ ref or "" }}" placeholder="Git branch / tag / commit"/>
+                                <label for="ref">Git branch, tag, or commit</label>
+                                <input class="form-control" type="text" id="ref" placeholder="master" value="{{ ref or "" }}"/>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="filepath">File to Launch</label>
-                                <input class="form-control" type="text" id="filepath" placeholder="File path inside repository to open" value="{{ filepath or "" }}"/>
+                                <label for="filepath">Path to a notebook file (Optional)</label>
+                                <input class="form-control" type="text" id="filepath" placeholder="Path from repo root to notebook file (optional)" value="{{ filepath or "" }}"/>
                             </div>
                             <div class="form-group col-md-2">
                                 <button id="submit" class="form-control btn btn-primary submit" type="submit">Launch</button>
@@ -88,8 +89,8 @@
                         <span class="point" style="border-color: rgb(243, 162, 83)">1</span>
                     </div>
                     <div class="col-md-7 front">
-                        <span class="front-em">Enter your repository information in the field above.</span><br />This can be a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. <span style="color: rgb(87, 154, 202);">Launch</span> will build your Binder repository. If you specify a path
-                        path to a file, it will be opened in the browser after building.
+                        <span class="front-em">Enter your repository information.</span><br />Provide in the above form a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. <span style="color: rgb(87, 154, 202);">Launch</span> will build your Binder repository. If you specify a path
+                        to a notebook file, the notebook will be opened in your browser after building.
                     </div>
                 </div>
 
@@ -98,7 +99,7 @@
                         <span class="point" style="border-color: rgb(208, 102, 129)">2</span>
                     </div>
                     <div class="col-md-7 front">
-                        <span class="front-em">We build a Docker image of your repository.</span><br />We’ll search your repository for dependency files in the following order: Dockerfile, requirements.txt. The first one found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be re-built.
+                        <span class="front-em">Let us build a Docker image of your repository.</span><br />Does your repository depend on files being loaded for your live notebooks? We will search in your repository's root for a dependency such as a Dockerfile or requirements.txt. The first dependency file found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
                     </div>
                 </div>
 
@@ -107,7 +108,7 @@
                         <span class="point" style="border-color: rgb(87, 154, 202)">3</span>
                     </div>
                     <div class="col-md-7 front">
-                        <span class="front-em">Interact with your notebooks in a live environment!</span><br />A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> server will host all contents of your repository. You can also get a link / badge for your live repository that you can distribute to others.
+                        <span class="front-em">Interact with your notebooks in a live environment!</span><br />A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> server will host your repository's contents. We offer you a reusable link and badge to your live repository that you can easily share with others.
                     </div>
                 </div>
             </div>
