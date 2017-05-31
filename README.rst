@@ -32,6 +32,11 @@ Installation
 
     pip install binderhub
 
+Documentation
+-------------
+For more information about the architecture, use, and setup of BinderHub, see
+`the online documentation <https://jupyterhub.github.io/binderhub>`_.
+
 License
 -------
 
