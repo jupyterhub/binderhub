@@ -35,7 +35,7 @@ Installation
 Documentation
 -------------
 For more information about the architecture, use, and setup of BinderHub, see
-`the online documentation <https://jupyterhub.github.io/binderhub>`_.
+`the online documentation <https://binderhub.readthedocs.io/en/latest/>`_.
 
 License
 -------
