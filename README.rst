@@ -9,10 +9,10 @@ What is BinderHub?
 ------------------
 
 **BinderHub** allows you to ``BUILD`` and ``REGISTER`` a Docker image using a
-GitHub repository, including a specific branch name, commit, or tag. It
-connects with JupyterHub, allowing you to create a public IP address that allows
-users to interact with the code and environment within a live JupyterHub
-instance.
+GitHub repository, then ``CONNECT`` with JupyterHub, allowing you to create a
+public IP address that allows users to interact with the code and environment
+within a live JupyterHub instance. You can select a specific branch name,
+commit, or tag to serve.
 
 BinderHub is similar in spirit to the existing `Binder <http://mybinder.org>`_
 service. BinderHub ties together:
@@ -21,8 +21,11 @@ service. BinderHub ties together:
   a scalable system for authenticating users and spawning single user
   Jupyter Notebook servers, and
 
-- Red Hat's `source-to-image <https://github.com/openshift/source-to-image>`_
-  project from OpenShift to build a Docker image from a set of dependencies.
+- `Repo2Docker <https://github.com/jupyter/repo2docker>`_ which generates
+  a Docker image using a Git repository hosted online. This heavily utilizes:
+
+    - Red Hat's `source-to-image <https://github.com/openshift/source-to-image>`_
+      project from OpenShift to build a Docker image from a set of dependencies.
 
 BinderHub is created using Python, kubernetes, tornado, and traitlets. As such,
 it should be a familiar technical foundation for Jupyter developers.
