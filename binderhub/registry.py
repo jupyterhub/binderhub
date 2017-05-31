@@ -24,8 +24,8 @@ class DockerRegistry:
         # first, get a token to perform the manifest request
         auth_req = httpclient.HTTPRequest(
             url_concat('{}/v2/token'.format(self.registry), {
-                # FIXME: Fix this?
-                'service': 'gcr.io',
+                # HACK: This won't work for all registries!
+                'service': self.registry.split('://', 1)[-1],
                 'scope': 'repository:{}:pull'.format(image),
             }),
             auth_username=self.username,
