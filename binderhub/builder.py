@@ -2,16 +2,18 @@
 
 import hashlib
 import json
+import os
+import base64
 from queue import Queue, Empty
 import threading
 
 from kubernetes import client, config, watch
-from tornado import web, gen
+from tornado import web, gen, httpclient
 from tornado.iostream import StreamClosedError
-
 
 from .repoproviders import GitHubRepoProvider
 from .build import Build
+from .registry import DockerRegistry
 
 
 class BuildHandler(web.RequestHandler):
@@ -25,6 +27,8 @@ class BuildHandler(web.RequestHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
+    def initialize(self):
+        self.registry = DockerRegistry(self.settings['docker_image_prefix'].split('/', 1)[0])
 
     def _generate_build_name(self, build_slug, ref, limit=63, hash_length=6, ref_length=6):
         """
@@ -66,11 +70,21 @@ class BuildHandler(web.RequestHandler):
         ref = yield provider.get_resolved_ref()
         build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
+        # We gonna send out event streams!
+        self.set_header('content-type', 'text/event-stream')
+        self.set_header('cache-control', 'no-cache')
+
         # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=self.settings['docker_image_prefix'],
             build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
+
+        image_manifest = yield self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
+        if image_manifest:
+            event = {'phase': 'completed', 'message': 'Build completed, launching...\n', 'imageName': image_name}
+            self.emit(event)
+            return
 
         try:
             config.load_incluster_config()
@@ -98,9 +112,6 @@ class BuildHandler(web.RequestHandler):
 
         build_thread.start()
 
-        # We gonna send out event streams!
-        self.set_header('content-type', 'text/event-stream')
-        self.set_header('cache-control', 'no-cache')
 
         done = False
 
@@ -110,7 +121,6 @@ class BuildHandler(web.RequestHandler):
             except Empty:
                 yield gen.sleep(0.5)
                 continue
-
 
             if progress['kind'] == 'pod.phasechange':
                 if progress['payload'] == 'Pending':
