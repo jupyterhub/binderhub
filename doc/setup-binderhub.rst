@@ -5,11 +5,12 @@ Download the Helm Chart and deployment repo for BinderHub
 ---------------------------------------------------------
 
 ::
+
     git clone https://github.com/jupyterhub/helm-chart
     git clone https://github.com/jupyterhub/binderhub-deploy
 
 
-Install the 'support' applications
+Install the "support" applications
 ----------------------------------
 
 ::
@@ -21,7 +22,7 @@ Install the 'support' applications
     helm install --name=support --namespace=support binderhub-deploy/support
 
 
-Now find the IP of the nginx-ingress-controller::
+Now find the IP of the **nginx-ingress-controller**::
 
     kubectl --namespace=support get svc support-nginx-ingress-controller
 
