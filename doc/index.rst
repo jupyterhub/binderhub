@@ -36,12 +36,12 @@ To get started, start with :doc:`create-k8s-cluster`.
    If you’d like to extend your JupyterHub setup, see the complementary guide
    `Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io>`_.
 
-
-Contents
---------
+Full Table of Contents
+----------------------
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
    diagram
    create-k8s-cluster
