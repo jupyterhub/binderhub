@@ -1,3 +1,5 @@
 mne
 graphviz
 pygraphviz
+sphinx>=1.4, !=1.5.4
+jupyter_alabaster_theme
