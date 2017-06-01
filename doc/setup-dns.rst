@@ -8,4 +8,4 @@ should do:
 
 <<< TODO >>>
 
-Now that our DNS is set up, it's time to :doc:`setup-binderhub.html`.
+Now that our DNS is set up, it's time to :doc:`setup-binderhub`.
