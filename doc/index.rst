@@ -3,15 +3,24 @@ BinderHub
 
 .. note::
 
-    BinderHub is under active development and subject to breaking changes.
+   BinderHub is under active development and subject to breaking changes.
 
-Contents
---------
+
+Creating your BinderHub
+-----------------------
+
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   self
-   setup.rst
    diagram.rst
+   getting-started.rst
+   create-k8s-cluster.rst
+   setup-cluster-tools.rst
+   setup-registry.rst
+   setup-dns.rst
+   setup-binderhub.rst
+   deploy.rst
+   turn-off.rst
+
 
 .. include:: ../README.rst
