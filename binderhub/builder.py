@@ -82,8 +82,11 @@ class BuildHandler(web.RequestHandler):
 
         image_manifest = yield self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
         if image_manifest:
-            event = {'phase': 'completed', 'message': 'Build completed, launching...\n', 'imageName': image_name}
-            self.emit(event)
+            self.emit({
+                'phase': 'built',
+                'imageName': image_name,
+                'message': 'Found built image, launching...\n'
+            })
             return
 
         try:
@@ -122,11 +125,17 @@ class BuildHandler(web.RequestHandler):
                 yield gen.sleep(0.5)
                 continue
 
+            # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
+            # whatever, we should fail properly.
             if progress['kind'] == 'pod.phasechange':
                 if progress['payload'] == 'Pending':
                     event = {'message': 'Waiting for build to start...\n', 'phase': 'waiting'}
                 elif progress['payload'] == 'Deleted':
-                    event = {'phase': 'completed', 'message': 'Build completed, launching...\n', 'imageName': image_name}
+                    event = {
+                        'phase': 'built',
+                        'message': 'Built image, launching...\n',
+                        'imageName': image_name
+                    }
                     done = True
                 elif progress['payload'] == 'Running':
                     if not log_thread.is_alive():
