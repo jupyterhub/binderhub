@@ -1,9 +1,73 @@
-// If this file gets over 150 lines of code long, start using a framework
+/* If this file gets over 200 lines of code long (not counting docs / comments), start using a framework
+  State transitions that are valid are:
+  start -> waiting
+  start -> built
+  start -> failed
+  waiting -> building
+  waiting -> failed
+  building -> pushing
+  building -> failed
+  pushing -> built
+  pushing -> failed
+*/
+
+function Image(provider, spec) {
+    this.provider = provider;
+    this.spec = spec;
+    this.callbacks = {};
+    this.state = null;
+}
+
+Image.prototype.onStateChange = function(state, cb) {
+    if (this.callbacks[state] === undefined) {
+        this.callbacks[state] = [cb];
+    } else {
+        this.callbacks[state].push(cb);
+    }
+};
+
+Image.prototype.fetch = function() {
+    var apiUrl = '/build/' + this.provider + '/' + this.spec;
+    this.eventSource = new EventSource(apiUrl);
+    var that = this;
+    this.eventSource.addEventListener('message', function(event) {
+        var data = JSON.parse(event.data);
+        // FIXME: Rename 'phase' to 'state' upstream
+        // FIXME: fix case of phase/state upstream
+        var state = data.phase.toLowerCase();
+        if (that.callbacks[state] !== undefined) {
+            for(var i = 0; i < that.callbacks[state].length; i++) {
+                that.callbacks[state][i](that.state, state, data);
+            }
+        }
+        if (that.callbacks['*'] !== undefined) {
+            for(var i = 0; i < that.callbacks['*'].length; i++) {
+                that.callbacks['*'][i](that.state, state, data);
+            }
+        }
+
+        // FIXME: Make sure that this is a valid state transition!
+        that.state = state;
+    });
+};
+
+Image.prototype.close = function() {
+    if (this.eventSource !== undefined) {
+        this.eventSource.close();
+    }
+};
+
+Image.prototype.launch = function(runtimeParameters) {
+    var url = '/run?' + $.param(runtimeParameters);
+    window.location.href = url;
+};
+
 $(function(){
     var failed = false;
+    var logsVisible = false;
     var log = new Terminal({
         convertEol: true,
-        disableStdin: true,
+        disableStdin: true
     });
 
     log.open(document.getElementById('log'), false);
@@ -16,9 +80,11 @@ $(function(){
         if ($panelBody.hasClass('hidden')) {
             $('#toggle-logs button').text('hide');
             $panelBody.removeClass('hidden');
+            logsVisible = true;
         } else {
             $('#toggle-logs button').text('show');
             $panelBody.addClass('hidden');
+            logsVisible = false;
         }
 
         return false;
@@ -26,53 +92,58 @@ $(function(){
 
     $('#build-form').submit(function() {
         var repo = $('#repository').val();
-        repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
         var ref =  $('#ref').val();
-        var url = '/build/gh/' + repo + '/' + ref;
-        var source = new EventSource(url);
+        repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+        var image = new Image('gh', repo + '/' + ref);
 
+        $('#build-progress .progress-bar').addClass('hidden');
         log.clear();
 
-        $('#phase-waiting').removeClass('hidden');
         $('.on-build').removeClass('hidden');
 
-        source.addEventListener('message', function(e){
-            log.fit();
-            var data = JSON.parse(e.data);
+        image.onStateChange('*', function(oldState, newState, data) {
             if (data.message !== undefined) {
+                log.fit();
                 log.write(data.message);
             } else {
-                log.writeln(JSON.stringify(data));
+                console.log(data);
             }
-            if (data.phase === 'Failed') {
-                failed = true;
-                $('#build-progress .progress-bar').addClass('hidden');
-                $('#phase-failed').removeClass('hidden');
+        });
+
+        image.onStateChange('waiting', function(oldState, newState, data) {
+            $('#phase-waiting').removeClass('hidden');
+        });
+
+        image.onStateChange('building', function(oldState, newState, data) {
+            $('#phase-building').removeClass('hidden');
+        });
+
+        image.onStateChange('pushing', function(oldState, newState, data) {
+            $('#phase-pushing').removeClass('hidden');
+        });
+        image.onStateChange('failed', function(oldState, newState, data) {
+            failed = true;
+            $('#build-progress .progress-bar').addClass('hidden');
+            $('#phase-failed').removeClass('hidden');
+            // If we fail for any reason, we will show logs!
+            if (!logsVisible) {
+                $('#toggle-logs').click();
             }
-            if (data.phase && !failed) {
-                if (data.phase == 'completed' && $('#phase-building').hasClass('hidden')) {
-                    $('#phase-already-built').removeClass('hidden');
-                }
-                $('#phase-' + data.phase).removeClass('hidden');
+            image.close();
+        });
+
+        image.onStateChange('built', function(oldState, newState, data) {
+            if (oldState === null) {
+                $('#phase-already-built').removeClass('hidden');
+                $('#phase-launching').removeClass('hidden');
             }
-            if (data.phase == 'completed') {
-                // FIXME: make this proper and secure lol
-                source.close();
-                if (!failed) {
-                    var filepath = $('#filepath').val();
-                    var filepathParts = filepath.split('#');
-                    if (filepath == '') {
-                        filepath = '/tree';
-                    } else if (filepathParts[0].endsWith('.ipynb')) {
-                        filepath = '/notebooks/' + filepath;
-                    } else {
-                        filepath = '/edit/' + filepath;
-                    }
-                    var url = '/redirect?image=' + data.imageName + '&default_url=' + filepath;
-                    window.location.href = url;
-                }
-            }
-        }, false);
+            image.close();
+            image.launch({
+                image: data.imageName
+            });
+        });
+
+        image.fetch();
         return false;
     });
 

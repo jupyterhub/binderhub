@@ -79,16 +79,14 @@ class BinderHub(Application):
         config=True
     )
 
-    hub_redirect_url_template = Unicode(
+    hub_login_url = Unicode(
         None,
         allow_none=True,
         help="""
-        Template used to generate the URL to redirect user to after building.
+        The hub login URL to redirect the user to after image is built.
 
-        {image} is replaced with the name of the built image.
-
-        For example, if your configured JupyterHub is at mydomain.org,
-        you would set this to 'mydomain.org/hub/tmplogin?image={image}'
+        It'll get all runtime parameters as query parameters, and it is the responsibility
+        of the hub to launch this properly
         """,
         config=True
     )
@@ -104,7 +102,7 @@ class BinderHub(Application):
     )
 
     builder_image_spec = Unicode(
-        'jupyter/repo2docker:0.2.0',
+        'jupyter/repo2docker:v0.2.5',
         help="""
         The builder image to be used for doing builds
         """,
@@ -134,7 +132,7 @@ class BinderHub(Application):
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_redirect_url_template': self.hub_redirect_url_template,
+            'hub_login_url': self.hub_login_url,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
@@ -143,7 +141,7 @@ class BinderHub(Application):
 
         self.tornado_app = tornado.web.Application([
             (r"/build/([^/]+)/(.+)", BuildHandler),
-            (r"/redirect", RedirectHandler),
+            (r"/run", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
             (r'/', MainHandler)
