@@ -36,13 +36,22 @@ class BinderHub(Application):
         config=True
     )
 
+
+    use_registry = Bool(
+        True,
+        help="""
+        Set to true to push images to a registry & check for images in registry.
+
+        Set to false to use only local docker images. Useful when running
+        in a single node.
+        """,
+        config=True
+    )
     docker_push_secret = Unicode(
         'docker-push-secret',
         allow_none=True,
         help="""
         A kubernetes secret object that provides credentials for pushing built images.
-
-        Set this to None if you want to disable pushing images.
         """,
         config=True
     )
@@ -139,6 +148,7 @@ class BinderHub(Application):
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
+            'use_registry': self.use_registry,
             'traitlets_config': self.config
         }
 
