@@ -44,13 +44,17 @@ class Build:
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
-        return [
+        cmd = [
             'jupyter-repo2docker',
             self.git_url,
             '--ref', self.ref,
             '--image', self.image_name,
-            '--push', '--no-clean', '--no-run', '--json-logs',
+            '--no-clean', '--no-run', '--json-logs',
         ]
+
+        if self.push_secret:
+            cmd.append('--push')
+
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
@@ -58,6 +62,20 @@ class Build:
 
     def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
+        volume_mounts = [
+            client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
+        ]
+        volumes=[client.V1Volume(
+            name="docker-socket",
+            host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
+        )]
+        if self.push_secret:
+            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
+            volumes.append(client.V1Volume(
+                name='docker-push-secret',
+                secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
+            ))
+
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
@@ -70,22 +88,10 @@ class Build:
                         name="builder",
                         args=self.get_cmd(),
                         image_pull_policy='Always',
-                        volume_mounts=[
-                            client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket"),
-                            client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret')
-                        ],
+                        volume_mounts=volume_mounts,
                     )
                 ],
-                volumes=[
-                    client.V1Volume(
-                        name="docker-socket",
-                        host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
-                    ),
-                    client.V1Volume(
-                        name='docker-push-secret',
-                        secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
-                    )
-                ],
+                volumes=volumes,
                 restart_policy="Never"
             )
         )
