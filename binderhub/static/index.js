@@ -138,8 +138,11 @@ $(function(){
                 $('#phase-launching').removeClass('hidden');
             }
             image.close();
+            // fetch runtime params!
+            var filepath = $("#filepath").val();
             image.launch({
-                image: data.imageName
+                image: data.imageName,
+                filepath: filepath,
             });
         });
 
