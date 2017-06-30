@@ -101,9 +101,9 @@ class BuildHandler(web.RequestHandler):
         q = Queue()
 
         if self.settings['use_registry']:
-            push_secret = None
-        else:
             push_secret = self.settings['docker_push_secret']
+        else:
+            push_secret = None
 
         build = Build(
             q=q,
