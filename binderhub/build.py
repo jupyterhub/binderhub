@@ -55,6 +55,8 @@ class Build:
         if self.push_secret:
             cmd.append('--push')
 
+        return cmd
+
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
