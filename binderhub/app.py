@@ -28,6 +28,18 @@ class BinderHub(Application):
         config=True
     )
 
+    google_analytics_code = Unicode(
+        None,
+        allow_none=True,
+        help="""
+        The Google Analytics code to use on the main page.
+
+        Note that we'll respect Do Not Track settings, despite the fact that GA does not.
+        We will not load the GA scripts on browsers with DNT enabled.
+        """,
+        config=True
+    )
+
     port = Integer(
         8585,
         help="""
@@ -47,6 +59,7 @@ class BinderHub(Application):
         """,
         config=True
     )
+
     docker_push_secret = Unicode(
         'docker-push-secret',
         allow_none=True,
@@ -149,7 +162,8 @@ class BinderHub(Application):
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
-            'traitlets_config': self.config
+            'traitlets_config': self.config,
+            'google_analytics_code': self.google_analytics_code
         }
 
         self.tornado_app = tornado.web.Application([

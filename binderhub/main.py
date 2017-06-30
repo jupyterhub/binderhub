@@ -3,7 +3,14 @@ from tornado import web, gen
 
 class MainHandler(web.RequestHandler):
     def get(self):
-        self.render("index.html", url=None, ref='master', filepath=None, submit=False)
+        self.render(
+            "index.html",
+            url=None,
+            ref='master',
+            filepath=None,
+            submit=False,
+            google_analytics_code=self.settings['google_analytics_code']
+        )
 
 
 class ParameterizedMainHandler(web.RequestHandler):
@@ -18,7 +25,8 @@ class ParameterizedMainHandler(web.RequestHandler):
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
             filepath=self.get_argument('filepath', None),
-            submit=True
+            submit=True,
+            google_analytics_code=self.settings['google_analytics_code']
         )
 
 class LegacyRedirectHandler(web.RequestHandler):
