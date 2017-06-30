@@ -6,7 +6,8 @@ setup(
     install_requires=[
         'kubernetes==1.*',
         'tornado',
-        'traitlets'
+        'traitlets',
+        'docker'
     ],
     author='Yuvi Panda',
     author_email='yuvipanda@gmail.com',

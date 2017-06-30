@@ -6,6 +6,7 @@ import os
 import base64
 from queue import Queue, Empty
 import threading
+import docker
 
 from kubernetes import client, config, watch
 from tornado import web, gen, httpclient
@@ -90,6 +91,21 @@ class BuildHandler(web.RequestHandler):
                     'message': 'Found built image, launching...\n'
                 })
                 return
+        else:
+            # Check if the image exists locally!
+            # Assume we're running in single-node mode!
+            docker_client = docker.from_env(version='auto')
+            try:
+                image = docker_client.images.get(image_name)
+                self.emit({
+                    'phase': 'built',
+                    'imageName': image_name,
+                    'message': 'Found built image, launching...\n'
+                })
+                return
+            except docker.errors.ImageNotFound:
+                # image doesn't exist, so do a build!
+                pass
 
         try:
             config.load_incluster_config()
