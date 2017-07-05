@@ -21,15 +21,17 @@
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1">
                     <div id="logo-container">
-                        <img id="logo" src="/static/logo.svg" width="375px"  />
-                        <h3>Turn a GitHub repo into a collection of interactive notebooks</h3>
-                        <div id="explanation">
-                            Have a repository full of Jupyter notebooks? With Binder, open those notebooks in an executable environment, making your code immediately reproducible by anyone, anywhere.
+                        <img id="logo" src="/static/logo.svg" width="390px"  />
+                        <div id="header">
+                            <h3>Turn a GitHub repo into a collection of interactive notebooks</h3>
+                            <div id="explanation">
+                                Have a repository full of Jupyter notebooks? With Binder, open those notebooks in an executable environment, making your code immediately reproducible by anyone, anywhere.
+                            </div>
                         </div>
                     </div>
 
                     <form id="build-form" class="form jumbotron">
-                        <h4>Build and Launch a Repository</h4>
+                        <h4 id="form-header">Build and launch a repository</h4>
                         <div class="form-group">
                             <label for="repository">GitHub repo or URL</label>
                             <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or "" }}"/>
@@ -44,7 +46,7 @@
                                 <input class="form-control" type="text" id="filepath" placeholder="Path from repo root to notebook file (optional)" value="{{ filepath or "" }}"/>
                             </div>
                             <div class="form-group col-md-2">
-                                <button id="submit" class="form-control btn btn-primary submit" type="submit">Launch</button>
+                                <button id="submit" class="form-control btn btn-primary submit" type="submit">launch</button>
                             </div>
                         </div>
 
@@ -86,31 +88,34 @@
 
                 <div class="row">
                     <div class="col-md-1 col-md-offset-2 point-container">
-                        <span class="point" style="border-color: rgb(243, 162, 83)">1</span>
+                        <span class="point point-orange">1</span>
                     </div>
                     <div class="col-md-7 front">
-                        <span class="front-em">Enter your repository information.</span><br />Provide in the above form a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. <span style="color: rgb(87, 154, 202);">Launch</span> will build your Binder repository. If you specify a path
-                        to a notebook file, the notebook will be opened in your browser after building.
+                        <span class="front-em">Enter your repository information</span><br />Provide in the above form a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. Launch will build your Binder repository. If you specify a path to a notebook file, the notebook will be opened in your browser after building.
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-1 col-md-offset-2 point-container">
-                        <span class="point" style="border-color: rgb(208, 102, 129)">2</span>
+                        <span class="point point-red">2</span>
                     </div>
                     <div class="col-md-7 front">
-                        <span class="front-em">Let us build a Docker image of your repository.</span><br />Does your repository depend on files being loaded for your live notebooks? We will search in your repository's root for a dependency such as a Dockerfile or requirements.txt. The first dependency file found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
+                        <span class="front-em">We build a Docker image of your repository</span><br />Does your repository depend on files being loaded for your live notebooks? We will search in your repository's root for a dependency such as a Dockerfile or requirements.txt. The first dependency file found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-1 col-md-offset-2 point-container">
-                        <span class="point" style="border-color: rgb(87, 154, 202)">3</span>
+                        <span class="point point-blue">3</span>
                     </div>
                     <div class="col-md-7 front">
                         <span class="front-em">Interact with your notebooks in a live environment!</span><br />A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> server will host your repository's contents. We offer you a reusable link and badge to your live repository that you can easily share with others.
                     </div>
                 </div>
+                <div class="row">
+                    <h3>questions? join the <a href="http://gitter.im/binder">chat</a>, see the <a href="https://github.com/jupyterhub/binderhub">code</a></h3>  
+                </div>
+                <br>
             </div>
         </div>
         {% if google_analytics_code %}
