@@ -28,6 +28,28 @@ form {
     font-family: "ClearSans-Light", sans-serif;
 }
 
+a {
+    cursor: pointer;
+    color: rgb(120,120,120);
+    border-bottom: dotted 2px rgb(120,120,120);
+    transition: all 0.1s;
+    text-decoration: non
+}
+
+a:hover {
+    color: rgb(30,30,30);
+    border-bottom: dotted 2px rgb(30,30,30);
+    text-decoration: none;
+}
+
+#build-form {
+    color: rgb(50,50,50);
+    background: rgb(235, 236, 237);
+    padding: 40px;
+    padding-top: 25px;
+    padding-bottom: 20px;
+}
+
 
 #logo-container {
     text-align: center;
@@ -37,19 +59,33 @@ form {
 
 #logo {
     padding: 8px;
-    padding-bottom: 32px;
+    padding-bottom: 22px;
+    padding-top: 10px;
+}
+
+#header {
+    margin-left: 5%;
+    width: 90%;
+    padding-bottom: 24px;
 }
 
 h3 {
-    font-size: 32px;
-    line-height: 1.5;
+    color: rgb(70, 70, 70);
+    font-size: 42px;
+    line-height: 1.3;
     font-weight: bold;
     display: block;
     text-align: center;
 }
 
 h4 {
+    font-size: 20px;
+    color: rgb(70, 70, 70);
     font-weight: bold;
+}
+
+#form-header {
+    padding-bottom: 5px;
 }
 
 #build-progress {
@@ -65,7 +101,8 @@ h4 {
 }
 
 #logo-container #explanation {
-    font-size: 18px;
+    color: rgb(40, 40, 40);
+    font-size: 20px;
     line-height: 1.5;
     font-weight: bold
 }
@@ -77,7 +114,39 @@ h4 {
 
 #submit {
     margin-top: 24px;
+    background: rgb(150, 150, 150);
+    color: rgb(245, 245, 245);
+    text-shadow: none;
+    font-size: 18px;
+    font-weight: 400;
+    border: 2px solid rgb(255, 255, 255);
+    transition: all 0.25s;
+    padding-top: 3px;
 }
+
+#submit:hover {
+    color: rgb(243,162,83);
+    background: rgb(255, 255, 255);
+    border: 2px solid rgb(243, 162, 83);
+    text-shadow: none;
+    box-shadow: none;
+    outline: none;
+}
+
+#submit:focus {
+    text-shadow: none;
+    box-shadow: none;
+    outline: none;
+}
+
+#submit:active {
+    color: rgb(203,122,33);
+    text-shadow: none;
+    border: 2px solid rgb(203,122,33);
+    box-shadow: none;
+    outline: none;
+}
+
 
 #log {
     height: 400px;
@@ -97,17 +166,45 @@ h4 {
     margin: 32px;
 }
 
+.form-control {
+    border: 2px solid rgb(255,255,255);
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border: 2px solid rgb(243,162,83);
+    box-shadow: none;
+}
+
 .point {
     border-radius: 50%;
-    border-width: 6px;
+    border-width: 5px;
     border-style: solid;
-    width: 30px;
-    height: 30px;
-    padding: 5px 10px;
+    width: 40px;
+    height: 40px;
+    padding: 2px 9px;
+    position: absolute;
+    font-weight: 800;
+    font-family: 'ClearSans-Bold';
 }
 
 .point-container {
-    padding-top: 16px;
+    padding-top: 4px;
+}
+
+.point-orange {
+    border-color: rgb(243, 162, 83); 
+    color: rgb(243, 162, 83);
+}
+
+.point-red {
+    border-color: rgb(208, 102, 129);
+    color: rgb(208, 102, 129);
+}
+
+.point-blue {
+    border-color: rgb(87, 154, 202);
+    color: rgb(87, 154, 202);
 }
 
 button.submit {
