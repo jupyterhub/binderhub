@@ -114,8 +114,8 @@ h4 {
 
 #submit {
     margin-top: 24px;
-    background: rgb(255, 255, 255);
-    color: rgb(150,150,150);
+    background: rgb(150, 150, 150);
+    color: rgb(245, 245, 245);
     text-shadow: none;
     font-size: 18px;
     font-weight: 400;
@@ -126,6 +126,7 @@ h4 {
 
 #submit:hover {
     color: rgb(243,162,83);
+    background: rgb(255, 255, 255);
     border: 2px solid rgb(243, 162, 83);
     text-shadow: none;
     box-shadow: none;
