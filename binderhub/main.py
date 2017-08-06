@@ -1,10 +1,11 @@
 """
-Main handler classes
+Main handler classes for requests
 """
 from tornado import web, gen
 
 
 class MainHandler(web.RequestHandler):
+    """Main handler for requests"""
     def get(self):
         self.render(
             "index.html",
@@ -17,6 +18,7 @@ class MainHandler(web.RequestHandler):
 
 
 class ParameterizedMainHandler(web.RequestHandler):
+    """Main handler that allows different parameter settings"""
     def get(self, provider_prefix, spec):
         providers = self.settings['repo_providers']
         if provider_prefix not in self.settings['repo_providers']:
@@ -32,9 +34,9 @@ class ParameterizedMainHandler(web.RequestHandler):
             google_analytics_code=self.settings['google_analytics_code']
         )
 
+
 class LegacyRedirectHandler(web.RequestHandler):
+    """Redirect handler from legacy Binder"""
     def get(self, user, repo):
-        url = '/v2/gh/{user}/{repo}/master'.format(
-            user=user, repo=repo
-        )
+        url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
         self.redirect(url)

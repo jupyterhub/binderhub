@@ -1,22 +1,21 @@
 """
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
+import base64
 import hashlib
 import json
 import os
-import base64
 from queue import Queue, Empty
 import threading
-import docker
 
+import docker
 from kubernetes import client, config, watch
 from tornado import web, gen, httpclient
 from tornado.iostream import StreamClosedError
 
-from .repoproviders import GitHubRepoProvider
 from .build import Build
 from .registry import DockerRegistry
-
+from .repoproviders import GitHubRepoProvider
 
 class BuildHandler(web.RequestHandler):
     """A handler for working with GitHub."""
@@ -35,7 +34,7 @@ class BuildHandler(web.RequestHandler):
 
     def _generate_build_name(self, build_slug, ref, limit=63, hash_length=6, ref_length=6):
         """
-        Generate a unique build name that is within limited number of characters.
+        Generate a unique build name with a limited character length..
 
         Guaranteed (to acceptable level) to be unique for a given user, repo,
         and ref.
@@ -46,13 +45,14 @@ class BuildHandler(web.RequestHandler):
         include a prefixed hash of the user / repo in all build names and do
         some length limiting :)
 
-        Note that 'build' names only need to be unique over a shorter period
-        of time, while 'image' names need to be unique for longer. Hence,
+        Note that ``build`` names only need to be unique over a shorter period
+        of time, while ``image`` names need to be unique for longer. Hence,
         different strategies are used.
 
         TODO: Make sure that the returned value matches the k8s name
         validation regex, which is:
         [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+
         """
         build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
 
@@ -138,7 +138,6 @@ class BuildHandler(web.RequestHandler):
         log_thread = threading.Thread(target=build.stream_logs)
 
         build_thread.start()
-
 
         done = False
 

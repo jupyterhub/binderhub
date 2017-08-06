@@ -68,10 +68,11 @@ class Build:
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
-        volumes=[client.V1Volume(
+        volumes = [client.V1Volume(
             name="docker-socket",
             host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
         )]
+
         if self.push_secret:
             volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
             volumes.append(client.V1Volume(
@@ -110,7 +111,10 @@ class Build:
 
         w = watch.Watch()
         try:
-            for f in w.stream(self.api.list_namespaced_pod, self.namespace, label_selector="name={}".format(self.name)):
+            for f in w.stream(
+                    self.api.list_namespaced_pod,
+                    self.namespace,
+                    label_selector="name={}".format(self.name)):
                 if f['type'] == 'DELETED':
                     self.progress('pod.phasechange', 'Deleted')
                     return
