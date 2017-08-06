@@ -1,3 +1,6 @@
+"""
+Main handler classes
+"""
 from tornado import web, gen
 
 

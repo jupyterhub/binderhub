@@ -1,5 +1,6 @@
-"""The binderhub application"""
-
+"""
+The binderhub application
+"""
 import logging
 import os
 

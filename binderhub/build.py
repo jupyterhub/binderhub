@@ -1,5 +1,6 @@
-"""Contains build of a docker image from a git repository."""
-
+"""
+Contains build of a docker image from a git repository.
+"""
 import json
 import threading
 
@@ -22,13 +23,14 @@ class Build:
     else. This should be handled gracefully, and the build object should
     reflect the state of the pod as quickly as possible.
 
-    'name'
-    ------
-    The 'name' should be unique and immutable since it is used to
-    sync to the pod. The 'name' should be unique for a 
-    (git_url, ref) tuple, and the same tuple should correspond
-    to the same 'name'. This allows use of the locking provided by k8s API
+    ``name``
+    --------
+    The ``name`` should be unique and immutable since it is used to
+    sync to the pod. The ``name`` should be unique for a
+    ``(git_url, ref)`` tuple, and the same tuple should correspond
+    to the same ``name``. This allows use of the locking provided by k8s API
     instead of having to invent our own locking code.
+
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
                  image_name, push_secret):
@@ -56,7 +58,6 @@ class Build:
             cmd.append('--push')
 
         return cmd
-
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""

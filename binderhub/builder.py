@@ -1,5 +1,6 @@
-"""Handler for working with GitHub for builds."""
-
+"""
+Handlers for working with version control services (i.e. GitHub) for builds.
+"""
 import hashlib
 import json
 import os
