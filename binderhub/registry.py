@@ -1,6 +1,10 @@
-import os
-import json
+"""
+Interaction with the Docker Registry
+"""
 import base64
+import json
+import os
+
 from tornado import gen, httpclient
 from tornado.httputil import url_concat
 

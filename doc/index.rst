@@ -52,3 +52,4 @@ Full Table of Contents
    deploy
    turn-off
    contributor-guide
+   api/api-index.rst

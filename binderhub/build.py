@@ -1,5 +1,6 @@
-"""Contains build of a docker image from a git repository."""
-
+"""
+Contains build of a docker image from a git repository.
+"""
 import json
 import threading
 
@@ -7,11 +8,8 @@ from kubernetes import client, config, watch
 
 
 class Build:
-    """
-    Represents a build of a git repository into a docker image.
+    """Represents a build of a git repository into a docker image.
 
-    Behavior
-    --------
     This ultimately maps to a single pod on a kubernetes cluster. Many
     different build objects can point to this single pod and perform
     operations on the pod. The code in this class needs to be careful and take
@@ -22,13 +20,13 @@ class Build:
     else. This should be handled gracefully, and the build object should
     reflect the state of the pod as quickly as possible.
 
-    'name'
-    ------
-    The 'name' should be unique and immutable since it is used to
-    sync to the pod. The 'name' should be unique for a 
-    (git_url, ref) tuple, and the same tuple should correspond
-    to the same 'name'. This allows use of the locking provided by k8s API
-    instead of having to invent our own locking code.
+    ``name``
+        The ``name`` should be unique and immutable since it is used to
+        sync to the pod. The ``name`` should be unique for a
+        ``(git_url, ref)`` tuple, and the same tuple should correspond
+        to the same ``name``. This allows use of the locking provided by k8s
+        API instead of having to invent our own locking code.
+
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
                  image_name, push_secret):
@@ -57,7 +55,6 @@ class Build:
 
         return cmd
 
-
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
         self.q.put_nowait({'kind': kind, 'payload': obj})
@@ -67,10 +64,11 @@ class Build:
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
-        volumes=[client.V1Volume(
+        volumes = [client.V1Volume(
             name="docker-socket",
             host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
         )]
+
         if self.push_secret:
             volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
             volumes.append(client.V1Volume(
@@ -109,7 +107,10 @@ class Build:
 
         w = watch.Watch()
         try:
-            for f in w.stream(self.api.list_namespaced_pod, self.namespace, label_selector="name={}".format(self.name)):
+            for f in w.stream(
+                    self.api.list_namespaced_pod,
+                    self.namespace,
+                    label_selector="name={}".format(self.name)):
                 if f['type'] == 'DELETED':
                     self.progress('pod.phasechange', 'Deleted')
                     return

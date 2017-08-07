@@ -1,5 +1,6 @@
-"""The binderhub application"""
-
+"""
+The binderhub application
+"""
 import logging
 import os
 
@@ -47,7 +48,6 @@ class BinderHub(Application):
         """,
         config=True
     )
-
 
     use_registry = Bool(
         True,
@@ -135,7 +135,7 @@ class BinderHub(Application):
     )
 
     repo_providers = Dict(
-        { 'gh': GitHubRepoProvider },
+        {'gh': GitHubRepoProvider},
         config=True,
         help="""
         List of Repo Providers to register and try
@@ -178,6 +178,7 @@ class BinderHub(Application):
         self.log.info("BinderHub starting on port %i", self.port)
         self.tornado_app.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
+
 
 main = BinderHub.launch_instance
 

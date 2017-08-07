@@ -22,6 +22,13 @@ import sys
 curdir = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join(curdir, 'script')))
 
+# set paths
+from os.path import dirname
+docs = dirname(dirname(__file__))
+root = dirname(docs)
+sys.path.insert(0, root)
+sys.path.insert(0, 'sphinxext')
+sys.path.insert(0, '..')
 
 # -- General configuration ------------------------------------------------
 
@@ -35,8 +42,11 @@ html_logo = "_static/logo.png"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'flow_diagram',
     'jupyter_alabaster_theme',
+    'autodoc_traits',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -50,6 +60,9 @@ source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
+
+# Set the default role so we can use `foo` instead of ``foo``
+default_role = 'literal'
 
 # General information about the project.
 project = 'BinderHub'

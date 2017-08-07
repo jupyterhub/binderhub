@@ -1,12 +1,20 @@
-import json
-from tornado import gen
+"""
+Classes for Repo providers
 
+Subclass the base class, ``RepoProvider``, to support different version
+control services and providers.
+
+"""
+import json
+
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient, HTTPError
 from traitlets import Unicode
 from traitlets.config import LoggingConfigurable
-from tornado.httpclient import AsyncHTTPClient, HTTPError
 
 
 class RepoProvider(LoggingConfigurable):
+    """Base class for a repo provider"""
     name = Unicode(
         None,
         help="""
@@ -32,7 +40,9 @@ class RepoProvider(LoggingConfigurable):
     def get_build_slug(self):
         raise NotImplementedError("Must be overriden in the child class")
 
+
 class GitHubRepoProvider(RepoProvider):
+    """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
 
     username = Unicode(
@@ -103,7 +113,6 @@ class GitHubRepoProvider(RepoProvider):
             return None
         self.resolved_ref = ref_info['sha']
         return self.resolved_ref
-
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user=self.user, repo=self.repo)
