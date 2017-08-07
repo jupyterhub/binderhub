@@ -1,8 +1,8 @@
 `BinderHub`_
 ============
 
-.. image:: http://readthedocs.org/projects/binderhub/badge/?version=latest
-   :target: http://binderhub.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/binderhub/badge/?version=latest
+   :target: https://binderhub.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
 What is BinderHub?
