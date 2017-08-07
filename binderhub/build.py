@@ -8,11 +8,8 @@ from kubernetes import client, config, watch
 
 
 class Build:
-    """
-    Represents a build of a git repository into a docker image.
+    """Represents a build of a git repository into a docker image.
 
-    Behavior
-    --------
     This ultimately maps to a single pod on a kubernetes cluster. Many
     different build objects can point to this single pod and perform
     operations on the pod. The code in this class needs to be careful and take
@@ -24,12 +21,11 @@ class Build:
     reflect the state of the pod as quickly as possible.
 
     ``name``
-    --------
-    The ``name`` should be unique and immutable since it is used to
-    sync to the pod. The ``name`` should be unique for a
-    ``(git_url, ref)`` tuple, and the same tuple should correspond
-    to the same ``name``. This allows use of the locking provided by k8s API
-    instead of having to invent our own locking code.
+        The ``name`` should be unique and immutable since it is used to
+        sync to the pod. The ``name`` should be unique for a
+        ``(git_url, ref)`` tuple, and the same tuple should correspond
+        to the same ``name``. This allows use of the locking provided by k8s
+        API instead of having to invent our own locking code.
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,

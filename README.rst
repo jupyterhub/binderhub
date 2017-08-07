@@ -1,7 +1,7 @@
 `BinderHub`_
 ============
 
-.. image:: https://readthedocs.org/projects/binderhub/badge/?version=latest
+.. image:: http://readthedocs.org/projects/binderhub/badge/?version=latest
    :target: http://binderhub.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
@@ -55,5 +55,6 @@ License
 -------
 
 See ``LICENSE`` file in this repository.
+
 
 .. _BinderHub: https://github.com/jupyterhub/binderhub
