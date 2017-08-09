@@ -71,6 +71,13 @@ class BuildHandler(web.RequestHandler):
         provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
 
         ref = yield provider.get_resolved_ref()
+        if ref is None:
+            # If get_resolved_ref yields None, it means we couldn't resolve.
+            self.emit({
+                'phase': 'failed',
+                'message': 'Could not resolve repository URL. Check that it is correct.\n'
+            })
+            return
         build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
         # We gonna send out event streams!
