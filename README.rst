@@ -14,18 +14,14 @@ public IP address that allows users to interact with the code and environment
 within a live JupyterHub instance. You can select a specific branch name,
 commit, or tag to serve.
 
-BinderHub is similar in spirit to the existing `Binder <http://mybinder.org>`_
-service. BinderHub ties together:
+BinderHub ties together:
 
 - `JupyterHub <https://github.com/jupyterhub/jupyterhub>`_ to provide
   a scalable system for authenticating users and spawning single user
   Jupyter Notebook servers, and
 
 - `Repo2Docker <https://github.com/jupyter/repo2docker>`_ which generates
-  a Docker image using a Git repository hosted online. This heavily utilizes:
-
-    - Red Hat's `source-to-image <https://github.com/openshift/source-to-image>`_
-      project from OpenShift to build a Docker image from a set of dependencies.
+  a Docker image using a Git repository hosted online.
 
 BinderHub is created using Python, kubernetes, tornado, and traitlets. As such,
 it should be a familiar technical foundation for Jupyter developers.
@@ -36,6 +32,15 @@ Why BinderHub?
 Collections of Jupyter notebooks are becoming more common in scientific research
 and data science. The ability to serve these collections on demand enhances the
 usefulness of these notebooks.
+
+Who is BinderHub for?
+---------------------
+* **Users** who want to easily interact with computational environments that
+  others have created.
+* **Authors** who want to create links that allow users to immediately interact with a
+  computational enviroment that you specify.
+* **Deployers** who want to create their own BinderHub to run on whatever
+  hardware they choose.
 
 Installation
 ------------
