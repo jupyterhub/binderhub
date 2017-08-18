@@ -51,5 +51,4 @@ Full Table of Contents
    setup-binderhub
    deploy
    turn-off
-   contributor-guide
    api/api-index.rst
