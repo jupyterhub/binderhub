@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Binder (beta)</title>
-</head>
-<body>
-  <h1>
-    ERROR {{status_code}}: {{status_message}}
+{% extends "page.html" %}
+
+{% block body %}
+<div class="container text-center">
+  <h1 clas>
+    {{status_code}}: {{status_message}}
   </h1>
 
   <p>
     {{message}}
   </p>
-</body>
-</html>
+</div>
+{{ super() }}
+{% endblock body %}
