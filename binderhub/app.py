@@ -11,6 +11,7 @@ import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict
 from traitlets.config import Application
 
+from .base import Custom404
 from .builder import BuildHandler
 from .redirect import RedirectHandler
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
@@ -172,7 +173,8 @@ class BinderHub(Application):
             (r"/run", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
-            (r'/', MainHandler)
+            (r'/', MainHandler),
+            (r'.*', Custom404),
         ], **self.tornado_settings)
 
     def start(self):
