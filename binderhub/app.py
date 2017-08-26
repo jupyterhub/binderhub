@@ -163,7 +163,8 @@ class BinderHub(Application):
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'traitlets_config': self.config,
-            'google_analytics_code': self.google_analytics_code
+            'google_analytics_code': self.google_analytics_code,
+            'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
         }
 
         self.tornado_app = tornado.web.Application([
