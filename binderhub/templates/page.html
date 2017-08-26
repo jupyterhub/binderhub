@@ -11,6 +11,28 @@
 </head>
 <body>
   {% block body %}
+  
+  {% block logo %}
+  <div class="container">
+    <div class="row">
+      <div id="logo-container">
+        <img id="logo" src="/static/logo.svg" width="390px"  />
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+  
+  {% block main %}
+  {% endblock main %}
+
+  {% block footer %}
+  <div class="container">
+    <div class="row text-center">
+      <h3>questions? join the <a href="https://gitter.im/binder-project/binder">chat</a>, see the <a href="https://github.com/jupyterhub/binderhub">code</a></h3>
+    </div>
+  </div>
+  {% endblock footer %}
+
   {% if google_analytics_code %}
   <script>
     // Only load GA if DNT is not set
