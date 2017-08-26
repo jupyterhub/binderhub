@@ -5,6 +5,18 @@ from tornado import web
 
 
 class BaseHandler(web.RequestHandler):
+    @property
+    def template_namespace(self):
+        return dict(static_url=self.static_url, )
+
+    def render_template(self, name, **extra_ns):
+        ns = {}
+        ns.update(self.template_namespace)
+        ns.update(extra_ns)
+        template = self.settings['jinja2_env'].get_template(name)
+        html = template.render(**ns)
+        self.write(html)
+
     def write_error(self, status_code, **kwargs):
         exc_info = kwargs.get('exc_info')
         message = ''
@@ -18,7 +30,7 @@ class BaseHandler(web.RequestHandler):
             except Exception:
                 pass
 
-        self.render(
+        self.render_template(
             'error.html',
             status_code=status_code,
             status_message=status_message,
@@ -28,5 +40,6 @@ class BaseHandler(web.RequestHandler):
 
 class Custom404(BaseHandler):
     """Raise a 404 error, rendering the error.html template"""
+
     def prepare(self):
         raise web.HTTPError(404)

@@ -7,7 +7,8 @@ setup(
         'kubernetes==1.*',
         'tornado',
         'traitlets',
-        'docker'
+        'docker',
+        'jinja2',
     ],
     author='Yuvi Panda',
     author_email='yuvipanda@gmail.com',

@@ -4,6 +4,7 @@ The binderhub application
 import logging
 import os
 
+from jinja2 import Environment, FileSystemLoader
 import tornado.ioloop
 import tornado.options
 import tornado.log
@@ -16,6 +17,8 @@ from .builder import BuildHandler
 from .redirect import RedirectHandler
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
+
+TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
 
 class BinderHub(Application):
@@ -152,6 +155,9 @@ class BinderHub(Application):
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
 
+        jinja_options = dict(autoescape=True, )
+        jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
+
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -165,7 +171,7 @@ class BinderHub(Application):
             'use_registry': self.use_registry,
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
-            'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
+            'jinja2_env': jinja_env,
         }
 
         self.tornado_app = tornado.web.Application([

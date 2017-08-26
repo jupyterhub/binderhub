@@ -3,7 +3,7 @@
     <head>
         <title>Binder (beta)</title>
         <script>
-         {% if submit %} window.submitBuild = true; {% end %}
+         {% if submit %} window.submitBuild = true; {% endif %}
         </script>
         <script src="/static/vendor/jquery-3.2.1.min.js" > </script>
         <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
@@ -135,6 +135,6 @@
              ga('send', 'pageview');
          }
         </script>
-        {% end %}
+        {% endif %}
     </body>
 </html>

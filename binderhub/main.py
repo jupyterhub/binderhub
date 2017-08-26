@@ -1,13 +1,16 @@
 """
 Main handler classes for requests
 """
-from tornado import web, gen
+from tornado import web
+
+from .base import BaseHandler
 
 
-class MainHandler(web.RequestHandler):
+class MainHandler(BaseHandler):
     """Main handler for requests"""
+
     def get(self):
-        self.render(
+        self.render_template(
             "index.html",
             url=None,
             ref='master',
@@ -17,15 +20,16 @@ class MainHandler(web.RequestHandler):
         )
 
 
-class ParameterizedMainHandler(web.RequestHandler):
+class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
+
     def get(self, provider_prefix, spec):
         providers = self.settings['repo_providers']
         if provider_prefix not in self.settings['repo_providers']:
             raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
         provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
 
-        self.render(
+        self.render_template(
             "index.html",
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
@@ -35,8 +39,9 @@ class ParameterizedMainHandler(web.RequestHandler):
         )
 
 
-class LegacyRedirectHandler(web.RequestHandler):
+class LegacyRedirectHandler(BaseHandler):
     """Redirect handler from legacy Binder"""
+
     def get(self, user, repo):
         url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
         self.redirect(url)

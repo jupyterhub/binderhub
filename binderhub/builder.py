@@ -13,12 +13,15 @@ from kubernetes import client, config, watch
 from tornado import web, gen, httpclient
 from tornado.iostream import StreamClosedError
 
+from .base import BaseHandler
 from .build import Build
 from .registry import DockerRegistry
 from .repoproviders import GitHubRepoProvider
 
-class BuildHandler(web.RequestHandler):
+
+class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
+
     @gen.coroutine
     def emit(self, data):
         if type(data) is not str:
