@@ -15,7 +15,6 @@ from tornado.iostream import StreamClosedError
 
 from .base import BaseHandler
 from .build import Build
-from .registry import DockerRegistry
 from .repoproviders import GitHubRepoProvider
 
 
@@ -33,7 +32,7 @@ class BuildHandler(BaseHandler):
 
     def initialize(self):
         if self.settings['use_registry']:
-            self.registry = DockerRegistry(self.settings['docker_image_prefix'].split('/', 1)[0])
+            self.registry = self.settings['registry']
 
     def _generate_build_name(self, build_slug, ref, limit=63, hash_length=6, ref_length=6):
         """

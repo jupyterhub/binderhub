@@ -15,6 +15,7 @@ from traitlets.config import Application
 from .base import Custom404
 from .builder import BuildHandler
 from .redirect import RedirectHandler
+from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
 
@@ -157,6 +158,10 @@ class BinderHub(Application):
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
+        if self.use_registry:
+            registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
+        else:
+            registry = None
 
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
@@ -169,6 +174,7 @@ class BinderHub(Application):
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
+            'registry': registry,
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
