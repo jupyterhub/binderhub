@@ -2,6 +2,7 @@
 Main handler classes for requests
 """
 from tornado import web
+from tornado.log import app_log
 
 from .base import BaseHandler
 
@@ -24,10 +25,15 @@ class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
     def get(self, provider_prefix, spec):
-        providers = self.settings['repo_providers']
-        if provider_prefix not in self.settings['repo_providers']:
-            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
-        provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
+        try:
+            provider = self.get_provider(provider_prefix, spec=spec)
+        except web.HTTPError:
+            raise
+        except Exception as e:
+            app_log.error("Failed to construct provider for %s/%s")
+            # FIXME: 400 assumes it's the user's fault (?)
+            # maybe we should catch a special InvalidSpecError here
+            raise web.HTTPError(400, str(e))
 
         self.render_template(
             "index.html",
@@ -35,7 +41,7 @@ class ParameterizedMainHandler(BaseHandler):
             ref=provider.unresolved_ref,
             filepath=self.get_argument('filepath', None),
             submit=True,
-            google_analytics_code=self.settings['google_analytics_code']
+            google_analytics_code=self.settings['google_analytics_code'],
         )
 
 

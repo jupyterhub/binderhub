@@ -72,9 +72,9 @@ class GitHubRepoProvider(RepoProvider):
         spec_parts = self.spec.split('/')
         if len(spec_parts) != 3:
             msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=self.spec)
-            if len(spec_parts) == 2:
+            if len(spec_parts) == 2 and spec_parts[-1] != 'master':
                 msg += ' Did you mean "{spec}/master"?'.format(spec=self.spec)
-            raise web.HTTPError(400, msg)
+            raise ValueError(msg)
 
         self.user, self.repo, self.unresolved_ref = spec_parts
         if self.repo.endswith('.git'):
