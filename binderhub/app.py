@@ -1,6 +1,7 @@
 """
 The binderhub application
 """
+from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
 
@@ -146,6 +147,10 @@ class BinderHub(Application):
         List of Repo Providers to register and try
         """
     )
+    concurrent_build_limit = Integer(
+        32,
+        config=True,
+        help="""The number of concurrent builds to allow.""")
 
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
@@ -155,6 +160,9 @@ class BinderHub(Application):
         tornado.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
+
+        # times 2 for log + build threads
+        build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
@@ -172,6 +180,7 @@ class BinderHub(Application):
             'hub_login_url': self.hub_login_url,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
+            'build_pool': build_pool,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,
