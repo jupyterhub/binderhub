@@ -11,16 +11,21 @@ Contracting the size of your cluster
 
 If you would like to shrink the size of your cluster, refer to the
 `Expanding and contracting the size of your cluster <https://zero-to-jupyterhub.readthedocs.io/en/latest/extending-jupyterhub.html#expanding-and-contracting-the-size-of-your-cluster>`_
-section of the Zero to Jupyter documentation. Resizing the cluster to zero nodes
-could be used if you wish to temporarily reduce the cluster (and save costs)
-without deleting the cluster.
+section of the `Zero to JupyterHub`_ documentation. Resizing the cluster to
+zero nodes could be used if you wish to temporarily reduce the cluster (and
+save costs) without deleting the cluster.
 
 Deleting the cluster
 --------------------
 
 To delete a Binder cluster, follow the instructions in the
 `Turning Off JupyterHub and Computational Resources <https://zero-to-jupyterhub.readthedocs.io/en/latest/turn-off.html>`_
-section of the Zero to Jupyter documentation.
+section of the `Zero to JupyterHub`_ documentation.
 
-Double check your cloud provider account to make sure all resources have been
-deleted as expected.
+.. important::
+
+    Double check your cloud provider account to make sure all resources have been
+    deleted as expected. Double checking is a good practice and will help
+    prevent unwanted charges.
+
+.. _Zero to JupyterHub: https://zero-to-jupyterhub.readthedocs.io
