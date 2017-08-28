@@ -26,10 +26,18 @@ Now find the IP of the **nginx-ingress-controller**::
 
     kubectl --namespace=support get svc support-nginx-ingress-controller
 
-.. CHRISH: 104.154.196.15
-.. Carol: 35.184.149.63
-
 And make DNS records for both binder and jupyterhub that point to that IP.
+
+.. note:: **Set up DNS**
+
+   To use a custom domain name for your binder and jupyterhub,
+   you will need a domain name and then set up DNS records for binder and
+   jupyterhub. This means you'll need to set up a web address to be accessible
+   by your Binder. The process will differ a bit depending on the web host
+   you're using.
+
+   When you configure the helm chart, you will add the DNS entry for binder and
+   jupyterhub in the ``config.yaml`` file.
 
 
 Configure the Helm Chart
@@ -46,7 +54,7 @@ First create a file called ``secret.yaml``. In it, put the following code::
       password: |
         <the json file from service account>
 
-.. tip:
+.. tip::
 
    Don't forget the `|` after the ``password:`` label.
 
@@ -72,7 +80,7 @@ Next, create a file called ``config.yaml``. In it, put the following code::
     jupyterhub:
       ingress:
         enabled: true
-        # Or here
+        # But no `http://` here
         host: <dns-entry-for-jupyterhub>
 
 
