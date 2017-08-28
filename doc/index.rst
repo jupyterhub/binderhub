@@ -34,7 +34,7 @@ To get started, start with :doc:`create-k8s-cluster`.
 .. tip::
 
    If you’d like to extend your JupyterHub setup, see the complementary guide
-   `Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io>`_.
+   `Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html>`_.
 
 Full Table of Contents
 ----------------------
@@ -47,7 +47,6 @@ Full Table of Contents
    create-k8s-cluster
    setup-cluster-tools
    setup-registry
-   setup-dns
    setup-binderhub
    deploy
    turn-off

@@ -29,6 +29,6 @@ registry.
    Make sure to remember this password as you cannot generate a second one
    without re-doing the steps above.
 
-Now that our registry is set up, it's time to :doc:`setup-dns`.
+Now that our registry is set up, it's time to :doc:`setup-binderhub`.
 
 .. _console.cloud.google.com: http://console.cloud.google.com
