@@ -91,9 +91,11 @@ $(function(){
     });
 
     $('#build-form').submit(function() {
-        var repo = $('#repository').val();
-        var ref =  $('#ref').val();
+        var repo = $('#repository').val().trim();
+        var ref =  $('#ref').val().trim();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+        // trim trailing or leading '/' on repo
+        repo = repo.replace(/(^\/)|(\/?$)/g, '');
         var image = new Image('gh', repo + '/' + ref);
 
         $('#build-progress .progress-bar').addClass('hidden');
