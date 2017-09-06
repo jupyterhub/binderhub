@@ -45,9 +45,10 @@ Who is BinderHub for?
 Installation
 ------------
 
-**BinderHub** is based on Python 3, and it can be installed using ``pip``::
+**BinderHub** is based on Python 3, it's currently only hosted on GitHub (pip release soon).
+However, it can be installed using ``pip``::
 
-    pip install binderhub
+    pip install git+https://github.com/jupyterhub/binderhub
 
 Documentation
 -------------
