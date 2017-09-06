@@ -9,9 +9,10 @@ setup(
         'traitlets',
         'docker'
     ],
-    author='Yuvi Panda',
-    author_email='yuvipanda@gmail.com',
+    python_requires='>=3.5',
+    author='Project Jupyter Contributors',
+    author_email='jupyter@googlegroups.com',
     license='BSD',
     packages=find_packages(),
-    include_package_data=True
+    include_package_data=True,
 )
