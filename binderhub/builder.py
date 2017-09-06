@@ -65,7 +65,7 @@ class BuildHandler(BaseHandler):
 
     @gen.coroutine
     def fail(self, message):
-        self.emit({
+        yield self.emit({
             'phase': 'failed',
             'message': message + '\n',
         })
@@ -107,7 +107,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             image_manifest = yield self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
             if image_manifest:
-                self.emit({
+                yield self.emit({
                     'phase': 'built',
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
@@ -119,7 +119,7 @@ class BuildHandler(BaseHandler):
             docker_client = docker.from_env(version='auto')
             try:
                 image = docker_client.images.get(image_name)
-                self.emit({
+                yield self.emit({
                     'phase': 'built',
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
