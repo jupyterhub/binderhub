@@ -1,24 +1,25 @@
 """
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
-import base64
+
 import hashlib
 import json
-import os
 from queue import Queue, Empty
 import threading
 
 import docker
-from kubernetes import client, config, watch
-from tornado import web, gen, httpclient
+from kubernetes import client, config
+from tornado import web, gen
 from tornado.iostream import StreamClosedError
+from tornado.log import app_log
 
+from .base import BaseHandler
 from .build import Build
-from .registry import DockerRegistry
-from .repoproviders import GitHubRepoProvider
 
-class BuildHandler(web.RequestHandler):
+
+class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
+
     @gen.coroutine
     def emit(self, data):
         if type(data) is not str:
@@ -30,7 +31,7 @@ class BuildHandler(web.RequestHandler):
 
     def initialize(self):
         if self.settings['use_registry']:
-            self.registry = DockerRegistry(self.settings['docker_image_prefix'].split('/', 1)[0])
+            self.registry = self.settings['registry']
 
     def _generate_build_name(self, build_slug, ref, limit=63, hash_length=6, ref_length=6):
         """
@@ -63,19 +64,39 @@ class BuildHandler(web.RequestHandler):
         ).lower()
 
     @gen.coroutine
+    def fail(self, message):
+        yield self.emit({
+            'phase': 'failed',
+            'message': message + '\n',
+        })
+
+    @gen.coroutine
     def get(self, provider_prefix, spec):
         """Get a built image for a given GitHub user, repo, and ref."""
-        providers = self.settings['repo_providers']
-        if provider_prefix not in self.settings['repo_providers']:
-            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
-        provider = self.settings['repo_providers'][provider_prefix](config=self.settings['traitlets_config'], spec=spec)
-
-        ref = yield provider.get_resolved_ref()
-        build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
-
         # We gonna send out event streams!
         self.set_header('content-type', 'text/event-stream')
         self.set_header('cache-control', 'no-cache')
+
+        # EventSource cannot handle HTTP errors,
+        # so we have to send error messages on the eventsource
+        if provider_prefix not in self.settings['repo_providers']:
+            yield self.fail("No provider found for prefix %s" % provider_prefix)
+            return
+
+        key = '%s:%s' % (provider_prefix, spec)
+
+        try:
+            provider = self.get_provider(provider_prefix, spec=spec)
+        except Exception as e:
+            app_log.exception("Failed to get provider for %s", key)
+            yield self.fail(str(e))
+            return
+
+        ref = yield provider.get_resolved_ref()
+        if ref is None:
+            yield self.fail("Could not resolve ref for %s. Double check your URL." % key)
+            return
+        build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = '{prefix}{build_slug}:{ref}'.format(
@@ -86,7 +107,7 @@ class BuildHandler(web.RequestHandler):
         if self.settings['use_registry']:
             image_manifest = yield self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
             if image_manifest:
-                self.emit({
+                yield self.emit({
                     'phase': 'built',
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
@@ -98,7 +119,7 @@ class BuildHandler(web.RequestHandler):
             docker_client = docker.from_env(version='auto')
             try:
                 image = docker_client.images.get(image_name)
-                self.emit({
+                yield self.emit({
                     'phase': 'built',
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
@@ -134,6 +155,7 @@ class BuildHandler(web.RequestHandler):
             builder_image=self.settings['builder_image_spec']
         )
 
+        # FIXME: use a thread pool
         build_thread = threading.Thread(target=build.submit)
         log_thread = threading.Thread(target=build.stream_logs)
 
@@ -142,6 +164,7 @@ class BuildHandler(web.RequestHandler):
         done = False
 
         while True:
+            # FIXME: use Futures
             try:
                 progress = q.get_nowait()
             except Empty:

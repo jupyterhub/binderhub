@@ -1,0 +1,13 @@
+{% extends "page.html" %}
+
+{% block main %}
+<div class="container text-center jumbotron">
+  <h1>
+    {{status_code}}: {{status_message}}
+  </h1>
+
+  <p class="lead">
+    {{message}}
+  </p>
+</div>
+{% endblock main %}

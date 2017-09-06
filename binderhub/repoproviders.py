@@ -7,7 +7,7 @@ control services and providers.
 """
 import json
 
-from tornado import gen
+from tornado import gen, web
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from traitlets import Unicode
 from traitlets.config import LoggingConfigurable
@@ -71,7 +71,10 @@ class GitHubRepoProvider(RepoProvider):
         super().__init__(*args, **kwargs)
         spec_parts = self.spec.split('/')
         if len(spec_parts) != 3:
-            raise ValueError('Spec is not of form username/repo/branch, provided {spec}'.format(spec=spec))
+            msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=self.spec)
+            if len(spec_parts) == 2 and spec_parts[-1] != 'master':
+                msg += ' Did you mean "{spec}/master"?'.format(spec=self.spec)
+            raise ValueError(msg)
 
         self.user, self.repo, self.unresolved_ref = spec_parts
         if self.repo.endswith('.git'):

@@ -26,28 +26,36 @@ Image.prototype.onStateChange = function(state, cb) {
     }
 };
 
+Image.prototype.changeState = function(state, data) {
+    if (this.callbacks[state] !== undefined) {
+        for (var i = 0; i < this.callbacks[state].length; i++) {
+            this.callbacks[state][i](this.state, state, data);
+        }
+    }
+    if (this.callbacks['*'] !== undefined) {
+        for (var i = 0; i < this.callbacks['*'].length; i++) {
+            this.callbacks['*'][i](this.state, state, data);
+        }
+    }
+
+    // FIXME: Make sure this this is a valid state transition!
+    this.state = state;
+}
+
 Image.prototype.fetch = function() {
     var apiUrl = '/build/' + this.provider + '/' + this.spec;
     this.eventSource = new EventSource(apiUrl);
     var that = this;
+    this.eventSource.onerror = function (err) {
+        console.error("Failed to construct event stream", err);
+        that.changeState("failed", {"message": "Failed to connect to event stream\n"});
+    };
     this.eventSource.addEventListener('message', function(event) {
         var data = JSON.parse(event.data);
         // FIXME: Rename 'phase' to 'state' upstream
         // FIXME: fix case of phase/state upstream
         var state = data.phase.toLowerCase();
-        if (that.callbacks[state] !== undefined) {
-            for(var i = 0; i < that.callbacks[state].length; i++) {
-                that.callbacks[state][i](that.state, state, data);
-            }
-        }
-        if (that.callbacks['*'] !== undefined) {
-            for(var i = 0; i < that.callbacks['*'].length; i++) {
-                that.callbacks['*'][i](that.state, state, data);
-            }
-        }
-
-        // FIXME: Make sure that this is a valid state transition!
-        that.state = state;
+        that.changeState(state, data);
     });
 };
 

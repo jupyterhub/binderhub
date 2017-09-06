@@ -7,7 +7,8 @@ setup(
         'kubernetes==1.*',
         'tornado',
         'traitlets',
-        'docker'
+        'docker',
+        'jinja2',
     ],
     python_requires='>=3.5',
     author='Project Jupyter Contributors',

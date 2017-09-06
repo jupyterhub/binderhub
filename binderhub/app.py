@@ -4,6 +4,7 @@ The binderhub application
 import logging
 import os
 
+from jinja2 import Environment, FileSystemLoader
 import tornado.ioloop
 import tornado.options
 import tornado.log
@@ -11,10 +12,14 @@ import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict
 from traitlets.config import Application
 
+from .base import Custom404
 from .builder import BuildHandler
 from .redirect import RedirectHandler
+from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
+
+TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
 
 class BinderHub(Application):
@@ -151,6 +156,13 @@ class BinderHub(Application):
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
 
+        jinja_options = dict(autoescape=True, )
+        jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
+        if self.use_registry:
+            registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
+        else:
+            registry = None
+
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -162,8 +174,10 @@ class BinderHub(Application):
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
+            'registry': registry,
             'traitlets_config': self.config,
-            'google_analytics_code': self.google_analytics_code
+            'google_analytics_code': self.google_analytics_code,
+            'jinja2_env': jinja_env,
         }
 
         self.tornado_app = tornado.web.Application([
@@ -171,7 +185,8 @@ class BinderHub(Application):
             (r"/run", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
-            (r'/', MainHandler)
+            (r'/', MainHandler),
+            (r'.*', Custom404),
         ], **self.tornado_settings)
 
     def start(self):
