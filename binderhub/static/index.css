@@ -114,39 +114,7 @@ h4 {
 
 #submit {
     margin-top: 24px;
-    background: rgb(150, 150, 150);
-    color: rgb(245, 245, 245);
-    text-shadow: none;
-    font-size: 18px;
-    font-weight: 400;
-    border: 2px solid rgb(255, 255, 255);
-    transition: all 0.25s;
-    padding-top: 3px;
 }
-
-#submit:hover {
-    color: rgb(243,162,83);
-    background: rgb(255, 255, 255);
-    border: 2px solid rgb(243, 162, 83);
-    text-shadow: none;
-    box-shadow: none;
-    outline: none;
-}
-
-#submit:focus {
-    text-shadow: none;
-    box-shadow: none;
-    outline: none;
-}
-
-#submit:active {
-    color: rgb(203,122,33);
-    text-shadow: none;
-    border: 2px solid rgb(203,122,33);
-    box-shadow: none;
-    outline: none;
-}
-
 
 #log {
     height: 400px;
@@ -164,16 +132,6 @@ h4 {
 
 #how-it-works div.row {
     margin: 32px;
-}
-
-.form-control {
-    border: 2px solid rgb(255,255,255);
-    box-shadow: none;
-}
-
-.form-control:focus {
-    border: 2px solid rgb(243,162,83);
-    box-shadow: none;
 }
 
 .point {
@@ -205,13 +163,6 @@ h4 {
 .point-blue {
     border-color: rgb(87, 154, 202);
     color: rgb(87, 154, 202);
-}
-
-button.submit {
-    background-image: none;
-    font-size: larger;
-    font-family: Helvetica;
-    font-weight: 100;
 }
 
 span.front-em {
