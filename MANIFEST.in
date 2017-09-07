@@ -1,2 +1,2 @@
-include binderhub/*.html
 recursive-include binderhub/static *
+recursive-include binderhub/templates *
