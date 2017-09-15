@@ -3,6 +3,8 @@
 
 hub:
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
+  db:
+    type: "sqlite-memory"
   extraConfig: |
     import json
     import urllib
