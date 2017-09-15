@@ -31,7 +31,7 @@ and run binderhub on the host system.
 
     ```python
     c.BinderHub.use_registry = False
-    c.BinderHub.hub_login_url = 'http://<minikube-ip>:<proxy-public-port>/hub/tmplogin'
+    c.BinderHub.hub_url = 'http://<minikube-ip>:<proxy-public-port>/'
     ```
 6. install binderhub:
 

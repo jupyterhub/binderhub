@@ -9,7 +9,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict
+from traitlets import Unicode, Integer, Bool, Dict, validate
 from traitlets.config import Application
 
 from .base import Custom404
@@ -109,17 +109,24 @@ class BinderHub(Application):
         config=True
     )
 
-    hub_login_url = Unicode(
-        None,
-        allow_none=True,
-        help="""
-        The hub login URL to redirect the user to after image is built.
-
-        It'll get all runtime parameters as query parameters, and it is the responsibility
-        of the hub to launch this properly
-        """,
-        config=True
+    hub_api_token = Unicode(
+        help="""API token for talking to the JupyterHub API""",
+        config=True,
     )
+    hub_url = Unicode(
+        help="""
+        The base URL of the JupyterHub instance where users will run.
+
+        Must end in '/'
+        e.g. https://hub.mybinder.org/
+        """,
+        config=True,
+    )
+    @validate('hub_url')
+    def _add_slash(self, proposal):
+        if proposal.value is not None and not proposal.value.endswith('/'):
+            return proposal.value + '/'
+        return proposal.value
 
     build_namespace = Unicode(
         'default',
@@ -169,7 +176,8 @@ class BinderHub(Application):
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_login_url': self.hub_login_url,
+            'hub_url': self.hub_url,
+            'hub_api_token': self.hub_api_token,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'repo_providers': self.repo_providers,
