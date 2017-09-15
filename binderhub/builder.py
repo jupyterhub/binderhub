@@ -4,12 +4,12 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 
 import hashlib
 import json
-from queue import Queue, Empty
 import threading
 
 import docker
 from kubernetes import client, config
 from tornado import web, gen
+from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
 
@@ -152,45 +152,50 @@ class BuildHandler(BaseHandler):
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
-            builder_image=self.settings['builder_image_spec']
+            builder_image=self.settings['builder_image_spec'],
         )
 
-        # FIXME: use a thread pool
-        build_thread = threading.Thread(target=build.submit)
-        log_thread = threading.Thread(target=build.stream_logs)
+        pool = self.settings['build_pool']
+        pool.submit(build.submit)
+        log_future = None
 
-        build_thread.start()
+        # yield initial waiting event
+        try:
+            yield self.emit({
+                'phase': 'waiting',
+                'message': 'Waiting for build to start...\n',
+            })
+        except StreamClosedError:
+            # Client has gone away!
+            return
 
         done = False
-
-        while True:
-            # FIXME: use Futures
-            try:
-                progress = q.get_nowait()
-            except Empty:
-                yield gen.sleep(0.5)
-                continue
+        while not done:
+            progress = yield q.get()
 
             # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
             # whatever, we should fail properly.
             if progress['kind'] == 'pod.phasechange':
                 if progress['payload'] == 'Pending':
-                    event = {'message': 'Waiting for build to start...\n', 'phase': 'waiting'}
+                    # nothing to do, just waiting
+                    continue
                 elif progress['payload'] == 'Deleted':
                     event = {
                         'phase': 'built',
                         'message': 'Built image, launching...\n',
-                        'imageName': image_name
+                        'imageName': image_name,
                     }
                     done = True
                 elif progress['payload'] == 'Running':
-                    if not log_thread.is_alive():
-                        log_thread.start()
+                    # start capturing build logs once the pod is running
+                    if log_future is None:
+                        log_future = pool.submit(build.stream_logs)
                     continue
                 elif progress['payload'] == 'Succeeded':
                     # Do nothing, is ok!
                     continue
                 else:
+                    # FIXME: message? debug?
                     event = {'phase': progress['payload']}
             elif progress['kind'] == 'log':
                 # We expect logs to be already JSON structured anyway
@@ -198,9 +203,6 @@ class BuildHandler(BaseHandler):
 
             try:
                 yield self.emit(event)
-                q.task_done()
-                if done:
-                    break
             except StreamClosedError:
                 # Client has gone away!
                 break

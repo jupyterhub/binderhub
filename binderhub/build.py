@@ -1,11 +1,9 @@
 """
 Contains build of a docker image from a git repository.
 """
-import json
-import threading
 
-from kubernetes import client, config, watch
-
+from kubernetes import client, watch
+from tornado.ioloop import IOLoop
 
 class Build:
     """Represents a build of a git repository into a docker image.
@@ -57,7 +55,7 @@ class Build:
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
-        self.q.put_nowait({'kind': kind, 'payload': obj})
+        IOLoop.instance().add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
     def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
