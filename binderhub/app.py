@@ -117,13 +117,13 @@ class BinderHub(Application):
         help="""
         The base URL of the JupyterHub instance where users will run.
 
-        Must end in '/'
         e.g. https://hub.mybinder.org/
         """,
         config=True,
     )
     @validate('hub_url')
     def _add_slash(self, proposal):
+        """trait validator to ensure hub_url ends with a trailing slash"""
         if proposal.value is not None and not proposal.value.endswith('/'):
             return proposal.value + '/'
         return proposal.value
