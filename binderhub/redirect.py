@@ -16,8 +16,9 @@ from tornado.httputil import url_concat
 from .base import BaseHandler
 
 # Add a random lowercase alphanumeric suffix to usernames to avoid collisions
+# Set of characters from which to generate a suffix
 SUFFIX_CHARS = string.ascii_lowercase + string.digits
-# 36**8 ~= 2**41
+# Set length of suffix. Number of combinations = SUFFIX_CHARS**SUFFIX_LENGTH = 36**8 ~= 2**41
 SUFFIX_LENGTH = 8
 
 class RedirectHandler(BaseHandler):
