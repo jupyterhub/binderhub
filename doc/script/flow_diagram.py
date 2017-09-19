@@ -16,7 +16,7 @@ nodes = dict(
     jhub='JupyterHub',
     bhub='BinderHub',
     gcr='gcr.io / DockerHub',
-    build='Build Machine\n(s2i / Dockerfile)',
+    build='Build Machine\n(repo2docker)',
     image="Docker Image",
     user='User Interface'
 )
@@ -31,6 +31,7 @@ edges = (
     ('build', 'bhub', "RETURN image registry information"),
     ('image', 'gcr', 'REGISTERED and SENT to\nonline repository'),
     ('user', 'bhub', "SEND repo,\nbranch, file"),
+    ('gcr', 'jhub', "SEND image for user pod")
 )
 
 subgraphs = (
@@ -104,7 +105,7 @@ def generate_flow_diagram(app):
         for x in [gr.node_attr, gr.edge_attr]:
             x['fontname'] = font_face
     g.node_attr['shape'] = 'box'
- 
+
     g.layout('dot')
     g.draw(out_fname, format='svg')
     return g
