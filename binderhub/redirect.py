@@ -36,9 +36,14 @@ class RedirectHandler(BaseHandler):
         """Generate a username for an image
 
         e.g. minrk-binder-example-abc123
+        from gcr.io/minrk-binder-example:sha...
         """
         # use image for first part of the username
-        prefix = image.split(':')[0].replace('/', '-')
+        prefix = image.split(':')[0]
+        if '/' in prefix:
+            # Strip 'docker-repo/' off because it's an implementation detail.
+            # Only keep the image name, which has source repo info.
+            prefix = prefix.split('/')[1]
         if len(prefix) > 32:
             # if it's long, truncate
             prefix = '{}-{}'.format(prefix[:15], prefix[-15:])
@@ -50,6 +55,9 @@ class RedirectHandler(BaseHandler):
         filepath = self.get_argument('filepath')
         if not image:
             raise web.HTTPError(400, "image argument is required")
+
+        # TODO: validate the image argument?
+
         username = self.username_from_image(image)
 
         # create a new user
