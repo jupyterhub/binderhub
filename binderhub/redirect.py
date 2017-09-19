@@ -38,7 +38,7 @@ class RedirectHandler(BaseHandler):
         e.g. minrk-binder-example-abc123
         """
         # use image for first part of the username
-        prefix = image.split(':')[0]
+        prefix = image.split(':')[0].replace('/', '-')
         if len(prefix) > 32:
             # if it's long, truncate
             prefix = '{}-{}'.format(prefix[:15], prefix[-15:])
