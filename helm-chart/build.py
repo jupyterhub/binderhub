@@ -4,6 +4,8 @@ import subprocess
 import argparse
 import yaml
 
+NAME = 'binderhub'
+
 def last_git_modified(path):
     return subprocess.check_output([
         'git',
@@ -37,34 +39,31 @@ def build_images(prefix, images, commit_range=None, push=False):
             ])
 
 def build_values(prefix):
-    with open('jupyterhub/values.yaml') as f:
+    with open(NAME + '/values.yaml') as f:
         values = yaml.safe_load(f)
 
-    values['hub']['image']['name'] = prefix + 'hub'
-    values['hub']['image']['tag'] = last_git_modified('images/hub')
+    values['image']['name'] = prefix + NAME
+    values['image']['tag'] = last_git_modified('images/' + NAME)
 
-    values['singleuser']['image']['name'] = prefix + 'singleuser-sample'
-    values['singleuser']['image']['tag'] = last_git_modified('images/singleuser-sample')
-
-    with open('jupyterhub/values.yaml', 'w') as f:
+    with open(NAME + '/values.yaml', 'w') as f:
         yaml.dump(values, f, default_flow_style=False)
 
 
 def build_chart():
     version = last_git_modified('.')
-    with open('jupyterhub/Chart.yaml') as f:
+    with open(NAME + '/Chart.yaml') as f:
         chart = yaml.safe_load(f)
 
     chart['version'] = chart['version'] + '-' + version
 
-    with open('jupyterhub/Chart.yaml', 'w') as f:
+    with open(NAME + '/Chart.yaml', 'w') as f:
         yaml.dump(chart, f, default_flow_style=False)
 
 def publish_pages():
     version = last_git_modified('.')
     subprocess.check_call([
         'git', 'clone', '--no-checkout',
-        'git@github.com:jupyterhub/helm-chart', 'gh-pages'],
+        'git@github.com:jupyterhub/binderhub', 'gh-pages'],
         env=dict(os.environ, GIT_SSH_COMMAND='ssh -i travis')
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
@@ -74,7 +73,7 @@ def publish_pages():
     ])
     subprocess.check_call([
         'helm', 'repo', 'index', '.',
-        '--url', 'https://jupyterhub.github.io/helm-chart'
+        '--url', 'https://jupyterhub.github.io/binderhub'
     ], cwd='gh-pages')
     subprocess.check_call(['git', 'add', '.'], cwd='gh-pages')
     subprocess.check_call([
@@ -104,7 +103,7 @@ def main():
 
     args = argparser.parse_args()
 
-    images = ['hub', 'singleuser-sample']
+    images = ['binderhub']
     if args.action == 'build':
         build_images(args.image_prefix, images, args.commit_range, args.push)
         build_values(args.image_prefix)

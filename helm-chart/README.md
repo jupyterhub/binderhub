@@ -1,7 +1,7 @@
-# [JupyterHub Helm Chart](https://github.com/jupyterhub/helm-chart)
+# BinderHub Helm Chart
 
 
-A [helm][] [chart][] for deploying [JupyterHub] instances on [Kubernetes].
+A [helm][] [chart][] for deploying [BinderHub] instances on [Kubernetes].
 
 **[Zero to JupyterHub with Kubernetes]** provides detailed instructions for using this project within a JupyerHub deployment.
 
@@ -34,10 +34,7 @@ Fundamental elements of a chart including:
 
 Docker images for applications including:
 
-- `builder`
-- `hub`
-- `proxy`
-- `singleuser-sample`
+- `binderhub`
 
 ### `Makefile`
 
@@ -45,7 +42,7 @@ Useful for compiling custom charts.
 
 ## Usage
 
-To build and push Docker images in the `images` directory:
+To build Docker images in the `images` directory:
 
     make images
 
@@ -54,6 +51,7 @@ To create chart metadata and package chart for use:
     make chart
 
 
+[BinderHub]: https://binderhub.readthedocs.io/en/latest/
 [JupyterHub]: https://jupyterhub.readthedocs.io/en/latest/
 [Kubernetes]: https://kubernetes.io
 [helm]: https://helm.sh/
