@@ -66,7 +66,7 @@ def publish_pages():
     version = last_git_modified('.')
     subprocess.check_call([
         'git', 'clone', '--no-checkout',
-        'git@github.com:jupyterhub/binderhub', 'gh-pages'],
+        'git@github.com:jupyterhub/helm-chart', 'gh-pages'],
         env=dict(os.environ, GIT_SSH_COMMAND='ssh -i travis')
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
@@ -76,7 +76,7 @@ def publish_pages():
     ])
     subprocess.check_call([
         'helm', 'repo', 'index', '.',
-        '--url', 'https://jupyterhub.github.io/binderhub'
+        '--url', 'https://jupyterhub.github.io/helm-chart'
     ], cwd='gh-pages')
     subprocess.check_call(['git', 'add', '.'], cwd='gh-pages')
     subprocess.check_call([
