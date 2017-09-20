@@ -5,6 +5,9 @@ hub:
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
     type: "sqlite-memory"
+  services:
+    binder:
+      apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
   extraConfig: |
     # disable login (users created exclusively via API)
     c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
@@ -32,19 +35,6 @@ hub:
 
     # launch jupyter notebook instead of jupyterhub-singleuser
     c.JupyterHub.spawner_class = BinderSpawner
-
-    # disable all XSS protections:
-    # FIXME: Make this more secure before allowing any authenticated state into binder
-    c.BinderSpawner.args.append('--NotebookApp.disable_check_xsrf=True')
-    c.BinderSpawner.args.append('--NotebookApp.allow_origin="*"')
-    c.BinderSpawner.args.append("--NotebookApp.tornado_settings={'headers': {'Content-Security-Policy': ''}}")
-
-    # add binder API token!
-    c.JupyterHub.services.append({
-        'name': 'binder',
-        'admin': True,
-        'api_token': 'aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4',
-    })
 
     # debug!
     c.JupyterHub.log_level = 10
