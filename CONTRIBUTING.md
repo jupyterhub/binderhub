@@ -32,7 +32,9 @@ and run binderhub on the host system.
     ```python
     c.BinderHub.use_registry = False
     c.BinderHub.hub_url = 'http://<minikube-ip>:<proxy-public-port>/'
+    c.BinderHub.hub_api_token = 'aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4'
     ```
+
 6. install binderhub:
 
         python3 -m pip install -e .
