@@ -139,7 +139,7 @@ class BinderHub(Application):
     )
 
     builder_image_spec = Unicode(
-        'jupyter/repo2docker:v0.2.5',
+        'jupyter/repo2docker:v0.4.1',
         help="""
         The builder image to be used for doing builds
         """,
