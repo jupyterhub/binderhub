@@ -2,7 +2,10 @@
 import os
 import subprocess
 import argparse
-import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML()
+yaml.indent(offset=2)
 
 NAME = 'binderhub'
 
@@ -40,24 +43,24 @@ def build_images(prefix, images, commit_range=None, push=False):
 
 def build_values(prefix):
     with open(NAME + '/values.yaml') as f:
-        values = yaml.safe_load(f)
+        values = yaml.load(f)
 
     values['image']['name'] = prefix + NAME
     values['image']['tag'] = last_git_modified('images/' + NAME)
 
     with open(NAME + '/values.yaml', 'w') as f:
-        yaml.dump(values, f, default_flow_style=False)
+        yaml.dump(values, f)
 
 
 def build_chart():
     version = last_git_modified('.')
     with open(NAME + '/Chart.yaml') as f:
-        chart = yaml.safe_load(f)
+        chart = yaml.load(f)
 
     chart['version'] = chart['version'] + '-' + version
 
     with open(NAME + '/Chart.yaml', 'w') as f:
-        yaml.dump(chart, f, default_flow_style=False)
+        yaml.dump(chart, f)
 
 def publish_pages():
     version = last_git_modified('.')

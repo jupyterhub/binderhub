@@ -9,21 +9,21 @@ image:
 
 repo2dockerImage: jupyter/repo2docker:v0.4.1
 
-googleAnalyticsCode: null
+googleAnalyticsCode:
 
 registry:
   enabled: false
   prefix: binderhub-local/
   host: gcr.io
   username: _json_key
-  password: null
+  password:
 
 service:
   type: LoadBalancer
-  nodePort: null
+  nodePort:
 
 hub:
-  url: null
+  url:
 
 jupyterhub:
   hub:
@@ -57,7 +57,7 @@ jupyterhub:
     services:
       binder:
         admin: true
-        apiToken: null
+        apiToken:
 
   singleuser:
     # start jupyter notebook
@@ -65,7 +65,7 @@ jupyterhub:
     storage:
       type: none
     memory:
-      guarantee: null
+      guarantee:
   prePuller:
     enabled: false
 
