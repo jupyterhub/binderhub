@@ -48,6 +48,9 @@ First create a file called ``secret.yaml``. In it, put the following code::
     jupyterhub:
       hub:
         cookieSecret: "<openssl rand -hex 32>"
+        services:
+          binder:
+            apiToken: "<openssl rand -hex 32>"
       proxy:
         secretToken: "<openssl rand -hex 32>"
     registry:
