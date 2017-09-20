@@ -26,6 +26,7 @@ c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 c.BinderHub.use_registry = get_config('binder.use-registry', True)
 
 c.BinderHub.builder_image_spec = get_config('binder.repo2docker-image')
-c.BinderHub.hub_login_url = get_config('binder.hub-url') + '/hub/tmplogin'
+c.BinderHub.hub_url = get_config('binder.hub-url')
+c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
 c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)

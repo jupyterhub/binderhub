@@ -2,7 +2,12 @@
 import os
 import subprocess
 import argparse
-import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML()
+yaml.indent(offset=2)
+
+NAME = 'binderhub'
 
 def last_git_modified(path):
     return subprocess.check_output([
@@ -37,28 +42,25 @@ def build_images(prefix, images, commit_range=None, push=False):
             ])
 
 def build_values(prefix):
-    with open('jupyterhub/values.yaml') as f:
-        values = yaml.safe_load(f)
+    with open(NAME + '/values.yaml') as f:
+        values = yaml.load(f)
 
-    values['hub']['image']['name'] = prefix + 'hub'
-    values['hub']['image']['tag'] = last_git_modified('images/hub')
+    values['image']['name'] = prefix + NAME
+    values['image']['tag'] = last_git_modified('images/' + NAME)
 
-    values['singleuser']['image']['name'] = prefix + 'singleuser-sample'
-    values['singleuser']['image']['tag'] = last_git_modified('images/singleuser-sample')
-
-    with open('jupyterhub/values.yaml', 'w') as f:
-        yaml.dump(values, f, default_flow_style=False)
+    with open(NAME + '/values.yaml', 'w') as f:
+        yaml.dump(values, f)
 
 
 def build_chart():
     version = last_git_modified('.')
-    with open('jupyterhub/Chart.yaml') as f:
-        chart = yaml.safe_load(f)
+    with open(NAME + '/Chart.yaml') as f:
+        chart = yaml.load(f)
 
     chart['version'] = chart['version'] + '-' + version
 
-    with open('jupyterhub/Chart.yaml', 'w') as f:
-        yaml.dump(chart, f, default_flow_style=False)
+    with open(NAME + '/Chart.yaml', 'w') as f:
+        yaml.dump(chart, f)
 
 def publish_pages():
     version = last_git_modified('.')
@@ -104,7 +106,7 @@ def main():
 
     args = argparser.parse_args()
 
-    images = ['hub', 'singleuser-sample']
+    images = ['binderhub']
     if args.action == 'build':
         build_images(args.image_prefix, images, args.commit_range, args.push)
         build_values(args.image_prefix)
