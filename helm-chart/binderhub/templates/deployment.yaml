@@ -1,0 +1,83 @@
+{{ if .Values.registry.enabled -}}
+kind: Secret
+apiVersion: v1
+metadata:
+  name: binder-secret
+type: Opaque
+data:
+  config.json: |
+    {{ b64enc (printf "{\"auths\": { \"https://%s\": { \"email\": \"not@val.id\", \"auth\": \"%s\" } } }" .Values.registry.host (b64enc (printf "%s:%s" .Values.registry.username .Values.registry.password) ) ) }}
+---
+{{- end }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: binder-config-{{ default .Release.Revision .Values.revisionOverride }}
+data:
+  binder.use-registry: {{ .Values.registry.enabled | quote }}
+  {{ if .Values.registry.enabled -}}
+  binder.push-secret: binder-secret
+  binder.registry.host: {{ .Values.registry.host | quote }}
+  {{ end -}}
+  {{ if .Values.googleAnalyticsCode -}}
+  binder.google-analytics-code: {{ .Values.googleAnalyticsCode | quote }}
+  {{- end }}
+  binder.registry.prefix: {{ .Values.registry.prefix | quote }}
+  binder.repo2docker-image: {{ .Values.repo2dockerImage | quote }}
+  binder.hub-url: {{ .Values.hub.url | quote }}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: binderhub-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: binder-pod
+        {{ if .Values.deployment.labels -}}
+        # Because toYaml + indent is super flaky
+        {{ range $key, $value := .Values.deployment.labels -}}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: binder-config-{{ default .Release.Revision .Values.revisionOverride }}
+      {{ if .Values.registry.enabled -}}
+      - name: docker-secret
+        secret:
+          secretName: binder-secret
+      {{ else -}}
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
+      {{- end }}
+      containers:
+      - name: binder-container
+        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        volumeMounts:
+          - mountPath: /etc/binderhub/config/
+            name: config
+          {{ if .Values.registry.enabled -}}
+          - mountPath: /root/.docker
+            name: docker-secret
+            readOnly: true
+          {{ else -}}
+          - mountPath: /var/run/docker.sock
+            name: docker-socket
+          {{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 12}}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BUILD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+          - containerPort: 8585
+            name: binder

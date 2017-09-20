@@ -1,0 +1,30 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: binderhub
+  {{- if or (and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego")) .Values.ingress.annotations }}
+  annotations:
+    {{- if eq .Values.ingress.https.type  "kube-lego" }}
+    kubernetes.io/tls-acme: "true"
+    {{ end -}}
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: binder
+              servicePort: 8585
+      host: {{ .Values.ingress.host }}
+{{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
+  tls:
+    - secretName: kubelego-tls-binder-{{ .Release.Name }}
+      hosts:
+        - {{ .Values.ingress.host }}
+{{- end }}
+{{- end -}}

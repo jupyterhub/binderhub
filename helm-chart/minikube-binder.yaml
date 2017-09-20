@@ -1,0 +1,25 @@
+hub:
+  url: http://192.168.99.100:30949
+
+service:
+  type: NodePort
+  nodePort: 30948
+
+
+jupyterhub:
+  hub:
+      cookieSecret: 1470700e01f77171c2c67b12130c25081dfbdf2697af8c2f2bd05621b31100bf
+      db:
+        type: sqlite-memory
+
+  proxy:
+    secretToken: f89ddee5ba10f2268fcefcd4e353235c255493095cd65addf29ebebf8df86255
+    service:
+      type: NodePort
+      nodePort: 30949
+
+  singleuser:
+    storage:
+      type: none
+    memory:
+      guarantee: null

@@ -1,0 +1,90 @@
+resources:
+  requests:
+    cpu: 0.2
+    memory: 512Mi
+
+image:
+  name: jupyterhub/k8s-binderhub
+  tag: vbd57123
+
+repo2dockerImage: jupyter/repo2docker:v0.2.10
+
+googleAnalyticsCode: null
+
+registry:
+  enabled: false
+  prefix: binderhub-local/
+  host: gcr.io
+  username: _json_key
+  password: null
+
+service:
+  type: LoadBalancer
+  nodePort: null
+
+hub:
+  url: null
+
+jupyterhub:
+  hub:
+    extraConfig: |
+      import json
+      import urllib
+      from tmpauthenticator import TmpAuthenticator
+      from kubespawner import KubeSpawner
+      from jupyterhub.utils import url_path_join
+      class DynamicImageAuth(TmpAuthenticator):
+          def process_user(self, user, handler):
+              # We take all the url params and put them into a `url_options` field
+              # Not using `user_options` since that seems to be cleared by JupyterHub.
+              arguments = { k: handler.get_argument(k) for k in handler.request.arguments }
+              user.spawner.url_options = arguments
+              return user
+
+          def pre_spawn_start(self, user, spawner):
+              # Support for each runtime parameter is set up here!
+              # FIXME: Make sure we only run authorized images!
+              spawner.singleuser_image_spec = spawner.url_options['image']
+
+              # Detect if we're pointing to a particular file!
+              # FIXME:
+              filepath = spawner.url_options.get('filepath', None)
+              if filepath:
+                  parts = urllib.parse.urlparse(filepath)
+                  if parts.path.endswith('.ipynb'):
+                      parts = parts._replace(path=url_path_join('/notebooks', parts.path))
+                  else:
+                      parts = parts._replace(path=url_path_join('/edit', parts.path))
+                  spawner.default_url = urllib.parse.urlunparse(parts)
+
+
+      c.JupyterHub.authenticator_class = DynamicImageAuth
+      c.DynamicImageAuth.force_new_server = True
+      c.KubeSpawner.args.append('--NotebookApp.disable_check_xsrf=True')
+      c.KubeSpawner.args.append('--NotebookApp.allow_origin="*"')
+      # FIXME: Make this more secure?
+      c.KubeSpawner.args.append('--NotebookApp.tornado_settings={}'.format(json.dumps({'headers': {'Content-Security-Policy': ' '}})))
+
+  singleuser:
+    storage:
+      type: none
+    memory:
+      guarantee: null
+  prePuller:
+    enabled: false
+
+deployment:
+  labels: {}
+
+ingress:
+  enabled: false
+  hosts:
+    - chart-example.local
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls: {}
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
