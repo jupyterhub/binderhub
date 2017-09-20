@@ -24,6 +24,19 @@ TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
 class BinderHub(Application):
     """An Application for starting a builder."""
+    aliases = {
+        'log-level': 'Application.log_level',
+        'f': 'BinderHub.config_file',
+        'config': 'BinderHub.config_file',
+        'port': 'BinderHub.port',
+    }
+    flags = {
+        'debug': (
+            {'Application': {'log_level': logging.DEBUG}},
+            "Enable debug-level logging",
+        ),
+    }
+
     config_file = Unicode(
         'binderhub_config.py',
         help="""
