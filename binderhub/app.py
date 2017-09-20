@@ -25,6 +25,19 @@ TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
 class BinderHub(Application):
     """An Application for starting a builder."""
+    aliases = {
+        'log-level': 'Application.log_level',
+        'f': 'BinderHub.config_file',
+        'config': 'BinderHub.config_file',
+        'port': 'BinderHub.port',
+    }
+    flags = {
+        'debug': (
+            {'Application': {'log_level': logging.DEBUG}},
+            "Enable debug-level logging",
+        ),
+    }
+
     config_file = Unicode(
         'binderhub_config.py',
         help="""
@@ -140,7 +153,7 @@ class BinderHub(Application):
     )
 
     builder_image_spec = Unicode(
-        'jupyter/repo2docker:v0.2.5',
+        'jupyter/repo2docker:v0.4.1',
         help="""
         The builder image to be used for doing builds
         """,
