@@ -72,6 +72,8 @@ def publish_pages():
         env=dict(os.environ, GIT_SSH_COMMAND='ssh -i travis')
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
+    subprocess.check_call(['helm', 'repo', 'add', 'jupyterhub', 'https://jupyterhub.github.io/helm-chart/'])
+    subprocess.check_call(['helm', 'repo', 'update'])
     subprocess.check_call([
         'helm', 'package', '--dependency-update', CHARTPATH,
         '--destination', 'gh-pages/'
