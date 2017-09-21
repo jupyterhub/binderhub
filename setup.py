@@ -4,7 +4,7 @@ setup(
     name='binderhub',
     version='0.1',
     install_requires=[
-        'kubernetes==1.*',
+        'kubernetes==3.*',
         'tornado',
         'traitlets',
         'docker',
