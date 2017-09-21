@@ -73,7 +73,7 @@ def publish_pages():
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
     subprocess.check_call([
-        'helm', 'package', CHARTPATH,
+        'helm', 'package', '--dependency-update', CHARTPATH,
         '--destination', 'gh-pages/'
     ])
     subprocess.check_call([
