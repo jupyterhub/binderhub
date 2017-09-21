@@ -7,6 +7,8 @@ from ruamel.yaml import YAML
 yaml = YAML()
 yaml.indent(offset=2)
 
+BASEPATH = os.path.dirname(__file__)
+CHARTPATH = os.path.join(BASEPATH, 'binderhub')
 NAME = 'binderhub'
 
 def last_git_modified(path):
@@ -20,7 +22,7 @@ def last_git_modified(path):
 
 def image_touched(image, commit_range):
     return subprocess.check_output([
-        'git', 'diff', '--name-only', commit_range, os.path.join('images', image)
+        'git', 'diff', '--name-only', commit_range, os.path.join(BASEPATH, 'images', image)
     ]).decode('utf-8').strip() != ''
 
 def build_images(prefix, images, commit_range=None, push=False):
@@ -29,7 +31,7 @@ def build_images(prefix, images, commit_range=None, push=False):
             if not image_touched(image, commit_range):
                 print("Skipping {}, not touched in {}".format(image, commit_range))
                 continue
-        image_path = os.path.join('images', image)
+        image_path = os.path.join(BASEPATH, 'images', image)
         tag = last_git_modified(image_path)
         image_spec = '{}{}:{}'.format(prefix, image, tag)
 
@@ -42,24 +44,24 @@ def build_images(prefix, images, commit_range=None, push=False):
             ])
 
 def build_values(prefix):
-    with open(NAME + '/values.yaml') as f:
+    with open(os.path.join(CHARTPATH, 'values.yaml')) as f:
         values = yaml.load(f)
 
     values['image']['name'] = prefix + NAME
-    values['image']['tag'] = last_git_modified('images/' + NAME)
+    values['image']['tag'] = last_git_modified(os.path.join(BASEPATH, 'images/',  NAME))
 
-    with open(NAME + '/values.yaml', 'w') as f:
+    with open(os.path.join(CHARTPATH, 'values.yaml'), 'w') as f:
         yaml.dump(values, f)
 
 
 def build_chart():
     version = last_git_modified('.')
-    with open(NAME + '/Chart.yaml') as f:
+    with open(os.path.join(CHARTPATH, 'Chart.yaml')) as f:
         chart = yaml.load(f)
 
     chart['version'] = chart['version'] + '-' + version
 
-    with open(NAME + '/Chart.yaml', 'w') as f:
+    with open(os.path.join(CHARTPATH, 'Chart.yaml'), 'w') as f:
         yaml.dump(chart, f)
 
 def publish_pages():
