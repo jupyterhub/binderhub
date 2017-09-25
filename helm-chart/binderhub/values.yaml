@@ -26,6 +26,9 @@ hub:
   url:
 
 jupyterhub:
+  cull:
+    enabled: true
+    users: true
   hub:
     extraConfig: |
       # disable login (users created exclusively via API)
