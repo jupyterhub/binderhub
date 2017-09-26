@@ -1,0 +1,6 @@
+name: binderhub
+type: sphinx
+conda:
+    file: doc/environment.yml
+python:
+  version: 3
