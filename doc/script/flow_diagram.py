@@ -105,7 +105,7 @@ def generate_flow_diagram(app):
             x['fontname'] = font_face
     g.node_attr['shape'] = 'box'
  
-    g.layout('dot')
+    g.layout(u'dot')
     g.draw(out_fname, format='svg')
     return g
 
