@@ -54,8 +54,8 @@ def generate_flow_diagram(app):
     if not op.isdir(out_dir):
         os.makedirs(out_dir)
     out_fname = op.join(out_dir, 'binder_flow.svg')
-    make_flow_diagram = app is None or \
-        bool(app.builder.config.make_flow_diagram)
+    make_flow_diagram = (app is None or
+                         bool(app.builder.config.make_flow_diagram))
     if not make_flow_diagram:
         print('Skipping flow diagram, webpage will have a missing image')
         return
