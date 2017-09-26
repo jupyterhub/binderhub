@@ -100,7 +100,7 @@ function updateUrl() {
 }
 
 
-var BADGE_URL = window.location.origin + '/static/images/badge.svg'
+var BADGE_URL = window.location.origin + '/badge.svg'
 
 
 function markdownBadge(url) {
