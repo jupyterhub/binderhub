@@ -11,4 +11,4 @@ dependencies:
 - pip:
   - jupyter_alabaster_theme
   - recommonmark==0.4.0
-  - pygraphviz
+  - pygraphviz==1.4rc1
