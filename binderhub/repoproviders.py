@@ -81,7 +81,7 @@ class GitHubRepoProvider(RepoProvider):
             self.repo = self.repo[:len(self.repo) - 4]
 
     def get_repo_url(self):
-        return "https://github.com/{user}/{repo}.git".format(user=self.user, repo=self.repo)
+        return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
 
     @gen.coroutine
     def get_resolved_ref(self):
