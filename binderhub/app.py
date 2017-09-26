@@ -215,6 +215,10 @@ class BinderHub(Application):
             (r"/run", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
+            # for backward-compatible mybinder.org badge URL
+            (r'/assets/(images/badge\.svg)',
+                tornado.web.StaticFileHandler,
+                {'path': self.tornado_settings['static_path']}),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ], **self.tornado_settings)
