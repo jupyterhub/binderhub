@@ -39,7 +39,24 @@
             <input class="form-control" type="text" id="filepath" placeholder="Path from repo root to notebook file (optional)" value="{{ filepath or "" }}"/>
           </div>
           <div class="form-group col-md-2">
-            <button id="submit" class="form-control btn btn-warning submit" type="submit">launch</button>
+            <div class="btn-group" id="launch-buttons">
+              <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
+              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Grab badge code in your format</li>
+                <li><a href="#" id="markdown-badge-toggle">markdown</a></li>
+                <li><a href="#" id="rst-badge-toggle">rst</a></li>
+                <li><pre id="badge-snippet"></pre></li>
+                <li class="dropdown-header">Paste into your README to get</li>
+                <li>
+                  <a id="badge-link">
+                    <img id="badge" src="/static/images/badge.svg">
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 

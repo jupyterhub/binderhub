@@ -19,6 +19,11 @@
     display: none;
 }
 
+#badge-snippet {
+  max-width: 200px;
+  font-size: 75%;
+}
+
 body {
     padding-top: 32px;
     font-family: "ClearSans-Thin", sans-serif;
@@ -28,7 +33,7 @@ form {
     font-family: "ClearSans-Light", sans-serif;
 }
 
-a {
+p > a {
     cursor: pointer;
     color: rgb(120,120,120);
     border-bottom: dotted 2px rgb(120,120,120);
@@ -36,7 +41,7 @@ a {
     text-decoration: non
 }
 
-a:hover {
+p > a:hover {
     color: rgb(30,30,30);
     border-bottom: dotted 2px rgb(30,30,30);
     text-decoration: none;
@@ -112,7 +117,7 @@ h4 {
     background-color: black;
 }
 
-#submit {
+#launch-buttons {
     margin-top: 24px;
 }
 
