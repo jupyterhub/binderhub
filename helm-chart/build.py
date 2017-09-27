@@ -86,7 +86,7 @@ def publish_pages():
     subprocess.check_call([
         'git',
         'commit',
-        '-m', 'Automatic update for commit {}'.format(version)
+        '-m', '[binderhub] Automatic update for commit {}'.format(version)
     ], cwd='gh-pages')
     subprocess.check_call(
         ['git', 'push', 'origin', 'gh-pages'],
