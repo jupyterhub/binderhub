@@ -1,6 +1,10 @@
 `BinderHub`_
 ============
 
+.. image:: https://travis-ci.org/jupyterhub/binderhub.svg?branch=master
+   :target: https://travis-ci.org/jupyterhub/binderhub
+   :alt: travis status
+
 .. image:: https://readthedocs.org/projects/binderhub/badge/?version=latest
    :target: https://binderhub.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
