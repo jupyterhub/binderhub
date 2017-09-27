@@ -9,7 +9,7 @@ import uuid
 from urllib.parse import quote
 
 from tornado.log import app_log
-from tornado import web
+from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from tornado.httputil import url_concat
 
@@ -76,7 +76,7 @@ class RedirectHandler(BaseHandler):
         # start server
         app_log.info("Starting server for user %s with image %s", username, image)
         try:
-            await self.api_request(
+            resp = await self.api_request(
                 'users/%s/server' % username,
                 method='POST',
                 body=json.dumps({
@@ -84,6 +84,25 @@ class RedirectHandler(BaseHandler):
                     'image': image,
                 }).encode('utf8'),
             )
+            if resp.code == 202:
+                # Server hasn't actually started yet
+                # We wait for it!
+                for i in range(10):
+                    resp = await self.api_request(
+                        'users/%s' % username,
+                        method='GET',
+                    )
+
+                    body = json.loads(resp.body.decode('utf-8'))
+                    if body['server']:
+                        break
+                    # FIXME: make this configurable
+                    # FIXME: Measure how long it takes for servers to start
+                    # and tune this appropriately
+                    await gen.sleep(1.4 ** i)
+                else:
+                    raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
+
         except HTTPError as e:
             app_log.error("Error starting server for %s: %s\n%s",
                 username, e, e.response.body,
