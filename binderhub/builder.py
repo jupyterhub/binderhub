@@ -45,7 +45,7 @@ class BuildHandler(BaseHandler):
 
         # this cannot be async
         evt = json.dumps({
-            'phase': 'error',
+            'phase': 'failed',
             'status_code': status_code,
             'message': message + '\n',
         })
