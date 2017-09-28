@@ -3,6 +3,7 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
 import hashlib
+from http.client import responses
 import json
 import threading
 
@@ -32,6 +33,24 @@ class BuildHandler(BaseHandler):
             app_log.warning("Stream closed while handling %s", self.request.uri)
             # raise Finish to halt the handler
             raise web.Finish()
+
+    def send_error(self, status_code, **kwargs):
+        """event stream cannot set an error code, so send an error event"""
+        exc_info = kwargs.get('exc_info')
+        message = ''
+        if exc_info:
+            message = self.extract_message(exc_info)
+        if not message:
+            message = responses.get(status_code, 'Unknown HTTP Error')
+
+        # this cannot be async
+        evt = json.dumps({
+            'phase': 'error',
+            'status_code': status_code,
+            'message': message + '\n',
+        })
+        self.write('data: {}\n\n'.format(evt))
+        self.finish()
 
     def initialize(self):
         if self.settings['use_registry']:
