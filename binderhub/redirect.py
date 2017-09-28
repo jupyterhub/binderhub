@@ -65,8 +65,12 @@ class RedirectHandler(BaseHandler):
         try:
             await self.api_request('users/%s' % username, body=b'', method='POST')
         except HTTPError as e:
+            if e.response:
+                body = e.response.body
+            else:
+                body = ''
             app_log.error("Error creating user %s: %s\n%s",
-                username, e, e.response.body,
+                username, e, body,
             )
             raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
 
@@ -104,8 +108,13 @@ class RedirectHandler(BaseHandler):
                     raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 
         except HTTPError as e:
+            if e.response:
+                body = e.response.body
+            else:
+                body = ''
+
             app_log.error("Error starting server for %s: %s\n%s",
-                username, e, e.response.body,
+                username, e, body,
             )
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
