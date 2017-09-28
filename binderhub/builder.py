@@ -25,8 +25,13 @@ class BuildHandler(BaseHandler):
             serialized_data = json.dumps(data)
         else:
             serialized_data = data
-        self.write('data: {}\n\n'.format(serialized_data))
-        await self.flush()
+        try:
+            self.write('data: {}\n\n'.format(serialized_data))
+            await self.flush()
+        except StreamClosedError:
+            app_log.warning("Stream closed while handling %s", self.request.uri)
+            # raise Finish to halt the handler
+            raise web.Finish()
 
     def initialize(self):
         if self.settings['use_registry']:
@@ -158,15 +163,11 @@ class BuildHandler(BaseHandler):
         pool.submit(build.submit)
         log_future = None
 
-        # await initial waiting event
-        try:
-            await self.emit({
-                'phase': 'waiting',
-                'message': 'Waiting for build to start...\n',
-            })
-        except StreamClosedError:
-            # Client has gone away!
-            return
+        # initial waiting event
+        await self.emit({
+            'phase': 'waiting',
+            'message': 'Waiting for build to start...\n',
+        })
 
         done = False
         while not done:
@@ -200,11 +201,7 @@ class BuildHandler(BaseHandler):
                 # We expect logs to be already JSON structured anyway
                 event = progress['payload']
 
-            try:
-                await self.emit(event)
-            except StreamClosedError:
-                # Client has gone away!
-                return
+            await self.emit(event)
 
         await self.launch(image_name)
 
