@@ -112,6 +112,7 @@ class BuildHandler(BaseHandler):
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
                 })
+                yield self.launch(image_name)
                 return
         else:
             # Check if the image exists locally!
@@ -122,8 +123,9 @@ class BuildHandler(BaseHandler):
                 yield self.emit({
                     'phase': 'built',
                     'imageName': image_name,
-                    'message': 'Found built image, launching...\n'
+                    'message': 'Image already built!\n'
                 })
+                yield self.launch(image_name)
                 return
             except docker.errors.ImageNotFound:
                 # image doesn't exist, so do a build!
@@ -205,4 +207,22 @@ class BuildHandler(BaseHandler):
                 yield self.emit(event)
             except StreamClosedError:
                 # Client has gone away!
-                break
+                return
+
+        yield self.launch(image_name)
+
+    async def launch(self, image_name):
+        """Ask the Hub to launch the image"""
+        await self.emit({
+            'phase': 'launching',
+            'message': 'Launching server...\n',
+        })
+        # build finished, time to launch!
+        launcher = self.settings['launcher']
+        server_info = await launcher.launch(image_name)
+        event = {
+            'phase': 'ready',
+            'message': 'server running at %s' % server_info['url'],
+        }
+        event.update(server_info)
+        await self.emit(event)

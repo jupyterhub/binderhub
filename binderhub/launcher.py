@@ -1,19 +1,17 @@
 """
-Handler for URL redirection
+Launch an image with a temporary user via JupyterHub
 """
 import base64
 import json
 import random
 import string
 import uuid
-from urllib.parse import quote
 
 from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
-from tornado.httputil import url_concat
-
-from .base import BaseHandler
+from traitlets.config import LoggingConfigurable
+from traitlets import Unicode
 
 # Add a random lowercase alphanumeric suffix to usernames to avoid collisions
 # Set of characters from which to generate a suffix
@@ -21,13 +19,17 @@ SUFFIX_CHARS = string.ascii_lowercase + string.digits
 # Set length of suffix. Number of combinations = SUFFIX_CHARS**SUFFIX_LENGTH = 36**8 ~= 2**41
 SUFFIX_LENGTH = 8
 
-class RedirectHandler(BaseHandler):
-    """Handler for URL redirects."""
+class Launcher(LoggingConfigurable):
+    """Object for encapsulating launching an image for a user"""
+
+    hub_api_token = Unicode(help="The API token for the Hub")
+    hub_url = Unicode(help="The URL of the Hub")
+
     async def api_request(self, url, *args, **kwargs):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
-        headers.update({'Authorization': 'token %s' % self.settings['hub_api_token']})
-        req = HTTPRequest(self.settings['hub_url'] + 'hub/api/' + url, *args, **kwargs)
+        headers.update({'Authorization': 'token %s' % self.hub_api_token})
+        req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
         resp = await AsyncHTTPClient().fetch(req)
         # TODO: handle errors
         return resp
@@ -50,12 +52,17 @@ class RedirectHandler(BaseHandler):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def get(self):
-        image = self.get_argument('image')
-        filepath = self.get_argument('filepath')
-        if not image:
-            raise web.HTTPError(400, "image argument is required")
+    async def launch(self, image):
+        """Launch a server for a given image
 
+
+        - creates the user on the Hub
+        - spawns a server for that user
+        - generates a token
+        - returns a dict containing:
+          - `url`: the URL of the server
+          - `token`: the token for the server
+        """
         # TODO: validate the image argument?
 
         username = self.username_from_image(image)
@@ -118,11 +125,9 @@ class RedirectHandler(BaseHandler):
             )
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        url = self.settings['hub_url'] + 'user/%s/' % username
-        if filepath:
-            url = url + 'tree/%s' % quote(filepath)
+        url = self.hub_url + 'user/%s/' % username
 
-        app_log.info("Redirecting to %s", url)
-        # redirect with token
-        self.redirect(url_concat(url, {'token': token}))
-
+        return {
+            'url': url,
+            'token': token,
+        }

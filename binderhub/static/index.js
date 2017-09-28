@@ -65,8 +65,15 @@ Image.prototype.close = function() {
     }
 };
 
-Image.prototype.launch = function(runtimeParameters) {
-    var url = '/run?' + $.param(runtimeParameters);
+Image.prototype.launch = function(url, token, filepath) {
+    // redirect a user to a running server with a token
+    if (filepath) {
+      // strip trailing /
+      url = url.replace(/\/$/, '');
+      // /tree is safe because it allows redirect to files
+      url = url + '/tree/' + encodeURI(filepath);
+    }
+    url = url + '?' + $.param({token: token});
     window.location.href = url;
 };
 
@@ -224,13 +231,13 @@ $(function(){
                 $('#phase-already-built').removeClass('hidden');
                 $('#phase-launching').removeClass('hidden');
             }
+        });
+
+        image.onStateChange('ready', function(oldState, newState, data) {
             image.close();
             // fetch runtime params!
-            var filepath = $("#filepath").val();
-            image.launch({
-                image: data.imageName,
-                filepath: filepath,
-            });
+            var filepath = $("#filepath").val().trim();
+            image.launch(data.url, data.token, filepath);
         });
 
         image.fetch();
