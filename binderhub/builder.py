@@ -216,7 +216,7 @@ class BuildHandler(BaseHandler):
         server_info = await launcher.launch(image_name)
         event = {
             'phase': 'ready',
-            'message': 'server running at %s' % server_info['url'],
+            'message': 'server running at %s\n' % server_info['url'],
         }
         event.update(server_info)
         await self.emit(event)
