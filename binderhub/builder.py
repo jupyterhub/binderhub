@@ -8,7 +8,7 @@ import json
 import threading
 
 import docker
-from kubernetes import client, config
+from kubernetes import client
 from tornado import web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
