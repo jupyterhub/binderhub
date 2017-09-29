@@ -67,7 +67,7 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, repo):
+    async def launch(self, image, username):
         """Launch a server for a given image
 
 
@@ -79,8 +79,6 @@ class Launcher(LoggingConfigurable):
           - `token`: the token for the server
         """
         # TODO: validate the image argument?
-
-        username = self.username_from_repo(repo)
 
         # create a new user
         app_log.info("Creating user %s for image %s", username, image)

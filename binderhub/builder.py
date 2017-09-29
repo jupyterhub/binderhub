@@ -230,7 +230,8 @@ class BuildHandler(BaseHandler):
         })
         # build finished, time to launch!
         launcher = self.settings['launcher']
-        server_info = await launcher.launch(image=self.image_name, repo=self.repo)
+        username = launcher.username_from_repo(self.repo)
+        server_info = await launcher.launch(image=self.image_name, username=username)
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],
