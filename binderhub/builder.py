@@ -127,30 +127,27 @@ class BuildHandler(BaseHandler):
 
         if self.settings['use_registry']:
             image_manifest = await self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
-            if image_manifest:
-                await self.emit({
-                    'phase': 'built',
-                    'imageName': image_name,
-                    'message': 'Found built image, launching...\n'
-                })
-                await self.launch(image_name)
-                return
+            image_found = bool(image_manifest)
         else:
             # Check if the image exists locally!
             # Assume we're running in single-node mode!
             docker_client = docker.from_env(version='auto')
             try:
-                image = docker_client.images.get(image_name)
-                await self.emit({
-                    'phase': 'built',
-                    'imageName': image_name,
-                    'message': 'Image already built!\n'
-                })
-                await self.launch(image_name)
-                return
+                docker_client.images.get(image_name)
             except docker.errors.ImageNotFound:
                 # image doesn't exist, so do a build!
-                pass
+                image_found = False
+            else:
+                image_found = True
+
+        if image_found:
+            await self.emit({
+                'phase': 'built',
+                'imageName': image_name,
+                'message': 'Found built image, launching...\n'
+            })
+            await self.launch(image_name)
+            return
 
         try:
             config.load_incluster_config()
