@@ -124,6 +124,32 @@ class BuildHandler(BaseHandler):
             prefix=self.settings['docker_image_prefix'],
             build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
+        
+        q = Queue()
+
+        if self.settings['use_registry']:
+            push_secret = self.settings['docker_push_secret']
+        else:
+            push_secret = None
+
+        try:
+            config.load_incluster_config()
+        except config.ConfigException:
+            config.load_kube_config()
+
+        build = Build(
+            q=q,
+            api=client.CoreV1Api(),
+            name=build_name,
+            namespace=self.settings["build_namespace"],
+            git_url=provider.get_repo_url(),
+            ref=ref,
+            image_name=image_name,
+            push_secret=push_secret,
+            builder_image=self.settings['builder_image_spec'],
+            hub_url=self.settings['hub_url'],
+            hub_api_token=self.settings['hub_api_token'],
+        )
 
         if self.settings['use_registry']:
             image_manifest = await self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
@@ -133,7 +159,7 @@ class BuildHandler(BaseHandler):
                     'imageName': image_name,
                     'message': 'Found built image, launching...\n'
                 })
-                await self.launch(image_name)
+                await self.launch(build)
                 return
         else:
             # Check if the image exists locally!
@@ -146,37 +172,11 @@ class BuildHandler(BaseHandler):
                     'imageName': image_name,
                     'message': 'Image already built!\n'
                 })
-                await self.launch(image_name)
+                await self.launch(build)
                 return
             except docker.errors.ImageNotFound:
                 # image doesn't exist, so do a build!
                 pass
-
-        try:
-            config.load_incluster_config()
-        except config.ConfigException:
-            config.load_kube_config()
-
-        api = client.CoreV1Api()
-
-        q = Queue()
-
-        if self.settings['use_registry']:
-            push_secret = self.settings['docker_push_secret']
-        else:
-            push_secret = None
-
-        build = Build(
-            q=q,
-            api=api,
-            name=build_name,
-            namespace=self.settings["build_namespace"],
-            git_url=provider.get_repo_url(),
-            ref=ref,
-            image_name=image_name,
-            push_secret=push_secret,
-            builder_image=self.settings['builder_image_spec'],
-        )
 
         pool = self.settings['build_pool']
         pool.submit(build.submit)
@@ -222,17 +222,16 @@ class BuildHandler(BaseHandler):
 
             await self.emit(event)
 
-        await self.launch(image_name)
+        await self.launch(build)
 
-    async def launch(self, image_name):
+    async def launch(self, build):
         """Ask the Hub to launch the image"""
         await self.emit({
             'phase': 'launching',
             'message': 'Launching server...\n',
         })
         # build finished, time to launch!
-        launcher = self.settings['launcher']
-        server_info = await launcher.launch(image_name)
+        server_info = await build.launch()
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],
