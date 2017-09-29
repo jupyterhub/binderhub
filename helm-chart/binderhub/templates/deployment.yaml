@@ -1,20 +1,3 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: binder-config-{{ default .Release.Revision .Values.revisionOverride }}
-data:
-  binder.use-registry: {{ .Values.registry.enabled | quote }}
-  {{ if .Values.registry.enabled -}}
-  binder.push-secret: binder-secret
-  binder.registry.host: {{ .Values.registry.host | quote }}
-  {{ end -}}
-  {{ if .Values.googleAnalyticsCode -}}
-  binder.google-analytics-code: {{ .Values.googleAnalyticsCode | quote }}
-  {{- end }}
-  binder.registry.prefix: {{ .Values.registry.prefix | quote }}
-  binder.repo2docker-image: {{ .Values.repo2dockerImage | quote }}
-  binder.hub-url: {{ .Values.hub.url | quote }}
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -31,6 +14,10 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
         {{- end }}
+      annotations:
+        # This lets us autorestart when the configmap changes!
+        checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       volumes:
       - name: config
