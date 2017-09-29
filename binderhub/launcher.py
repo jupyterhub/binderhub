@@ -4,7 +4,9 @@ Launch an image with a temporary user via JupyterHub
 import base64
 import json
 import random
+import re
 import string
+from urllib.parse import urlparse
 import uuid
 
 from tornado.log import app_log
@@ -12,6 +14,10 @@ from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
 from traitlets import Unicode
+
+# pattern for checking if it's an ssh repo and not a URL
+# used only after verifying that `://` is not present
+_ssh_repo_pat = re.compile(r'.*@.*\:')
 
 # Add a random lowercase alphanumeric suffix to usernames to avoid collisions
 # Set of characters from which to generate a suffix
@@ -34,25 +40,34 @@ class Launcher(LoggingConfigurable):
         # TODO: handle errors
         return resp
 
-    def username_from_image(self, image):
-        """Generate a username for an image
+    def username_from_repo(self, repo):
+        """Generate a username for a git repo url
 
         e.g. minrk-binder-example-abc123
-        from gcr.io/minrk-binder-example:sha...
+        from https://github.com/minrk/binder-example.git
         """
-        # use image for first part of the username
-        prefix = image.split(':')[0]
-        if '/' in prefix:
-            # Strip 'docker-repo/' off because it's an implementation detail.
-            # Only keep the image name, which has source repo info.
-            prefix = prefix.split('/')[1]
+        # start with url path
+        print
+        if '://' not in repo and _ssh_repo_pat.match(repo):
+            # ssh url
+            path = repo.split(':', 1)[1]
+        else:
+            path = urlparse(repo).path
+
+        prefix = path.strip('/').replace('/', '-').lower()
+
+        if prefix.endswith('.git'):
+            # strip trailing .git
+            prefix = prefix[:-4]
+
         if len(prefix) > 32:
             # if it's long, truncate
             prefix = '{}-{}'.format(prefix[:15], prefix[-15:])
+
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image):
+    async def launch(self, image, repo):
         """Launch a server for a given image
 
 
@@ -65,7 +80,7 @@ class Launcher(LoggingConfigurable):
         """
         # TODO: validate the image argument?
 
-        username = self.username_from_image(image)
+        username = self.username_from_repo(repo)
 
         # create a new user
         app_log.info("Creating user %s for image %s", username, image)

@@ -113,6 +113,8 @@ class BuildHandler(BaseHandler):
             await self.fail(str(e))
             return
 
+        repo = self.repo = provider.get_repo_url()
+
         try:
             ref = await provider.get_resolved_ref()
         except Exception as e:
@@ -124,7 +126,7 @@ class BuildHandler(BaseHandler):
         build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
-        image_name = '{prefix}{build_slug}:{ref}'.format(
+        image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=self.settings['docker_image_prefix'],
             build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
@@ -150,7 +152,7 @@ class BuildHandler(BaseHandler):
                 'imageName': image_name,
                 'message': 'Found built image, launching...\n'
             })
-            await self.launch(image_name)
+            await self.launch()
             return
 
         api = client.CoreV1Api()
@@ -167,7 +169,7 @@ class BuildHandler(BaseHandler):
             api=api,
             name=build_name,
             namespace=self.settings["build_namespace"],
-            git_url=provider.get_repo_url(),
+            git_url=repo,
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
@@ -218,9 +220,9 @@ class BuildHandler(BaseHandler):
 
             await self.emit(event)
 
-        await self.launch(image_name)
+        await self.launch()
 
-    async def launch(self, image_name):
+    async def launch(self):
         """Ask the Hub to launch the image"""
         await self.emit({
             'phase': 'launching',
@@ -228,7 +230,7 @@ class BuildHandler(BaseHandler):
         })
         # build finished, time to launch!
         launcher = self.settings['launcher']
-        server_info = await launcher.launch(image_name)
+        server_info = await launcher.launch(image=self.image_name, repo=self.repo)
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],
