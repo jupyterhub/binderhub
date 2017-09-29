@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
 
+import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
 import tornado.ioloop
 import tornado.options
@@ -15,7 +16,7 @@ from traitlets.config import Application
 
 from .base import Custom404
 from .builder import BuildHandler
-from .redirect import RedirectHandler
+from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
@@ -181,6 +182,12 @@ class BinderHub(Application):
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
 
+        # initialize kubernetes config
+        try:
+            kubernetes.config.load_incluster_config()
+        except kubernetes.config.ConfigException:
+            kubernetes.config.load_kube_config()
+
         # times 2 for log + build threads
         build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
@@ -191,6 +198,12 @@ class BinderHub(Application):
         else:
             registry = None
 
+        self.launcher = Launcher(
+            parent=self,
+            hub_url=self.hub_url,
+            hub_api_token=self.hub_api_token,
+        )
+
         self.tornado_settings = {
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -199,6 +212,7 @@ class BinderHub(Application):
             "debug": self.debug,
             'hub_url': self.hub_url,
             'hub_api_token': self.hub_api_token,
+            'launcher': self.launcher,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'build_pool': build_pool,
@@ -212,7 +226,6 @@ class BinderHub(Application):
 
         self.tornado_app = tornado.web.Application([
             (r"/build/([^/]+)/(.+)", BuildHandler),
-            (r"/run", RedirectHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
             # for backward-compatible mybinder.org badge URLs
