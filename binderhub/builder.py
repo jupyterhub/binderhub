@@ -8,7 +8,7 @@ import json
 import threading
 
 import docker
-from kubernetes import client, config
+from kubernetes import client
 from tornado import web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
@@ -135,11 +135,6 @@ class BuildHandler(BaseHandler):
             push_secret = self.settings['docker_push_secret']
         else:
             push_secret = None
-
-        try:
-            config.load_incluster_config()
-        except config.ConfigException:
-            config.load_kube_config()
 
         build = Build(
             q=q,

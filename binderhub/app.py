@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
 
+import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
 import tornado.ioloop
 import tornado.options
@@ -179,6 +180,12 @@ class BinderHub(Application):
         tornado.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
+
+        # initialize kubernetes config
+        try:
+            kubernetes.config.load_incluster_config()
+        except kubernetes.config.ConfigException:
+            kubernetes.config.load_kube_config()
 
         # times 2 for log + build threads
         build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
