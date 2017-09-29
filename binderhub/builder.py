@@ -113,7 +113,11 @@ class BuildHandler(BaseHandler):
             await self.fail(str(e))
             return
 
-        ref = await provider.get_resolved_ref()
+        try:
+            ref = await provider.get_resolved_ref()
+        except Exception as e:
+            await self.fail("Error resolving ref for %s: %s" % (key, e))
+            return
         if ref is None:
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
