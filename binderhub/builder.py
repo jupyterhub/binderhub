@@ -3,12 +3,13 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
 import hashlib
+from http.client import responses
 import json
 import threading
 
 import docker
-from kubernetes import client, config
-from tornado import web, gen
+from kubernetes import client
+from tornado import web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
@@ -20,14 +21,36 @@ from .build import Build
 class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
 
-    @gen.coroutine
-    def emit(self, data):
+    async def emit(self, data):
         if type(data) is not str:
             serialized_data = json.dumps(data)
         else:
             serialized_data = data
-        self.write('data: {}\n\n'.format(serialized_data))
-        yield self.flush()
+        try:
+            self.write('data: {}\n\n'.format(serialized_data))
+            await self.flush()
+        except StreamClosedError:
+            app_log.warning("Stream closed while handling %s", self.request.uri)
+            # raise Finish to halt the handler
+            raise web.Finish()
+
+    def send_error(self, status_code, **kwargs):
+        """event stream cannot set an error code, so send an error event"""
+        exc_info = kwargs.get('exc_info')
+        message = ''
+        if exc_info:
+            message = self.extract_message(exc_info)
+        if not message:
+            message = responses.get(status_code, 'Unknown HTTP Error')
+
+        # this cannot be async
+        evt = json.dumps({
+            'phase': 'failed',
+            'status_code': status_code,
+            'message': message + '\n',
+        })
+        self.write('data: {}\n\n'.format(evt))
+        self.finish()
 
     def initialize(self):
         if self.settings['use_registry']:
@@ -63,15 +86,13 @@ class BuildHandler(BaseHandler):
             ref=ref[:ref_length]
         ).lower()
 
-    @gen.coroutine
-    def fail(self, message):
-        yield self.emit({
+    async def fail(self, message):
+        await self.emit({
             'phase': 'failed',
             'message': message + '\n',
         })
 
-    @gen.coroutine
-    def get(self, provider_prefix, spec):
+    async def get(self, provider_prefix, spec):
         """Get a built image for a given GitHub user, repo, and ref."""
         # We gonna send out event streams!
         self.set_header('content-type', 'text/event-stream')
@@ -80,7 +101,7 @@ class BuildHandler(BaseHandler):
         # EventSource cannot handle HTTP errors,
         # so we have to send error messages on the eventsource
         if provider_prefix not in self.settings['repo_providers']:
-            yield self.fail("No provider found for prefix %s" % provider_prefix)
+            await self.fail("No provider found for prefix %s" % provider_prefix)
             return
 
         key = '%s:%s' % (provider_prefix, spec)
@@ -89,12 +110,16 @@ class BuildHandler(BaseHandler):
             provider = self.get_provider(provider_prefix, spec=spec)
         except Exception as e:
             app_log.exception("Failed to get provider for %s", key)
-            yield self.fail(str(e))
+            await self.fail(str(e))
             return
 
-        ref = yield provider.get_resolved_ref()
+        try:
+            ref = await provider.get_resolved_ref()
+        except Exception as e:
+            await self.fail("Error resolving ref for %s: %s" % (key, e))
+            return
         if ref is None:
-            yield self.fail("Could not resolve ref for %s. Double check your URL." % key)
+            await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
         build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
 
@@ -103,39 +128,7 @@ class BuildHandler(BaseHandler):
             prefix=self.settings['docker_image_prefix'],
             build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
-
-        if self.settings['use_registry']:
-            image_manifest = yield self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
-            if image_manifest:
-                yield self.emit({
-                    'phase': 'built',
-                    'imageName': image_name,
-                    'message': 'Found built image, launching...\n'
-                })
-                return
-        else:
-            # Check if the image exists locally!
-            # Assume we're running in single-node mode!
-            docker_client = docker.from_env(version='auto')
-            try:
-                image = docker_client.images.get(image_name)
-                yield self.emit({
-                    'phase': 'built',
-                    'imageName': image_name,
-                    'message': 'Found built image, launching...\n'
-                })
-                return
-            except docker.errors.ImageNotFound:
-                # image doesn't exist, so do a build!
-                pass
-
-        try:
-            config.load_incluster_config()
-        except config.ConfigException:
-            config.load_kube_config()
-
-        api = client.CoreV1Api()
-
+        
         q = Queue()
 
         if self.settings['use_registry']:
@@ -145,7 +138,7 @@ class BuildHandler(BaseHandler):
 
         build = Build(
             q=q,
-            api=api,
+            api=client.CoreV1Api(),
             name=build_name,
             namespace=self.settings["build_namespace"],
             git_url=provider.get_repo_url(),
@@ -153,25 +146,47 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             push_secret=push_secret,
             builder_image=self.settings['builder_image_spec'],
+            hub_url=self.settings['hub_url'],
+            hub_api_token=self.settings['hub_api_token'],
         )
+
+        if self.settings['use_registry']:
+            image_manifest = await self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
+            image_found = bool(image_manifest)
+        else:
+            # Check if the image exists locally!
+            # Assume we're running in single-node mode!
+            docker_client = docker.from_env(version='auto')
+            try:
+                docker_client.images.get(image_name)
+            except docker.errors.ImageNotFound:
+                # image doesn't exist, so do a build!
+                image_found = False
+            else:
+                image_found = True
+
+        if image_found:
+            await self.emit({
+                'phase': 'built',
+                'imageName': image_name,
+                'message': 'Found built image, launching...\n'
+            })
+            await self.launch(build)
+            return
 
         pool = self.settings['build_pool']
         pool.submit(build.submit)
         log_future = None
 
-        # yield initial waiting event
-        try:
-            yield self.emit({
-                'phase': 'waiting',
-                'message': 'Waiting for build to start...\n',
-            })
-        except StreamClosedError:
-            # Client has gone away!
-            return
+        # initial waiting event
+        await self.emit({
+            'phase': 'waiting',
+            'message': 'Waiting for build to start...\n',
+        })
 
         done = False
         while not done:
-            progress = yield q.get()
+            progress = await q.get()
 
             # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
             # whatever, we should fail properly.
@@ -201,8 +216,21 @@ class BuildHandler(BaseHandler):
                 # We expect logs to be already JSON structured anyway
                 event = progress['payload']
 
-            try:
-                yield self.emit(event)
-            except StreamClosedError:
-                # Client has gone away!
-                break
+            await self.emit(event)
+
+        await self.launch(build)
+
+    async def launch(self, build):
+        """Ask the Hub to launch the image"""
+        await self.emit({
+            'phase': 'launching',
+            'message': 'Launching server...\n',
+        })
+        # build finished, time to launch!
+        server_info = await build.launch()
+        event = {
+            'phase': 'ready',
+            'message': 'server running at %s\n' % server_info['url'],
+        }
+        event.update(server_info)
+        await self.emit(event)

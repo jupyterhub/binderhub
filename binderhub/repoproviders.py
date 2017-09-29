@@ -92,7 +92,7 @@ class GitHubRepoProvider(RepoProvider):
         api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
             user=self.user, repo=self.repo, ref=self.unresolved_ref
         )
-        print(api_url)
+        self.log.debug("Fetching %s", api_url)
 
         if self.username and self.password:
             auth = {
