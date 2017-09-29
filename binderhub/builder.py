@@ -153,11 +153,6 @@ class BuildHandler(BaseHandler):
             await self.launch(image_name)
             return
 
-        try:
-            config.load_incluster_config()
-        except config.ConfigException:
-            config.load_kube_config()
-
         api = client.CoreV1Api()
 
         q = Queue()
