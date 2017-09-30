@@ -3,6 +3,9 @@ resources:
     cpu: 0.2
     memory: 512Mi
 
+rbac:
+  enabled: true
+
 image:
   name: jupyterhub/k8s-binderhub
   tag: 8022f73
@@ -30,6 +33,8 @@ jupyterhub:
     enabled: true
     users: true
   hub:
+    rbac:
+      enabled: true
     extraConfig: |
       # disable login (users created exclusively via API)
       c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
