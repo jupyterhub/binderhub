@@ -59,10 +59,11 @@ def build_chart():
     with open(os.path.join(CHARTPATH, 'Chart.yaml')) as f:
         chart = yaml.load(f)
 
-    chart['version'] = chart['version'] + '-' + version
+    chart['version'] = chart['version'].split('-')[0] + '-' + version
 
     with open(os.path.join(CHARTPATH, 'Chart.yaml'), 'w') as f:
         yaml.dump(chart, f)
+
 
 def publish_pages():
     version = last_git_modified('.')
