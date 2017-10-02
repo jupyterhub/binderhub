@@ -8,7 +8,7 @@ rbac:
 
 image:
   name: jupyterhub/k8s-binderhub
-  tag: 8022f73
+  tag: local
 
 repo2dockerImage: jupyter/repo2docker:v0.4.1
 
