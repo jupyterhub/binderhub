@@ -172,7 +172,8 @@ class BinderHub(Application):
     concurrent_build_limit = Integer(
         32,
         config=True,
-        help="""The number of concurrent builds to allow.""")
+        help="""The number of concurrent builds to allow."""
+    )
 
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
