@@ -6,6 +6,7 @@ import hashlib
 from http.client import responses
 import json
 import threading
+import time
 
 import docker
 from kubernetes import client
@@ -13,9 +14,16 @@ from tornado import web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
+from prometheus_client import Histogram, Gauge, Counter
 
 from .base import BaseHandler
 from .build import Build
+
+
+BUILD_TIME = Histogram('binderhub_build_time_seconds', 'Histogram of build times', ['status'], buckets=[1, 5, 10, 30, 60, 300, 600, float("inf")])
+LAUNCH_TIME = Histogram('binderhub_launch_time_seconds', 'Histogram of launch times', ['status'], buckets=[1, 5, 10, 30, 60, 300, 600, float("inf")])
+BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
+LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
 
 class BuildHandler(BaseHandler):
@@ -176,51 +184,63 @@ class BuildHandler(BaseHandler):
             builder_image=self.settings['builder_image_spec'],
         )
 
-        pool = self.settings['build_pool']
-        pool.submit(build.submit)
-        log_future = None
+        with BUILDS_INPROGRESS.track_inprogress():
+            build_starttime = time.perf_counter()
+            pool = self.settings['build_pool']
+            pool.submit(build.submit)
 
-        # initial waiting event
-        await self.emit({
-            'phase': 'waiting',
-            'message': 'Waiting for build to start...\n',
-        })
+            log_future = None
 
-        done = False
-        while not done:
-            progress = await q.get()
+            # initial waiting event
+            await self.emit({
+                'phase': 'waiting',
+                'message': 'Waiting for build to start...\n',
+            })
 
-            # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
-            # whatever, we should fail properly.
-            if progress['kind'] == 'pod.phasechange':
-                if progress['payload'] == 'Pending':
-                    # nothing to do, just waiting
-                    continue
-                elif progress['payload'] == 'Deleted':
-                    event = {
-                        'phase': 'built',
-                        'message': 'Built image, launching...\n',
-                        'imageName': image_name,
-                    }
-                    done = True
-                elif progress['payload'] == 'Running':
-                    # start capturing build logs once the pod is running
-                    if log_future is None:
-                        log_future = pool.submit(build.stream_logs)
-                    continue
-                elif progress['payload'] == 'Succeeded':
-                    # Do nothing, is ok!
-                    continue
-                else:
-                    # FIXME: message? debug?
-                    event = {'phase': progress['payload']}
-            elif progress['kind'] == 'log':
-                # We expect logs to be already JSON structured anyway
-                event = progress['payload']
+            done = False
+            failed = False
+            while not done:
+                progress = await q.get()
 
-            await self.emit(event)
+                # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
+                # whatever, we should fail properly.
+                if progress['kind'] == 'pod.phasechange':
+                    if progress['payload'] == 'Pending':
+                        # nothing to do, just waiting
+                        continue
+                    elif progress['payload'] == 'Deleted':
+                        event = {
+                            'phase': 'built',
+                            'message': 'Built image, launching...\n',
+                            'imageName': image_name,
+                        }
+                        done = True
+                    elif progress['payload'] == 'Running':
+                        # start capturing build logs once the pod is running
+                        if log_future is None:
+                            log_future = pool.submit(build.stream_logs)
+                        continue
+                    elif progress['payload'] == 'Succeeded':
+                        # Do nothing, is ok!
+                        continue
+                    else:
+                        # FIXME: message? debug?
+                        event = {'phase': progress['payload']}
+                elif progress['kind'] == 'log':
+                    # We expect logs to be already JSON structured anyway
+                    event = progress['payload']
+                    payload = json.loads(event)
+                    if payload.get('phase', None) == 'failure':
+                        failed = True
+                        BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
 
-        await self.launch()
+                await self.emit(event)
+
+        if not failed:
+            BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
+            with LAUNCHES_INPROGRESS.track_inprogress():
+                await self.launch()
+
 
     async def launch(self):
         """Ask the Hub to launch the image"""
@@ -231,7 +251,13 @@ class BuildHandler(BaseHandler):
         # build finished, time to launch!
         launcher = self.settings['launcher']
         username = launcher.username_from_repo(self.repo)
-        server_info = await launcher.launch(image=self.image_name, username=username)
+        try:
+            launch_starttime = time.perf_counter()
+            server_info = await launcher.launch(image=self.image_name, username=username)
+            LAUNCH_TIME.labels(status='success').observe(time.perf_counter() - launch_starttime)
+        except:
+            LAUNCH_TIME.labels(status='failure').observe(time.perf_counter() - launch_starttime)
+            raise
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],

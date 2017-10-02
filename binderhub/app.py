@@ -20,6 +20,7 @@ from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import RepoProvider, GitHubRepoProvider
+from .metrics import MetricsHandler
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
@@ -225,6 +226,7 @@ class BinderHub(Application):
         }
 
         self.tornado_app = tornado.web.Application([
+            (r'/metrics', MetricsHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),

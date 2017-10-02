@@ -23,6 +23,9 @@ registry:
 
 service:
   type: LoadBalancer
+  labels: {}
+  annotations:
+    prometheus.io/scrape: "true"
   nodePort:
 
 hub:
