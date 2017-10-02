@@ -49,7 +49,7 @@ def build_images(prefix, images, commit_range=None, push=False):
     for image in images:
         image_path = os.path.join(BASEPATH, 'images', image)
         if commit_range:
-            if path_changed(IMAGE_FILES, commit_range):
+            if not path_changed(IMAGE_FILES, commit_range):
                 print("Skipping {}, not touched in {}".format(image, commit_range))
                 continue
         tag = last_git_modified(IMAGE_FILES)
