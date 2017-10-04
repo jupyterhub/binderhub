@@ -121,7 +121,6 @@ function rstBadge(url) {
   return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
-
 $(function(){
     var failed = false;
     var logsVisible = false;
@@ -153,6 +152,14 @@ $(function(){
       $('#badge-snippet')
         .show()
         .text(rstBadge(url));
+      return false;
+    });
+
+    $('#basic-url-toggle').on('click', function () {
+      var url = updateUrl();
+      $('#badge-snippet')
+        .show()
+        .text(url);
       return false;
     });
 
