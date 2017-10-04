@@ -58,8 +58,7 @@ Documentation
 -------------
 
 For more information about the architecture, use, and setup of BinderHub, see
-`the documentation online <https://jupyterhub.github.io/binderhub>`_ or on
-`ReadTheDocs <https://binderhub.readthedocs.io>`_.
+`the BinderHub documentation <https://binderhub.readthedocs.io>`_.
 
 License
 -------
