@@ -5,26 +5,28 @@ Subclass the base class, ``RepoProvider``, to support different version
 control services and providers.
 
 """
+from datetime import datetime
 import json
+import os
+import time
 
-from tornado import gen, web
+from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
-from traitlets import Unicode
+from tornado.httputil import url_concat
+
+from traitlets import Dict, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 
 class RepoProvider(LoggingConfigurable):
     """Base class for a repo provider"""
     name = Unicode(
-        None,
         help="""
         Descriptive human readable name of this repo provider.
         """
     )
 
     spec = Unicode(
-        None,
-        allow_none=True,
         help="""
         The spec for this builder to parse
         """
@@ -45,27 +47,52 @@ class GitHubRepoProvider(RepoProvider):
     """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
 
-    username = Unicode(
-        None,
-        allow_none=True,
-        config=True,
-        help="""
-        The GitHub user name to use when making GitHub API calls.
+    client_id = Unicode(config=True,
+        help="""GitHub client id for authentication with the GitHub API
 
-        Set to None to not use authenticated API calls
+        For use with client_secret.
+        Loaded from GITHUB_CLIENT_ID env by default.
         """
     )
+    @default('client_id')
+    def _client_id_default(self):
+        return os.getenv('GITHUB_CLIENT_ID', '')
 
-    password = Unicode(
-        None,
-        allow_none=True,
-        config=True,
-        help="""
-        The password to use to make GitHub API calls.
+    client_secret = Unicode(config=True,
+        help="""GitHub client secret for authentication with the GitHub API
 
-        Don't use an *actual* password - create a personal access token and use that!
+        For use with client_id.
+        Loaded from GITHUB_CLIENT_SECRET env by default.
         """
     )
+    @default('client_secret')
+    def _client_secret_default(self):
+        return os.getenv('GITHUB_CLIENT_SECRET', '')
+
+    access_token = Unicode(config=True,
+        help="""GitHub access token for authentication with the GitHub API
+
+        Loaded from GITHUB_ACCESS_TOKEN env by default.
+        """
+    )
+    @default('access_token')
+    def _access_token_default(self):
+        return os.getenv('GITHUB_ACCESS_TOKEN', '')
+
+    auth = Dict(
+        help="""Auth parameters for the GitHub API access
+    
+        Populated from client_id, client_secret, access_token.
+    """
+    )
+    @default('auth')
+    def _default_auth(self):
+        auth = {}
+        for key in ('client_id', 'client_secret', 'access_token'):
+            value = getattr(self, key)
+            if value:
+                auth[key] = value
+        return auth
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,18 +121,35 @@ class GitHubRepoProvider(RepoProvider):
         )
         self.log.debug("Fetching %s", api_url)
 
-        if self.username and self.password:
-            auth = {
-                'auth_username': self.username,
-                'auth_password': self.password
-            }
-        else:
-            auth = {}
+        if self.auth:
+            # Add auth params. After logging!
+            api_url = url_concat(api_url, self.auth)
 
         try:
-            resp = yield client.fetch(api_url, user_agent="BinderHub", **auth)
+            resp = yield client.fetch(api_url, user_agent="BinderHub")
         except HTTPError as e:
-            if e.code == 404:
+            if (
+                e.code == 403
+                and e.response
+                and e.response.headers.get('x-ratelimit-remaining') == '0'
+            ):
+                rate_limit = e.response.headers['x-ratelimit-limit']
+                reset_timestamp = int(e.response.headers['x-ratelimit-reset'])
+                reset_seconds = int(reset_timestamp - time.time())
+                self.log.error(
+                    "GitHub Rate limit ({limit}) exceeded. Reset in {seconds} seconds ({date})".format(
+                        limit=rate_limit,
+                        seconds=reset_seconds,
+                        date=datetime.fromtimestamp(reset_timestamp),
+                    )
+                )
+                # round to reset plus five minutes
+                minutes_until_reset = 5 * (1 + (reset_seconds // 60 // 5))
+
+                raise ValueError("GitHub rate limit exceeded. Try again in %i minutes."
+                    % minutes_until_reset
+                )
+            elif e.code == 404:
                 return None
             else:
                 raise

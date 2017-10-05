@@ -28,6 +28,13 @@ service:
     prometheus.io/scrape: "true"
   nodePort:
 
+github:
+  # either id + secret...
+  clientId:
+  clientSecret:
+  # ...or access_token
+  accessToken:
+
 hub:
   url:
 

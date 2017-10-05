@@ -62,6 +62,27 @@ spec:
             secretKeyRef:
               name: binder-secret
               key: "binder.hub-token"
+        {{ if .Values.github.clientId -}}
+        - name: GITHUB_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: binder-secret
+              key: "github.client-id"
+        {{- end }}
+        {{ if .Values.github.clientSecret -}}
+        - name: GITHUB_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: binder-secret
+              key: "github.client-secret"
+        {{- end }}
+        {{ if .Values.github.accessToken -}}
+        - name: GITHUB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: binder-secret
+              key: "github.access-token"
+        {{- end }}
         ports:
           - containerPort: 8585
             name: binder
