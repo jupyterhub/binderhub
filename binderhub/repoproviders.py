@@ -5,8 +5,10 @@ Subclass the base class, ``RepoProvider``, to support different version
 control services and providers.
 
 """
+from datetime import datetime
 import json
 import os
+import time
 
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
@@ -126,7 +128,28 @@ class GitHubRepoProvider(RepoProvider):
         try:
             resp = yield client.fetch(api_url, user_agent="BinderHub")
         except HTTPError as e:
-            if e.code == 404:
+            if (
+                e.code == 403
+                and e.response
+                and e.response.headers.get('x-ratelimit-remaining') == '0'
+            ):
+                rate_limit = e.response.headers['x-ratelimit-limit']
+                reset_timestamp = int(e.response.headers['x-ratelimit-reset'])
+                reset_seconds = int(reset_timestamp - time.time())
+                self.log.error(
+                    "GitHub Rate limit ({limit}) exceeded. Reset in {seconds} seconds ({date})".format(
+                        limit=rate_limit,
+                        seconds=reset_seconds,
+                        date=datetime.fromtimestamp(reset_timestamp),
+                    )
+                )
+                # round to reset plus five minutes
+                minutes_until_reset = 5 * (1 + (reset_seconds // 60 // 5))
+
+                raise ValueError("GitHub rate limit exceeded. Try again in %i minutes."
+                    % minutes_until_reset
+                )
+            elif e.code == 404:
                 return None
             else:
                 raise
