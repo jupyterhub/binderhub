@@ -19,7 +19,7 @@ from tornado.httputil import url_concat
 from traitlets import Dict, Unicode, default
 from traitlets.config import LoggingConfigurable
 
-GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit', 'GitHub rate limit remaining')
+GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 
 class RepoProvider(LoggingConfigurable):
     """Base class for a repo provider"""
