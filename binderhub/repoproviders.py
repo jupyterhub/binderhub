@@ -5,10 +5,12 @@ Subclass the base class, ``RepoProvider``, to support different version
 control services and providers.
 
 """
-from datetime import datetime
+from datetime import timedelta
 import json
 import os
 import time
+
+from prometheus_client import Gauge
 
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
@@ -17,6 +19,7 @@ from tornado.httputil import url_concat
 from traitlets import Dict, Unicode, default
 from traitlets.config import LoggingConfigurable
 
+GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 
 class RepoProvider(LoggingConfigurable):
     """Base class for a repo provider"""
@@ -137,13 +140,12 @@ class GitHubRepoProvider(RepoProvider):
                 reset_timestamp = int(e.response.headers['x-ratelimit-reset'])
                 reset_seconds = int(reset_timestamp - time.time())
                 self.log.error(
-                    "GitHub Rate limit ({limit}) exceeded. Reset in {seconds} seconds ({date})".format(
+                    "GitHub Rate limit ({limit}) exceeded. Reset in {delta}.".format(
                         limit=rate_limit,
-                        seconds=reset_seconds,
-                        date=datetime.fromtimestamp(reset_timestamp),
+                        delta=timedelta(seconds=reset_seconds),
                     )
                 )
-                # round to reset plus five minutes
+                # round expiry up to nearest 5 minutes
                 minutes_until_reset = 5 * (1 + (reset_seconds // 60 // 5))
 
                 raise ValueError("GitHub rate limit exceeded. Try again in %i minutes."
@@ -153,6 +155,29 @@ class GitHubRepoProvider(RepoProvider):
                 return None
             else:
                 raise
+
+        # record and log github rate limit
+        remaining = int(resp.headers['x-ratelimit-remaining'])
+        rate_limit = int(resp.headers['x-ratelimit-limit'])
+        reset_timestamp = int(resp.headers['x-ratelimit-reset'])
+
+        # record with prometheus
+        GITHUB_RATE_LIMIT.set(remaining)
+
+        # log at different levels, depending on remaining fraction
+        fraction = remaining / rate_limit
+        if fraction < 0.2:
+            log = self.log.warning
+        elif fraction < 0.5:
+            log = self.log.info
+        else:
+            log = self.log.debug
+
+        # str(timedelta) looks like '00:32'
+        delta = timedelta(seconds=int(reset_timestamp - time.time()))
+        log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
+            remaining=remaining, limit=rate_limit, delta=delta,
+        ))
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         if 'sha' not in ref_info:
