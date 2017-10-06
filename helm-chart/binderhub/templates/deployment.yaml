@@ -4,6 +4,13 @@ metadata:
   name: binderhub-deployment
 spec:
   replicas: 1
+  strategy:
+    rollingUpdate:
+        # We set this so the service always has at least one endpoint!
+        # Attempt to fix https://github.com/jupyterhub/mybinder.org-deploy/issues/55
+        # Long term fix is to have more than one replica of this deployment!
+        maxSurge: 1
+        maxUnavailable: 0
   template:
     metadata:
       labels:
