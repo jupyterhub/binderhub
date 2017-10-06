@@ -10,9 +10,10 @@ import time
 
 import docker
 from kubernetes import client
-from tornado import web
+from tornado import gen, web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
+from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from prometheus_client import Histogram, Gauge, Counter
 
@@ -28,6 +29,8 @@ LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently
 
 class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
+    # emit keepalives every 25 seconds to avoid idle connections being closed
+    KEEPALIVE_INTERVAL = 25
 
     async def emit(self, data):
         if type(data) is not str:
@@ -41,6 +44,28 @@ class BuildHandler(BaseHandler):
             app_log.warning("Stream closed while handling %s", self.request.uri)
             # raise Finish to halt the handler
             raise web.Finish()
+
+    def on_finish(self):
+        """Stop keepalive when finish has been called"""
+        self._keepalive = False
+
+    async def keep_alive(self):
+        """Constantly emit keepalive events
+
+        So that intermediate proxies don't terminate an idle connection
+        """
+        self._keepalive = True
+        while True:
+            await gen.sleep(self.KEEPALIVE_INTERVAL)
+            if not self._keepalive:
+                return
+            try:
+                # lines that start with : are comments
+                # and should be ignored by event consumers
+                self.write(':keepalive\n\n')
+                await self.flush()
+            except StreamClosedError:
+                return
 
     def send_error(self, status_code, **kwargs):
         """event stream cannot set an error code, so send an error event"""
@@ -111,6 +136,8 @@ class BuildHandler(BaseHandler):
         if provider_prefix not in self.settings['repo_providers']:
             await self.fail("No provider found for prefix %s" % provider_prefix)
             return
+
+        IOLoop.current().spawn_callback(self.keep_alive)
 
         key = '%s:%s' % (provider_prefix, spec)
 
