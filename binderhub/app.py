@@ -175,13 +175,14 @@ class BinderHub(Application):
         help="""The number of concurrent builds to allow."""
     )
 
-    ignore_missing_kubeconfig = Bool(
-        False,
+    # FIXME: Come up with a better name for it?
+    builder_required = Bool(
+        True,
         config=True,
         help="""
-        If binderhub should try to continue to run without a working kubeconfig file.
+        If binderhub should try to continue to run without a working build infrastructure.
 
-        Useful for pure HTML/CSS/JS local development.
+        Build infrastructure is kubernetes cluster + docker. This is useful for pure HTML/CSS/JS local development.
         """
     )
 
@@ -196,23 +197,18 @@ class BinderHub(Application):
         self.log = tornado.log.app_log
 
         # initialize kubernetes config
-        try:
-            kubernetes.config.load_incluster_config()
-        except kubernetes.config.ConfigException:
+        if builder_required:
             try:
+                kubernetes.config.load_incluster_config()
+            except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
-            except (kubernetes.config.ConfigException, FileNotFoundError):
-                if self.ignore_missing_kubeconfig:
-                    self.log.error('Kubernetes credentials not found, but continuing anyway')
-                else:
-                    raise
 
         # times 2 for log + build threads
         build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
-        if self.use_registry:
+        if self.use_registry and self.builder_required:
             registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
         else:
             registry = None
