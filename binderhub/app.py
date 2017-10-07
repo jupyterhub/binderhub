@@ -175,6 +175,17 @@ class BinderHub(Application):
         help="""The number of concurrent builds to allow."""
     )
 
+    ignore_missing_kubeconfig = Bool(
+        False,
+        config=True,
+        help="""
+        If binderhub should try to continue to run without a working kubeconfig file.
+
+        Useful for pure HTML/CSS/JS local development.
+        """
+    )
+
+
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
@@ -188,7 +199,13 @@ class BinderHub(Application):
         try:
             kubernetes.config.load_incluster_config()
         except kubernetes.config.ConfigException:
-            kubernetes.config.load_kube_config()
+            try:
+                kubernetes.config.load_kube_config()
+            except (kubernetes.config.ConfigException, FileNotFoundError):
+                if self.ignore_missing_kubeconfig:
+                    self.log.error('Kubernetes credentials not found, but continuing anyway')
+                else:
+                    raise
 
         # times 2 for log + build threads
         build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
