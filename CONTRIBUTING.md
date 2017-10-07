@@ -9,22 +9,22 @@ and run binderhub on the host system.
 
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 
-2. deploy JupyterHub with helm
+2. Deploy JupyterHub with helm
 
         helm install jupyterhub/jupyterhub --version=v0.5.x-2140cd6 \
             --name=binder \
             --namespace=binder \
             -f testing/minikube/jupyterhub-helm-config.yaml
 
-3. install binderhub:
+3. Install binderhub:
 
         python3 -m pip install -e .
 
-4. start binderhub with the testing config file:
+4. Start binderhub with the testing config file:
 
         python3 -m binderhub -f testing/minikube/binderhub_config.py
 
-5. visit [http://localhost:8585](http://localhost:8585)
+5. Visit [http://localhost:8585](http://localhost:8585)
 
 All features should work, including building and launching.
 
