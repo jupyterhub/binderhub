@@ -7,7 +7,7 @@ Welcome! As a [Jupyter](https://jupyter.org) project, we follow the [Jupyter con
 To develop binderhub, you can use a local installation of JupyterHub on minikube,
 and run binderhub on the host system.
 
-1. Follow [zero-to-jupyterhub](https://zero-to-jupyterhub.readthedocs.io/en/latest/setup-jupyterhub.html#install-jupyterhub) to setup minikube
+1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 
 2. deploy JupyterHub with helm
 
