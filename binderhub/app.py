@@ -175,6 +175,18 @@ class BinderHub(Application):
         help="""The number of concurrent builds to allow."""
     )
 
+    # FIXME: Come up with a better name for it?
+    builder_required = Bool(
+        True,
+        config=True,
+        help="""
+        If binderhub should try to continue to run without a working build infrastructure.
+
+        Build infrastructure is kubernetes cluster + docker. This is useful for pure HTML/CSS/JS local development.
+        """
+    )
+
+
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
@@ -185,17 +197,18 @@ class BinderHub(Application):
         self.log = tornado.log.app_log
 
         # initialize kubernetes config
-        try:
-            kubernetes.config.load_incluster_config()
-        except kubernetes.config.ConfigException:
-            kubernetes.config.load_kube_config()
+        if self.builder_required:
+            try:
+                kubernetes.config.load_incluster_config()
+            except kubernetes.config.ConfigException:
+                kubernetes.config.load_kube_config()
 
         # times 2 for log + build threads
         build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
-        if self.use_registry:
+        if self.use_registry and self.builder_required:
             registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
         else:
             registry = None
