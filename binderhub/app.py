@@ -197,7 +197,7 @@ class BinderHub(Application):
         self.log = tornado.log.app_log
 
         # initialize kubernetes config
-        if builder_required:
+        if self.builder_required:
             try:
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
