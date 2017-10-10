@@ -137,6 +137,9 @@ h4 {
 
 #how-it-works div.row {
     margin: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
 }
 
 .point {
@@ -146,7 +149,6 @@ h4 {
     width: 40px;
     height: 40px;
     padding: 2px 9px;
-    position: absolute;
     font-weight: 800;
     font-family: 'ClearSans-Bold';
 }
