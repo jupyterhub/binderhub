@@ -9,6 +9,14 @@ class BaseHandler(web.RequestHandler):
     def template_namespace(self):
         return dict(static_url=self.static_url)
 
+    def set_default_headers(self):
+        headers = self.settings.get('headers', {})
+        # Allow any origin by default
+        headers.setdefault('Access-Control-Allow-Origin', '*')
+
+        for header, value in headers.items():
+            self.set_header(header, value)
+
     def get_provider(self, provider_prefix, spec):
         """Construct a provider object"""
         providers = self.settings['repo_providers']
