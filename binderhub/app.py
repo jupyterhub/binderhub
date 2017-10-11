@@ -19,7 +19,7 @@ from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import RepoProvider, GitHubRepoProvider
+from .repoproviders import GitHubRepoProvider
 from .metrics import MetricsHandler
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
@@ -186,6 +186,15 @@ class BinderHub(Application):
         """
     )
 
+    tornado_settings = Dict(
+        config=True,
+        help="""
+        additional settings to pass through to tornado.
+
+        can include things like additional headers, etc.
+        """
+    )
+
 
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
@@ -219,7 +228,7 @@ class BinderHub(Application):
             hub_api_token=self.hub_api_token,
         )
 
-        self.tornado_settings = {
+        self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
@@ -237,7 +246,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
-        }
+        })
 
         self.tornado_app = tornado.web.Application([
             (r'/metrics', MetricsHandler),
