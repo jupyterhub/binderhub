@@ -30,3 +30,12 @@ c.BinderHub.hub_url = get_config('binder.hub-url')
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
 c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)
+
+cors = get_config('binder.cors', {})
+allow_origin = cors.get('allowOrigin')
+if allow_origin:
+    c.BinderHub.tornado_settings.update({
+        'headers': {
+            'Access-Control-Allow-Origin': allow_origin,
+        }
+    })
