@@ -11,9 +11,6 @@ class BaseHandler(web.RequestHandler):
 
     def set_default_headers(self):
         headers = self.settings.get('headers', {})
-        # Allow any origin by default
-        headers.setdefault('Access-Control-Allow-Origin', '*')
-
         for header, value in headers.items():
             self.set_header(header, value)
 

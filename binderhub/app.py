@@ -195,7 +195,6 @@ class BinderHub(Application):
         """
     )
 
-
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
