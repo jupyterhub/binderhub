@@ -39,10 +39,12 @@ github:
 # once in top-level cors.allowOrigin,
 # and again in jupyterhub.hub.extraConfigMap.cors.allowOrigin
 
-# &cors anchor allows us to remove redundancy in this values.yaml,
-# but it does not extend to user values.yaml.
-# They must still set cors separately for binderhub and notebooks.
-# However, they can use the same anchor pattern in their own values.yaml as well.
+# Using YAML anchors, `&cors` for the first appearance and `*cors` for subsequent
+# appearances, allows us to remove redundancy in this (BinderHub) `values.yaml`.
+# The anchors do not extend beyond this file.
+# As such, users must set `cors` separately for their own user `values.yaml` for notebooks.
+# `cors` will be set separately in the user `values.yaml` and binderhub`values.yaml`.
+# The same anchor pattern (`&cors`, `*cors`) can be used in the user `values.yaml`.
 
 cors: &cors
   allowOrigin:
