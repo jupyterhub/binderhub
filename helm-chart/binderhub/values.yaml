@@ -25,7 +25,7 @@ service:
   type: LoadBalancer
   labels: {}
   annotations:
-    prometheus.io/scrape: "true"
+    prometheus.io/scrape: 'true'
   nodePort:
 
 github:
@@ -34,6 +34,20 @@ github:
   clientSecret:
   # ...or access_token
   accessToken:
+
+# have to set cors.allowOrigin twice:
+# once in top-level cors.allowOrigin,
+# and again in jupyterhub.hub.extraConfigMap.cors.allowOrigin
+
+# Using YAML anchors, `&cors` for the first appearance and `*cors` for subsequent
+# appearances, allows us to remove redundancy in this (BinderHub) `values.yaml`.
+# The anchors do not extend beyond this file.
+# As such, users must set `cors` separately for their own user `values.yaml` for notebooks.
+# `cors` will be set separately in the user `values.yaml` and binderhub`values.yaml`.
+# The same anchor pattern (`&cors`, `*cors`) can be used in the user `values.yaml`.
+
+cors: &cors
+  allowOrigin:
 
 hub:
   url:
@@ -46,6 +60,25 @@ jupyterhub:
     rbac:
       enabled: true
     extraConfig: |
+      import os
+      import sys
+      import yaml
+      def get_config_map(key, default=None):
+          """
+          Find a configmap item of a given name & return it
+
+          Parses everything as YAML, so lists and dicts are available too
+          """
+          path = os.path.join('/etc/jupyterhub/config', key)
+          try:
+              with open(path) as f:
+                  return yaml.safe_load(f)
+          except FileNotFoundError:
+              return default
+
+      # get cors config from config-map
+      cors = get_config_map('custom.cors', {})
+
       # disable login (users created exclusively via API)
       c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
@@ -54,13 +87,16 @@ jupyterhub:
 
       class BinderSpawner(KubeSpawner):
         def get_args(self):
-            return [
+            args = [
                 '--ip=0.0.0.0',
                 '--port=%i' % self.port,
                 '--NotebookApp.base_url=%s' % self.server.base_url,
                 '--NotebookApp.token=%s' % self.user_options['token'],
-                '--NotebookApp.allow_origin=*',
-            ] + self.args
+            ]
+            allow_origin = cors.get('allowOrigin')
+            if allow_origin:
+                args.append('--NotebookApp.allow_origin=' + allow_origin)
+            return args + self.args
 
         def start(self):
             if 'token' not in self.user_options:
@@ -73,6 +109,8 @@ jupyterhub:
 
       c.JupyterHub.spawner_class = BinderSpawner
 
+    extraConfigMap:
+      cors: *cors
     services:
       binder:
         admin: true
