@@ -29,7 +29,7 @@ things:
 - A **Docker registry** (such as gcr.io) that hosts container images
 - **JupyterHub** to deploy temporary containers for users
 
-To get started, start with :doc:`create-k8s-cluster`.
+To get started, start with :doc:`create-cloud-resources`.
 
 .. tip::
 
@@ -44,10 +44,8 @@ Full Table of Contents
    :numbered:
 
    diagram
-   create-k8s-cluster
-   setup-cluster-tools
-   setup-registry
+   create-cloud-resources
    setup-binderhub
-   deploy
+   debug
    turn-off
    api/api-index.rst
