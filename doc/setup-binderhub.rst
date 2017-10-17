@@ -9,8 +9,8 @@ used here, see the `Zero to JupyterHub guide
 Below we'll cover how to configure your Helm Chart, and how to create your
 BinderHub deployment.
 
-Configure the helm chart
-------------------------
+Preparing to install
+--------------------
 
 To configure the Helm Chart we'll need to generate and insert a few pieces of
 information.
@@ -30,8 +30,8 @@ tokens by running the following commands then copying the outputs.::
 
    This command is run **twice** because we need two different tokens.
 
-Configure ``secret.yaml``
--------------------------
+Create ``secret.yaml``
+----------------------
 
 Create a file called ``secret.yaml``. In it, put the following code::
 
@@ -59,16 +59,12 @@ Create a file called ``secret.yaml``. In it, put the following code::
 
    Don't forget the ``|`` after the ``password:`` label.
 
-Configure ``config.yaml``
--------------------------
+Create ``config.yaml``
+----------------------
 
 Create a file called ``config.yaml``. In it, put the following code::
 
   registry:
-    # Note this is project *ID*, not just project
-    #
-    # `<prefix>` can be any string and will be appended to image names
-    # e.g., `dev` and `prod`.
     prefix:  gcr.io/<google-project-id>/<prefix>
     enabled: true
 
@@ -79,8 +75,19 @@ Create a file called ``config.yaml``. In it, put the following code::
         rbac:
            enabled: false
 
-Deploy the helm chart
----------------------
+.. note::
+
+   Note that the ``google-project-id`` in ``prefix:`` is the project *ID*,
+   not just the project name. Sometimes these will be different (if you have
+   created a project name that's been used before).
+
+.. note::
+
+   `<prefix>` can be any string, and will be appended to image names. We
+   recommend something descriptive such as ``dev`` or ``prod``.
+
+Install BinderHub
+-----------------
 
 First grab the latest helm chart for BinderHub.::
 

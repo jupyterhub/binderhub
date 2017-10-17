@@ -3,18 +3,25 @@
 Create your cloud resources
 ===========================
 
-BinderHub is built on top of JupyterHub, which uses Kubernetes to manage
-user instances in the cloud. You'll first need to set up some cloud resources,
-and make sure that Kubernetes is running on them, and configure them to work
-properly with one another.
+BinderHub is built to run on top of Kubernetes, a distributed cluster manager.
+It uses a JupyterHub to launch/manage user servers, as well as a
+docker registry to cache images.
+
+To create your own BinderHub, you'll first need to set up a properly
+configured Kubernetes Cluster on the cloud, and then configure the
+various components correctly. The following instructions will assist you
+in doing so.
 
 Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
 --------------------------------------------------------------------
 
 .. note::
 
-   Currently, BinderHub only runs on Google Cloud. Support for other cloud
-   providers will be added in the future.
+   BinderHub is built to be cloud agnostic, and can run on various cloud
+   providers (as well as bare metal). However, here we only provide
+   instructions for Google Cloud as it has been the most extensively-tested.
+   If you would like to help with adding instructions for other cloud
+   providers, `please contact us <https://github.com/jupyterhub/binderhub/issues>`_!
 
 `Google Container Engine <https://cloud.google.com/container-engine/>`_
 (confusingly abbreviated to GKE) is the simplest and most common way of setting
@@ -91,9 +98,8 @@ Run the following commands to download and install helm::
 Install kubectl
 ---------------
 
-Next we'll install ``kubectl`` (short for Kubernetes Control). This allows us
-to interact with the Kubernetes instance, and to get information about what
-nodes are running on our Kubernetes platform. Run the following command::
+Next we'll install ``kubectl``, which lets us interact with the Kubernetes master
+in various ways. Run the following command to install it::
 
    gcloud components install kubectl
 
@@ -107,19 +113,19 @@ nodes are running on our Kubernetes platform. Run the following command::
 Set up the container registry
 -----------------------------
 
-BinderHub will build Docker images out of GitHub repositories, and then
-register those images with an online registry so that JupyterHub can
-serve user instances from that registry. You can use any registry that
+BinderHub will build Docker images out of GitHub repositories, and then push
+them to a docker registry so that JupyterHub can launch user servers based
+on these images.You can use any registry that
 you like, though this guide covers how to properly configure the **Google
 Container Registry** (``gcr.io``).
 
-Doing this involves using the Container Registry user interface in google
-cloud. The following steps will create an account with google cloud that has
-the authorization to push to google container registry:
+You need to provide BinderHub with proper credentials so it can push images
+to the Google Container Registry. You can do so by creating a service
+account that has authorization to push to Google Container Registry:
 
 1. Go to `console.cloud.google.com`_
 2. Make sure your project is selected
-3. Click ``<hamburger menu> -> IAM & Admin -> Service Accounts`` menu option
+3. Click ``<top-left menu w/ three horizontal bars> -> IAM & Admin -> Service Accounts`` menu option
 4. Click **Create service account**
 5. Give your account a descriptive name such as "BinderHub-registry"
 6. Click ``Role -> Storage -> Storage Admin`` menu option
