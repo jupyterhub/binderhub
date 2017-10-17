@@ -111,7 +111,7 @@ class Launcher(LoggingConfigurable):
             if resp.code == 202:
                 # Server hasn't actually started yet
                 # We wait for it!
-                for i in range(10):
+                for i in range(32):
                     resp = await self.api_request(
                         'users/%s' % username,
                         method='GET',
