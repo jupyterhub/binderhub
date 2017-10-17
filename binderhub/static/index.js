@@ -27,19 +27,20 @@ Image.prototype.onStateChange = function(state, cb) {
 };
 
 Image.prototype.changeState = function(state, data) {
-    if (this.callbacks[state] !== undefined) {
-        for (var i = 0; i < this.callbacks[state].length; i++) {
-            this.callbacks[state][i](this.state, state, data);
+    var that = this;
+    [state, '*'].map(function (key) {
+        var callbacks = that.callbacks[key];
+        if (callbacks) {
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i](that.state, state || that.state, data);
+            }
         }
-    }
-    if (this.callbacks['*'] !== undefined) {
-        for (var i = 0; i < this.callbacks['*'].length; i++) {
-            this.callbacks['*'][i](this.state, state, data);
-        }
-    }
+    });
 
     // FIXME: Make sure this this is a valid state transition!
-    this.state = state;
+    if (state) {
+        this.state = state;
+    }
 }
 
 Image.prototype.fetch = function() {
@@ -54,7 +55,10 @@ Image.prototype.fetch = function() {
         var data = JSON.parse(event.data);
         // FIXME: Rename 'phase' to 'state' upstream
         // FIXME: fix case of phase/state upstream
-        var state = data.phase.toLowerCase();
+        var state = null;
+        if (data.phase) {
+            state = data.phase.toLowerCase();
+        }
         that.changeState(state, data);
     });
 };
