@@ -2,8 +2,12 @@
 Contains build of a docker image from a git repository.
 """
 
+import json
+
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
+from tornado.log import app_log
+
 
 class Build:
     """Represents a build of a git repository into a docker image.
@@ -128,8 +132,23 @@ class Build:
                 self.namespace,
                 follow=True,
                 _preload_content=False):
+            # verify that the line is JSON
+            line = line.decode('utf-8')
+            try:
+                json.loads(line)
+            except ValueError:
+                # log event wasn't JSON.
+                # use the line itself as the message with unknown phase.
+                # We don't know what the right phase is, use 'unknown'.
+                # If it was a fatal error, presumably a 'failure'
+                # message will arrive shortly.
+                app_log.error("log event not json: %r", line)
+                line = json.dumps({
+                    'phase': 'unknown',
+                    'message': line,
+                })
 
-            self.progress('log', line.decode('utf-8'))
+            self.progress('log', line)
 
     def cleanup(self):
         """Delete a kubernetes pod."""
