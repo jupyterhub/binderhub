@@ -111,7 +111,8 @@ class Launcher(LoggingConfigurable):
             if resp.code == 202:
                 # Server hasn't actually started yet
                 # We wait for it!
-                for i in range(32):
+                # NOTE: This ends up being about ten minutes
+                for i in range(64):
                     resp = await self.api_request(
                         'users/%s' % username,
                         method='GET',
@@ -123,7 +124,7 @@ class Launcher(LoggingConfigurable):
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start
                     # and tune this appropriately
-                    await gen.sleep(1.4 ** i)
+                    await gen.sleep(min(1.4 ** i, 10))
                 else:
                     raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 
