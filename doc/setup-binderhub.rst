@@ -79,7 +79,7 @@ Create a file called ``config.yaml`` and enter the following::
 
    **google-project-id**:
    Note that the ``google-project-id`` in the ``prefix:`` line is the project *ID*,
-   not just the project name. Although the project name and project ID be the same,
+   not just the project name. Although the project name and project ID can be the same,
    sometimes these will differ (i.e. if you have created a project name that's been
    used before).
 
@@ -131,7 +131,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
   hub:
     url: https://<IP in EXTERNAL-IP>
 
-Next, upgrade the helm chart to deploy this setting::
+Next, upgrade the helm chart to deploy this change::
 
   helm upgrade binder jupyterhub/binderhub --version=v0.1.0-789e30a -f secret.yaml -f config.yaml
 
