@@ -1,104 +1,147 @@
 Set up BinderHub
 ================
 
-.. note::
-
-   If you wish to use encryption with ``letsencrypt``, BinderHub requires
-   that you configure the DNS of a web address to point to the BinderHub IP
-   address. This means that you need to have control over a URL such as
-   ``www.mydomain.com``.
-
-Download the Helm Chart and deployment repo for BinderHub
----------------------------------------------------------
-
 BinderHub uses Helm Charts to set up the applications we'll use in our Binder
 deployment. If you're curious about what Helm Charts are and how they're
 used here, see the `Zero to JupyterHub guide
 <https://zero-to-jupyterhub.readthedocs.io/en/latest/tools.html#helm>`_.
 
-First grab the latest helm chart for BinderHub and install it.::
+Below we'll cover how to configure your Helm Chart, and how to create your
+BinderHub deployment.
 
-    helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-    helm install --name binder jupyterhub/binderhub --version v0.1.0-464c4f5
+Preparing to install
+--------------------
 
+To configure the Helm Chart we'll need to generate and insert a few pieces of
+information.
 
-Configure DNS
--------------
+The first is the content of the JSON file created when we set up
+the container registry. For more information on getting a registry password, see
+:ref:`setup-registry`. We'll copy/paste the contents of this file in the steps
+below.
 
-Next we'll configure our web address to point to the IP address for our
-BinderHub.
+We also need two random tokens to configure out BinderHub. Generate these
+tokens by running the following commands then copying the outputs.::
 
-Find the ``EXTERNAL-IP`` of the **nginx-ingress-controller**::
-
-    kubectl --namespace=support get svc support-nginx-ingress-controller
-
-Make DNS records for both binder and jupyterhub that point to that IP. For
-example, make both::
-
-   hub.mydomain.com
-   binder.mydomain.com
-
-point to the same ``EXTERNAL-IP`` address of the ingress controller.
+    openssl rand -hex 32
+    openssl rand -hex 32
 
 .. note::
 
-   When you configure the helm chart, you will add the DNS entry for binder and
-   jupyterhub in the ``config.yaml`` file.
+   This command is run **twice** because we need two different tokens.
 
+Create ``secret.yaml``
+----------------------
 
-Configure the Helm Chart
-------------------------
+Create a file called ``secret.yaml``. In it, put the following code::
 
-First create a file called ``secret.yaml``. In it, put the following code::
-
-    jupyterhub:
+  jupyterhub:
       hub:
-        cookieSecret: "<openssl rand -hex 32>"
         services:
           binder:
-            apiToken: "<openssl rand -hex 32>"
+            apiToken: "<output of FIRST `openssl rand -hex 32`>"
       proxy:
-        secretToken: "<openssl rand -hex 32>"
-    registry:
-      password: |
-        <the json file from Service Accounts>
-    hub:
-      services:
-        binder:
-          apiToken: "<openssl rand -hex 32>"
+        secretToken: "<output of SECOND `openssl rand -hex 32`>"
+  registry:
+    password: |
+      <contents of the json file from Service Accounts>
+  hub:
+    services:
+      binder:
+        apiToken: "<output of FIRST `openssl rand -hex 32`>"
 
 .. tip::
 
-   Don't forget the `|` after the ``password:`` label.
+   The content you put just after ``password: |`` must all line up at the same
+   tab level.
 
 .. tip::
 
-   For more information on getting a registry password, see
-   `setup-registry`_.
+   Don't forget the ``|`` after the ``password:`` label.
 
-Next, create a file called ``config.yaml``. In it, put the following code::
+Create ``config.yaml``
+----------------------
 
-    registry:
-      # Note this is project *ID*, not just project
-      #
-      # `<prefix>` can be any string and will be appended to image names
-      # e.g., `dev` and `prod`.
-      prefix:  gcr.io/<google-project-id>/<prefix>
+Create a file called ``config.yaml``. In it, put the following code::
 
-    hub:
-      # This is the DNS that you've configured. E.g. `beta.mybinder.org`
-      # Note that there is `http://` here
-      url: http://<dns-entry-for-jupyterhub>
+  registry:
+    prefix:  gcr.io/<google-project-id>/<prefix>
+    enabled: true
 
-    ingress:
-      enabled: true
-      # But no `http://` here
-      host: <dns-entry-for-binder>
+  rbac:
+     enabled: false
+  jupyterhub:
+     hub:
+        rbac:
+           enabled: false
 
-    jupyterhub:
-      ingress:
-        enabled: true
-        # But no `http://` here
-        host: <dns-entry-for-jupyterhub>
+.. note::
 
-Now that BinderHub is properly configured, it's time to :doc:`deploy`.
+   Note that the ``google-project-id`` in ``prefix:`` is the project *ID*,
+   not just the project name. Sometimes these will be different (if you have
+   created a project name that's been used before).
+
+.. note::
+
+   `<prefix>` can be any string, and will be appended to image names. We
+   recommend something descriptive such as ``dev`` or ``prod``.
+
+Install BinderHub
+-----------------
+
+First grab the latest helm chart for BinderHub.::
+
+    helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+    helm repo update
+
+Now we'll **install the Helm Chart** using the configuration
+that you've just created. Do this by running the following command::
+
+    helm install jupyterhub/binderhub --version=v0.1.0-789e30a --name=binder --namespace=binder -f secret.yaml -f config.yaml
+
+.. note::
+
+   ``--version`` refers to the version of the BinderHub **Helm Chart**.
+
+.. note::
+
+   ``name`` and ``namespace`` don't *have* to be the same, but we recommend
+   it to avoid confusion. You can choose other names if you want, we
+   recommend something descriptive and short.
+
+This will deploy both a BinderHub and a JupyterHub, but they won't be
+able to communicate with one another yet. We'll fix this in the next
+step. Wait a few moments before moving on as the resources may take a
+few minutes to be set up.
+
+Connect BinderHub and JupyterHub
+--------------------------------
+In the google console, run the following command to print the IP address
+of the JupyterHub we just deployed.::
+
+  kubectl --namespace=binder get svc proxy-public
+
+Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
+JupyterHub. Now, add the following lines to ``config.yaml``.::
+
+  hub:
+    url: https://<IP in EXTERNAL-IP>
+
+Now upgrade the helm chart with our changes.::
+
+  helm upgrade binder jupyterhub/binderhub --version=v0.1.0-789e30a -f secret.yaml -f config.yaml
+
+Try out your BinderHub Deployment
+---------------------------------
+If the ``helm upgrade`` command above succeeds, it's time to try out your
+BinderHub deployment! First we'll find the IP address of the BinderHub
+deployment. Run the following command::
+
+  kubectl --namespace=binder get svc binder
+
+Note the IP address in ``EXTERNAL-IP``. This is your BinderHub IP address.
+Type that IP address in your browser and a BinderHub should be waiting there
+for you.
+
+You should now have a functioning BinderHub at the above IP address. For next
+steps, see :doc:`debug` and :doc:`turn-off`.
