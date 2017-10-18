@@ -12,16 +12,16 @@ BinderHub deployment.
 Preparing to install
 --------------------
 
-To configure the Helm Chart we'll need to generate and insert a few pieces of
-information.
+To configure the Helm Chart we'll need to generate several pieces of
+information and insert them into ``yaml`` files.
 
 The first is the content of the JSON file created when we set up
 the container registry. For more information on getting a registry password, see
 :ref:`setup-registry`. We'll copy/paste the contents of this file in the steps
 below.
 
-We also need two random tokens to configure out BinderHub. Generate these
-tokens by running the following commands then copying the outputs.::
+Create two random tokens by running the following commands then copying the
+outputs.::
 
     openssl rand -hex 32
     openssl rand -hex 32
@@ -30,25 +30,25 @@ tokens by running the following commands then copying the outputs.::
 
    This command is run **twice** because we need two different tokens.
 
-Create ``secret.yaml``
-----------------------
+Create ``secret.yaml`` file
+---------------------------
 
-Create a file called ``secret.yaml``. In it, put the following code::
+Create a file called ``secret.yaml`` and enter the following::
 
   jupyterhub:
       hub:
         services:
           binder:
-            apiToken: "<output of FIRST `openssl rand -hex 32`>"
+            apiToken: "<output of FIRST `openssl rand -hex 32` command>"
       proxy:
-        secretToken: "<output of SECOND `openssl rand -hex 32`>"
+        secretToken: "<output of SECOND `openssl rand -hex 32` command>"
   registry:
     password: |
-      <contents of the json file from Service Accounts>
+      <contents of the JSON file for the container registry from Service Accounts>
   hub:
     services:
       binder:
-        apiToken: "<output of FIRST `openssl rand -hex 32`>"
+        apiToken: "<output of FIRST `openssl rand -hex 32` command>"
 
 .. tip::
 
@@ -62,7 +62,7 @@ Create a file called ``secret.yaml``. In it, put the following code::
 Create ``config.yaml``
 ----------------------
 
-Create a file called ``config.yaml``. In it, put the following code::
+Create a file called ``config.yaml`` and enter the following::
 
   registry:
     prefix:  gcr.io/<google-project-id>/<prefix>
@@ -77,24 +77,27 @@ Create a file called ``config.yaml``. In it, put the following code::
 
 .. note::
 
-   Note that the ``google-project-id`` in ``prefix:`` is the project *ID*,
-   not just the project name. Sometimes these will be different (if you have
-   created a project name that's been used before).
+   **google-project-id**:
+   Note that the ``google-project-id`` in the ``prefix:`` line is the project *ID*,
+   not just the project name. Although the project name and project ID can be the same,
+   sometimes these will differ (i.e. if you have created a project name that's been
+   used before).
 
 .. note::
 
+   **`prefix`**:
    `<prefix>` can be any string, and will be appended to image names. We
    recommend something descriptive such as ``dev`` or ``prod``.
 
 Install BinderHub
 -----------------
 
-First grab the latest helm chart for BinderHub.::
+First, get the latest helm chart for BinderHub.::
 
     helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
     helm repo update
 
-Now we'll **install the Helm Chart** using the configuration
+Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
     helm install jupyterhub/binderhub --version=v0.1.0-789e30a --name=binder --namespace=binder -f secret.yaml -f config.yaml
@@ -105,43 +108,47 @@ that you've just created. Do this by running the following command::
 
 .. note::
 
-   ``name`` and ``namespace`` don't *have* to be the same, but we recommend
-   it to avoid confusion. You can choose other names if you want, we
-   recommend something descriptive and short.
+   ``name`` and ``namespace`` may be different, but we recommend using
+   the same ``name`` and ``namespace`` to avoid confusion. We recommend
+   something descriptive and short.
 
-This will deploy both a BinderHub and a JupyterHub, but they won't be
-able to communicate with one another yet. We'll fix this in the next
-step. Wait a few moments before moving on as the resources may take a
+This installation step will deploy both a BinderHub and a JupyterHub, but
+they are not yet set up to communicate with each other. We'll fix this in
+the next step. Wait a few moments before moving on as the resources may take a
 few minutes to be set up.
 
 Connect BinderHub and JupyterHub
 --------------------------------
+
 In the google console, run the following command to print the IP address
 of the JupyterHub we just deployed.::
 
   kubectl --namespace=binder get svc proxy-public
 
 Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
-JupyterHub. Now, add the following lines to ``config.yaml``.::
+JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
   hub:
     url: https://<IP in EXTERNAL-IP>
 
-Now upgrade the helm chart with our changes.::
+Next, upgrade the helm chart to deploy this change::
 
   helm upgrade binder jupyterhub/binderhub --version=v0.1.0-789e30a -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
+
 If the ``helm upgrade`` command above succeeds, it's time to try out your
-BinderHub deployment! First we'll find the IP address of the BinderHub
-deployment. Run the following command::
+BinderHub deployment.
+
+First, find the IP address of the BinderHub deployment by running the following
+command::
 
   kubectl --namespace=binder get svc binder
 
 Note the IP address in ``EXTERNAL-IP``. This is your BinderHub IP address.
-Type that IP address in your browser and a BinderHub should be waiting there
+Type this IP address in your browser and a BinderHub should be waiting there
 for you.
 
-You should now have a functioning BinderHub at the above IP address. For next
+You now have a functioning BinderHub at the above IP address. For next
 steps, see :doc:`debug` and :doc:`turn-off`.
