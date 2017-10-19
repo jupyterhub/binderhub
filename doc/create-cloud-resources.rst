@@ -130,7 +130,8 @@ account that has authorization to push to Google Container Registry:
 5. Give your account a descriptive name such as "BinderHub-registry"
 6. Click ``Role -> Storage -> Storage Admin`` menu option
 7. Check **Furnish new private key**
-8. Click **Create**
+8. Leave key type as default of **JSON**
+9. Click **Create**
 
 These steps will download a **JSON file** to your computer. The JSON file
 contains the password that can be used to push Docker images to the ``gcr.io``
