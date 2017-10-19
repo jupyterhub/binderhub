@@ -95,21 +95,6 @@ Run the following commands to download and install helm::
    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
    helm init
 
-Install kubectl
----------------
-
-Next we'll install ``kubectl``, which lets us interact with the Kubernetes master
-in various ways. Run the following command to install it::
-
-   gcloud components install kubectl
-
-.. note::
-
-   If you're working from within Google Cloud Console, this will already be
-   installed.
-
-.. _setup-registry:
-
 Set up the container registry
 -----------------------------
 
