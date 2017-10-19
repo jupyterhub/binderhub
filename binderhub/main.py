@@ -14,7 +14,7 @@ class MainHandler(BaseHandler):
         self.render_template(
             "index.html",
             url=None,
-            ref='master',
+            ref='',
             filepath=None,
             submit=False,
             google_analytics_code=self.settings['google_analytics_code']
