@@ -129,7 +129,7 @@ Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
 JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
   hub:
-    url: https://<IP in EXTERNAL-IP>
+    url: http://<IP in EXTERNAL-IP>
 
 Next, upgrade the helm chart to deploy this change::
 
