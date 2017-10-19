@@ -44,7 +44,20 @@ Create a file called ``secret.yaml`` and enter the following::
         secretToken: "<output of SECOND `openssl rand -hex 32` command>"
   registry:
     password: |
-      <contents of the JSON file for the container registry from Service Accounts>
+      <content of the JSON file downloaded earlier for the container registry from Service Accounts>
+      <it will look something like the following (with actual values instead of empty strings)>
+      {
+      "type": "",
+      "project_id": "",
+      "private_key_id": "",
+      "private_key": "",
+      "client_email": "",
+      "client_id": "",
+      "auth_uri": "",
+      "token_uri": "",
+      "auth_provider_x509_cert_url": "",
+      "client_x509_cert_url": ""
+      }
   hub:
     services:
       binder:
