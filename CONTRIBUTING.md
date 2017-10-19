@@ -9,6 +9,9 @@ and run binderhub on the host system.
 
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and start it: `minikube start`.
 
+   For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
+   more stable than using Homebrew.
+
 2. Install helm
 
    ```bash
