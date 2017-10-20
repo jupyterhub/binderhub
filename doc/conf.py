@@ -45,7 +45,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'flow_diagram',
-    'jupyter_alabaster_theme',
     'autodoc_traits',
 ]
 
