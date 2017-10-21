@@ -95,6 +95,8 @@ Run the following commands to download and install helm::
    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
    helm init
 
+.. _setup-registry:
+
 Set up the container registry
 -----------------------------
 
