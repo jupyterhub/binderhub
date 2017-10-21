@@ -8,6 +8,5 @@ Configuration and Source Code Reference
    build
    builder
    main
-   redirect
    registry
    repoproviders
