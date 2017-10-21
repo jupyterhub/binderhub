@@ -171,3 +171,14 @@ texinfo_documents = [
      author, 'BinderHub', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+# Support markdown via recommonmark:
+
+from recommonmark.parser import CommonMarkParser
+
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+
+source_suffix = ['.rst', '.md']
+    
