@@ -66,9 +66,9 @@
               </button>
               <ul class="dropdown-menu" id="badge-text">
                 <li class="dropdown-header">Grab badge code in your format</li>
-                <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
+                <!--<li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
                 <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
-                <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
+                <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>-->
                 <li><pre id="badge-snippet"></pre></li>
                 <li class="dropdown-header">Paste into your README to get</li>
                 <li>
@@ -110,6 +110,15 @@
           <div class="panel-body hidden">
             <div id="log"></div>
           </div>
+        </div>
+        <div class="url">
+            <label>Copy and share this URL:</label>
+            <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
+        </div>
+        <div class="badges">
+            <label>Paste into your README to get badge:</label>
+            <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
+            <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
         </div>
       </form>
     </div>
