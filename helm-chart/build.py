@@ -23,6 +23,9 @@ IMAGE_FILES = [SETUP_PY, PYPKGPATH, IMAGE_PATH]
 # namely, all image files plus the chart itself
 CHART_FILES = IMAGE_FILES + [CHARTPATH]
 
+HELM_CHART_DEPLOY_KEY_NAME = 'travis'
+MYBINDER_DEPLOY_KEY_NAME = 'unknown'
+
 def last_git_modified(paths):
     """Return the short hash of the last commit on one or more paths"""
     if isinstance(paths, str):
@@ -82,10 +85,13 @@ def build_chart():
     with open(os.path.join(CHARTPATH, 'Chart.yaml')) as f:
         chart = yaml.load(f)
 
+    raw_version = chart['version']
+
     chart['version'] = chart['version'].split('-')[0] + '-' + version
 
     with open(os.path.join(CHARTPATH, 'Chart.yaml'), 'w') as f:
         yaml.dump(chart, f)
+    return raw_version
 
 
 def publish_pages():
@@ -93,7 +99,7 @@ def publish_pages():
     subprocess.check_call([
         'git', 'clone', '--no-checkout',
         'git@github.com:jupyterhub/helm-chart', 'gh-pages'],
-        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i travis')
+        env=dict(os.environ, GIT_SSH_COMMAND=f'ssh -i {HELM_CHART_DEPLOY_KEY_NAME}')
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
     subprocess.check_call(['helm', 'repo', 'add', 'jupyterhub', 'https://jupyterhub.github.io/helm-chart/'])
@@ -115,7 +121,38 @@ def publish_pages():
     subprocess.check_call(
         ['git', 'push', 'origin', 'gh-pages'],
         cwd='gh-pages',
-        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i ../travis')
+        env=dict(os.environ, GIT_SSH_COMMAND=f'ssh -i ../{HELM_CHART_DEPLOY_KEY_NAME}')
+    )
+
+def update_mybinder_deployment(version):
+    commit = last_git_modified('.')
+    subprocess.check_call([
+        'git', 'clone',
+        'https://github.com/jupyterhub/mybinder.org-deploy', 'staging'],
+        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i {MYBINDER_DEPLOY_KEY_NAME}')
+    )
+    subprocess.check_call(['git', 'checkout', 'staging'], cwd='staging')
+    subprocess.check_call(['git', 'remote', 'add', 'meeseeks', 'ssh://git@github.com/MeeseeksBox/mybinder.org-deploy'])
+
+    with open(os.path.join('staging', 'config', 'common.yaml')) as f:
+        values = yaml.load(f)
+
+    values['version'] = version
+
+    with open(os.path.join('staging', 'config', 'common.yaml')) as f:
+        yaml.dump(values, f)
+
+
+    subprocess.check_call(['git', 'add', '.'], cwd='staging')
+    subprocess.check_call([
+        'git',
+        'commit',
+        '-m', '[binderhub] Automatic update for commit {}'.format(commit)
+    ], cwd='staging')
+    subprocess.check_call(
+        ['git', 'push', 'staging', f'autodeploy-{commit}'],
+        cwd='staging',
+        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i ../{MYBINDER_DEPLOY_KEY_NAME}')
     )
 
 
@@ -138,8 +175,10 @@ def main():
     if args.action == 'build':
         build_images(args.image_prefix, images, args.commit_range, args.push)
         build_values(args.image_prefix)
-        build_chart()
+        chart_version = build_chart()
         if args.push:
+            # let's not do that yet, we need to decide where to push.
+            # update_mybinder_deployment(chart_version)
             publish_pages()
 
 main()
