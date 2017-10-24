@@ -143,6 +143,11 @@ $(function(){
       $('#badge-snippet').hide();
     });
 
+    // prevent badge text dropdown menu from disappearing on click
+    $('.dropdown-menu#badge-text li').click(function(e) {
+          e.stopPropagation();
+    });
+
     $('#markdown-badge-toggle').on('click', function () {
       var url = updateUrl();
       $('#badge-snippet')
