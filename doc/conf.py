@@ -115,6 +115,14 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 
+def setup(app):
+    app.add_stylesheet('custom.css')
+
+
+# Jupyter Logo
+html_logo = '_static/images/logo.svg'
+html_favicon = '_static/images/favicon.ico'
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
