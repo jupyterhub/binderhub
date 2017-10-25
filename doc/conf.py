@@ -36,7 +36,8 @@ sys.path.insert(0, '..')
 #
 # needs_sphinx = '1.0'
 
-html_logo = "_static/logo.png"
+html_logo = "_static/images/logo.png"
+html_favicon = "_static/images/favicon.png"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
