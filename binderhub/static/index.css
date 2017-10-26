@@ -129,6 +129,21 @@ h4 {
     font-family: "Roboto Mono", monospace;
 }
 
+.bluedropdown{
+    background-color:#579ACA;
+    border-radius: 4px 4px 0px 0px;
+    height:35px;
+}
+
+.bluedropdown label{
+    color:white;
+    padding: 6px 12px;
+}
+
+#caret{
+    width:20px;
+}
+
 #how-it-works {
     line-height: 1.5;
     font-weight: bold;
