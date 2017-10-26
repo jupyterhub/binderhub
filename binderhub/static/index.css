@@ -129,6 +129,21 @@ h4 {
     font-family: "Roboto Mono", monospace;
 }
 
+.url, .badges{
+    background-color: #ffffff;
+    box-shadow: 2px 2px 1px #888888;
+    border-radius: 4px;
+    
+}
+
+.url{
+    margin-bottom:20px;
+}
+
+.badges{
+    margin-bottom:40px;
+}
+
 .bluedropdown{
     background-color:#579ACA;
     border-radius: 4px 4px 0px 0px;
@@ -142,6 +157,13 @@ h4 {
 
 #caret{
     width:20px;
+}
+
+#greyline{
+    Stroke: Solid;
+    Align: Center;
+    Width: 1px;
+    color: #CECECE
 }
 
 #how-it-works {
