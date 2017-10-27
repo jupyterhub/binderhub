@@ -35,6 +35,9 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
+    unresolved_ref = Unicode()
+
+
     @gen.coroutine
     def get_resolved_ref(self):
         raise NotImplementedError("Must be overridden in child class")
@@ -44,6 +47,21 @@ class RepoProvider(LoggingConfigurable):
 
     def get_build_slug(self):
         raise NotImplementedError("Must be overriden in the child class")
+
+
+class FakeProvider(RepoProvider):
+    """Fake provider for local testing of the UI
+    """
+
+
+    async def get_resolved_ref(self):
+        return "1a2b3c4d5e6f"
+
+    def get_repo_url(self):
+        return "fake/repo"
+
+    def get_build_slug(self):
+        return '{user}-{repo}'.format(user='Rick', repo='Morty')
 
 
 class GitHubRepoProvider(RepoProvider):

@@ -163,3 +163,36 @@ class Build:
                 pass
             else:
                 raise
+
+class FakeBuild(Build):
+    """
+    Fake Building process to be able to work on the UI without a running Minikube.
+    """
+    def submit(self):
+        self.progress('pod.phasechange', 'Running')
+        return
+
+    def stream_logs(self):
+        import time
+        time.sleep(3)
+        for phase in ('Pending', 'Running', 'Succeed', 'Building'):
+            self.progress('log',
+                json.dumps({
+                    'phase': phase,
+                    'message': f"{phase}...\n",
+                })
+            )
+        for i in range(5):
+            time.sleep(1)
+            self.progress('log',
+                json.dumps({
+                    'phase': 'unknown',
+                    'message': f"Step {i+1}/10\n",
+                })
+            )
+        self.progress('pod.phasechange', 'Succeeded')
+        self.progress('log', json.dumps({
+                'phase': 'Deleted',
+                'message': f"Deleted...\n",
+             })
+        )

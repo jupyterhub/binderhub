@@ -71,4 +71,6 @@ there is a simpler method!
 
 3. You can now access it locally at https://localhost:8585
 
-Note that building and launching will not work!
+Note that building and launching will not work, but the
+`testing/localonly/binderhub_config.py` setup a fake building process which
+allows you to work on the UI experience.
