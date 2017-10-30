@@ -36,7 +36,8 @@ sys.path.insert(0, '..')
 #
 # needs_sphinx = '1.0'
 
-html_logo = "_static/logo.png"
+html_logo = "_static/images/logo.png"
+html_favicon = "_static/images/favicon.png"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -45,7 +46,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'flow_diagram',
-    'jupyter_alabaster_theme',
     'autodoc_traits',
 ]
 
@@ -109,7 +109,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'jupyter_alabaster_theme'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

@@ -15,6 +15,13 @@ Preparing to install
 To configure the Helm Chart we'll need to generate several pieces of
 information and insert them into ``yaml`` files.
 
+First we'll create a folder where we'll store our BinderHub configuration
+files. You can do so with the following commands::
+
+    mkdir binderhub
+    cd binderhub
+
+Now we'll collect the information we need to deploy our BinderHub.
 The first is the content of the JSON file created when we set up
 the container registry. For more information on getting a registry password, see
 :ref:`setup-registry`. We'll copy/paste the contents of this file in the steps
@@ -88,18 +95,16 @@ Create a file called ``config.yaml`` and enter the following::
         rbac:
            enabled: false
 
-.. note::
-
-   **google-project-id**:
-   Note that the ``google-project-id`` in the ``prefix:`` line is the project *ID*,
-   not just the project name. Although the project name and project ID can be the same,
-   sometimes these will differ (i.e. if you have created a project name that's been
-   used before).
 
 .. note::
 
-   **`prefix`**:
-   `<prefix>` can be any string, and will be appended to image names. We
+   **``<google-project-id>``** can be found in the JSON file that you
+   pasted above. It is the text that is in the ``project_id`` field. This is
+   the project *ID*, which may be different from the project *name*.
+
+.. note::
+
+   **``<prefix>``** can be any string, and will be prepended to image names. We
    recommend something descriptive such as ``dev`` or ``prod``.
 
 Install BinderHub

@@ -11,6 +11,8 @@
   pushing -> failed
 */
 
+"use strict";
+
 function Image(provider, spec) {
     this.provider = provider;
     this.spec = spec;
@@ -102,7 +104,7 @@ function updateUrl() {
   repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
   // trim trailing or leading '/' on repo
   repo = repo.replace(/(^\/)|(\/?$)/g, '');
-  var ref = $('#ref').val().trim();
+  var ref = $('#ref').val().trim() || 'master';
   var filepath = $('#filepath').val().trim();
   var url = v2url(repo, ref, filepath);
   // update URL references
@@ -141,6 +143,11 @@ $(function(){
     $('#launch-buttons').on('hidden.bs.dropdown', function () {
       // hide the badge snippet when dismissing the dropdown
       $('#badge-snippet').hide();
+    });
+
+    // prevent badge text dropdown menu from disappearing on click
+    $('.dropdown-menu#badge-text li').click(function(e) {
+          e.stopPropagation();
     });
 
     $('#markdown-badge-toggle').on('click', function () {
@@ -189,7 +196,7 @@ $(function(){
 
     $('#build-form').submit(function() {
         var repo = $('#repository').val().trim();
-        var ref =  $('#ref').val().trim();
+        var ref =  $('#ref').val().trim() || 'master';
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
         // trim trailing or leading '/' on repo
         repo = repo.replace(/(^\/)|(\/?$)/g, '');
