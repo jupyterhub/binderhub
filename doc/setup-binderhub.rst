@@ -104,7 +104,7 @@ Create a file called ``config.yaml`` and enter the following::
 
 .. note::
 
-   **``<prefix>``** can be any string, and will be appended to image names. We
+   **``<prefix>``** can be any string, and will be prepended to image names. We
    recommend something descriptive such as ``dev`` or ``prod``.
 
 Install BinderHub
