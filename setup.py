@@ -9,8 +9,7 @@ setup(
         'traitlets',
         'docker',
         'jinja2',
-        'prometheus_client',
-        'recommonmark'
+        'prometheus_client'
     ],
     python_requires='>=3.5',
     author='Project Jupyter Contributors',
