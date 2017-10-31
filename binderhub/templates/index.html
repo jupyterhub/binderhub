@@ -133,27 +133,30 @@
               </div>
             <div class="bluedropdown">
               <label>Copy and share this URL:</label>
-              <img id="caret" src="/static/images/caretdown-white.svg">
+              <img id="caret" src="/static/images/copy-icon-white.svg">
             </div>
             <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
         </div>
         <div class="badges">
             <div class="bluedropdown">
-              <label>Paste into your README to get badge:</label>
+              <label>Paste into your README to get badge: <img id="badge" src="/static/images/badge.svg"></label>
               <a id="badge-link">
-                <img id="badge" src="/static/images/badge.svg">
+                
               </a>
               <a href="#" id="rst-badge-toggle" title="show rst badge snippet" id="markdown-badge-toggle" title="show markdown badge snippet"><img id="caret" src="/static/images/caretdown-white.svg"></a>
             </div>
-            <li>markdown</li>
-            <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
-            <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
-            <li><pre id="badge-snippet"></pre></li>
-            <li>
+            <div  class="snippet-row">
               <li>markdown</li>
-              <li>rst</li>
+              <img src="/static/images/copy-icon-black.svg">
               <li><pre id="badge-snippet"></pre></li>
             </div>
+            <div  class="snippet-row"></div>
+              <li class="snippet-row"><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
+              <img src="/static/images/copy-icon-black.svg">
+              <li><pre id="badge-snippet"></pre></li>
+            </div>
+            </div>
+
         </div>
       </form>
     </div>
