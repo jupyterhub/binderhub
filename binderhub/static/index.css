@@ -157,9 +157,12 @@ h4 {
 
 .snippet-row{
     flex-direction:row;
-    height: 35px;
+    max-height: 35px;
 }
 
+.icon{
+    max-height:35px;
+}
 #caret{
     width:20px;
 }
