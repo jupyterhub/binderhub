@@ -18,7 +18,7 @@ from tornado.log import app_log
 from prometheus_client import Histogram, Gauge, Counter
 
 from .base import BaseHandler
-from .build import Build
+from .build import Build, FakeBuild
 
 
 BUILD_TIME = Histogram('binderhub_build_time_seconds', 'Histogram of build times', ['status'], buckets=[1, 5, 10, 30, 60, 300, 600, float("inf")])
@@ -199,7 +199,9 @@ class BuildHandler(BaseHandler):
         else:
             push_secret = None
 
-        build = Build(
+        BuildClass = FakeBuild if self.settings.get('fake_build', None) else Build
+
+        build = BuildClass(
             q=q,
             api=api,
             name=build_name,
