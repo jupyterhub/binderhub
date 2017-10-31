@@ -16,6 +16,8 @@ script:
   if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
     export PUSH="--push"
+    mkdir -p ${HOME}/git-crypt && curl -L https://github.com/AGWA/git-crypt/archive/0.5.0.tar.gz | tar --directory ${HOME}/git-crypt --gzip --file - --extract --strip-components=1 && cd ${HOME}/git-crypt && make 
+    cd - 
   fi
 - "./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} $PUSH"
 branches:
