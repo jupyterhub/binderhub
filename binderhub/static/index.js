@@ -71,30 +71,56 @@ Image.prototype.close = function() {
     }
 };
 
-Image.prototype.launch = function(url, token, filepath) {
+Image.prototype.launch = function(url, token, filepath, pathType) {
     // redirect a user to a running server with a token
     if (filepath) {
       // strip trailing /
       url = url.replace(/\/$/, '');
-      // /tree is safe because it allows redirect to files
-      url = url + '/tree/' + encodeURI(filepath);
+      if (pathType === 'file') {
+        // /tree is safe because it allows redirect to files
+        // need more logic here if we support things other than notebooks
+        url = url + '/tree/' + encodeURI(filepath);
+      } else {
+        // pathType === 'url'
+        // be insensitive to leading '/'
+        filepath = filepath.replace(/^\//, '');
+        url = url + '/' + filepath;
+      }
+
     }
     url = url + '?' + $.param({token: token});
     window.location.href = url;
 };
 
 
-function v2url(repository, ref, filepath) {
-  // return a v2 url from a repository, ref, and filepath
+function v2url(repository, ref, path, pathType) {
+  // return a v2 url from a repository, ref, and (file|url)path
   if (repository.length === 0) {
     // no repo, no url
     return null;
   }
   var url = window.location.origin + '/v2/gh/' + repository + '/' + ref;
-  if (filepath && filepath.length > 0) {
-    url = url + '?filepath=' + encodeURIComponent(filepath);
+  if (path && path.length > 0) {
+    url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
   }
   return url;
+}
+
+function getPathType() {
+  // return path type. 'file' or 'url'
+  return $("#url-or-file-selected").text().trim().toLowerCase();
+}
+
+function updatePathText() {
+  var pathType = getPathType();
+  var text;
+  if (pathType === "file") {
+    text = "Path to a notebook file (optional)";
+  } else {
+    text = "URL to open (optional)";
+  }
+  $("#filepath").attr('placeholder', text);
+  $("label[for=filepath]").text(text);
 }
 
 
@@ -106,7 +132,7 @@ function updateUrl() {
   repo = repo.replace(/(^\/)|(\/?$)/g, '');
   var ref = $('#ref').val().trim() || 'master';
   var filepath = $('#filepath').val().trim();
-  var url = v2url(repo, ref, filepath);
+  var url = v2url(repo, ref, filepath, getPathType());
   // update URL references
   $("#badge-link").attr('href', url);
   return url;
@@ -144,6 +170,11 @@ $(function(){
       // hide the badge snippet when dismissing the dropdown
       $('#badge-snippet').hide();
     });
+    $("#url-or-file-btn").find("a").click(function (evt) {
+      $("#url-or-file-selected").text($(this).text());
+      updatePathText();
+    })
+    updatePathText();
 
     // prevent badge text dropdown menu from disappearing on click
     $('.dropdown-menu#badge-text li').click(function(e) {
@@ -255,7 +286,7 @@ $(function(){
             image.close();
             // fetch runtime params!
             var filepath = $("#filepath").val().trim();
-            image.launch(data.url, data.token, filepath);
+            image.launch(data.url, data.token, filepath, getPathType());
         });
 
         image.fetch();
