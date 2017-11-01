@@ -133,7 +133,9 @@ h4 {
     background-color: #ffffff;
     box-shadow: 2px 2px 1px #888888;
     border-radius: 4px;
-    
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start
 }
 
 .url{
@@ -148,6 +150,7 @@ h4 {
     background-color:#579ACA;
     border-radius: 4px 4px 0px 0px;
     height:35px;
+    width: 100%;
 }
 
 .bluedropdown label{
@@ -155,13 +158,18 @@ h4 {
     padding: 6px 12px;
 }
 
-.snippet-row{
-    flex-direction:row;
-    max-height: 35px;
+.markdown-row{
+    width:100%;
+}
+
+.rst-row{
+    width:100%;
 }
 
 .icon{
-    max-height:35px;
+    max-height:30px;
+    max-width: 30px;
+    padding:4px;
 }
 #caret{
     width:20px;
