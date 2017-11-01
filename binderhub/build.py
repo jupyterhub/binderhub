@@ -46,10 +46,13 @@ class Build:
         """Get the cmd to run to build the image"""
         cmd = [
             'jupyter-repo2docker',
-            self.git_url,
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
+            # git_url comes at the end, since otherwise our arguments
+            # might be mistook for commands to run.
+            # see https://github.com/jupyter/repo2docker/pull/128
+            self.git_url,
         ]
 
         if self.push_secret:
