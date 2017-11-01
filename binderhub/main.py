@@ -40,6 +40,7 @@ class ParameterizedMainHandler(BaseHandler):
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
             filepath=self.get_argument('filepath', None),
+            urlpath=self.get_argument('urlpath', None),
             submit=True,
             google_analytics_code=self.settings['google_analytics_code'],
         )
