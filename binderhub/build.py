@@ -49,14 +49,15 @@ class Build:
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
-            # git_url comes at the end, since otherwise our arguments
-            # might be mistook for commands to run.
-            # see https://github.com/jupyter/repo2docker/pull/128
-            self.git_url,
         ]
 
         if self.push_secret:
             cmd.append('--push')
+
+        # git_url comes at the end, since otherwise our arguments
+        # might be mistook for commands to run.
+        # see https://github.com/jupyter/repo2docker/pull/128
+        cmd.append(self.git_url)
 
         return cmd
 
