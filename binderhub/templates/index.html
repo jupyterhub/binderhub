@@ -112,28 +112,9 @@
           </div>
         </div>
         <div class="url">
-            <div class="btn-group" id="launch-buttons">
-                <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
-                <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" id="badge-text">
-                  <li class="dropdown-header">Grab badge code in your format</li>
-                  <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
-                  <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
-                  <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
-                  <li><pre id="badge-snippet"></pre></li>
-                  <li class="dropdown-header">Paste into your README to get</li>
-                  <li>
-                    <a id="badge-link">
-                      <img id="badge" src="/static/images/badge.svg">
-                    </a>
-                  </li>
-                </ul>
-              </div>
             <div class="bluedropdown">
               <label>Copy and share this URL:</label>
-              <img id="caret" src="/static/images/copy-icon-white.svg">
+              <img id="copyicon" src="/static/images/copy-icon-white.svg">
             </div>
             <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
         </div>
@@ -147,13 +128,14 @@
             </div>
 
             <div  class="markdown-row">
+              <li class="markdown-li"><a href="#" id="basic-markdown-toggle" title="show binder url">Markdown</a>
               <img class="icon" src="/static/images/markdown-icon.svg">
-              <img class="icon" src="/static/images/copy-icon-black.svg">
+              <img class="icon" src="/static/images/copy-icon-black.svg"></li>
             </div>
-
             <div  class="rst-row">
+              <li class="rst-li"><a href="#" id="basic-rst-toggle" title="show binder url">rst</a>
               <img class="icon" src="/static/images/rst-icon.svg">
-              <img class="icon" src="/static/images/copy-icon-black.svg">
+              <img class="icon" src="/static/images/copy-icon-black.svg"></li>
             </div>
             </div>
 
