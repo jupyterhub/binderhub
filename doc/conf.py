@@ -54,12 +54,9 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-
-# Support markdown via recommonmark:
 source_suffix = ['.rst', '.md']
 
+# Support markdown via recommonmark:
 from recommonmark.parser import CommonMarkParser
 source_parsers = {
     '.md': CommonMarkParser,
@@ -115,8 +112,22 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'show_related': True,
+    'description': "A project to build and serve Binders",
+    'github_user': 'jupyterhub',
+    'github_repo': 'binderhub',
+}
 
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'sourcelink.html',
+        'searchbox.html'
+    ]
+}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -178,6 +189,3 @@ texinfo_documents = [
      author, 'BinderHub', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-    
