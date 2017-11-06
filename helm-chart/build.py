@@ -23,6 +23,9 @@ IMAGE_FILES = [SETUP_PY, PYPKGPATH, IMAGE_PATH]
 # namely, all image files plus the chart itself
 CHART_FILES = IMAGE_FILES + [CHARTPATH]
 
+
+HELM_CHART_DEPLOY_KEY_NAME = 'travis'
+
 def last_git_modified(paths):
     """Return the short hash of the last commit on one or more paths"""
     if isinstance(paths, str):
@@ -81,11 +84,12 @@ def build_chart():
     version = last_git_modified([BASEPATH] + IMAGE_FILES)
     with open(os.path.join(CHARTPATH, 'Chart.yaml')) as f:
         chart = yaml.load(f)
-
+    raw_version = chart['version']
     chart['version'] = chart['version'].split('-')[0] + '-' + version
 
     with open(os.path.join(CHARTPATH, 'Chart.yaml'), 'w') as f:
         yaml.dump(chart, f)
+    return raw_version
 
 
 def publish_pages():
@@ -93,7 +97,7 @@ def publish_pages():
     subprocess.check_call([
         'git', 'clone', '--no-checkout',
         'git@github.com:jupyterhub/helm-chart', 'gh-pages'],
-        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i travis')
+        env=dict(os.environ, GIT_SSH_COMMAND=f'ssh -i {HELM_CHART_DEPLOY_KEY_NAME}')
     )
     subprocess.check_call(['git', 'checkout', 'gh-pages'], cwd='gh-pages')
     subprocess.check_call(['helm', 'repo', 'add', 'jupyterhub', 'https://jupyterhub.github.io/helm-chart/'])
@@ -115,7 +119,7 @@ def publish_pages():
     subprocess.check_call(
         ['git', 'push', 'origin', 'gh-pages'],
         cwd='gh-pages',
-        env=dict(os.environ, GIT_SSH_COMMAND='ssh -i ../travis')
+        env=dict(os.environ, GIT_SSH_COMMAND=f'ssh -i ../{HELM_CHART_DEPLOY_KEY_NAME}')
     )
 
 
@@ -143,3 +147,4 @@ def main():
             publish_pages()
 
 main()
+
