@@ -6,8 +6,15 @@ dependencies:
 - traitlets>=4.1
 - sphinx>=1.4, !=1.5.4
 - sphinx_rtd_theme
-- mne
 - graphviz
+- recommonmark==0.4.0
+- pip
 - pip:
-  - recommonmark==0.4.0
   - pygraphviz==1.4rc1
+  - CommonMark<0.6
+  - mne # conda refuse to install as mayvi is 2.5 only
+  # hopefully already installed by pip install -e the package
+  - docker
+  - kubernetes
+  - tornado
+  - prometheus_client
