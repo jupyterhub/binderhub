@@ -9,8 +9,9 @@
 	.st3{fill:none;}
 	.st4{font-family:'ArialMT';}
 	.st5{font-size:12px;}
-	.st6{font-family:'ClearSans-Bold';}
-	.st7{font-size:13.5903px;}
+	.st6{fill:#4F4F4F;}
+	.st7{font-family:'ClearSans-Bold';}
+	.st8{font-size:13.5903px;}
 </style>
 <g id="Layer_1_1_" class="st0">
 	<g class="st1">
@@ -57,7 +58,7 @@
 		<text class="st4 st5">  </text>
 		<text transform="matrix(1 0 0 1 4.2539 4.4)" class="st4 st5"> </text>
 		<text class="st4 st5"> </text>
-		<rect x="7.9" y="7.9" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -4.5563 10.9998)" class="st2" width="6.2" height="6.2"/>
+		<rect x="7.9" y="7.9" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -4.5562 10.9999)" class="st2" width="6.2" height="6.2"/>
 		<line class="st2" x1="0" y1="16.5" x2="22" y2="16.5"/>
 		<line class="st2" x1="16.5" y1="22" x2="16.5" y2="0"/>
 		<line class="st2" x1="5.5" y1="22" x2="5.5" y2="0"/>
@@ -79,7 +80,7 @@
 	</g>
 </g>
 <g id="Layer_2">
-	<text transform="matrix(1 0 0 1 4.968 13.1999)" class="st6 st7">m</text>
-	<polygon points="6,15.4 11,20.3 16,15.4 	"/>
+	<text transform="matrix(1 0 0 1 4.968 13.1999)" class="st6 st7 st8">m</text>
+	<polygon class="st6" points="6,15.4 11,20.3 16,15.4 	"/>
 </g>
 </svg>

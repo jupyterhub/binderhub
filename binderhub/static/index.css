@@ -33,6 +33,17 @@ form {
     font-family: "ClearSans-Light", sans-serif;
 }
 
+hr {
+    border: 0;
+    clear:both;
+    display:block;
+    width: 100%;               
+    padding:0;
+    margin: 5px 0 5px 0;
+    border-top: 1px solid #cecece;
+    
+  }
+
 p > a {
     cursor: pointer;
     color: rgb(120,120,120);
@@ -188,11 +199,6 @@ h4 {
 .rst-li{
     width:100%;
     list-style-type:none;
-}
-
-hr{
-    border-top: 1px solid #8c8b8b;
-
 }
 
 .icon{

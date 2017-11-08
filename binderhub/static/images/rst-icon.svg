@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 22 22" style="enable-background:new 0 0 22 22;" xml:space="preserve">
 <style type="text/css">
 	.st0{display:none;}
 	.st1{display:inline;}
 	.st2{fill:none;stroke:#9E9E9E;stroke-width:2.000000e-02;stroke-miterlimit:10;}
 	.st3{fill:none;}
-	.st4{font-family:'ClearSans-Bold';}
-	.st5{font-size:13.5903px;}
+	.st4{font-family:'ArialMT';}
+	.st5{font-size:12px;}
+	.st6{fill:#4F4F4F;}
+	.st7{font-family:'ClearSans-Bold';}
+	.st8{font-size:13.5903px;}
 </style>
-<g id="Layer_1" class="st0">
+<g id="Layer_1_1_" class="st0">
 	<g class="st1">
 		<line class="st2" x1="11" y1="0" x2="11" y2="22"/>
 		<path class="st2" d="M21.5,11"/>
@@ -52,10 +55,10 @@
 		<line class="st2" x1="4.4" y1="0" x2="4.4" y2="22"/>
 		<line class="st2" x1="22" y1="17.6" x2="0" y2="17.6"/>
 		<path id="SVGID_x5F_1_x5F_" class="st3" d="M22,4.4H0"/>
-		<text>		<textPath  xlink:href="#SVGID_x5F_1_x5F_" startOffset="80.6641%">
-		</textPath>
-</text>
-		<rect x="7.9" y="7.9" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -4.5564 10.9999)" class="st2" width="6.2" height="6.2"/>
+		<text class="st4 st5">  </text>
+		<text transform="matrix(1 0 0 1 4.2539 4.4)" class="st4 st5"> </text>
+		<text class="st4 st5"> </text>
+		<rect x="7.9" y="7.9" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -4.5563 10.9998)" class="st2" width="6.2" height="6.2"/>
 		<line class="st2" x1="0" y1="16.5" x2="22" y2="16.5"/>
 		<line class="st2" x1="16.5" y1="22" x2="16.5" y2="0"/>
 		<line class="st2" x1="5.5" y1="22" x2="5.5" y2="0"/>
@@ -77,6 +80,6 @@
 	</g>
 </g>
 <g id="Layer_2">
-	<text transform="matrix(1 0 0 1 0.1523 14.3)" class="st4 st5">.rst</text>
+	<text transform="matrix(1 0 0 1 0.1523 14.3)" class="st6 st7 st8">.rst</text>
 </g>
 </svg>
