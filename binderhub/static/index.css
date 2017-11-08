@@ -148,6 +148,7 @@ h4 {
 .url li {
     list-style-type: none;
     padding: 0 12px 0 12px;
+    height:30px;
 }
 
 .badges{
@@ -167,14 +168,13 @@ h4 {
     margin:0px;
 }
 
-.markdown-row{
-    width:100%;
-    padding: 0 12px 0 12px;
+.markdown-row, .rst-row{
+    align-items: flex-end;
+    width:10%;
 }
 
-.rst-row{
-    width:100%;
-    padding: 0 12px 0 12px;
+.icon-row{
+    padding:5px 0 5px 0;
 }
 
 .markdown-li{
