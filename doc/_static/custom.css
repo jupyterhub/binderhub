@@ -1,3 +1,28 @@
 img.logo {
   width:100%
 }
+
+.right-next {
+    float: right;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right-next::after{
+    content: ' »';
+}
+
+.left-prev {
+    float: left;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.left-prev::before{
+    content: '« ';
+}
+
