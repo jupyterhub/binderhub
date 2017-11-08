@@ -2,12 +2,15 @@ name: binderhub
 channels:
   - conda-forge
 dependencies:
-- python=3.5
+- python=3.6
 - traitlets>=4.1
+- tornado>=4.1
 - sphinx>=1.4, !=1.5.4
 - sphinx_rtd_theme
-- mne
 - graphviz
 - pip:
   - recommonmark==0.4.0
   - pygraphviz==1.4rc1
+  - docker
+  - kubernetes==3.*
+  - prometheus_client
