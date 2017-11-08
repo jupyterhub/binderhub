@@ -166,11 +166,11 @@ h4 {
     color:white;
     padding: 6px 12px;
     margin:0px;
+    width: 95%;
 }
 
 .markdown-row, .rst-row{
-    align-items: flex-end;
-    width:10%;
+    width:9%;
 }
 
 .icon-row{
@@ -178,8 +178,11 @@ h4 {
 }
 
 .markdown-li{
-    width:100%;
     list-style-type: none;
+}
+
+.url li a, .markdown-li a, .rst-li a{
+    display:none
 }
 
 .rst-li{
