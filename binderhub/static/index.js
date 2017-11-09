@@ -164,8 +164,15 @@ $(function(){
     // setup badge dropdown
     updateUrl();
 
-    // start the badge invisible
-    $('#badge-snippet').hide();
+    // start the url badge invisible
+    $('#url-badge-snippet').hide();
+    $('#launch-buttons').on('hidden.bs.dropdown', function () {
+      // hide the badge snippet when dismissing the dropdown
+      $('#url-badge-snippet').hide();
+    });
+
+    // start the markdown badge invisible
+    $('#markdown-badge-snippet').hide();
     $('#launch-buttons').on('hidden.bs.dropdown', function () {
       // hide the badge snippet when dismissing the dropdown
       $('#badge-snippet').hide();
@@ -176,6 +183,13 @@ $(function(){
     })
     updatePathText();
 
+    // start the rst badge invisible
+    $('#rst-badge-snippet').hide();
+    $('#launch-buttons').on('hidden.bs.dropdown', function () {
+      // hide the badge snippet when dismissing the dropdown
+      $('#rst-badge-snippet').hide();
+    });
+
     // prevent badge text dropdown menu from disappearing on click
     $('.dropdown-menu#badge-text li').click(function(e) {
           e.stopPropagation();
@@ -183,7 +197,7 @@ $(function(){
 
     $('#markdown-badge-toggle').on('click', function () {
       var url = updateUrl();
-      $('#badge-snippet')
+      $('#markdown-badge-snippet')
         .show()
         .text(markdownBadge(url));
       return false;
@@ -191,7 +205,7 @@ $(function(){
 
     $('#rst-badge-toggle').on('click', function () {
       var url = updateUrl();
-      $('#badge-snippet')
+      $('#rst-badge-snippet')
         .show()
         .text(rstBadge(url));
       return false;
@@ -199,7 +213,7 @@ $(function(){
 
     $('#basic-url-toggle').on('click', function () {
       var url = updateUrl();
-      $('#badge-snippet')
+      $('#url-badge-snippet')
         .show()
         .text(url);
       return false;

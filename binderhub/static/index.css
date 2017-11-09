@@ -19,7 +19,7 @@
     display: none;
 }
 
-#badge-snippet {
+#url-badge-snippet, #markdown-badge-snippet, #rst-badge-snippet, {
   max-width: 200px;
   font-size: 75%;
 }
