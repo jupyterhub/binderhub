@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+Regenerate the binder_flow file in `_static/binder_flow.svg`; note that the file
+may need some minor manual adjustment of text/arrows to avoid overlap between
+objects.
+"""
 
 import os
 from os import path as op

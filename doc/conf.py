@@ -45,7 +45,6 @@ html_favicon = "_static/images/favicon.png"
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'flow_diagram',
     'autodoc_traits',
 ]
 
