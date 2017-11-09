@@ -26,3 +26,10 @@ img.logo {
     content: '« ';
 }
 
+.prev-next-bottom {
+  margin-top: 3em;
+}
+
+.prev-next-top {
+  margin-bottom: 1em;
+}
