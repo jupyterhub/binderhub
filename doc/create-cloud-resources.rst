@@ -29,7 +29,7 @@ up a Kubernetes Cluster. You may be able to receive `free credits
 <https://cloud.google.com/free/>`_ for trying it out. You will need to
 connect your credit card or other payment method to your google cloud account.
 
-1. Go to ``https://console.cloud.google.com`` and log in.
+1. Go to `https://console.cloud.google.com <https://console.cloud.google.com>`_ and log in.
 
 2. Enable the `Container Engine API <https://console.cloud.google.com/apis/api/container.googleapis.com/overview>`_.
 
