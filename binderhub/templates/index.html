@@ -58,7 +58,7 @@
               </div>
             </div>
           </div>
-          <div class="form-group col-md-2">
+          <!--<div class="form-group col-md-2">
             <div class="btn-group" id="launch-buttons">
               <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
               <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
@@ -78,7 +78,7 @@
                 </li>
               </ul>
             </div>
-          </div>
+          </div>-->
         </div>
 
         <div id="build-progress" class="progress on-build hidden">
@@ -118,17 +118,29 @@
             </div>
             <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
         </div>
+
+
         <div class="badges">
             <div class="bluedropdown">
               <label>Paste into your README to get badge: <img id="badge" src="/static/images/badge.svg"></label>
-              <a id="badge-link">
-                
-              </a>
-              <a href="#" id="rst-badge-toggle" title="show rst badge snippet" id="markdown-badge-toggle" title="show markdown badge snippet"><img id="caret" src="/static/images/caretdown-white.svg"></a>
+              <a id="badge-link"></a>
+              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+            
+
+
+              <!--<a href="#" id="rst-badge-toggle" title="show rst badge snippet" id="markdown-badge-toggle" title="show markdown badge snippet"><img id="caret" src="/static/images/caretdown-white.svg"></a>-->
             </div>
 
+            <!--Markdown section-->
             <div  class="markdown-row">
               <li class="markdown-li"><a href="#" id="basic-markdown-toggle" title="show binder url">Markdown</a>
+
+                <div class="btn-group" >
+                    <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
+                </div>
+                <pre id="badge-snippet"></pre>
               <div class="icon-row">
               <img class="icon" src="/static/images/markdown-icon.svg">
               <img class="icon" src="/static/images/copy-icon-black.svg"></li>
@@ -136,8 +148,15 @@
            
               <hr>
 
+            <!--RST section-->
             <div  class="rst-row">
-              <li class="rst-li"><a href="#" id="basic-rst-toggle" title="show binder url">rst</a>
+                <li class="rst-li"><a href="#" id="basic-rst-toggle" title="show binder url">rst</a>
+                  
+                  <div class="btn-group" >
+                    <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
+                  </div>
+                  <pre id="badge-snippet"></pre>
+                </div>
               <div class="icon-row">
               <img class="icon" src="/static/images/rst-icon.svg">
               <img class="icon" src="/static/images/copy-icon-black.svg"></li>
