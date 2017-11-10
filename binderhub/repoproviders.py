@@ -9,6 +9,7 @@ from datetime import timedelta
 import json
 import os
 import time
+import urllib.parse
 
 from prometheus_client import Gauge
 
@@ -72,7 +73,6 @@ class FakeProvider(RepoProvider):
     """Fake provider for local testing of the UI
     """
 
-
     async def get_resolved_ref(self):
         return "1a2b3c4d5e6f"
 
@@ -81,6 +81,30 @@ class FakeProvider(RepoProvider):
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
+
+
+class GitRepoProvider(RepoProvider):
+    """Bare bones git repo provider. Users must provide a resolve_ref in the following form
+
+    http://hostname.com/path/repo_path#sha1
+    """
+
+    name = Unicode("git")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        parsed = urllib.parse.urlparse(self.spec)
+        if not parsed.fragment:
+            raise ValueError("spec used for raw git api must include the sha1 as a fragment")
+        self.resolved_ref = parsed.fragment
+        self.repo = urllib.parse.urlunparse(parsed._replace(fragment=''))
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        return self.resolved_ref
+
+    def get_repo_url(self):
+        return self.repo
 
 
 class GitHubRepoProvider(RepoProvider):

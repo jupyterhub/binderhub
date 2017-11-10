@@ -14,6 +14,8 @@ import webbrowser
 
 import requests
 
+#build_binder("https://github.com/binder-examples/demo", binder_url='http://192.168.99.100:31078/')
+
 
 def build_binder(repo,
                  ref='master',
@@ -63,7 +65,6 @@ if __name__ == '__main__':
         if evt.get('phase') == 'ready':
             url = "{url}?token={token}".format(**evt)
             print("Opening %s" % url)
-            webbrowser.open(url)
             break
     else:
         sys.exit("binder never became ready")
