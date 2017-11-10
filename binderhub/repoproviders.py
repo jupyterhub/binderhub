@@ -8,6 +8,7 @@ control services and providers.
 from datetime import timedelta
 import json
 import os
+import posixpath
 import time
 import urllib.parse
 
@@ -105,6 +106,12 @@ class GitRepoProvider(RepoProvider):
 
     def get_repo_url(self):
         return self.repo
+
+    def get_build_slug(self):
+        parsed = urllib.parse.urlparse(self.spec)
+        parts = [parsed.netloc]
+        parts.extend(parsed.path.split(posixpath.sep))
+        return '-'.join(parts)
 
 
 class GitHubRepoProvider(RepoProvider):
