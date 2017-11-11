@@ -117,7 +117,7 @@ class GitHubRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        spec_parts = self.spec.split('/')
+        spec_parts = self.spec.split('/', 2)  # allow ref to contain "/"
         if len(spec_parts) != 3:
             msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=self.spec)
             if len(spec_parts) == 2 and spec_parts[-1] != 'master':
@@ -126,7 +126,7 @@ class GitHubRepoProvider(RepoProvider):
 
         self.user, self.repo, self.unresolved_ref = spec_parts
         if self.repo.endswith('.git'):
-            self.repo = self.repo[:len(self.repo) - 4]
+            self.repo = self.repo[:-4]  # Strip .git suffix
 
     def get_repo_url(self):
         return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
