@@ -1,13 +1,6 @@
 from setuptools import setup, find_packages
-
-install_requirements = [
-    'kubernetes==3.*',
-    'tornado',
-    'traitlets',
-    'docker',
-    'jinja2',
-    'prometheus_client'
-]
+from pip.req import parse_requirements
+import uuid
 
 setup_requirements = [
     'pytest-runner'
@@ -16,6 +9,9 @@ setup_requirements = [
 test_requirements = [
     'pytest'
 ]
+
+install_requirements = [str(ir.req) for ir in parse_requirements(
+                        "requirements.txt", session=uuid.uuid1())]
 
 setup(
     name='binderhub',
