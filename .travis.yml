@@ -11,6 +11,8 @@ install:
   | tar -xz -C bin --strip-components 1 linux-amd64/helm
 - chmod +x bin/helm
 - helm init --client-only
+- python setup.py install
+- python setup.py test
 script:
 - |
   if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
