@@ -19,7 +19,7 @@ def build_binder(repo,
                  ref='master',
                  filepath=None,
                  *,
-                 binder_url='https://beta.mybinder.org'):
+                 binder_url='https://mybinder.org'):
     """Launch a binder
 
     Yields Binder's event-stream events (dicts)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         '--filepath', type=str, help="The file to open, if any.")
     parser.add_argument(
         '--binder',
-        default='https://beta.mybinder.org',
+        default='https://mybinder.org',
         help="""
         The URL of the binder instance to use.
         Use `http://localhost:8585` if you are doing local testing.
