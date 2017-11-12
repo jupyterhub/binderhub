@@ -117,16 +117,27 @@ class GitHubRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        spec_parts = self.spec.split('/', 2)  # allow ref to contain "/"
+        self.user, self.repo, self.unresolved_ref = self.process_spec(self.spec)
+        self.repo = strip_suffix(self.repo, ".git")
+
+    @staticmethod
+    def process_spec(spec):
+        """Tokenizes a Github Spec into parts, error if spec invalid."""
+
+        spec_parts = spec.split('/', 2)  # allow ref to contain "/"
         if len(spec_parts) != 3:
-            msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=self.spec)
+            msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=spec)
             if len(spec_parts) == 2 and spec_parts[-1] != 'master':
-                msg += ' Did you mean "{spec}/master"?'.format(spec=self.spec)
+                msg += ' Did you mean "{spec}/master"?'.format(spec=spec)
             raise ValueError(msg)
 
-        self.user, self.repo, self.unresolved_ref = spec_parts
-        if self.repo.endswith('.git'):
-            self.repo = self.repo[:-4]  # Strip .git suffix
+        return spec_parts
+
+    @staticmethod
+    def strip_suffix(text, suffix):
+        if text.endswith(suffix):
+            text = text[:-(len(suffix))]
+        return text
 
     def get_repo_url(self):
         return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
