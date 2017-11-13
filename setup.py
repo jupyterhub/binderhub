@@ -1,8 +1,16 @@
+import os
+
 from setuptools import setup, find_packages
+
+# get the version
+version_ns = {}
+here = os.path.dirname(__file__)
+with open(os.path.join(here, 'binderhub', '_version.py')) as f:
+    exec(f.read(), {}, version_ns)
 
 setup(
     name='binderhub',
-    version='0.1.1',
+    version=version_ns['__version__'],
     python_requires='>=3.5',
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',
