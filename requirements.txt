@@ -1,6 +1,0 @@
-kubernetes==3.*
-tornado
-traitlets
-docker
-jinja2
-prometheus_client
