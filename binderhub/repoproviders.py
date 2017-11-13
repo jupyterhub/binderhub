@@ -23,7 +23,7 @@ GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate 
 
 
 def tokenize_spec(spec):
-    """Tokenize a Git Spec into parts, error if spec invalid."""
+    """Tokenize a GitHub-style spec into parts, error if spec invalid."""
 
     spec_parts = spec.split('/', 2)  # allow ref to contain "/"
     if len(spec_parts) != 3:
@@ -121,7 +121,7 @@ class GitHubRepoProvider(RepoProvider):
 
     auth = Dict(
         help="""Auth parameters for the GitHub API access
-    
+
         Populated from client_id, client_secret, access_token.
     """
     )
@@ -136,7 +136,7 @@ class GitHubRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user, self.repo, self.unresolved_ref = self.process_spec(self.spec)
+        self.user, self.repo, self.unresolved_ref = tokenize_spec(self.spec)
         self.repo = strip_suffix(self.repo, ".git")
 
     def get_repo_url(self):
