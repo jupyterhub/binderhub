@@ -22,7 +22,7 @@ script:
   fi
 - "./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} $PUSH"
 - pip install pytest
-- pytest -v tests/
+- pytest -v
 branches:
   only:
   - master

@@ -21,6 +21,25 @@ from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 
+
+def tokenize_spec(spec):
+    """Tokenize a Git Spec into parts, error if spec invalid."""
+
+    spec_parts = spec.split('/', 2)  # allow ref to contain "/"
+    if len(spec_parts) != 3:
+        msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=spec)
+        if len(spec_parts) == 2 and spec_parts[-1] != 'master':
+            msg += ' Did you mean "{spec}/master"?'.format(spec=spec)
+        raise ValueError(msg)
+
+    return spec_parts
+
+def strip_suffix(text, suffix):
+    if text.endswith(suffix):
+        text = text[:-(len(suffix))]
+    return text
+
+
 class RepoProvider(LoggingConfigurable):
     """Base class for a repo provider"""
     name = Unicode(
@@ -119,25 +138,6 @@ class GitHubRepoProvider(RepoProvider):
         super().__init__(*args, **kwargs)
         self.user, self.repo, self.unresolved_ref = self.process_spec(self.spec)
         self.repo = strip_suffix(self.repo, ".git")
-
-    @staticmethod
-    def process_spec(spec):
-        """Tokenizes a Github Spec into parts, error if spec invalid."""
-
-        spec_parts = spec.split('/', 2)  # allow ref to contain "/"
-        if len(spec_parts) != 3:
-            msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=spec)
-            if len(spec_parts) == 2 and spec_parts[-1] != 'master':
-                msg += ' Did you mean "{spec}/master"?'.format(spec=spec)
-            raise ValueError(msg)
-
-        return spec_parts
-
-    @staticmethod
-    def strip_suffix(text, suffix):
-        if text.endswith(suffix):
-            text = text[:-(len(suffix))]
-        return text
 
     def get_repo_url(self):
         return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
