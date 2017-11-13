@@ -4,7 +4,6 @@ python:
 services:
 - docker
 install:
-- pip install --no-cache-dir ruamel.yaml
 - mkdir -p bin
 - export PATH=$PWD/bin:$PATH
 - curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.6.1-linux-amd64.tar.gz
@@ -18,14 +17,13 @@ install:
   chmod +x bin/git-crypt
 - pip install . -r dev-requirements.txt
 script:
+- pytest -v --cov binderhub
 - |
   if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
     export PUSH="--push"
   fi
 - "./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} $PUSH"
-- pip install pytest
-- pytest -v
 branches:
   only:
   - master
