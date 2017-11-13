@@ -49,4 +49,4 @@ Full Table of Contents
    debug
    turn-off
    api
-   reference/ref-index.rst
+   federation

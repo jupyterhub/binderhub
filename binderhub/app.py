@@ -12,14 +12,14 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, List
 from traitlets.config import Application
 
 from .base import Custom404
 from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
-from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
+from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler, SettingsHandler, RegisterHandler, ExposeHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
@@ -251,6 +251,31 @@ class BinderHub(Application):
         """
     )
 
+    use_as_federation_portal = Bool(False, config=True, 
+        help="""configure the current binder to also act as a federation portal.
+
+        This settings should be used only on mybinder.org deployment or if you
+        have multiple internal private deployment of binderhubs inside a closed
+        network. It exposes a couple of extra endpoints to binderhub for remote
+        services to register themselves. Once register for a specific user, the
+        binder portal will redirect users to these endpoints instead of running
+        them locally.
+        """
+    )
+
+    default_binders_list = List([], config=True,
+        help="""
+        A list of known default binder which can be chosen by users.
+        """
+    )
+
+    cannonical_address = Unicode('', config=True, 
+        help="""Set the canonical address to register self to a binder federation portal
+
+        When current instance is used as a portal also used to avoid redirect loops to self.
+        """
+    )
+
     tornado_settings = Dict(
         config=True,
         help="""
@@ -327,13 +352,31 @@ class BinderHub(Application):
             'base_url': self.base_url,
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'debug': self.debug,
+            'cannonical_address' : self.cannonical_address,
+            'use_as_federation_portal' : self.use_as_federation_portal,
+            'default_binders_list' : self.default_binders_list,
         })
+        
+        federation_handlers = []
+
+        if self.use_as_federation_portal:
+            if not self.cannonical_address:
+                raise ValueError("When using binderhub as a federation portal you must set the `cannonical_address`.")
+            federation_handlers = [
+                (r"/register/(.+)", RegisterHandler),
+            ]
+        else:
+            federation_handlers = [
+                (r"/expose/", ExposeHandler),
+            ]
 
         handlers = [
             (r'/metrics', MetricsHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
+            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler), 
+            (r"/settings/(.+)?", SettingsHandler),
+            ] + federation_handlers +  [
             # for backward-compatible mybinder.org badge URLs
             # /assets/images/badge.svg
             (r'/assets/(images/badge\.svg)',
@@ -356,6 +399,7 @@ class BinderHub(Application):
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
+
         handlers = self.add_url_prefix(self.base_url, handlers)
         self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 

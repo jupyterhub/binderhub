@@ -13,9 +13,12 @@
 
   {% block logo %}
   <div class="container">
+    <nav>
+      <a href='/settings/'>Settings</a>
+    </nav>
     <div class="row">
       <div id="logo-container">
-        <img id="logo" src="{{static_url("logo.svg")}}" width="390px"  />
+        <a href='{{base_url}}'><img id="logo" src="{{static_url("logo.svg")}}" width="390px"  /></a>
       </div>
     </div>
   </div>

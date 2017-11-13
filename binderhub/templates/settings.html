@@ -1,0 +1,47 @@
+{% extends "page.html" %}
+
+{% block head %}
+{{ super() }}
+<script src="{{static_url("settings.js")}}"></script>
+{% endblock head %}
+
+{% block main %}
+<div id="main" class="container">
+  <div class="row">
+    <h4 class="text-center logo-subtext">(beta)</h4>
+    {%if use_as_federation_portal %}
+    <div class="col-lg-10 col-lg-offset-1">
+      <div id="header" class="text-center">
+        <h3>Your Known Binders</h3>
+        <div id="explanation">
+            Here is a list of all the binder you can select as your default one.
+        </div>
+      </div>
+
+      <form id="build-form" class="form jumbotron">
+          <p>Click on the binder instance you want to make your default</p>
+          <div class="list-group">
+            {% for b in binders %}
+            <button id='{{b}}' class="list-group-item list-group-item-action {% if b == default_binder %}active{% endif %}"
+                            attr-binder='{{b}}'
+                      onClick="postOnClick(this); return false;">{{b}}</button>
+            {% endfor %}
+           </div>
+           <a href='{{base_url}}/' type="submit" class="btn btn-warning">Ok</a>
+      </form>
+    </div>
+    {%else%}
+    <div class="col-lg-10 col-lg-offset-1">
+      <div id="header" class="text-center">
+        <h3>Binders Federation</h3>
+        <div id="explanation">
+          This binder cannot serve as a portal. Head to the <a href='{{base_url}}/expose/'>Expose</a> page to
+            register it with another binder.
+        </div>
+      </div>
+    </div>
+    {%endif%}
+  </div>
+  
+</div>
+{% endblock main %}

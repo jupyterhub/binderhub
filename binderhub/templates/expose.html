@@ -1,0 +1,41 @@
+{% extends "page.html" %}
+
+{% block head %}
+{{ super() }}
+<script src="{{static_url("settings.js")}}"></script>
+{% endblock head %}
+
+{% block main %}
+<div id="main" class="container">
+  <div class="row">
+    <h4 class="text-center logo-subtext">(beta)</h4>
+    <div class="col-lg-10 col-lg-offset-1">
+      <div id="header" class="text-center">
+        <h3>Register with MyBinder.org</h3>
+        <div id="explanation">
+          This page allow you to register the current binder instance with https://mybinder.org.
+        </div>
+        <p>
+          By click the following button you will have the option to select this
+          binder as the default one to use when clicking on a binder link. 
+
+          It is necessary to click this button to tell mybinder.org that you are
+          allowed to access this binder instance. 
+
+          Your default binder can be changed an anytime by heading to the
+          mybinder.org setting page and selecting a new default. 
+      </div>
+      <div class='row'>
+        <div class='col-md-4 col-md-offset-4'>
+          <a class="btn btn-submit"
+             href='https://mybinder.org/register/{{escaped_adresse}}/'>
+            Register
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+</div>
+{% endblock main %}

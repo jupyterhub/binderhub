@@ -296,3 +296,24 @@ img.icon.clipboard:hover {
 img.icon.clipboard:active {
     background: #ddd;
 }
+
+/* Navbar styling */
+
+nav {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+nav > a {
+  transition: 1s all;
+  justify-content: flex-end;
+  display: block;
+  padding: 12px;
+  color : #ccc;
+  margin: 15px;
+}
+
+nav > a:hover,
+nav > a:focus {
+  text-decoration: none;
+}
