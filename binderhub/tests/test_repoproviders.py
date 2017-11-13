@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 import pytest
+from tornado.ioloop import IOLoop
 
-from binderhub.repoproviders import tokenize_spec, strip_suffix
+from binderhub.repoproviders import tokenize_spec, strip_suffix, GitHubRepoProvider
 
 
 # General string processing
@@ -32,6 +33,22 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_ref == unresolved_ref
 
 
+def test_github_ref():
+    provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4')
+    slug = provider.get_build_slug()
+    assert slug == 'jupyterhub-zero-to-jupyterhub-k8s'
+    full_url = provider.get_repo_url()
+    assert full_url == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
+
+
+def test_github_missing_ref():
+    provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.1.2.3.4.5.6')
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref is None
+
+
 class TestSpecErrorHandling(TestCase):
 
     def test_too_short_spec(self):
@@ -56,3 +73,4 @@ class TestSpecErrorHandling(TestCase):
         error = "Did you mean \"{}/master\"?".format(spec)
         with self.assertRaisesRegexp(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
+
