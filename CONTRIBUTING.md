@@ -52,6 +52,12 @@ and run binderhub on the host system.
 
 All features should work, including building and launching.
 
+9. Running unit tests
+
+  ```bash
+  python setup.py test
+  ```
+
 ## Pure HTML / CSS / JS development
 
 If you do not want to set up minikube but just want to hack on the html / css / js,

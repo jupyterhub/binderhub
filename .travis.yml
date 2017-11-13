@@ -11,6 +11,7 @@ install:
   | tar -xz -C bin --strip-components 1 linux-amd64/helm
 - chmod +x bin/helm
 - helm init --client-only
+- pip install .
 script:
 - |
   if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
@@ -20,6 +21,8 @@ script:
     cd - 
   fi
 - "./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} $PUSH"
+- pip install pytest
+- pytest -v
 branches:
   only:
   - master
