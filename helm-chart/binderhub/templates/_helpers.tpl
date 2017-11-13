@@ -14,3 +14,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{- define "imagePullSecret" }}
+{{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .Values.registry.host (printf "%s:%s" .Values.registry.username .Values.registry.password | b64enc) | b64enc }}
+{{- end }}
