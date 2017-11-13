@@ -24,6 +24,8 @@ script:
     export PUSH="--push"
   fi
 - "./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} $PUSH"
+after_success:
+  - codecov
 branches:
   only:
   - master
