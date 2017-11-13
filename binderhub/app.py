@@ -19,7 +19,7 @@ from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import GitHubRepoProvider, GitRepoProvider
+from .repoproviders import GitHubRepoProvider, BasicGitRepoProvider
 from .metrics import MetricsHandler
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
@@ -165,7 +165,7 @@ class BinderHub(Application):
     repo_providers = Dict(
         {
             'gh': GitHubRepoProvider,
-            'git': GitRepoProvider,
+            'git': BasicGitRepoProvider,
         },
         config=True,
         help="""

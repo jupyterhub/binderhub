@@ -3,7 +3,7 @@ from unittest import TestCase
 import pytest
 from tornado.ioloop import IOLoop
 
-from binderhub.repoproviders import tokenize_spec, strip_suffix, GitHubRepoProvider
+from binderhub.repoproviders import tokenize_spec, strip_suffix, GitHubRepoProvider, BasicGitRepoProvider, GitlabRepoProvider
 
 
 # General string processing
@@ -74,3 +74,23 @@ class TestSpecErrorHandling(TestCase):
         with self.assertRaisesRegexp(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
+
+def test_git_ref():
+    provider = BasicGitRepoProvider(spec='https://github.com/jupyterhub/zero-to-jupyterhub-k8s',
+                                    arguments={'resolved_ref': [b'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603']})
+    slug = provider.get_build_slug()
+    assert slug == 'github.com-jupyterhub-zero_-to_-jupyterhub_-k8s'
+    full_url = provider.get_repo_url()
+    assert full_url == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
+
+
+def test_gitlab_ref():
+    provider = GitlabRepoProvider(spec='gitlab-org/gitlab-ce', arguments={'unresolved_ref': [b'v10.0.6']})
+    slug = provider.get_build_slug()
+    assert slug == 'gitlab_-org-gitlab_-ce'
+    full_url = provider.get_repo_url()
+    assert full_url == 'https://gitlab.com/gitlab-org/gitlab-ce.git'
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
