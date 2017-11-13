@@ -33,7 +33,7 @@ install:
 - chmod +x bin/helm
 - helm init
 - |
-  until [[ $(kubectl get pod --namespace kube-system | grep tiller | awk '{print $3}') == "Running" ]]; do
+  until helm version; do
     echo "waiting for tiller"
     sleep 1
   done
