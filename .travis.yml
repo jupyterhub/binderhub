@@ -18,7 +18,7 @@ install:
   curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
   chmod +x minikube
   mv minikube bin/
-- sudo minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
+- sudo $PWD/bin/minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
 - minikube update-context
 - |
   JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'
