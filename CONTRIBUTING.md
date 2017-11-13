@@ -40,9 +40,9 @@ and run binderhub on the host system.
             --namespace=binder \
             -f testing/minikube/jupyterhub-helm-config.yaml
 
-6. Install binderhub:
+6. Install binderhub and its development requirements:
 
-        python3 -m pip install -e .
+        python3 -m pip install -e . -r dev-requirements.txt
 
 7. Start binderhub with the testing config file:
 
@@ -55,7 +55,7 @@ All features should work, including building and launching.
 9. Running unit tests
 
   ```bash
-  python setup.py test
+  pytest
   ```
 
 ## Pure HTML / CSS / JS development
@@ -72,7 +72,7 @@ there is a simpler method!
 2. Run it!
 
    ```bash
-   python3 -m binderhub.app -f testing/localonly/binderhub_config.py
+   python3 -m binderhub -f testing/localonly/binderhub_config.py
    ```
 
 3. You can now access it locally at https://localhost:8585
