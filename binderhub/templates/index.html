@@ -117,6 +117,7 @@
               <img id="copyicon" src="/static/images/copy-icon-white.svg">
             </div>
             <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
+            <pre id="url-badge-snippet"></pre>
         </div>
 
 
@@ -124,8 +125,9 @@
             <div class="bluedropdown">
               <label>Paste into your README to get badge: <img id="badge" src="/static/images/badge.svg"></label>
               <a id="badge-link"></a>
-              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="caret"></span>
+              <a href="#" id="markdown-badge-toggle" title="show markdown badge snippet"><span class="caret"></span></a>
+              <a href="#" id="rst-badge-toggle" title="show rst badge snippet"><span class="caret"></span></a>
+                
               </button>
             
 
@@ -135,7 +137,7 @@
 
             <!--Markdown section-->
             <div  class="markdown-row">
-            <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
+            <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet"></a></li>
                 
              <pre id="markdown-badge-snippet"></pre>
               <img class="icon" src="/static/images/markdown-icon.svg">
@@ -146,8 +148,6 @@
 
             <!--RST section-->
             <div  class="rst-row">
-
-                    <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
 
                 <pre id="rst-badge-snippet"></pre>
               <img class="icon" src="/static/images/rst-icon.svg">

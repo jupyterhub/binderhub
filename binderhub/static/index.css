@@ -166,6 +166,10 @@ h4 {
     margin-bottom:40px;
 }
 
+.badges li{
+    list-style-type: none;
+}
+
 .bluedropdown{
     background-color:#579ACA;
     border-radius: 4px 4px 0px 0px;
@@ -185,10 +189,10 @@ h4 {
     width: 100%;
 }
 
-#markdown-badge-snippet, #rst-badge-snippet{
+#url-badge-snippet, #markdown-badge-snippet, #rst-badge-snippet{
     width:90%;
     float:left;
-    margin-left: 12px;
+    margin: 12px 0 12px 12px;
     padding: 7px;
 }
 
@@ -200,6 +204,7 @@ h4 {
 .icon{
     max-width: 30px;
     padding:4px;
+    margin-top: 13px;
 }
 
 #caret{
