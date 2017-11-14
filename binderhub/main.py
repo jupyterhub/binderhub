@@ -2,6 +2,7 @@
 Main handler classes for requests
 """
 from tornado import web
+from tornado.httputil import url_concat
 from tornado.log import app_log
 
 from .base import BaseHandler
@@ -49,6 +50,8 @@ class ParameterizedMainHandler(BaseHandler):
 class LegacyRedirectHandler(BaseHandler):
     """Redirect handler from legacy Binder"""
 
-    def get(self, user, repo):
+    def get(self, user, repo, urlpath=None):
         url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
+        if urlpath:
+            url = url_concat(url, dict(urlpath=urlpath))
         self.redirect(url)

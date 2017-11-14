@@ -251,7 +251,7 @@ class BinderHub(Application):
             (r'/metrics', MetricsHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-            (r"/repo/([^/]+)/([^/]+)", LegacyRedirectHandler),
+            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
             # for backward-compatible mybinder.org badge URLs
             # /assets/images/badge.svg
             (r'/assets/(images/badge\.svg)',
