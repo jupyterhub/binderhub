@@ -8,6 +8,13 @@ sudo: required
 install:
 - mkdir -p bin
 - export PATH=$PWD/bin:$PATH
+# install nsenter (needed by kube on trusty)
+- |
+  curl -L https://github.com/minrk/git-crypt-bin/releases/download/trusty/nsenter > nsenter
+  echo "5652bda3fbea6078896705130286b491b6b1885d7b13bda1dfc9bdfb08b49a2e  nsenter" | shasum -a 256 -c -
+  chmod +x nsenter
+  sudo mv nsenter /usr/local/bin/
+
 # install kubectl, minikube
 # based on https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
 - |
