@@ -53,7 +53,12 @@ install:
 - pip install . -r dev-requirements.txt
 script:
 - ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
-- helm install --name binder helm-chart
+
+# smoke test helm install
+- helm install --name binder-test helm-chart/binderhub -f helm-chart/minikube-binder.yaml
+# TODO: verify that helm deploy worked
+- helm del --purge binder-test
+# TODO: wait for jupyterhub
 - pytest -v --cov binderhub
 after_success:
 - codecov
