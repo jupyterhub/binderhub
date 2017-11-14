@@ -181,28 +181,27 @@ h4 {
 }
 
 
-.icon-row{
-    padding:5px 0 5px 0;
+.markdown-row{
+    width: 100%;
 }
 
-.markdown-li{
-    list-style-type: none;
+#markdown-badge-snippet, #rst-badge-snippet{
+    width:90%;
+    float:left;
+    margin-left: 12px;
+    padding: 7px;
 }
 
 .url li a, .markdown-li a, .rst-li a{
     display:none
 }
 
-.rst-li{
-    width:100%;
-    list-style-type:none;
-}
 
 .icon{
-    max-height:30px;
     max-width: 30px;
     padding:4px;
 }
+
 #caret{
     width:20px;
     background-color: none;
