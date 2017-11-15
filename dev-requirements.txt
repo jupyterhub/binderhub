@@ -3,3 +3,4 @@ pytest-cov
 pytest-tornado
 codecov
 ruamel.yaml
+requests
