@@ -56,10 +56,12 @@ script:
 # build helm chart
 - ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
 # smoke test helm install
+- helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+- helm dependency update helm-chart/binderhub
 - helm install --name binder-test helm-chart/binderhub -f helm-chart/minikube-binder.yaml
 # TODO: verify that helm deploy worked
-- helm del --purge binder-test
 # TODO: wait for jupyterhub
+- helm delete --purge binder-test
 - pytest -v --cov binderhub
 after_success:
 - codecov
