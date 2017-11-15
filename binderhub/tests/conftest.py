@@ -16,6 +16,18 @@ minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_c
 
 @pytest.fixture
 def app(request, io_loop):
+    """Launch the BinderHub app
+
+    Currently reads minikube test config from the repo.
+    TODO: support input of test config files.
+
+    Detects whether kubernetes is available, and if not disables build.
+    Detects whether jupyterhub is available, and if not disables launch.
+
+    app.url will contain the base URL of binderhub.
+
+    """
+
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = 'binder-test'
     try:
