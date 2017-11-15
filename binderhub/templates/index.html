@@ -61,7 +61,7 @@
 
     <div class="form-group col-md-2">
             <div class="btn-group" id="launch-buttons">
-              <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
+              <button id="submit" class="btn-submit" type="submit">launch</button>
             </button>
             </div>
           </div>
@@ -97,11 +97,38 @@
             <div id="log"></div>
           </div>
         </div>
+
+        <!--text
+
+        <div class="form-group col-md-2">
+            <div class="btn-group" id="launch-buttons">
+              <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
+              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" id="badge-text">
+                <li class="dropdown-header">Grab badge code in your format</li>
+                <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
+                <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
+                <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
+                <li><pre id="badge-snippet"></pre></li>
+                <li class="dropdown-header">Paste into your README to get</li>
+                <li>
+                  <a id="badge-link">
+                    <img id="badge" src="/static/images/badge.svg">
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>-->
+
+        <!--url section-->
         <div class="url">
             <div class="bluedropdown">
               <label>Copy and share this URL:</label>
-              <a href="#" id="basic-url-toggle" title="show url snippet"><img id="copyicon" src="/static/images/copy-icon-white.svg"></a>
             </div>
+            <a href="#" id="basic-url-toggle" title="show url snippet">url</a>
             <pre id="basic-url-snippet"></pre>
         </div>
 

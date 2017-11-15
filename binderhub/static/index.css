@@ -85,8 +85,14 @@ p > a:hover {
     padding-bottom: 24px;
 }
 
-#submit{
-width:175%;
+.btn-submit{
+    background-color:rgb(243, 162, 83);
+    box-shadow: 1px 1px rgba(0,0,0,.075);
+    width:220%;
+    color:white;
+    border:none;
+    height:35px;
+    border-radius: 4px;
 }
 
 .jumbotron {
