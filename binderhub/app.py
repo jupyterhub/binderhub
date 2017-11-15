@@ -212,7 +212,7 @@ class BinderHub(Application):
                 kubernetes.config.load_kube_config()
 
         # times 2 for log + build threads
-        build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
+        self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
@@ -238,7 +238,7 @@ class BinderHub(Application):
             'launcher': self.launcher,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
-            'build_pool': build_pool,
+            'build_pool': self.build_pool,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,
@@ -265,10 +265,15 @@ class BinderHub(Application):
             (r'.*', Custom404),
         ], **self.tornado_settings)
 
-    def start(self):
+    def stop(self):
+        self.http_server.stop()
+        self.build_pool.shutdown()
+
+    def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
-        self.tornado_app.listen(self.port)
-        tornado.ioloop.IOLoop.current().start()
+        self.http_server = self.tornado_app.listen(self.port)
+        if run_loop:
+            tornado.ioloop.IOLoop.current().start()
 
 
 main = BinderHub.launch_instance
