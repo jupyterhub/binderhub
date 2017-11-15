@@ -60,8 +60,10 @@ script:
 - helm dependency update helm-chart/binderhub
 - helm install --name binder-test helm-chart/binderhub -f helm-chart/minikube-binder.yaml
 # TODO: verify that helm deploy worked
-# TODO: wait for jupyterhub
 - helm delete --purge binder-test
+
+# install jupyterhub for local binderhub testing
+- ./testing/minikube/install-hub
 - pytest -v --cov binderhub
 after_success:
 - codecov
