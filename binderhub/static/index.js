@@ -165,10 +165,10 @@ $(function(){
     updateUrl();
 
     // start the url badge invisible
-    $('#url-badge-snippet').hide();
+    $('#basic-url-snippet').hide();
     $('#launch-buttons').on('hidden.bs.dropdown', function () {
       // hide the badge snippet when dismissing the dropdown
-      $('#url-badge-snippet').hide();
+      $('#basic-url-snippet').hide();
     });
 
     // start the markdown badge invisible
@@ -200,6 +200,7 @@ $(function(){
       $('#markdown-badge-snippet')
         .show()
         .text(markdownBadge(url));
+
       return false;
     });
 
@@ -213,7 +214,7 @@ $(function(){
 
     $('#basic-url-toggle').on('click', function () {
       var url = updateUrl();
-      $('#url-badge-snippet')
+      $('#basic-url-snippet')
         .show()
         .text(url);
       return false;

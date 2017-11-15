@@ -19,7 +19,7 @@
     display: none;
 }
 
-#url-badge-snippet, #markdown-badge-snippet, #rst-badge-snippet, {
+#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet, {
   max-width: 200px;
   font-size: 75%;
 }
@@ -193,15 +193,11 @@ h4 {
     width: 100%;
 }
 
-#url-badge-snippet, #markdown-badge-snippet, #rst-badge-snippet{
+#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet{
     width:90%;
     float:left;
     margin: 12px 0 12px 12px;
     padding: 7px;
-}
-
-.url li a, .markdown-li a, .rst-li a{
-    display:none
 }
 
 
