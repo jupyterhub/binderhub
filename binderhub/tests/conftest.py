@@ -1,9 +1,9 @@
 """pytest fixtures for binderhub"""
 import os
+from urllib.request import urlopen
 
 import kubernetes.config
 import pytest
-import requests
 from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
@@ -13,9 +13,25 @@ here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
 
+@pytest.fixture(scope='session')
+def _binderhub_config():
+    cfg = PyFileConfigLoader(minikube_testing_config).load_config()
+    cfg.BinderHub.build_namespace = 'binder-test'
+    try:
+        kubernetes.config.load_kube_config()
+    except Exception:
+        cfg.BinderHub.builder_required = False
+    # check if Hub is running and ready
+    try:
+        urlopen(cfg.BinderHub.hub_url, timeout=5).close()
+    except Exception as e:
+        print(f"Hub not available at {cfg.BinderHub.hub_url}: {e}")
+        cfg.BinderHub.hub_url = ''
+    return cfg
+
 
 @pytest.fixture
-def app(request, io_loop):
+def app(request, io_loop, _binderhub_config):
     """Launch the BinderHub app
 
     Currently reads minikube test config from the repo.
@@ -27,20 +43,7 @@ def app(request, io_loop):
     app.url will contain the base URL of binderhub.
 
     """
-
-    cfg = PyFileConfigLoader(minikube_testing_config).load_config()
-    cfg.BinderHub.build_namespace = 'binder-test'
-    try:
-        kubernetes.config.load_kube_config()
-    except Exception:
-        cfg.BinderHub.builder_required = False
-    # check if Hub is running
-    try:
-        requests.get(cfg.BinderHub.hub_url)
-    except Exception as e:
-        # no hub
-        cfg.BinderHub.hub_url = ''
-    bhub = BinderHub.instance(config=cfg)
+    bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
     def cleanup():
