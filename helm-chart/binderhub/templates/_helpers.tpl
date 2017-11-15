@@ -16,5 +16,5 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "imagePullSecret" }}
-{{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .Values.registry.host (printf "%s:%s" .Values.registry.username .Values.registry.password | b64enc) | b64enc }}
+{{- printf "{\"auths\": {\"https://%s\": {\"auth\": \"%s\"}}}" .Values.registry.host (printf "%s:%s" .Values.registry.username .Values.registry.password | b64enc) | b64enc }}
 {{- end }}
