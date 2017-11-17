@@ -33,7 +33,7 @@ connect your credit card or other payment method to your google cloud account.
 
 2. Enable the `Container Engine API <https://console.cloud.google.com/apis/api/container.googleapis.com/overview>`_.
 
-3. Use **Google Cloud Shell** (`Google documentation <https://cloud.google.com/shell/docs/starting-cloud-shell>``_)
+3. Use **Google Cloud Shell** (`Google documentation <https://cloud.google.com/shell/docs/starting-cloud-shell>`_)
    which will give you access to the ``gcloud`` command-line tool.
 
    .. note:
@@ -45,7 +45,7 @@ connect your credit card or other payment method to your google cloud account.
 
 4. Install ``kubectl``, which is a tool for controlling kubernetes. From
    Google Cloud shell (or a terminal for advanced users who have installed
-   ``gcloud`` locally), enter:
+   ``gcloud`` using the SDK), enter:
 
      .. code-block:: bash
 
