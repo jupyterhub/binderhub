@@ -36,7 +36,7 @@ connect your credit card or other payment method to your google cloud account.
 3. Use **Google Cloud Shell** (`Google documentation <https://cloud.google.com/shell/docs/starting-cloud-shell>`_)
    which will give you access to the ``gcloud`` command-line tool.
 
-   .. note:
+   .. note::
 
       Alternatively, advanced users may wish to install the ``gcloud`` command-line
       tool in the `Google Cloud SDK <https://cloud.google.com/sdk/gcloud/>`_.
