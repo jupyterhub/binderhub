@@ -94,10 +94,12 @@ class FakeProvider(RepoProvider):
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 
-    Users must provide a spec and has to specify a resolved_ref as a query parameter.
+    Users must provide a spec of the following form.
+
+    <url-escaped-namespace>/<resolved_ref>
 
     eg:
-    /build/git/https%3A//git.example.com/ns/repo.git?resolved_ref=a01ce557f868d7060a6099bd3c2d739734dcaf15
+    https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
     """
 
     name = Unicode("Git")
@@ -129,12 +131,13 @@ class GitRepoProvider(RepoProvider):
 class GitLabRepoProvider(RepoProvider):
     """GitLab provider.
 
-    Users must provide a spec and has to specify a resolved_ref as a query parameter.
+    GitLab allows nested namespaces (eg. root/project/component/repo) thus we need to urlescape the namespace of this
+    repo.  Users must provide a spec that matches the following form.
 
-    /build/gl/<url-escaped-namespace>/<unresolved_ref>
+    <url-escaped-namespace>/<unresolved_ref>
 
     eg:
-    /build/gl/group%2Fproject%2Frepo/master
+    group%2Fproject%2Frepo/master
     """
 
     name = Unicode('GitLab')
