@@ -8,7 +8,6 @@ control services and providers.
 from datetime import timedelta
 import json
 import os
-import posixpath
 import time
 import urllib.parse
 import re
@@ -25,6 +24,7 @@ from traitlets.config import LoggingConfigurable
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 SHA1_PATTERN = re.compile(r'[0-9a-f]{40}')
 
+
 def tokenize_spec(spec):
     """Tokenize a GitHub-style spec into parts, error if spec invalid."""
 
@@ -36,20 +36,6 @@ def tokenize_spec(spec):
         raise ValueError(msg)
 
     return spec_parts
-
-
-def extract_string_from_arguments(arguments, key):
-    val = arguments.get(key)
-    if val:
-        if len(val) != 1:
-            raise ValueError("`{key}` can be specified only once!".format(key=key))
-        return val[0].decode('utf8').lower()
-    return None
-
-
-def sha1_validate(sha1):
-    if not SHA1_PATTERN.match(sha1):
-        raise ValueError("resolved_ref is not a valid sha1 hexadecimal hash")
 
 
 def strip_suffix(text, suffix):
@@ -72,12 +58,6 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
-    arguments = Dict(
-        help="""
-        Query parameters passed to the provider
-        """
-    )
-
     unresolved_ref = Unicode()
 
 
@@ -90,6 +70,11 @@ class RepoProvider(LoggingConfigurable):
 
     def get_build_slug(self):
         raise NotImplementedError("Must be overriden in the child class")
+
+    @staticmethod
+    def sha1_validate(sha1):
+        if not SHA1_PATTERN.match(sha1):
+            raise ValueError("resolved_ref is not a valid sha1 hexadecimal hash")
 
 
 class FakeProvider(RepoProvider):
@@ -106,7 +91,7 @@ class FakeProvider(RepoProvider):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
 
 
-class BasicGitRepoProvider(RepoProvider):
+class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 
     Users must provide a spec and has to specify a resolved_ref as a query parameter.
@@ -115,16 +100,15 @@ class BasicGitRepoProvider(RepoProvider):
     /build/git/https%3A//git.example.com/ns/repo.git?resolved_ref=a01ce557f868d7060a6099bd3c2d739734dcaf15
     """
 
-    name = Unicode("BasicGit")
+    name = Unicode("Git")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.repo = self.spec
-
-        resolved_ref = extract_string_from_arguments(self.arguments, 'resolved_ref')
+        url, resolved_ref = self.spec.rsplit('/', 1)
+        self.repo = urllib.parse.unquote(url)
         if not resolved_ref:
             raise ValueError("`resolved_ref` must be specified as a query parameter for the basic git provider")
-        sha1_validate(resolved_ref)
+        self.sha1_validate(resolved_ref)
         self.resolved_ref = resolved_ref
 
     @gen.coroutine
@@ -135,21 +119,22 @@ class BasicGitRepoProvider(RepoProvider):
         return self.repo
 
     def get_build_slug(self):
-        parsed = urllib.parse.urlparse(self.spec)
+        parsed = urllib.parse.urlparse(self.repo)
         parts = [parsed.netloc]
         parts.extend(parsed.path.strip('/').split('/'))
         # escape the name and replace dashes with something else.
         return '-'.join(p.replace('-', '_-') for p in parts)
 
 
-class GitlabRepoProvider(RepoProvider):
-    """Simple gitlab provider.
+class GitLabRepoProvider(RepoProvider):
+    """GitLab provider.
 
     Users must provide a spec and has to specify a resolved_ref as a query parameter.
 
+    /build/gl/<url-escaped-namespace>/<unresolved_ref>
+
     eg:
-    /build/gl/user/namespace/repo?unresolved_ref=master
-    /build/gl/user/repo?unresolved_ref=a01ce557f868d7060a6099bd3c2d739734dcaf15
+    /build/gl/group%2Fproject%2Frepo/master
     """
 
     name = Unicode('GitLab')
@@ -159,12 +144,12 @@ class GitlabRepoProvider(RepoProvider):
         help="""Gitlab OAuth2 access token for authentication with the Gitlab API
 
         For use with client_secret.
-        Loaded from GITHUB_ACCESS_TOKEN env by default.
+        Loaded from GITLAB_ACCESS_TOKEN env by default.
         """
     )
     @default('access_token')
-    def _oath_token_default(self):
-        return os.getenv('GITHUB_ACCESS_TOKEN', '')
+    def _access_token_default(self):
+        return os.getenv('GITLABV_ACCESS_TOKEN', '')
 
     private_token = Unicode(config=True,
         help="""Gitlab private token for authentication with the Gitlab API
@@ -177,9 +162,9 @@ class GitlabRepoProvider(RepoProvider):
         return os.getenv('GITLAB_PRIVATE_TOKEN', '')
 
     auth = Dict(
-        help="""Auth parameters for the GitHub API access
+        help="""Auth parameters for the GitLab API access
 
-        Populated from client_id, client_secret, access_token.
+        Populated from access_token, private_token
     """
     )
     @default('auth')
@@ -193,9 +178,9 @@ class GitlabRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.namespace = self.spec
-        self.unresolved_ref = extract_string_from_arguments(self.arguments, 'unresolved_ref')
-        # TODO assertions
+        quoted_namespace, unresolved_ref = self.spec.split('/', 1)
+        self.namespace = urllib.parse.unquote(quoted_namespace)
+        self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
         if self.unresolved_ref is None:
             raise ValueError("A unresolved ref is required")
 

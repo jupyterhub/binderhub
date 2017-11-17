@@ -21,7 +21,7 @@ class BaseHandler(web.RequestHandler):
             raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
 
         return providers[provider_prefix](
-            config=self.settings['traitlets_config'], spec=spec, arguments=self.request.arguments)
+            config=self.settings['traitlets_config'], spec=spec)
 
     def render_template(self, name, **extra_ns):
         """Render an HTML page"""
