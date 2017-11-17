@@ -37,10 +37,7 @@ connect your credit card or other payment method to your google cloud account.
    commands to Google Cloud and lets you do things like create and delete
    clusters.
 
-   - Go to the `gcloud downloads page <https://cloud.google.com/sdk/downloads>`_
-     to **download and install the gcloud SDK**.
-   - See the `gcloud documentation <https://cloud.google.com/sdk/>`_ for
-     more information on the gcloud SDK.
+   - Use Google Cloud Shell which will give you access to the ``gcloud`` command-line tool.
    - Install ``kubectl``, which is a tool for controlling kubernetes. From
      the terminal, enter:
 
