@@ -100,6 +100,9 @@ class GitRepoProvider(RepoProvider):
 
     eg:
     https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
+
+    This provider is typically used if you are deploying binderhub yourself and you require access to repositories that
+    are not in one of the supported providers.
     """
 
     name = Unicode("Git")
@@ -144,7 +147,7 @@ class GitLabRepoProvider(RepoProvider):
     hostname = Unicode('gitlab.com')
 
     access_token = Unicode(config=True,
-        help="""Gitlab OAuth2 access token for authentication with the Gitlab API
+        help="""GitLab OAuth2 access token for authentication with the GitLab API
 
         For use with client_secret.
         Loaded from GITLAB_ACCESS_TOKEN env by default.
@@ -152,10 +155,10 @@ class GitLabRepoProvider(RepoProvider):
     )
     @default('access_token')
     def _access_token_default(self):
-        return os.getenv('GITLABV_ACCESS_TOKEN', '')
+        return os.getenv('GITLAB_ACCESS_TOKEN', '')
 
     private_token = Unicode(config=True,
-        help="""Gitlab private token for authentication with the Gitlab API
+        help="""GitLab private token for authentication with the GitLab API
 
         Loaded from GITLAB_PRIVATE_TOKEN env by default.
         """
@@ -184,8 +187,8 @@ class GitLabRepoProvider(RepoProvider):
         quoted_namespace, unresolved_ref = self.spec.split('/', 1)
         self.namespace = urllib.parse.unquote(quoted_namespace)
         self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
-        if self.unresolved_ref is None:
-            raise ValueError("A unresolved ref is required")
+        if not self.unresolved_ref:
+            raise ValueError("An unresolved ref is required")
 
     @gen.coroutine
     def get_resolved_ref(self):

@@ -14,8 +14,6 @@ import webbrowser
 
 import requests
 
-#build_binder("https://github.com/binder-examples/demo", binder_url='http://192.168.99.100:31078/')
-
 
 def build_binder(repo,
                  ref='master',
