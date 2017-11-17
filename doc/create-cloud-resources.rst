@@ -33,19 +33,25 @@ connect your credit card or other payment method to your google cloud account.
 
 2. Enable the `Container Engine API <https://console.cloud.google.com/apis/api/container.googleapis.com/overview>`_.
 
-3. Install and initialize the **gcloud command-line tools**. These tools send
-   commands to Google Cloud and lets you do things like create and delete
-   clusters.
+3. Use **Google Cloud Shell** (`Google documentation <https://cloud.google.com/shell/docs/starting-cloud-shell>`_)
+   which will give you access to the ``gcloud`` command-line tool.
 
-   - Use Google Cloud Shell which will give you access to the ``gcloud`` command-line tool.
-   - Install ``kubectl``, which is a tool for controlling kubernetes. From
-     the terminal, enter:
+   .. note::
+
+      Alternatively, advanced users may wish to install the ``gcloud`` command-line
+      tool in the `Google Cloud SDK <https://cloud.google.com/sdk/gcloud/>`_.
+      These tools send commands to Google Cloud and lets you do things like
+      create and delete clusters.
+
+4. Install ``kubectl``, which is a tool for controlling kubernetes. From
+   Google Cloud shell (or a terminal for advanced users who have installed
+   ``gcloud`` using the SDK), enter:
 
      .. code-block:: bash
 
         gcloud components install kubectl
 
-4. Create a Kubernetes cluster on Google Cloud, by typing in the following
+5. Create a Kubernetes cluster on Google Cloud, by typing in the following
    command:
 
    .. code-block:: bash
@@ -69,7 +75,7 @@ connect your credit card or other payment method to your google cloud account.
    * ``--zone`` specifies which data center to use. Pick something that is not
      too far away from your users. You can find a list of them `here <https://cloud.google.com/compute/docs/regions-zones/regions-zones#available>`_.
 
-5. To test if your cluster is initialized, run:
+6. To test if your cluster is initialized, run:
 
    .. code-block:: bash
 
