@@ -44,6 +44,10 @@ and run binderhub on the host system.
 
         python3 -m pip install -e . -r dev-requirements.txt
 
+7. Before starting the local dev/test deployment run:
+
+        eval $(minikube docker-env)
+
 7. Start binderhub with the testing config file:
 
         python3 -m binderhub -f testing/minikube/binderhub_config.py
