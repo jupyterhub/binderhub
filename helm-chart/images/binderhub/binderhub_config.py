@@ -31,6 +31,8 @@ c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
 c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)
 
+c.BinderHub.launcher_timeout = get_config('binder.launcher_timeout', 120)
+
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')
 if allow_origin:

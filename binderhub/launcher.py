@@ -124,7 +124,7 @@ class Launcher(LoggingConfigurable):
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start
                     # and tune this appropriately
-                    await gen.sleep(min(1.4 ** i, 10))
+                    await gen.sleep(self.launcher_timeout)
                 else:
                     raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 

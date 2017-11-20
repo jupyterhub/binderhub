@@ -137,6 +137,13 @@ class BinderHub(Application):
         """,
         config=True,
     )
+    launcher_timeout = Integer(
+            help="""
+            Timeout in seconds for the docker image launcher.
+            The default is 120.
+            """,
+            config=True
+    )
     @validate('hub_url')
     def _add_slash(self, proposal):
         """trait validator to ensure hub_url ends with a trailing slash"""
