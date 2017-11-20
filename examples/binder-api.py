@@ -63,6 +63,7 @@ if __name__ == '__main__':
         if evt.get('phase') == 'ready':
             url = "{url}?token={token}".format(**evt)
             print("Opening %s" % url)
+            webbrowser.open(url)
             break
     else:
         sys.exit("binder never became ready")
