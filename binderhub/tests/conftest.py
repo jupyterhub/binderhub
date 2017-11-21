@@ -15,6 +15,7 @@ minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_c
 
 @pytest.fixture(scope='session')
 def _binderhub_config():
+    """separate from app fixture to load config and check for hub only once"""
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = 'binder-test'
     try:
@@ -25,7 +26,7 @@ def _binderhub_config():
     try:
         urlopen(cfg.BinderHub.hub_url, timeout=5).close()
     except Exception as e:
-        print(f"Hub not available at {cfg.BinderHub.hub_url}: {e}")
+        print(f"JupyterHub not available at {cfg.BinderHub.hub_url}: {e}")
         cfg.BinderHub.hub_url = ''
     return cfg
 

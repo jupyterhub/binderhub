@@ -1,6 +1,7 @@
+bs4
+codecov
 pytest
 pytest-cov
 pytest-tornado
-codecov
-ruamel.yaml
 requests
+ruamel.yaml
