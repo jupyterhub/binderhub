@@ -21,6 +21,7 @@ minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_c
 BUILD_NAMESPACE = 'binder-test'
 HUB_NAMESPACE = 'binder-test-hub'
 KUBERNETES_AVAILABLE = False
+ON_TRAVIS = os.environ.get('TRAVIS')
 
 
 @pytest.fixture(scope='session')
@@ -28,12 +29,16 @@ def _binderhub_config():
     """separate from app fixture to load config and check for hub only once"""
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = BUILD_NAMESPACE
+    if ON_TRAVIS:
+        cfg.BinderHub.hub_url = cfg.BinderHub.hub_url.replace('192.168.99.100', '127.0.0.1')
     global KUBERNETES_AVAILABLE
     try:
         kubernetes.config.load_kube_config()
     except Exception:
         cfg.BinderHub.builder_required = False
         KUBERNETES_AVAILABLE = False
+        if ON_TRAVIS:
+            pytest.fail("Kubernetes should be available on Travis")
     else:
         KUBERNETES_AVAILABLE = True
 
@@ -42,6 +47,8 @@ def _binderhub_config():
         requests.get(cfg.BinderHub.hub_url, timeout=5, allow_redirects=False)
     except Exception as e:
         print(f"JupyterHub not available at {cfg.BinderHub.hub_url}: {e}")
+        if ON_TRAVIS:
+            pytest.fail("JupyterHub should be available on Travis")
         cfg.BinderHub.hub_url = ''
     else:
         print(f"JupyterHub available at {cfg.BinderHub.hub_url}")
