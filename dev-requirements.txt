@@ -1,5 +1,6 @@
 bs4
 codecov
+html5lib
 pytest
 pytest-cov
 pytest-tornado
