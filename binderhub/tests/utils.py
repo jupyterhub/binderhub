@@ -17,5 +17,13 @@ class _AsyncRequests:
         requests_method = getattr(requests, name)
         return lambda *args, **kwargs: self.executor.submit(requests_method, *args, **kwargs)
 
+    def iter_lines(self, response):
+        """Asynchronously iterate through the lines of a response"""
+        it = response.iter_lines()
+        while True:
+            yield self.executor.submit(lambda : next(it))
+
+
+
 # async_requests.get = requests.get returning a Future, etc.
 async_requests = _AsyncRequests()
