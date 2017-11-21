@@ -8,7 +8,7 @@ from tornado.httputil import url_concat
 
 from .utils import async_requests
 
-@pytest.mark.gen_test(timeout=300)
+@pytest.mark.gen_test(timeout=900)
 @pytest.mark.parametrize("slug", [
     "gh/binder-examples/requirements/0ffdc6b47d6fa1942de01565319bddf95330d652",
 ])
