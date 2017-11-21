@@ -58,13 +58,24 @@ script:
 # smoke test helm install
 - helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 - helm dependency update helm-chart/binderhub
-- helm install --name binder-test helm-chart/binderhub -f helm-chart/minikube-binder.yaml
-# TODO: verify that helm deploy worked
-- helm delete --purge binder-test
+- |
+  helm install \
+    --name binder-test \
+    --namespace binder-test \
+    helm-chart/binderhub \
+    -f helm-chart/minikube-binder.yaml
 
 # install jupyterhub for local binderhub testing
 - ./testing/minikube/install-hub
 - pytest -vsx --cov binderhub
+
+# run a few tests again, this time against the helm-installed binder
+- |
+  BINDER_TEST_URL=http://127.0.0.1:30948 \
+  BINDER_TEST_HUB_NAMESPACE=binder-test \
+  BINDER_TEST_BUILD_NAMESPACE=binder-test \
+  pytest -vsx -m remote
+- helm delete --purge binder-test
 after_success:
 - codecov
 - |
