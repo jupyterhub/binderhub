@@ -50,6 +50,7 @@ def _resolve_url(page_url, url):
 
 
 @pytest.mark.gen_test
+@pytest.mark.remote
 def test_main_page(app):
     """Check the main page and any links on it"""
     r = yield async_requests.get(app.url)

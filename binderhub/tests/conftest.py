@@ -18,10 +18,14 @@ here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
 
-BUILD_NAMESPACE = 'binder-test'
-HUB_NAMESPACE = 'binder-test-hub'
+BUILD_NAMESPACE = os.environ.get('BINDER_TEST_BUILD_NAMESPACE') or 'binder-test'
+HUB_NAMESPACE = os.environ.get('BINDER_TEST_HUB_NAMESPACE')or 'binder-test-hub'
 KUBERNETES_AVAILABLE = False
+
 ON_TRAVIS = os.environ.get('TRAVIS')
+
+BINDER_URL = os.environ.get('BINDER_TEST_URL')
+REMOTE_BINDER = bool(BINDER_URL)
 
 
 @pytest.fixture(scope='session')
@@ -41,6 +45,8 @@ def _binderhub_config():
             pytest.fail("Kubernetes should be available on Travis")
     else:
         KUBERNETES_AVAILABLE = True
+    if REMOTE_BINDER:
+        return
 
     # check if Hub is running and ready
     try:
@@ -55,6 +61,14 @@ def _binderhub_config():
     return cfg
 
 
+class RemoteBinderHub(object):
+    """Mock class for the app fixture when Binder is remote
+
+    Only has a URL for the binder location.
+    """
+    url = None
+
+
 @pytest.fixture
 def app(request, io_loop, _binderhub_config):
     """Launch the BinderHub app
@@ -66,8 +80,12 @@ def app(request, io_loop, _binderhub_config):
     Detects whether jupyterhub is available, and if not disables launch.
 
     app.url will contain the base URL of binderhub.
-
     """
+    if REMOTE_BINDER:
+        app = RemoteBinderHub()
+        app.url = BINDER_URL
+        return app
+
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
@@ -128,7 +146,7 @@ def cleanup_binder_pods(request):
 @pytest.fixture
 def needs_launch(app, cleanup_binder_pods):
     """Fixture to skip tests if launch is unavailable"""
-    if not app.hub_url:
+    if not BINDER_URL and not app.hub_url:
         raise pytest.skip("test requires launcher (jupyterhub)")
 
 
@@ -156,7 +174,7 @@ def cleanup_build_pods(request):
 @pytest.fixture
 def needs_build(app, cleanup_build_pods):
     """Fixture to skip tests if build is unavailable"""
-    if not app.builder_required:
+    if not BINDER_URL and not app.builder_required:
         raise pytest.skip("test requires builder (kubernetes)")
 
 
@@ -166,6 +184,8 @@ def always_build(app, request):
 
     by giving the build slug a random prefix
     """
+    if REMOTE_BINDER:
+        return
     session_id = b2a_hex(os.urandom(5)).decode('ascii')
     def patch_provider(Provider):
         original_slug = Provider.get_build_slug

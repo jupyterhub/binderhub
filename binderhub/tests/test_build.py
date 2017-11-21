@@ -12,6 +12,7 @@ from .utils import async_requests
 @pytest.mark.parametrize("slug", [
     "gh/binder-examples/requirements/0ffdc6b47d6fa1942de01565319bddf95330d652",
 ])
+@pytest.mark.remote
 def test_build(app, needs_build, needs_launch, always_build, slug):
     build_url = f"{app.url}/build/{slug}"
     r = yield async_requests.get(build_url, stream=True)
