@@ -64,7 +64,7 @@ script:
 
 # install jupyterhub for local binderhub testing
 - ./testing/minikube/install-hub
-- pytest -v --cov binderhub
+- pytest -vsx --cov binderhub
 after_success:
 - codecov
 - |
