@@ -80,6 +80,35 @@ def app(request, io_loop, _binderhub_config):
     bhub.url = 'http://127.0.0.1:%i' % bhub.port
     return bhub
 
+def cleanup_pods(namespace, labels):
+    """Cleanup pods in a namespace that match the given labels"""
+    kube = kubernetes.client.CoreV1Api()
+    def get_pods():
+        return [
+            pod for pod in kube.list_namespaced_pod(namespace).items
+            if all(
+                pod.metadata.labels.get(key) == value
+                for key, value in labels.items()
+            )
+        ]
+    pods = get_pods()
+    for pod in pods:
+        print('deleting', pod.metadata.name, pod.metadata.labels)
+        try:
+            kube.delete_namespaced_pod(
+                pod.metadata.name,
+                namespace,
+                kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
+            )
+        except kubernetes.client.rest.ApiException as e:
+            # ignore 404, 409: already gone
+            if e.status not in (404, 409):
+                raise
+    while pods:
+        print(f"Waiting for {len(pods)} binder pods to exit")
+        time.sleep(1)
+        pods = get_pods()
+
 
 @pytest.fixture(scope='session')
 def cleanup_binder_pods(request):
@@ -90,34 +119,8 @@ def cleanup_binder_pods(request):
     if not KUBERNETES_AVAILABLE:
         # kubernetes not available, nothing to do
         return
-    kube = kubernetes.client.CoreV1Api()
-    def cleanup():
-        pods = kube.list_namespaced_pod(HUB_NAMESPACE).items
-        pods = [
-            pod for pod in pods
-            if pod.metadata.labels.get('component') == 'singleuser-server'
-        ]
-        for pod in pods:
-            print('deleting', pod.metadata.name, pod.metadata.labels)
-            try:
-                kube.delete_namespaced_pod(
-                    pod.metadata.name,
-                    HUB_NAMESPACE,
-                    kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
-                )
-            except kubernetes.client.rest.ApiException as e:
-                # ignore 404, 409: already gone
-                if e.status not in (404, 409):
-                    raise
-        while pods:
-            print(f"Waiting for {len(pods)} binder pods to exit")
-            time.sleep(1)
-
-            pods = kube.list_namespaced_pod(HUB_NAMESPACE).items
-            pods = [
-                pod for pod in pods
-                if pod.metadata.labels.get('component') == 'singleuser-server'
-            ]
+    cleanup = lambda : cleanup_pods(HUB_NAMESPACE,
+                                    {'component': 'singleuser-server'})
     cleanup()
     request.addfinalizer(cleanup)
 
@@ -144,24 +147,8 @@ def cleanup_build_pods(request):
         if e.status != 409:
             raise
 
-    def cleanup():
-        pods = kube.list_namespaced_pod(BUILD_NAMESPACE).items
-        for pod in pods:
-            print('deleting', pod.metadata.name, pod.metadata.labels)
-            try:
-                kube.delete_namespaced_pod(
-                    pod.metadata.name,
-                    BUILD_NAMESPACE,
-                    kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
-                )
-            except kubernetes.client.rest.ApiException as e:
-                # ignore 404, 409: already gone
-                if e.status not in (404, 409):
-                    raise
-        while pods:
-            print(f"Waiting for {len(pods)} build pods to exit")
-            time.sleep(1)
-            pods = kube.list_namespaced_pod(BUILD_NAMESPACE).items
+    cleanup = lambda : cleanup_pods(BUILD_NAMESPACE,
+                                    {'component': 'binderhub-build'})
     cleanup()
     request.addfinalizer(cleanup)
 

@@ -86,7 +86,10 @@ class Build:
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
-                labels={"name": self.name}
+                labels={
+                    "name": self.name,
+                    "component": "binderhub-build",
+                },
             ),
             spec=client.V1PodSpec(
                 containers=[
