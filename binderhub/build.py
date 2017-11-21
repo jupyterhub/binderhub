@@ -127,6 +127,9 @@ class Build:
                     self.cleanup()
                 elif self.pod.status.phase == 'Failed':
                     self.cleanup()
+        except Exception as e:
+            app_log.exception("Error in watch stream")
+            raise
         finally:
             w.stop()
 
