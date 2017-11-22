@@ -4,103 +4,28 @@ python:
 services:
 - docker
 sudo: required
+branches:
+  only:
+  - master
 
+before_install:
+- |
+  if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TEST" == "helm" ]]; then
+    openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
+    chmod 0400 travis
+  fi
 install:
 - mkdir -p bin
 - export PATH=$PWD/bin:$PATH
-# install nsenter (needed by kube on trusty)
-- |
-  curl -L https://github.com/minrk/git-crypt-bin/releases/download/trusty/nsenter > nsenter
-  echo "5652bda3fbea6078896705130286b491b6b1885d7b13bda1dfc9bdfb08b49a2e  nsenter" | shasum -a 256 -c -
-  chmod +x nsenter
-  sudo mv nsenter /usr/local/bin/
-
-# install kubectl, minikube
-# based on https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
-- |
-  curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubectl
-  chmod +x kubectl
-  mv kubectl bin/
-- |
-  curl -Lo minikube https://storage.googleapis.com/minikube/releases/v${MINIKUBE_VERSION}/minikube-linux-amd64
-  chmod +x minikube
-  mv minikube bin/
-- sudo $PWD/bin/minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
-- minikube update-context
-- |
-  JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'
-  until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do
-    echo "waiting for kubernetes"
-    sleep 1
-  done
-# install helm
-- >
-  curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.7.2-linux-amd64.tar.gz
-  | tar -xz -C bin --strip-components 1 linux-amd64/helm
-- chmod +x bin/helm
-- helm init
-- |
-  until helm version; do
-    echo "waiting for tiller"
-    sleep 1
-  done
-  helm version
-# Install git-crypt
-- |
-  curl -L https://github.com/minrk/git-crypt-bin/releases/download/0.5.0/git-crypt > bin/git-crypt
-  echo "46c288cc849c23a28239de3386c6050e5c7d7acd50b1d0248d86e6efff09c61b  git-crypt" | shasum -a 256 -c -
-  chmod +x bin/git-crypt
+- ./ci/install.sh
 - pip install . -r dev-requirements.txt
 script:
-# build helm chart
-- ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
-
-# install jupyterhub for local binderhub testing
-- ./testing/minikube/install-hub
-- pytest -vsx --cov binderhub
-- helm delete --purge binder-test-hub
-
-# smoke test helm install
-- helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-- helm dependency update helm-chart/binderhub
-- |
-  export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"
-  echo -e "hub:\n  url: http://$IP:30949" > helm-chart/travis-binder.yaml"
-- |
-  helm install \
-    --name binder-test \
-    --namespace binder-test \
-    helm-chart/binderhub \
-    -f helm-chart/minikube-binder.yaml \
-    -f helm-chart/travis-binder.yaml
-
-# wait for helm deploy to come up
-- |
-  JSONPATH='{range .items[*]}{@.status.phase};{end}'
-  until kubectl get pod --namespace binder-test -o jsonpath="$JSONPATH" | grep -q -i "^\(running;\)\+$"; do
-    kubectl get pod --namespace binder-test
-    sleep 1
-  done
-- |
-  until curl http://$IP:30948 > /dev/null; do
-    sleep 1
-  done
-- |
-  until curl http://$IP:30949 > /dev/null; do
-    sleep 1
-  done
-
-# run a few tests again, this time against the helm-installed binder
-- |
-  BINDER_TEST_URL=http://$IP:30948 \
-  BINDER_TEST_NAMESPACE=binder-test \
-  pytest -vsx -m remote
-- helm delete --purge binder-test
+- export BINDER_TEST_NAMESPACE=binder-test-$TEST
+- ./ci/test-$TEST
 after_failure:
-- |
-  for pod in $(kubectl get pod --namespace=binder-test | awk '{print $1}'); do
+- for pod in $(kubectl get pod --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
     echo $pod
-    kubectl logs --namespace=binder-test $pod
+    kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod
   done
 after_success:
 - codecov
@@ -109,16 +34,11 @@ after_success:
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
     ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} --push
   fi
-branches:
-  only:
-  - master
-before_install:
-- |
-  if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
-    chmod 0400 travis
-  fi
+
 env:
+  matrix:
+  - TEST=main
+  - TEST=helm
   global:
   - MINIKUBE_VERSION=0.23.0
   - KUBE_VERSION=1.8.0
