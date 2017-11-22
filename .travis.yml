@@ -78,6 +78,16 @@ script:
     sleep 1
   done
 
+# wait for servers to come up
+- |
+  until curl http://$(minikube ip):30948 > /dev/null; do
+    sleep 1
+  done
+- |
+  until curl http://$(minikube ip):30949 > /dev/null; do
+    sleep 1
+  done
+
 # run a few tests again, this time against the helm-installed binder
 - |
   BINDER_TEST_URL=http://$(minikube ip):30948 \
