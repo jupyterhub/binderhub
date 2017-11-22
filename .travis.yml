@@ -71,9 +71,17 @@ script:
     helm-chart/binderhub \
     -f helm-chart/minikube-binder.yaml
 
+# wait for helm deploy to come up
+- |
+  JSONPATH='{range .items[*]}{@.status.phase};{end}'
+  until kubectl get pod --namespace binder-test -o jsonpath="$JSONPATH" | grep -q -i "^\(running;\)\+$"; do
+    kubectl get pod --namespace binder-test
+    sleep 1
+  done
+
 # run a few tests again, this time against the helm-installed binder
 - |
-  BINDER_TEST_URL=http://127.0.0.1:30948 \
+  BINDER_TEST_URL=http://$(minikube ip):30948 \
   BINDER_TEST_HUB_NAMESPACE=binder-test \
   BINDER_TEST_BUILD_NAMESPACE=binder-test \
   pytest -vsx -m remote
