@@ -16,7 +16,7 @@ import time
 from kubernetes import client, config
 from ruamel import yaml
 
-namespace = 'binder-test-hub'
+namespace = 'binder-test'
 name = 'binder-test-hub'
 
 here = os.path.abspath(os.path.dirname(__file__))

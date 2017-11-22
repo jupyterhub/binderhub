@@ -93,8 +93,7 @@ script:
 # run a few tests again, this time against the helm-installed binder
 - |
   BINDER_TEST_URL=http://$IP:30948 \
-  BINDER_TEST_HUB_NAMESPACE=binder-test \
-  BINDER_TEST_BUILD_NAMESPACE=binder-test \
+  BINDER_TEST_NAMESPACE=binder-test \
   pytest -vsx -m remote
 - helm delete --purge binder-test
 after_failure:

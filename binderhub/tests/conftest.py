@@ -18,8 +18,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
 
-BUILD_NAMESPACE = os.environ.get('BINDER_TEST_BUILD_NAMESPACE') or 'binder-test'
-HUB_NAMESPACE = os.environ.get('BINDER_TEST_HUB_NAMESPACE')or 'binder-test-hub'
+TEST_NAMESPACE = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
 KUBERNETES_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
@@ -32,7 +31,7 @@ REMOTE_BINDER = bool(BINDER_URL)
 def _binderhub_config():
     """separate from app fixture to load config and check for hub only once"""
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
-    cfg.BinderHub.build_namespace = BUILD_NAMESPACE
+    cfg.BinderHub.build_namespace = TEST_NAMESPACE
     if ON_TRAVIS:
         cfg.BinderHub.hub_url = cfg.BinderHub.hub_url.replace('192.168.99.100', '127.0.0.1')
     global KUBERNETES_AVAILABLE
@@ -155,7 +154,7 @@ def cleanup_binder_pods(request):
     if not KUBERNETES_AVAILABLE:
         # kubernetes not available, nothing to do
         return
-    cleanup = lambda : cleanup_pods(HUB_NAMESPACE,
+    cleanup = lambda : cleanup_pods(TEST_NAMESPACE,
                                     {'component': 'singleuser-server'})
     cleanup()
     request.addfinalizer(cleanup)
@@ -176,14 +175,14 @@ def cleanup_build_pods(request):
     kube = kubernetes.client.CoreV1Api()
     try:
         kube.create_namespace(
-            kubernetes.client.V1Namespace(metadata={'name': BUILD_NAMESPACE})
+            kubernetes.client.V1Namespace(metadata={'name': TEST_NAMESPACE})
         )
     except kubernetes.client.rest.ApiException as e:
         # ignore 409: already exists
         if e.status != 409:
             raise
 
-    cleanup = lambda : cleanup_pods(BUILD_NAMESPACE,
+    cleanup = lambda : cleanup_pods(TEST_NAMESPACE,
                                     {'component': 'binderhub-build'})
     cleanup()
     request.addfinalizer(cleanup)
