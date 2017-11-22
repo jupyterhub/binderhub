@@ -83,6 +83,24 @@ def app(request, io_loop, _binderhub_config):
     """
     if REMOTE_BINDER:
         app = RemoteBinderHub()
+        # wait for the remote binder to be up
+        remaining = 30
+        deadline = time.monotonic() + remaining
+        success = False
+        last_error = None
+        while remaining:
+            try:
+                requests.get(BINDER_URL, timeout=remaining)
+            except Exception as e:
+                print(f"Waiting for binder: {e}")
+                last_error = e
+                time.sleep(1)
+                remaining = deadline - time.monotonic()
+            else:
+                success = True
+                break
+        if not success:
+            raise last_error
         app.url = BINDER_URL
         return app
 
