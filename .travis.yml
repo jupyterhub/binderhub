@@ -86,6 +86,12 @@ script:
   BINDER_TEST_BUILD_NAMESPACE=binder-test \
   pytest -vsx -m remote
 - helm delete --purge binder-test
+after_failure:
+- |
+  for pod in $(kubectl get pod --namespace=binder-test | awk '{print $1}'); do
+    echo $pod
+    kubectl logs --namespace=binder-test $pod
+  done
 after_success:
 - codecov
 - |
