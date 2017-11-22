@@ -138,6 +138,14 @@ function updateUrl() {
   return url;
 }
 
+function updateUrlDiv() {
+  url = updateUrl()
+  $('#badge-url').text(url);
+  $('#badge-url').attr('href', url)
+  $('#markdown-badge-snippet').text(markdownBadge(url));
+  $('#rst-badge-snippet').text(rstBadge(url));
+}
+
 
 var BADGE_URL = window.location.origin + '/badge.svg'
 
@@ -156,6 +164,7 @@ function rstBadge(url) {
 $(function(){
     var failed = false;
     var logsVisible = false;
+    var snippetsVisible = false;
     var log = new Terminal({
         convertEol: true,
         disableStdin: true
@@ -164,63 +173,20 @@ $(function(){
     // setup badge dropdown
     updateUrl();
 
-    // start the url badge invisible
-    $('#basic-url-snippet').hide();
-    $('#launch-buttons').on('hidden.bs.dropdown', function () {
-      // hide the badge snippet when dismissing the dropdown
-      $('#basic-url-snippet').hide();
+    $('#repository').on('keyup paste', function () {
+      updateUrlDiv()
     });
 
-    // start the markdown badge invisible
-    $('#markdown-badge-snippet').hide();
-    $('#launch-buttons').on('hidden.bs.dropdown', function () {
-      // hide the badge snippet when dismissing the dropdown
-      $('#badge-snippet').hide();
-    });
-    $("#url-or-file-btn").find("a").click(function (evt) {
-      $("#url-or-file-selected").text($(this).text());
-      updatePathText();
-    })
-    updatePathText();
-
-    // start the rst badge invisible
-    $('#rst-badge-snippet').hide();
-    $('#launch-buttons').on('hidden.bs.dropdown', function () {
-      // hide the badge snippet when dismissing the dropdown
-      $('#rst-badge-snippet').hide();
+    $('#ref').on('keyup paste', function () {
+      updateUrlDiv()
     });
 
-    // prevent badge text dropdown menu from disappearing on click
-    $('.dropdown-menu#badge-text li').click(function(e) {
-          e.stopPropagation();
-    });
-
-    $('#markdown-badge-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#markdown-badge-snippet')
-        .show()
-        .text(markdownBadge(url));
-
-      return false;
-    });
-
-    $('#rst-badge-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#rst-badge-snippet')
-        .show()
-        .text(rstBadge(url));
-      return false;
-    });
-
-    $('#basic-url-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#basic-url-snippet')
-        .show()
-        .text(url);
-      return false;
+    $('#filepath').on('keyup paste', function () {
+      updateUrlDiv()
     });
 
     log.open(document.getElementById('log'), false);
+
     $(window).resize(function() {
         log.fit();
     });
@@ -240,6 +206,19 @@ $(function(){
         return false;
     });
 
+    $('#toggle-badge-snippet').on('click', function() {
+        var badgeSnippets = $('#badge-snippets');
+        if (badgeSnippets.hasClass('hidden')) {
+            badgeSnippets.removeClass('hidden');
+            snippetsVisible = true;
+        } else {
+            badgeSnippets.addClass('hidden');
+            snippetsVisible = false;
+        }
+
+        return false;
+    });
+
     $('#build-form').submit(function() {
         var repo = $('#repository').val().trim();
         var ref =  $('#ref').val().trim() || 'master';
@@ -253,6 +232,7 @@ $(function(){
         if (window.location.href !== url) {
           window.history.pushState({}, '', url);
         }
+        updateUrlDiv(url);
 
         $('#build-progress .progress-bar').addClass('hidden');
         log.clear();

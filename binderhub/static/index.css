@@ -37,11 +37,11 @@ hr {
     border: 0;
     clear:both;
     display:block;
-    width: 100%;               
+    width: 100%;
     padding:0;
     margin: 5px 0 5px 0;
     border-top: 1px solid #cecece;
-    
+
   }
 
 p > a {
@@ -195,7 +195,7 @@ h4 {
 }
 
 
-.markdown-row{
+.badge-snippet-row{
     width: 100%;
 }
 
@@ -209,8 +209,9 @@ h4 {
 
 .icon{
     max-width: 30px;
-    padding:4px;
+    padding:3px;
     margin-top: 13px;
+    margin-left: 4px;
 }
 
 #caret{
@@ -282,4 +283,30 @@ div.front {
 
 h4.logo-subtext {
   margin-top: -60px;
+}
+
+#badge-url {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.url-row {
+  height: 100%;
+  width: 100%;
+  display: table;
+}
+
+#badge-snippets {
+  width: 100%;
+}
+
+#basic-url-snippet {
+  width: 95%;
+}
+
+.badge-snippet-row pre {
+  float: right !important;
+  margin-right: 20px !important;
+  margin-left: 8px !important;
 }
