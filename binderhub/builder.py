@@ -6,7 +6,9 @@ import hashlib
 from http.client import responses
 import json
 import threading
+import string
 import time
+import escapism
 
 import docker
 from kubernetes import client
@@ -89,7 +91,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 
-    def _generate_build_name(self, build_slug, ref, limit=63, hash_length=6, ref_length=6):
+    def _generate_build_name(self, build_slug, ref, prefix='', limit=63, hash_length=6, ref_length=6):
         """
         Generate a unique build name with a limited character length..
 
@@ -106,18 +108,18 @@ class BuildHandler(BaseHandler):
         of time, while ``image`` names need to be unique for longer. Hence,
         different strategies are used.
 
-        TODO: Make sure that the returned value matches the k8s name
-        validation regex, which is:
-        [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
-
+        We also ensure that the returned value is DNS safe, by only using
+        ascii lowercase + digits. everything else is escaped
         """
         build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
+        safe_chars = set(string.ascii_lowercase + string.digits)
 
-        return '{name}-{hash}-{ref}'.format(
-            name=build_slug[:limit - hash_length - ref_length - 2],
+        return escapism.escape('{prefix}{name}-{hash}-{ref}'.format(
+            prefix=prefix,
+            name=build_slug[:limit - hash_length - ref_length - len(prefix) - 2],
             hash=build_slug_hash[:hash_length],
             ref=ref[:ref_length]
-        ).lower()
+        ), safe=safe_chars, escape_char='-')
 
     async def fail(self, message):
         await self.emit({
@@ -158,7 +160,7 @@ class BuildHandler(BaseHandler):
         if ref is None:
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
-        build_name = self._generate_build_name(provider.get_build_slug(), ref).replace('_', '-')
+        build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
