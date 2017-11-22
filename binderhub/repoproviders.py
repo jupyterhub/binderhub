@@ -124,11 +124,7 @@ class GitRepoProvider(RepoProvider):
         return self.repo
 
     def get_build_slug(self):
-        parsed = urllib.parse.urlparse(self.repo)
-        parts = [parsed.netloc]
-        parts.extend(parsed.path.strip('/').split('/'))
-        # escape the name and replace dashes with something else.
-        return '-'.join(p.replace('-', '_-') for p in parts)
+        return self.repo
 
 
 class GitLabRepoProvider(RepoProvider):
