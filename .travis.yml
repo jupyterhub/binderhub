@@ -64,11 +64,15 @@ script:
 - helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 - helm dependency update helm-chart/binderhub
 - |
+  export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"
+  echo -e "hub:\n  url: http://$IP:30949" > helm-chart/travis-binder.yaml"
+- |
   helm install \
     --name binder-test \
     --namespace binder-test \
     helm-chart/binderhub \
-    -f helm-chart/minikube-binder.yaml
+    -f helm-chart/minikube-binder.yaml \
+    -f helm-chart/travis-binder.yaml
 
 # wait for helm deploy to come up
 - |
@@ -77,20 +81,18 @@ script:
     kubectl get pod --namespace binder-test
     sleep 1
   done
-
-# wait for servers to come up
 - |
-  until curl http://$(minikube ip):30948 > /dev/null; do
+  until curl http://$IP:30948 > /dev/null; do
     sleep 1
   done
 - |
-  until curl http://$(minikube ip):30949 > /dev/null; do
+  until curl http://$IP:30949 > /dev/null; do
     sleep 1
   done
 
 # run a few tests again, this time against the helm-installed binder
 - |
-  BINDER_TEST_URL=http://$(minikube ip):30948 \
+  BINDER_TEST_URL=http://$IP:30948 \
   BINDER_TEST_HUB_NAMESPACE=binder-test \
   BINDER_TEST_BUILD_NAMESPACE=binder-test \
   pytest -vsx -m remote
