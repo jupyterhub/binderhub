@@ -52,7 +52,6 @@ install:
   chmod +x bin/git-crypt
 - pip install . -r dev-requirements.txt
 script:
-- set -e
 # build helm chart
 - ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
 
