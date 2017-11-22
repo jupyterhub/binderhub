@@ -84,7 +84,7 @@ def test_git_ref():
 
     provider = GitRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == 'github.com-jupyterhub-zero_-to_-jupyterhub_-k8s'
+    assert slug == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
     full_url = provider.get_repo_url()
     assert full_url == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
