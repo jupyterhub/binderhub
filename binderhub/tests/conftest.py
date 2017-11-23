@@ -23,13 +23,19 @@ KUBERNETES_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
 
+# set BINDER_TEST_URL to run tests against an already-running binderhub
+# this will skip launching BinderHub internally in the app fixture
 BINDER_URL = os.environ.get('BINDER_TEST_URL')
 REMOTE_BINDER = bool(BINDER_URL)
 
 
 @pytest.fixture(scope='session')
 def _binderhub_config():
-    """separate from app fixture to load config and check for hub only once"""
+    """Load the binderhub configuration
+
+    Currently separate from the app fixture
+    so that it can have a different scope (only once per session).
+    """
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = TEST_NAMESPACE
     if ON_TRAVIS:
@@ -106,6 +112,7 @@ def app(request, io_loop, _binderhub_config):
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
+
     def cleanup():
         bhub.stop()
         BinderHub.clear_instance()
@@ -115,10 +122,13 @@ def app(request, io_loop, _binderhub_config):
     bhub.url = 'http://127.0.0.1:%i' % bhub.port
     return bhub
 
+
 def cleanup_pods(namespace, labels):
     """Cleanup pods in a namespace that match the given labels"""
     kube = kubernetes.client.CoreV1Api()
+
     def get_pods():
+        """Return  list of pods matching given labels"""
         return [
             pod for pod in kube.list_namespaced_pod(namespace).items
             if all(
@@ -126,9 +136,10 @@ def cleanup_pods(namespace, labels):
                 for key, value in labels.items()
             )
         ]
-    pods = get_pods()
+
+    all_pods = pods = get_pods()
     for pod in pods:
-        print('deleting', pod.metadata.name, pod.metadata.labels)
+        print(f"deleting pod {pod.metadata.name}")
         try:
             kube.delete_namespaced_pod(
                 pod.metadata.name,
@@ -139,10 +150,14 @@ def cleanup_pods(namespace, labels):
             # ignore 404, 409: already gone
             if e.status not in (404, 409):
                 raise
+
     while pods:
-        print(f"Waiting for {len(pods)} binder pods to exit")
+        print(f"Waiting for {len(pods)} pods to exit")
         time.sleep(1)
         pods = get_pods()
+    if all_pods:
+        pod_names = ','.join([pod.metadata.name for pod in all_pods])
+        print(f"Deleted {len(all_pods)} pods: {pod_names}")
 
 
 @pytest.fixture(scope='session')
@@ -154,8 +169,10 @@ def cleanup_binder_pods(request):
     if not KUBERNETES_AVAILABLE:
         # kubernetes not available, nothing to do
         return
-    cleanup = lambda : cleanup_pods(TEST_NAMESPACE,
-                                    {'component': 'singleuser-server'})
+
+    def cleanup():
+        return cleanup_pods(TEST_NAMESPACE,
+                            {'component': 'singleuser-server'})
     cleanup()
     request.addfinalizer(cleanup)
 
@@ -182,8 +199,9 @@ def cleanup_build_pods(request):
         if e.status != 409:
             raise
 
-    cleanup = lambda : cleanup_pods(TEST_NAMESPACE,
-                                    {'component': 'binderhub-build'})
+    def cleanup():
+        return cleanup_pods(TEST_NAMESPACE,
+                            {'component': 'binderhub-build'})
     cleanup()
     request.addfinalizer(cleanup)
 
@@ -204,8 +222,10 @@ def always_build(app, request):
     if REMOTE_BINDER:
         return
     session_id = b2a_hex(os.urandom(5)).decode('ascii')
+
     def patch_provider(Provider):
         original_slug = Provider.get_build_slug
+
         def patched_slug(self):
             slug = original_slug(self)
             return f"test-{session_id}-{slug}"
