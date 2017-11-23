@@ -218,7 +218,9 @@ class BuildHandler(BaseHandler):
         with BUILDS_INPROGRESS.track_inprogress():
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
-            pool.submit(build.submit)
+            submit_future = pool.submit(build.submit)
+            # TODO: hook up actual error handling when this fails
+            IOLoop.current().add_callback(lambda : submit_future)
 
             log_future = None
 
