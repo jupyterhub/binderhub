@@ -119,7 +119,7 @@ class BuildHandler(BaseHandler):
             name=build_slug[:limit - hash_length - ref_length - len(prefix) - 2],
             hash=build_slug_hash[:hash_length],
             ref=ref[:ref_length]
-        ), safe=safe_chars, escape_char='-')
+        ), safe=safe_chars, escape_char='-').lower()
 
     async def fail(self, message):
         await self.emit({
