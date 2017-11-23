@@ -19,6 +19,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'kubernetes==3.*',
+        'escapism',
         'tornado',
         'traitlets',
         'docker',
