@@ -19,7 +19,7 @@ from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import GitHubRepoProvider
+from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider
 from .metrics import MetricsHandler
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
@@ -163,7 +163,11 @@ class BinderHub(Application):
     )
 
     repo_providers = Dict(
-        {'gh': GitHubRepoProvider},
+        {
+            'gh': GitHubRepoProvider,
+            'git': GitRepoProvider,
+            'gl': GitLabRepoProvider,
+        },
         config=True,
         help="""
         List of Repo Providers to register and try
