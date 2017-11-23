@@ -35,10 +35,7 @@ and run binderhub on the host system.
 
 5. Install JupyterHub in minikube with helm
 
-        helm install jupyterhub/jupyterhub --version=v0.5.x-2140cd6 \
-            --name=binder \
-            --namespace=binder \
-            -f testing/minikube/jupyterhub-helm-config.yaml
+        ./testing/minikube/install-hub
 
 6. Install binderhub and its development requirements:
 
@@ -79,7 +76,7 @@ there is a simpler method!
    python3 -m binderhub -f testing/localonly/binderhub_config.py
    ```
 
-3. You can now access it locally at https://localhost:8585
+3. You can now access it locally at http://localhost:8585
 
 Note that building and launching will not work, but the
 `testing/localonly/binderhub_config.py` setup a fake building process which
