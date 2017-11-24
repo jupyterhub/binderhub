@@ -10,7 +10,7 @@ from .utils import async_requests
 
 @pytest.mark.gen_test(timeout=900)
 @pytest.mark.parametrize("slug", [
-    "gh/binder-examples/requirements/0ffdc6b47d6fa1942de01565319bddf95330d652",
+    "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
 ])
 @pytest.mark.remote
 def test_build(app, needs_build, needs_launch, always_build, slug):
