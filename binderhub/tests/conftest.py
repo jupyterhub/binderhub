@@ -221,7 +221,8 @@ def always_build(app, request):
     """
     if REMOTE_BINDER:
         return
-    session_id = b2a_hex(os.urandom(5)).decode('ascii')
+    # make it long to ensure we run into max build slug length
+    session_id = b2a_hex(os.urandom(16)).decode('ascii')
 
     def patch_provider(Provider):
         original_slug = Provider.get_build_slug
