@@ -112,14 +112,23 @@ class BuildHandler(BaseHandler):
         ascii lowercase + digits. everything else is escaped
         """
         build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
-        safe_chars = set(string.ascii_lowercase + string.digits)
 
-        return escapism.escape('{prefix}{name}-{hash}-{ref}'.format(
+        # escape parts that came from providers (build slug, ref)
+        # only build_slug *really* needs this (refs should be sha1 hashes)
+        # build names are case-insensitive because ascii_letters are allowed,
+        # and `.lower()` is called at the end
+        safe_chars = set(string.ascii_letters + string.digits)
+        def escape(s):
+            return escapism.escape(s, safe=safe_chars, escape_char='-')
+        build_slug = escape(build_slug)
+        ref = escape(ref)
+
+        return '{prefix}{name}-{hash}-{ref}'.format(
             prefix=prefix,
             name=build_slug[:limit - hash_length - ref_length - len(prefix) - 2],
             hash=build_slug_hash[:hash_length],
-            ref=ref[:ref_length]
-        ), safe=safe_chars, escape_char='-').lower()
+            ref=ref[:ref_length],
+        ).lower()
 
     async def fail(self, message):
         await self.emit({
