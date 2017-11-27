@@ -41,6 +41,7 @@ class Build:
         self.image_name = image_name
         self.push_secret = push_secret
         self.builder_image = builder_image
+        self.main_loop = IOLoop.current()
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -63,7 +64,7 @@ class Build:
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
-        IOLoop.instance().add_callback(self.q.put, {'kind': kind, 'payload': obj})
+        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
     def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
@@ -85,7 +86,10 @@ class Build:
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
-                labels={"name": self.name}
+                labels={
+                    "name": self.name,
+                    "component": "binderhub-build",
+                },
             ),
             spec=client.V1PodSpec(
                 containers=[
@@ -126,6 +130,9 @@ class Build:
                     self.cleanup()
                 elif self.pod.status.phase == 'Failed':
                     self.cleanup()
+        except Exception as e:
+            app_log.exception("Error in watch stream")
+            raise
         finally:
             w.stop()
 

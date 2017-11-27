@@ -1,0 +1,8 @@
+#!/bin/bash
+# main test script: runs the basic Python tests,
+# with JupyterHub launched via helm
+
+set -ex
+./testing/minikube/install-hub
+pytest -vsx --cov binderhub
+helm delete --purge binder-test-hub

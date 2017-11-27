@@ -1,0 +1,49 @@
+#!/bin/bash
+# test helm deployment
+# - build and install helm chart
+# - run tests marked with 'remote'
+
+set -ex
+
+export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+export BINDER_TEST_URL=http://$IP:30901
+export HUB_URL=http://$IP:30902
+echo -e "hub:\n  url: $HUB_URL" > helm-chart/travis-binder.yaml
+
+
+echo "building helm chart"
+./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
+
+# smoke test helm install
+echo "installing binderhub helm chart"
+
+helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+helm dependency update helm-chart/binderhub
+cat helm-chart/travis-binder.yaml
+
+helm install \
+  --name binder-test \
+  --namespace binder-test-helm \
+  helm-chart/binderhub \
+  -f helm-chart/minikube-binder.yaml \
+  -f helm-chart/travis-binder.yaml
+
+# wait for helm deploy to come up
+echo "waiting for pods to become ready"
+JSONPATH='{range .items[*]}{@.status.phase};{end}'
+until kubectl get pod --namespace $BINDER_TEST_NAMESPACE -o jsonpath="$JSONPATH" | grep -q -i "^\(running;\)\+$"; do
+  kubectl get pod --namespace $BINDER_TEST_NAMESPACE
+  sleep 1
+done
+echo "waiting for servers to become responsive"
+until curl $BINDER_TEST_URL > /dev/null; do
+  sleep 1
+done
+until curl $HUB_URL> /dev/null; do
+  sleep 1
+done
+
+echo "running tests against $BINDER_TEST_URL"
+# run a few tests again, this time against the helm-installed binder
+pytest -vsx -m remote
+helm delete --purge binder-test
