@@ -38,8 +38,6 @@ def _binderhub_config():
     """
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = TEST_NAMESPACE
-    if ON_TRAVIS:
-        cfg.BinderHub.hub_url = cfg.BinderHub.hub_url.replace('192.168.99.100', '127.0.0.1')
     global KUBERNETES_AVAILABLE
     try:
         kubernetes.config.load_kube_config()
