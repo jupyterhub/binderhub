@@ -172,6 +172,13 @@ $(function(){
     // setup badge dropdown
     updateUrl();
 
+    $("#url-or-file-btn").find("a").click(function (evt) {
+      $("#url-or-file-selected").text($(this).text());
+      updatePathText();
+      updateUrlDiv();
+    })
+    updatePathText();
+
     $('#repository').on('keyup paste', updateUrlDiv);
 
     $('#ref').on('keyup paste', updateUrlDiv);
