@@ -2,10 +2,10 @@
 
 Welcome! As a [Jupyter](https://jupyter.org) project, we follow the [Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributor/content-contributor.html).
 
-## Minikube
-
 To develop binderhub, you can use a local installation of JupyterHub on minikube,
-and run binderhub on the host system.
+and run binderhub on the host system.  You will also need a GitHub token for testing.
+
+## Installation
 
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and start it: `minikube start`.
 
@@ -53,9 +53,16 @@ and run binderhub on the host system.
 
 All features should work, including building and launching.
 
-9. Running unit tests
+## Testing
+
+1. You will need to create a new token with default (check no boxes) permissions [here](https://github.com/settings/tokens/new)
+
+2. Please store your new token somewhere secure (e.g. keychain, netrc, etc.)
+
+3. To run unit tests call:
 
   ```bash
+  export GITHUB_ACCESS_TOKEN=insert_token_value_here
   pytest
   ```
 
