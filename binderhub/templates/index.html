@@ -110,7 +110,7 @@
 
         <div class="badges">
             <div class="bluedropdown" id="toggle-badge-snippet">
-              <label>Click, then paste into your README to get badge: <img id="badge" src="/static/images/badge.svg"></label>
+              <label>Click, then paste into your README to get badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
               <a id="badge-link"></a>
               <a href="#" title="show badge snippets"><span class="caret"></span></a>
 
@@ -120,13 +120,13 @@
               <!--Markdown section-->
               <div  class="badge-snippet-row">
                  <pre id="markdown-badge-snippet">Fill in the fields to see the markdown badge snippet</pre>
-                 <img class="icon" src="/static/images/markdown-icon.svg">
+                 <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
               </div>
               <hr>
               <!--RST section-->
               <div  class="badge-snippet-row">
                 <pre id="rst-badge-snippet">Fill in the fields to see the rST badge snippet</pre>
-                <img class="icon" src="/static/images/rst-icon.svg">
+                <img class="icon" src="{{static_url("images/rst-icon.svg")}}">
               </div>
             </div>
         </div>

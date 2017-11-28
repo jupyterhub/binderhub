@@ -139,7 +139,7 @@ function updateUrl() {
 }
 
 function updateUrlDiv() {
-  url = updateUrl()
+  var url = updateUrl()
   $('#badge-url').text(url);
   $('#badge-url').attr('href', url)
   $('#markdown-badge-snippet').text(markdownBadge(url));
@@ -164,7 +164,6 @@ function rstBadge(url) {
 $(function(){
     var failed = false;
     var logsVisible = false;
-    var snippetsVisible = false;
     var log = new Terminal({
         convertEol: true,
         disableStdin: true
@@ -173,17 +172,11 @@ $(function(){
     // setup badge dropdown
     updateUrl();
 
-    $('#repository').on('keyup paste', function () {
-      updateUrlDiv()
-    });
+    $('#repository').on('keyup paste', updateUrlDiv);
 
-    $('#ref').on('keyup paste', function () {
-      updateUrlDiv()
-    });
+    $('#ref').on('keyup paste', updateUrlDiv);
 
-    $('#filepath').on('keyup paste', function () {
-      updateUrlDiv()
-    });
+    $('#filepath').on('keyup paste', updateUrlDiv);
 
     log.open(document.getElementById('log'), false);
 
@@ -210,10 +203,8 @@ $(function(){
         var badgeSnippets = $('#badge-snippets');
         if (badgeSnippets.hasClass('hidden')) {
             badgeSnippets.removeClass('hidden');
-            snippetsVisible = true;
         } else {
             badgeSnippets.addClass('hidden');
-            snippetsVisible = false;
         }
 
         return false;
