@@ -282,16 +282,8 @@ class GitHubRepoProvider(RepoProvider):
         return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
 
     @gen.coroutine
-    def get_resolved_ref(self):
-        if hasattr(self, 'resolved_ref'):
-            return self.resolved_ref
-
+    def github_api_request(self, api_url):
         client = AsyncHTTPClient()
-        api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
-            user=self.user, repo=self.repo, ref=self.unresolved_ref
-        )
-        self.log.debug("Fetching %s", api_url)
-
         if self.auth:
             # Add auth params. After logging!
             api_url = url_concat(api_url, self.auth)
@@ -346,6 +338,22 @@ class GitHubRepoProvider(RepoProvider):
         log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
             remaining=remaining, limit=rate_limit, delta=delta,
         ))
+        return resp
+
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
+            user=self.user, repo=self.repo, ref=self.unresolved_ref
+        )
+        self.log.debug("Fetching %s", api_url)
+
+        resp = yield self.github_api_request(api_url)
+        if resp is None:
+            return None
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         if 'sha' not in ref_info:
@@ -356,3 +364,54 @@ class GitHubRepoProvider(RepoProvider):
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user=self.user, repo=self.repo)
+
+
+class GitHubGistRepoProvider(GitHubRepoProvider):
+    """GitHub gist provider.
+
+    Users must provide a spec that matches the following form (similar to github)
+
+    <username>/<gist-id>[/<ref>]
+    """
+
+    def __init__(self, *args, **kwargs):
+        # We dont need to initialize entirely the same as github
+        super(RepoProvider, self).__init__(*args, **kwargs)
+        parts = self.spec.split('/')
+        self.user, self.gist_id, *_ = parts
+        if len(parts) > 2:
+            self.unresolved_ref = parts[1]
+        else:
+            self.unresolved_ref = ''
+
+    def get_repo_url(self):
+        return f'https://gist.github.com/{self.gist_id}.git'
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        api_url = f"https://api.github.com/gists/{self.gist_id}"
+        self.log.debug("Fetching %s", api_url)
+
+        resp = yield self.github_api_request(api_url)
+        if resp is None:
+            return None
+
+        ref_info = json.loads(resp.body.decode('utf-8'))
+        all_versions = [e['version'] for e in ref_info['history']]
+        if not self.unresolved_ref:
+            self.resolved_ref = all_versions[0]
+        else:
+            if self.unresolved_ref not in all_versions:
+                return None
+            else:
+                self.resolved_ref = self.unresolved_ref
+
+        return self.resolved_ref
+
+    def get_build_slug(self):
+        return self.gist_id
+
+

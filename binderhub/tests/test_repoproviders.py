@@ -4,7 +4,9 @@ from urllib.parse import quote
 import pytest
 from tornado.ioloop import IOLoop
 
-from binderhub.repoproviders import tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider
+from binderhub.repoproviders import (
+    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GitHubGistRepoProvider
+)
 
 
 # General string processing
@@ -103,3 +105,17 @@ def test_gitlab_ref():
     assert full_url == 'https://gitlab.com/gitlab-org/gitlab-ce.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
+
+
+def test_githubgist_ref():
+    spec = '{}/{}'.format(
+        'mrocklin', '893e693ed19a357ea38962dcf112f616'
+    )
+
+    provider = GitHubGistRepoProvider(spec=spec)
+    slug = provider.get_build_slug()
+    assert slug == '893e693ed19a357ea38962dcf112f616'
+    full_url = provider.get_repo_url()
+    assert full_url == 'https://gist.github.com/893e693ed19a357ea38962dcf112f616.git'
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref == 'd502ab3ef486b1b49365a74f9bec792c6078df2a'
