@@ -372,6 +372,11 @@ class GitHubGistRepoProvider(GitHubRepoProvider):
     Users must provide a spec that matches the following form (similar to github)
 
     <username>/<gist-id>[/<ref>]
+
+    The ref is optional, valid values are
+        - a full sha1 of a ref in the history
+        - master
+    If master or no ref is specified the latest revision will be used.
     """
 
     def __init__(self, *args, **kwargs):
@@ -401,7 +406,7 @@ class GitHubGistRepoProvider(GitHubRepoProvider):
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         all_versions = [e['version'] for e in ref_info['history']]
-        if not self.unresolved_ref:
+        if len(self.unresolved_ref) or (self.unresolved_ref == 'master'):
             self.resolved_ref = all_versions[0]
         else:
             if self.unresolved_ref not in all_versions:
