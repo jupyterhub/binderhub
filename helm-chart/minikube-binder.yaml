@@ -17,9 +17,9 @@ service:
   nodePort: 30901
 
 jupyterhub:
+  rbac:
+    enabled: false
   hub:
-    rbac:
-      enabled: false
     resources:
       requests:
         cpu: 0.2
@@ -37,7 +37,8 @@ jupyterhub:
     secretToken: f89ddee5ba10f2268fcefcd4e353235c255493095cd65addf29ebebf8df86255
     service:
       type: NodePort
-      nodePort: 30902
+      nodePorts:
+        http: 30902
 
   singleuser:
     storage:
