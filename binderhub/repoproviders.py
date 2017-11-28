@@ -380,7 +380,7 @@ class GitHubGistRepoProvider(GitHubRepoProvider):
         parts = self.spec.split('/')
         self.user, self.gist_id, *_ = parts
         if len(parts) > 2:
-            self.unresolved_ref = parts[1]
+            self.unresolved_ref = parts[2]
         else:
             self.unresolved_ref = ''
 
