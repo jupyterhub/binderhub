@@ -18,7 +18,7 @@ from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, default
+from traitlets import Dict, Unicode, Bool, default
 from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
@@ -366,7 +366,7 @@ class GitHubRepoProvider(RepoProvider):
         return '{user}-{repo}'.format(user=self.user, repo=self.repo)
 
 
-class GitHubGistRepoProvider(GitHubRepoProvider):
+class GistRepoProvider(GitHubRepoProvider):
     """GitHub gist provider.
 
     Users must provide a spec that matches the following form (similar to github)
@@ -378,6 +378,11 @@ class GitHubGistRepoProvider(GitHubRepoProvider):
         - master
     If master or no ref is specified the latest revision will be used.
     """
+
+    allow_secret_gist = Bool(
+        default_value=False,
+        config=True,
+    )
 
     def __init__(self, *args, **kwargs):
         # We dont need to initialize entirely the same as github
@@ -405,8 +410,12 @@ class GitHubGistRepoProvider(GitHubRepoProvider):
             return None
 
         ref_info = json.loads(resp.body.decode('utf-8'))
+
+        if (not self.allow_secret_gist) and (not ref_info['public']):
+            raise ValueError("gist is marked as secret, this is unsupported")
+
         all_versions = [e['version'] for e in ref_info['history']]
-        if len(self.unresolved_ref) or (self.unresolved_ref == 'master'):
+        if (len(self.unresolved_ref) == 0) or (self.unresolved_ref == 'master'):
             self.resolved_ref = all_versions[0]
         else:
             if self.unresolved_ref not in all_versions:
