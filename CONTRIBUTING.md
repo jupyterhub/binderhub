@@ -3,7 +3,8 @@
 Welcome! As a [Jupyter](https://jupyter.org) project, we follow the [Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributor/content-contributor.html).
 
 To develop binderhub, you can use a local installation of JupyterHub on minikube,
-and run binderhub on the host system.  You will also need a GitHub token for testing.
+and run binderhub on the host system.  Note that you will quickly hit your API limit
+on GitHub if you don't have a token.
 
 ## Installation
 
@@ -55,9 +56,12 @@ All features should work, including building and launching.
 
 ## Testing
 
-1. You will need to create a new token with default (check no boxes) permissions [here](https://github.com/settings/tokens/new)
+It is recommended to create and enable your GitHub API token before running tests
+in order to avoid hitting your API limit. Steps to do so are included below.
 
-2. Please store your new token somewhere secure (e.g. keychain, netrc, etc.)
+1. Create a new token with default (check no boxes) permissions [here](https://github.com/settings/tokens/new)
+
+2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
 
 3. To run unit tests call:
 
