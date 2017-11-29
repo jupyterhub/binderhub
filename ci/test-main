@@ -4,5 +4,7 @@
 
 set -ex
 ./testing/minikube/install-hub
+# DEBUG: give the hub a chance to wake up
+sleep 5
 pytest -vsx --cov binderhub
 helm delete --purge binder-test-hub

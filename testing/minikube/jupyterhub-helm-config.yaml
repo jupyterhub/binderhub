@@ -3,9 +3,9 @@
 
 # the binder apiToken bit requires jupyterhub helm-chart v0.5.x
 
+rbac:
+  enabled: false
 hub:
-  rbac:
-    enabled: false
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
     type: "sqlite-memory"
@@ -60,4 +60,5 @@ proxy:
   secretToken: "443fa28905c209eaf5803f911de7748f443c78062767d9d28d514dc4fbefd843"
   service:
     type: NodePort
-    nodePort: 30123
+    nodePorts:
+      http: 30123
