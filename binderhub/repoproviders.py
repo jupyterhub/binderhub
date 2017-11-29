@@ -382,6 +382,7 @@ class GistRepoProvider(GitHubRepoProvider):
     allow_secret_gist = Bool(
         default_value=False,
         config=True,
+        help="Flag for allowing usages of secret Gists.  The default behavior is to disallow secret gists.",
     )
 
     def __init__(self, *args, **kwargs):
@@ -412,7 +413,9 @@ class GistRepoProvider(GitHubRepoProvider):
         ref_info = json.loads(resp.body.decode('utf-8'))
 
         if (not self.allow_secret_gist) and (not ref_info['public']):
-            raise ValueError("gist is marked as secret, this is unsupported")
+            raise ValueError("You seem to want to use a secret Gist, but do not have permission to do so. "
+                             "To enable secret Gist support, set (or have an administrator set) "
+                             "'GistRepoProvider.allow_secret_gist = True'")
 
         all_versions = [e['version'] for e in ref_info['history']]
         if (len(self.unresolved_ref) == 0) or (self.unresolved_ref == 'master'):
