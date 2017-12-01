@@ -31,7 +31,7 @@ class Build:
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
-                 image_name, push_secret):
+                 image_name, push_secret, memory_limit):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -42,6 +42,7 @@ class Build:
         self.push_secret = push_secret
         self.builder_image = builder_image
         self.main_loop = IOLoop.current()
+        self.memory_limit = memory_limit
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -54,6 +55,10 @@ class Build:
 
         if self.push_secret:
             cmd.append('--push')
+
+        if self.memory_limit:
+            cmd.append('--build-memory-limit')
+            cmd.append(str(self.memory_limit))
 
         # git_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
@@ -99,6 +104,10 @@ class Build:
                         args=self.get_cmd(),
                         image_pull_policy='Always',
                         volume_mounts=volume_mounts,
+                        resources=client.V1ResourceRequirements(
+                            limits={'memory': self.memory_limit},
+                            requests={'memory': self.memory_limit}
+                        )
                     )
                 ],
                 volumes=volumes,

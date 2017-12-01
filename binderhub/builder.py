@@ -222,6 +222,7 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             push_secret=push_secret,
             builder_image=self.settings['builder_image_spec'],
+            memory_limit=self.settings['builder_memory_limit']
         )
 
         with BUILDS_INPROGRESS.track_inprogress():

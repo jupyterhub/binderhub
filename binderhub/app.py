@@ -21,6 +21,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider
 from .metrics import MetricsHandler
+from .utils import ByteSpecification
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
@@ -101,6 +102,22 @@ class BinderHub(Application):
         Set according to whatever registry you are pushing to.
 
         Defaults to "", which is probably not what you want :)
+        """,
+        config=True
+    )
+
+    build_memory_limit = ByteSpecification(
+        0,
+        help="""
+        Max amount of memory allocated for each image build process.
+
+        0 sets no limit.
+
+        This is used as both the memory limit & request for the pod
+        that is spawned to do the building, even though the pod itself
+        will not be using that much memory since the docker building is
+        happening outside the pod. However, it makes kubernetes aware of
+        the resources being used, and lets it schedule more intelligently.
         """,
         config=True
     )
@@ -249,6 +266,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
+            'build_memory_limit': self.build_memory_limit
         })
 
         self.tornado_app = tornado.web.Application([
