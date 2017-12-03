@@ -18,7 +18,7 @@ from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, default
+from traitlets import Dict, Unicode, Bool, default
 from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
@@ -282,16 +282,8 @@ class GitHubRepoProvider(RepoProvider):
         return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
 
     @gen.coroutine
-    def get_resolved_ref(self):
-        if hasattr(self, 'resolved_ref'):
-            return self.resolved_ref
-
+    def github_api_request(self, api_url):
         client = AsyncHTTPClient()
-        api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
-            user=self.user, repo=self.repo, ref=self.unresolved_ref
-        )
-        self.log.debug("Fetching %s", api_url)
-
         if self.auth:
             # Add auth params. After logging!
             api_url = url_concat(api_url, self.auth)
@@ -346,6 +338,22 @@ class GitHubRepoProvider(RepoProvider):
         log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
             remaining=remaining, limit=rate_limit, delta=delta,
         ))
+        return resp
+
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
+            user=self.user, repo=self.repo, ref=self.unresolved_ref
+        )
+        self.log.debug("Fetching %s", api_url)
+
+        resp = yield self.github_api_request(api_url)
+        if resp is None:
+            return None
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         if 'sha' not in ref_info:
@@ -356,3 +364,71 @@ class GitHubRepoProvider(RepoProvider):
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user=self.user, repo=self.repo)
+
+
+class GistRepoProvider(GitHubRepoProvider):
+    """GitHub gist provider.
+
+    Users must provide a spec that matches the following form (similar to github)
+
+    <username>/<gist-id>[/<ref>]
+
+    The ref is optional, valid values are
+        - a full sha1 of a ref in the history
+        - master
+    If master or no ref is specified the latest revision will be used.
+    """
+
+    allow_secret_gist = Bool(
+        default_value=False,
+        config=True,
+        help="Flag for allowing usages of secret Gists.  The default behavior is to disallow secret gists.",
+    )
+
+    def __init__(self, *args, **kwargs):
+        # We dont need to initialize entirely the same as github
+        super(RepoProvider, self).__init__(*args, **kwargs)
+        parts = self.spec.split('/')
+        self.user, self.gist_id, *_ = parts
+        if len(parts) > 2:
+            self.unresolved_ref = parts[2]
+        else:
+            self.unresolved_ref = ''
+
+    def get_repo_url(self):
+        return f'https://gist.github.com/{self.gist_id}.git'
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        api_url = f"https://api.github.com/gists/{self.gist_id}"
+        self.log.debug("Fetching %s", api_url)
+
+        resp = yield self.github_api_request(api_url)
+        if resp is None:
+            return None
+
+        ref_info = json.loads(resp.body.decode('utf-8'))
+
+        if (not self.allow_secret_gist) and (not ref_info['public']):
+            raise ValueError("You seem to want to use a secret Gist, but do not have permission to do so. "
+                             "To enable secret Gist support, set (or have an administrator set) "
+                             "'GistRepoProvider.allow_secret_gist = True'")
+
+        all_versions = [e['version'] for e in ref_info['history']]
+        if (len(self.unresolved_ref) == 0) or (self.unresolved_ref == 'master'):
+            self.resolved_ref = all_versions[0]
+        else:
+            if self.unresolved_ref not in all_versions:
+                return None
+            else:
+                self.resolved_ref = self.unresolved_ref
+
+        return self.resolved_ref
+
+    def get_build_slug(self):
+        return self.gist_id
+
+
