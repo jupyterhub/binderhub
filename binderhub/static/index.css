@@ -2,17 +2,17 @@
 
 @font-face {
     font-family: ClearSans-Thin;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Thin.woff');
+    src: url('../static/vendor/clearsans/WOFF/ClearSans-Thin.woff');
 }
 
 @font-face {
     font-family: ClearSans-Light;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Light.woff');
+    src: url('../static/vendor/clearsans/WOFF/ClearSans-Light.woff');
 }
 
 @font-face {
     font-family: ClearSans-Bold;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Bold.woff');
+    src: url('../static/vendor/clearsans/WOFF/ClearSans-Bold.woff');
 }
 
 .hidden {

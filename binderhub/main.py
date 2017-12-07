@@ -14,6 +14,7 @@ class MainHandler(BaseHandler):
     def get(self):
         self.render_template(
             "index.html",
+            base_url=self.settings['base_url'],
             url=None,
             ref='',
             filepath=None,
@@ -38,6 +39,7 @@ class ParameterizedMainHandler(BaseHandler):
 
         self.render_template(
             "index.html",
+            base_url=self.settings['base_url'],
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
             filepath=self.get_argument('filepath', None),
