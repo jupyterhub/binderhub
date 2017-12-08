@@ -140,8 +140,7 @@ function updateUrl() {
 
 function updateUrlDiv() {
   var url = updateUrl()
-  $('#badge-url').text(url);
-  $('#badge-url').attr('href', url)
+  $('#basic-url-snippet').text(url);
   $('#markdown-badge-snippet').text(markdownBadge(url));
   $('#rst-badge-snippet').text(rstBadge(url));
 }

@@ -29,7 +29,7 @@
           <label for="repository">GitHub repo or URL</label>
           <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or '' }}"/>
         </div>
-        <div class="row">
+        <div class="form-row">
           <div class="form-group col-md-4">
             <label for="ref">Git branch, tag, or commit</label>
             <input class="form-control" type="text" id="ref" placeholder="master" value="{{ ref or '' }}"/>
@@ -104,7 +104,7 @@
               <label>Copy and share this URL:</label>
             </div>
             <div class="url-row">
-              <pre id="basic-url-snippet"><a href="#" id="badge-url" title="show url snippet">Begin typing to see your URL!</a></pre>
+              <pre id="basic-url-snippet">Begin typing to see your URL!</pre>
             </div>
         </div>
 
@@ -122,7 +122,6 @@
                  <pre id="markdown-badge-snippet">Fill in the fields to see the markdown badge snippet</pre>
                  <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
               </div>
-              <hr>
               <!--RST section-->
               <div  class="badge-snippet-row">
                 <pre id="rst-badge-snippet">Fill in the fields to see the rST badge snippet</pre>
