@@ -142,6 +142,17 @@ class BinderHub(Application):
         config=True
     )
 
+    docker_api_url = Unicode(
+        "/var/lib/docker.sock",
+        config=True,
+        help="""
+        The docker URL repo2docker should use to build the images.
+
+        Currently, only paths are supported, and they are expected to be available on
+        all the hosts.
+        """
+    )
+
     hub_api_token = Unicode(
         help="""API token for talking to the JupyterHub API""",
         config=True,
@@ -266,7 +277,8 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
-            'build_memory_limit': self.build_memory_limit
+            'build_memory_limit': self.build_memory_limit,
+            'docker_api_url': self.docker_api_url
         })
 
         self.tornado_app = tornado.web.Application([
