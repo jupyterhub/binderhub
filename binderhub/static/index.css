@@ -19,11 +19,6 @@
     display: none;
 }
 
-#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet, {
-  max-width: 200px;
-  font-size: 75%;
-}
-
 body {
     padding-top: 32px;
     font-family: "ClearSans-Thin", sans-serif;
@@ -32,17 +27,6 @@ body {
 form {
     font-family: "ClearSans-Light", sans-serif;
 }
-
-hr {
-    border: 0;
-    clear:both;
-    display:block;
-    width: 100%;
-    padding:0;
-    margin: 5px 0 5px 0;
-    border-top: 1px solid #cecece;
-
-  }
 
 p > a {
     cursor: pointer;
@@ -88,10 +72,10 @@ p > a:hover {
 .btn-submit{
     background-color:rgb(243, 162, 83);
     box-shadow: 1px 1px rgba(0,0,0,.075);
-    width:220%;
     color:white;
     border:none;
     height:35px;
+    width: 100%;
     border-radius: 4px;
 }
 
@@ -140,6 +124,7 @@ h4 {
 
 #launch-buttons {
     margin-top: 24px;
+    width: 100%;
 }
 
 #log {
@@ -166,18 +151,8 @@ h4 {
     margin-bottom:20px;
 }
 
-.url li {
-    list-style-type: none;
-    padding: 0 12px 0 12px;
-    height:30px;
-}
-
 .badges{
     margin-bottom:40px;
-}
-
-.badges li{
-    list-style-type: none;
 }
 
 .bluedropdown{
@@ -195,40 +170,33 @@ h4 {
 }
 
 
-.badge-snippet-row{
+.badge-snippet-row {
     width: 100%;
+    display: flex;
+    flex-direction: reverse;
+    border-bottom: 1px #ccc solid;
+    padding: 10px;
 }
 
-#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet{
-    width:90%;
-    float:left;
-    margin: 12px 0 12px 12px;
-    padding: 7px;
-}
-
-
-.icon{
+.badge-snippet-row .icon{
+    order: 0;
     max-width: 30px;
+    max-height: 40px;
     padding:3px;
-    margin-top: 13px;
-    margin-left: 4px;
+    /* margin-top: 13px; */
+    /*margin-left: 4px; */
 }
 
-#caret{
-    width:20px;
-    background-color: none;
+.input-group-btn .btn {
+    border: solid #ccc 1px;
+} 
+
+.badge-snippet-row pre{
+    order: 1;
+    margin: 0;
+    flex-grow: 1;
 }
 
-#copyicon{
-    width:20px;
-}
-
-#greyline{
-    Stroke: Solid;
-    Align: Center;
-    Width: 1px;
-    color: #CECECE
-}
 
 #how-it-works {
     line-height: 1.5;
@@ -285,28 +253,25 @@ h4.logo-subtext {
   margin-top: -60px;
 }
 
-#badge-url {
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-}
-
 .url-row {
   height: 100%;
-  width: 100%;
+  width:  100%;
   display: table;
+  padding: 10px;
+}
+
+.url-row pre {
+  margin-bottom: 0;
+}
+
+.form-row .form-group:first-child{
+  padding-left: 0;
+}
+
+.form-row .form-group:last-child{
+  padding-right: 0;
 }
 
 #badge-snippets {
   width: 100%;
-}
-
-#basic-url-snippet {
-  width: 95%;
-}
-
-.badge-snippet-row pre {
-  float: right !important;
-  margin-right: 20px !important;
-  margin-left: 8px !important;
 }
