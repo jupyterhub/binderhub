@@ -222,7 +222,7 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             push_secret=push_secret,
             builder_image=self.settings['builder_image_spec'],
-            memory_limit=self.settings['builder_memory_limit'],
+            memory_limit=self.settings['build_memory_limit'],
             docker_api_url=self.settings['docker_api_url']
         )
 
