@@ -58,25 +58,11 @@
               </div>
             </div>
           </div>
+
           <div class="form-group col-md-2">
             <div class="btn-group" id="launch-buttons">
-              <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
-              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu" id="badge-text">
-                <li class="dropdown-header">Grab badge code in your format</li>
-                <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
-                <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
-                <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
-                <li><pre id="badge-snippet"></pre></li>
-                <li class="dropdown-header">Paste into your README to get</li>
-                <li>
-                  <a id="badge-link">
-                    <img id="badge" src="/static/images/badge.svg">
-                  </a>
-                </li>
-              </ul>
+              <button id="submit" class="btn-submit" type="submit">launch</button>
+            </button>
             </div>
           </div>
         </div>
@@ -111,6 +97,40 @@
             <div id="log"></div>
           </div>
         </div>
+
+        <!--url section-->
+        <div class="url">
+            <div class="bluedropdown">
+              <label>Copy and share this URL:</label>
+            </div>
+            <div class="url-row">
+              <pre id="basic-url-snippet"><a href="#" id="badge-url" title="show url snippet">Begin typing to see your URL!</a></pre>
+            </div>
+        </div>
+
+        <div class="badges">
+            <div class="bluedropdown" id="toggle-badge-snippet">
+              <label>Click, then paste into your README to get badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
+              <a id="badge-link"></a>
+              <a href="#" title="show badge snippets"><span class="caret"></span></a>
+
+              </button>
+            </div>
+            <div id="badge-snippets" class="hidden">
+              <!--Markdown section-->
+              <div  class="badge-snippet-row">
+                 <pre id="markdown-badge-snippet">Fill in the fields to see the markdown badge snippet</pre>
+                 <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
+              </div>
+              <hr>
+              <!--RST section-->
+              <div  class="badge-snippet-row">
+                <pre id="rst-badge-snippet">Fill in the fields to see the rST badge snippet</pre>
+                <img class="icon" src="{{static_url("images/rst-icon.svg")}}">
+              </div>
+            </div>
+        </div>
+
       </form>
     </div>
   </div>

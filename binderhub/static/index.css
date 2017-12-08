@@ -19,7 +19,7 @@
     display: none;
 }
 
-#badge-snippet {
+#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet, {
   max-width: 200px;
   font-size: 75%;
 }
@@ -32,6 +32,17 @@ body {
 form {
     font-family: "ClearSans-Light", sans-serif;
 }
+
+hr {
+    border: 0;
+    clear:both;
+    display:block;
+    width: 100%;
+    padding:0;
+    margin: 5px 0 5px 0;
+    border-top: 1px solid #cecece;
+
+  }
 
 p > a {
     cursor: pointer;
@@ -72,6 +83,16 @@ p > a:hover {
     margin-left: 5%;
     width: 90%;
     padding-bottom: 24px;
+}
+
+.btn-submit{
+    background-color:rgb(243, 162, 83);
+    box-shadow: 1px 1px rgba(0,0,0,.075);
+    width:220%;
+    color:white;
+    border:none;
+    height:35px;
+    border-radius: 4px;
 }
 
 .jumbotron {
@@ -129,6 +150,86 @@ h4 {
     font-family: "Roboto Mono", monospace;
 }
 
+.url, .badges{
+    background-color: #ffffff;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+.url{
+    margin-bottom:20px;
+}
+
+.url li {
+    list-style-type: none;
+    padding: 0 12px 0 12px;
+    height:30px;
+}
+
+.badges{
+    margin-bottom:40px;
+}
+
+.badges li{
+    list-style-type: none;
+}
+
+.bluedropdown{
+    background-color:#579ACA;
+    border-radius: 4px 4px 0px 0px;
+    height:35px;
+    width: 100%;
+}
+
+.bluedropdown label{
+    color:white;
+    padding: 6px 12px;
+    margin:0px;
+    width: 95%;
+}
+
+
+.badge-snippet-row{
+    width: 100%;
+}
+
+#basic-url-snippet, #markdown-badge-snippet, #rst-badge-snippet{
+    width:90%;
+    float:left;
+    margin: 12px 0 12px 12px;
+    padding: 7px;
+}
+
+
+.icon{
+    max-width: 30px;
+    padding:3px;
+    margin-top: 13px;
+    margin-left: 4px;
+}
+
+#caret{
+    width:20px;
+    background-color: none;
+}
+
+#copyicon{
+    width:20px;
+}
+
+#greyline{
+    Stroke: Solid;
+    Align: Center;
+    Width: 1px;
+    color: #CECECE
+}
+
 #how-it-works {
     line-height: 1.5;
     font-weight: bold;
@@ -182,4 +283,30 @@ div.front {
 
 h4.logo-subtext {
   margin-top: -60px;
+}
+
+#badge-url {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.url-row {
+  height: 100%;
+  width: 100%;
+  display: table;
+}
+
+#badge-snippets {
+  width: 100%;
+}
+
+#basic-url-snippet {
+  width: 95%;
+}
+
+.badge-snippet-row pre {
+  float: right !important;
+  margin-right: 20px !important;
+  margin-left: 8px !important;
 }

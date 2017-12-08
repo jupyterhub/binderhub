@@ -138,6 +138,14 @@ function updateUrl() {
   return url;
 }
 
+function updateUrlDiv() {
+  var url = updateUrl()
+  $('#badge-url').text(url);
+  $('#badge-url').attr('href', url)
+  $('#markdown-badge-snippet').text(markdownBadge(url));
+  $('#rst-badge-snippet').text(rstBadge(url));
+}
+
 
 var BADGE_URL = window.location.origin + '/badge.svg'
 
@@ -164,48 +172,21 @@ $(function(){
     // setup badge dropdown
     updateUrl();
 
-    // start the badge invisible
-    $('#badge-snippet').hide();
-    $('#launch-buttons').on('hidden.bs.dropdown', function () {
-      // hide the badge snippet when dismissing the dropdown
-      $('#badge-snippet').hide();
-    });
     $("#url-or-file-btn").find("a").click(function (evt) {
       $("#url-or-file-selected").text($(this).text());
       updatePathText();
+      updateUrlDiv();
     })
     updatePathText();
 
-    // prevent badge text dropdown menu from disappearing on click
-    $('.dropdown-menu#badge-text li').click(function(e) {
-          e.stopPropagation();
-    });
+    $('#repository').on('keyup paste', updateUrlDiv);
 
-    $('#markdown-badge-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#badge-snippet')
-        .show()
-        .text(markdownBadge(url));
-      return false;
-    });
+    $('#ref').on('keyup paste', updateUrlDiv);
 
-    $('#rst-badge-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#badge-snippet')
-        .show()
-        .text(rstBadge(url));
-      return false;
-    });
-
-    $('#basic-url-toggle').on('click', function () {
-      var url = updateUrl();
-      $('#badge-snippet')
-        .show()
-        .text(url);
-      return false;
-    });
+    $('#filepath').on('keyup paste', updateUrlDiv);
 
     log.open(document.getElementById('log'), false);
+
     $(window).resize(function() {
         log.fit();
     });
@@ -225,6 +206,17 @@ $(function(){
         return false;
     });
 
+    $('#toggle-badge-snippet').on('click', function() {
+        var badgeSnippets = $('#badge-snippets');
+        if (badgeSnippets.hasClass('hidden')) {
+            badgeSnippets.removeClass('hidden');
+        } else {
+            badgeSnippets.addClass('hidden');
+        }
+
+        return false;
+    });
+
     $('#build-form').submit(function() {
         var repo = $('#repository').val().trim();
         var ref =  $('#ref').val().trim() || 'master';
@@ -238,6 +230,7 @@ $(function(){
         if (window.location.href !== url) {
           window.history.pushState({}, '', url);
         }
+        updateUrlDiv(url);
 
         $('#build-progress .progress-bar').addClass('hidden');
         log.clear();
