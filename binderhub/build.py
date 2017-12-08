@@ -43,7 +43,7 @@ class Build:
         self.builder_image = builder_image
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
-        self.docker_api_url = docker_url
+        self.docker_api_url = docker_api_url
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -75,11 +75,11 @@ class Build:
     def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
         volume_mounts = [
-            client.V1VolumeMount(mount_path=self.docker_api_url, name="docker-socket")
+            client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
         volumes = [client.V1Volume(
             name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
+            host_path=client.V1HostPathVolumeSource(path=self.docker_api_url)
         )]
 
         if self.push_secret:

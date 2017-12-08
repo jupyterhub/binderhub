@@ -143,7 +143,7 @@ class BinderHub(Application):
     )
 
     docker_api_url = Unicode(
-        "/var/lib/docker.sock",
+        "/var/run/docker.sock",
         config=True,
         help="""
         The docker URL repo2docker should use to build the images.
