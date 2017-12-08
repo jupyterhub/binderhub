@@ -24,12 +24,12 @@
       </div>
 
       <form id="build-form" class="form jumbotron">
-        <h4 id="form-header">Build and launch a repository</h4>
-        <div class="form-group">
+        <h4 id="form-header" class='row'>Build and launch a repository</h4>
+        <div class="form-group row">
           <label for="repository">GitHub repo or URL</label>
           <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or '' }}"/>
         </div>
-        <div class="form-row">
+        <div class="form-row row">
           <div class="form-group col-md-4">
             <label for="ref">Git branch, tag, or commit</label>
             <input class="form-control" type="text" id="ref" placeholder="master" value="{{ ref or '' }}"/>
@@ -67,7 +67,7 @@
           </div>
         </div>
 
-        <div id="build-progress" class="progress on-build hidden">
+        <div id="build-progress" class="progress on-build hidden row">
           <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
             Failed
           </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <div id="log-container" class="panel panel-default on-build hidden">
+        <div id="log-container" class="panel panel-default on-build hidden row">
           <div id="toggle-logs" class="panel-heading">
             Build logs
             <button class="btn btn-link btn-xs pull-right">show</button>
@@ -99,7 +99,7 @@
         </div>
 
         <!--url section-->
-        <div class="url">
+        <div class="url row">
             <div class="bluedropdown">
               <label>Copy and share this URL:</label>
             </div>
@@ -108,7 +108,7 @@
             </div>
         </div>
 
-        <div class="badges">
+        <div class="badges row">
             <div class="bluedropdown" id="toggle-badge-snippet">
               <label>Click, then paste into your README to get badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
               <a id="badge-link"></a>
