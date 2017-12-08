@@ -4,6 +4,7 @@ The binderhub application
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
+from urllib.parse import urlparse
 
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
@@ -11,7 +12,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
 from traitlets.config import Application
 
 from .base import Custom404
@@ -142,7 +143,7 @@ class BinderHub(Application):
         config=True
     )
 
-    docker_api_url = Unicode(
+    build_docker_host = Unicode(
         "/var/run/docker.sock",
         config=True,
         help="""
@@ -152,6 +153,12 @@ class BinderHub(Application):
         all the hosts.
         """
     )
+    @validate('build_docker_host')
+    def docker_build_host_validate(self, proposal):
+        parts = urlparse(proposal.value)
+        if parts.scheme != 'unix' or parts.netloc != '':
+            raise TraitError("Only unix domain sockets on same node are supported for build_docker_host")
+        return proposal.value
 
     hub_api_token = Unicode(
         help="""API token for talking to the JupyterHub API""",
@@ -278,7 +285,7 @@ class BinderHub(Application):
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
-            'docker_api_url': self.docker_api_url
+            'build_docker_host': self.build_docker_host
         })
 
         self.tornado_app = tornado.web.Application([

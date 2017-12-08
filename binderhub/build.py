@@ -3,6 +3,7 @@ Contains build of a docker image from a git repository.
 """
 
 import json
+from urllib.parse import urlparse
 
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
@@ -31,7 +32,7 @@ class Build:
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
-                 image_name, push_secret, memory_limit, docker_api_url):
+                 image_name, push_secret, memory_limit, docker_host):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -43,7 +44,7 @@ class Build:
         self.builder_image = builder_image
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
-        self.docker_api_url = docker_api_url
+        self.docker_host = docker_host
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -77,9 +78,10 @@ class Build:
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
+        docker_socket_path = urlparse(self.docker_host).path
         volumes = [client.V1Volume(
             name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path=self.docker_api_url)
+            host_path=client.V1HostPathVolumeSource(path=docker_socket_path)
         )]
 
         if self.push_secret:

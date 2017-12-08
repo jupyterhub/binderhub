@@ -223,7 +223,7 @@ class BuildHandler(BaseHandler):
             push_secret=push_secret,
             builder_image=self.settings['builder_image_spec'],
             memory_limit=self.settings['build_memory_limit'],
-            docker_api_url=self.settings['docker_api_url']
+            docker_host=self.settings['build_docker_host']
         )
 
         with BUILDS_INPROGRESS.track_inprogress():
