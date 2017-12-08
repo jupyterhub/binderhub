@@ -13,6 +13,14 @@
 
 "use strict";
 
+function update_favicon(path) {
+    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = path;
+    document.getElementsByTagName('head')[0].appendChild(link);
+}
+
 function Image(provider, spec) {
     this.provider = provider;
     this.spec = spec;
@@ -88,10 +96,10 @@ Image.prototype.launch = function(url, token, filepath, pathType) {
       }
 
     }
+    update_favicon("/favicon.ico")
     url = url + '?' + $.param({token: token});
     window.location.href = url;
 };
-
 
 function v2url(repository, ref, path, pathType) {
   // return a v2 url from a repository, ref, and (file|url)path
@@ -260,6 +268,7 @@ $(function(){
             failed = true;
             $('#build-progress .progress-bar').addClass('hidden');
             $('#phase-failed').removeClass('hidden');
+            update_favicon("/favicon_fail.ico")
             // If we fail for any reason, we will show logs!
             if (!logsVisible) {
                 $('#toggle-logs').click();
