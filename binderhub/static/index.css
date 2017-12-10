@@ -20,7 +20,6 @@
 }
 
 body {
-    padding-top: 32px;
     font-family: "ClearSans-Thin", sans-serif;
 }
 
@@ -157,7 +156,7 @@ h4 {
 
 .bluedropdown{
     background-color:#579ACA;
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 3px 3px 0px 0px;
     height:35px;
     width: 100%;
 }
@@ -275,3 +274,17 @@ h4.logo-subtext {
 #badge-snippets {
   width: 100%;
 }
+
+/**/
+
+@media (max-width: 991px){
+    .form-row .form-group {
+        padding: 0;
+    }
+
+    #launch-buttons {
+        margin-top: inherit;
+    }
+
+}
+
