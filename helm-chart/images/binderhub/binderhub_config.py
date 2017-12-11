@@ -31,6 +31,11 @@ c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
 c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)
 
+if get_config('dind.enabled', False):
+    c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
+        get_config('dind.host-socket-dir')
+    )
+
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')
 if allow_origin:
