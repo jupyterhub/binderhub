@@ -130,7 +130,7 @@ deployment:
   labels: {}
 
 dind:
-  enabled: true
+  enabled: false
   daemonset:
     image:
       name: docker
