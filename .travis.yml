@@ -32,7 +32,7 @@ after_success:
 - |
   if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
-    ./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE} --push
+    ./helm-chart/build.py --commit-range ${TRAVIS_COMMIT_RANGE} --push
   fi
 
 env:
