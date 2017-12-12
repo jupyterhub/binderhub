@@ -98,7 +98,6 @@ Image.prototype.launch = function(url, token, filepath, pathType) {
       }
 
     }
-    update_favicon("/favicon.ico")
     url = url + '?' + $.param({token: token});
     window.location.href = url;
 };
@@ -240,6 +239,7 @@ $(function(){
           window.history.pushState({}, '', url);
         }
         updateUrlDiv(url);
+        update_favicon("/favicon_building.ico");
 
         $('#build-progress .progress-bar').addClass('hidden');
         log.clear();
@@ -258,7 +258,6 @@ $(function(){
         image.onStateChange('waiting', function(oldState, newState, data) {
             $('#phase-waiting').removeClass('hidden');
         });
-
         image.onStateChange('building', function(oldState, newState, data) {
             $('#phase-building').removeClass('hidden');
         });
@@ -270,7 +269,7 @@ $(function(){
             failed = true;
             $('#build-progress .progress-bar').addClass('hidden');
             $('#phase-failed').removeClass('hidden');
-            update_favicon("/favicon_fail.ico")
+            update_favicon("/favicon_fail.ico");
             // If we fail for any reason, we will show logs!
             if (!logsVisible) {
                 $('#toggle-logs').click();
@@ -283,6 +282,8 @@ $(function(){
                 $('#phase-already-built').removeClass('hidden');
                 $('#phase-launching').removeClass('hidden');
             }
+            $('#phase-launching').removeClass('hidden');
+            update_favicon("/favicon_success.ico");
         });
 
         image.onStateChange('ready', function(oldState, newState, data) {
