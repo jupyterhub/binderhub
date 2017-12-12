@@ -9,23 +9,23 @@ import time
 from ruamel.yaml import YAML
 
 
-def last_modified_commit(path, **kwargs):
+def last_modified_commit(*paths, **kwargs):
     return subprocess.check_output([
         'git',
         'log',
         '-n', '1',
         '--pretty=format:%h',
-        path
+        *paths
     ], **kwargs).decode('utf-8')
 
-def last_modified_date(path, **kwargs):
+def last_modified_date(*paths, **kwargs):
     return subprocess.check_output([
         'git',
         'log',
         '-n', '1',
         '--pretty=format:%cd',
         '--date=iso',
-        path
+        *paths
     ], **kwargs).decode('utf-8')
 
 def path_touched(path, commit_range):
@@ -33,6 +33,13 @@ def path_touched(path, commit_range):
         'git', 'diff', '--name-only', commit_range, path
     ]).decode('utf-8').strip() != ''
 
+
+def render_build_args(options, ns):
+    """Get docker build args dict, rendering any templated args."""
+    build_args = options.get('buildArgs', {})
+    for key, value in build_args.items():
+        build_args[key] = value.format(**ns)
+    return build_args
 
 def build_image(image_path, image_spec, build_args):
     cmd = ['docker', 'build', '-t', image_spec, image_path]
@@ -45,16 +52,24 @@ def build_images(prefix, images, tag=None, commit_range=None, push=False):
     value_modifications = {}
     for name, options in images.items():
         image_path = os.path.join('images', name)
+        paths = options.get('paths', []) + [image_path]
         if commit_range:
-            if not path_touched(image_path, commit_range):
+            if not path_touched(*paths, commit_range=commit_range):
                 print("Skipping {}, not touched in {}".format(name, commit_range))
                 continue
+        last_commit = last_modified_commit(*paths)
         if tag is None:
-            tag = last_modified_commit(image_path)
+            tag = last_commit
         image_name = prefix + name
         image_spec = '{}:{}'.format(image_name, tag)
 
-        build_image(image_path, image_spec, options.get('buildArgs', {}))
+        template_namespace = {
+            'LAST_COMMIT': last_commit,
+            'TAG': tag,
+        }
+        build_args = render_build_args(options, template_namespace)
+
+        build_image(image_path, image_spec, build_args)
         value_modifications[options['valuesPath']] = {
             'name': image_name,
             'tag': tag
