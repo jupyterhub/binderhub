@@ -22,7 +22,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
-from .utils import ByteSpecification
+from .utils import ByteSpecification, url_path_join
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
@@ -63,6 +63,19 @@ class BinderHub(Application):
         """,
         config=True
     )
+
+    base_url = Unicode(
+        '/',
+        help="The base URL of the entire application",
+        config=True)
+
+    @validate('base_url')
+    def _valid_base_url(self, proposal):
+        if not proposal.value.startswith('/'):
+            proposal.value = '/' + proposal.value
+        if not proposal.value.endswith('/'):
+            proposal.value = proposal.value + '/'
+        return proposal.value
 
     port = Integer(
         8585,
@@ -235,6 +248,15 @@ class BinderHub(Application):
         """
     )
 
+    @staticmethod
+    def add_url_prefix(prefix, handlers):
+        """add a url prefix to handlers"""
+        for i, tup in enumerate(handlers):
+            lis = list(tup)
+            lis[0] = url_path_join(prefix, tup[0])
+            handlers[i] = tuple(lis)
+        return handlers
+
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
@@ -286,10 +308,12 @@ class BinderHub(Application):
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
-            'build_docker_host': self.build_docker_host
+            'build_docker_host': self.build_docker_host,
+            'base_url': self.base_url,
+            'static_url_prefix': url_path_join(self.base_url, 'static/')
         })
 
-        self.tornado_app = tornado.web.Application([
+        handlers = [
             (r'/metrics', MetricsHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
@@ -309,7 +333,9 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/', MainHandler),
             (r'.*', Custom404),
-        ], **self.tornado_settings)
+        ]
+        handlers = self.add_url_prefix(self.base_url, handlers)
+        self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 
     def stop(self):
         self.http_server.stop()

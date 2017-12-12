@@ -6,6 +6,8 @@ resources:
 rbac:
   enabled: true
 
+baseUrl: /
+
 image:
   name: jupyterhub/k8s-binderhub
   tag: local

@@ -13,6 +13,8 @@
 
 "use strict";
 
+var BASE_URL = $('#base-url').data().url;
+
 function update_favicon(path) {
     var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
     link.type = 'image/x-icon';
@@ -51,10 +53,10 @@ Image.prototype.changeState = function(state, data) {
     if (state) {
         this.state = state;
     }
-}
+};
 
 Image.prototype.fetch = function() {
-    var apiUrl = '/build/' + this.provider + '/' + this.spec;
+    var apiUrl = BASE_URL + 'build/' + this.provider + '/' + this.spec;
     this.eventSource = new EventSource(apiUrl);
     var that = this;
     this.eventSource.onerror = function (err) {
@@ -107,7 +109,7 @@ function v2url(repository, ref, path, pathType) {
     // no repo, no url
     return null;
   }
-  var url = window.location.origin + '/v2/gh/' + repository + '/' + ref;
+  var url = window.location.origin + BASE_URL + 'v2/gh/' + repository + '/' + ref;
   if (path && path.length > 0) {
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
   }
@@ -154,7 +156,7 @@ function updateUrlDiv() {
 }
 
 
-var BADGE_URL = window.location.origin + '/badge.svg'
+var BADGE_URL = window.location.origin + BASE_URL + 'badge.svg';
 
 
 function markdownBadge(url) {
@@ -183,7 +185,7 @@ $(function(){
       $("#url-or-file-selected").text($(this).text());
       updatePathText();
       updateUrlDiv();
-    })
+    });
     updatePathText();
 
     $('#repository').on('keyup paste', updateUrlDiv);

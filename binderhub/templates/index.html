@@ -1,6 +1,7 @@
 {% extends "page.html" %}
 
 {% block head %}
+<meta id="base-url" data-url="{{base_url}}">
 {{ super() }}
 <script>
  {% if submit %} window.submitBuild = true; {% endif %}

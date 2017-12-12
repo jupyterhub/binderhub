@@ -44,3 +44,26 @@ class ByteSpecification(Integer):
             raise TraitError('{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T'.format(val=value))
         else:
             return int(float(num) * self.UNIT_SUFFIXES[suffix])
+
+
+def url_path_join(*pieces):
+    """Join components of url into a relative url.
+
+    Use to prevent double slash when joining subpath. This will leave the
+    initial and final / in place.
+
+    Copied from `notebook.utils.url_path_join`.
+    """
+    initial = pieces[0].startswith('/')
+    final = pieces[-1].endswith('/')
+    stripped = [ s.strip('/') for s in pieces ]
+    result = '/'.join(s for s in stripped if s)
+
+    if initial:
+        result = '/' + result
+    if final:
+        result = result + '/'
+    if result == '//':
+        result = '/'
+
+    return result
