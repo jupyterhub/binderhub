@@ -4,6 +4,7 @@ The binderhub application
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
+from urllib.parse import urlparse
 
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
@@ -11,7 +12,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
 from traitlets.config import Application
 
 from .base import Custom404
@@ -21,6 +22,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
+from .utils import ByteSpecification
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
@@ -105,6 +107,22 @@ class BinderHub(Application):
         config=True
     )
 
+    build_memory_limit = ByteSpecification(
+        0,
+        help="""
+        Max amount of memory allocated for each image build process.
+
+        0 sets no limit.
+
+        This is used as both the memory limit & request for the pod
+        that is spawned to do the building, even though the pod itself
+        will not be using that much memory since the docker building is
+        happening outside the pod. However, it makes kubernetes aware of
+        the resources being used, and lets it schedule more intelligently.
+        """,
+        config=True
+    )
+
     # TODO: Factor this out!
     github_auth_token = Unicode(
         None,
@@ -124,6 +142,23 @@ class BinderHub(Application):
         """,
         config=True
     )
+
+    build_docker_host = Unicode(
+        "/var/run/docker.sock",
+        config=True,
+        help="""
+        The docker URL repo2docker should use to build the images.
+
+        Currently, only paths are supported, and they are expected to be available on
+        all the hosts.
+        """
+    )
+    @validate('build_docker_host')
+    def docker_build_host_validate(self, proposal):
+        parts = urlparse(proposal.value)
+        if parts.scheme != 'unix' or parts.netloc != '':
+            raise TraitError("Only unix domain sockets on same node are supported for build_docker_host")
+        return proposal.value
 
     hub_api_token = Unicode(
         help="""API token for talking to the JupyterHub API""",
@@ -250,6 +285,8 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'jinja2_env': jinja_env,
+            'build_memory_limit': self.build_memory_limit,
+            'build_docker_host': self.build_docker_host
         })
 
         self.tornado_app = tornado.web.Application([
