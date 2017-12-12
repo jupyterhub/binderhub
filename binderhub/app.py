@@ -12,7 +12,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
 
 from .base import Custom404
@@ -72,17 +72,6 @@ class BinderHub(Application):
         config=True
     )
 
-    use_registry = Bool(
-        True,
-        help="""
-        Set to true to push images to a registry & check for images in registry.
-
-        Set to false to use only local docker images. Useful when running
-        in a single node.
-        """,
-        config=True
-    )
-
     docker_push_secret = Unicode(
         'docker-push-secret',
         allow_none=True,
@@ -93,7 +82,7 @@ class BinderHub(Application):
     )
 
     docker_image_prefix = Unicode(
-        "",
+        "127.0.0.1:5000/",
         help="""
         Prefix for all built docker images.
 
@@ -101,11 +90,26 @@ class BinderHub(Application):
             gcr.io/<your-project-name>/
 
         Set according to whatever registry you are pushing to.
+        A registry is *required*. You can run a registry with
+        `minikube addon enable registry`
 
-        Defaults to "", which is probably not what you want :)
+        Defaults to "127.0.0.1:5000" for a local registry.
         """,
         config=True
     )
+
+    docker_registry_url = Unicode(
+        help="""
+        Docker registry URL.
+        Default is to use https://{docker_image_prefix} (up to first /)
+
+        Needs to be specified as http:// for local, insecure registry
+        """,
+        config=True
+    )
+    @default('docker_registry_url')
+    def _default_registry_url(self):
+        return 'https://' + self.docker_image_prefix.split('/', 1)[0]
 
     build_memory_limit = ByteSpecification(
         0,
@@ -256,8 +260,8 @@ class BinderHub(Application):
 
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
-        if self.use_registry and self.builder_required:
-            registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
+        if self.builder_required:
+            registry = DockerRegistry(self.docker_registry_url)
         else:
             registry = None
 
@@ -280,7 +284,6 @@ class BinderHub(Application):
             "builder_image_spec": self.builder_image_spec,
             'build_pool': self.build_pool,
             'repo_providers': self.repo_providers,
-            'use_registry': self.use_registry,
             'registry': registry,
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,

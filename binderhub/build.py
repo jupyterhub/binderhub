@@ -53,10 +53,8 @@ class Build:
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
+            '--push',
         ]
-
-        if self.push_secret:
-            cmd.append('--push')
 
         if self.memory_limit:
             cmd.append('--build-memory-limit')

@@ -27,6 +27,7 @@ on GitHub if you don't have a token.
    ```bash
    helm init
    ```
+
 4. Add the JupyterHub helm charts repo:
 
    ```bash
@@ -42,15 +43,21 @@ on GitHub if you don't have a token.
 
         python3 -m pip install -e . -r dev-requirements.txt
 
-7. Before starting the local dev/test deployment run:
+7. Before starting the local dev/test deployment run,
+   start a local docker registry (in minikube):
 
         eval $(minikube docker-env)
+        # spawn registry in minikube docker
+        docker run -d -p 5000:5000 --restart=always --name registry registry:2
+        # forward localhost:5000 to minikube:5000 so both binderhub
+        # and kubernetes see the same registry at 127.0.0.1:5000
+        ssh -i $(minikube ssh-key) docker@$(minikube ip) -L5000:127.0.0.1:5000 -f -N
 
-7. Start binderhub with the testing config file:
+8. Start binderhub with the testing config file:
 
         python3 -m binderhub -f testing/minikube/binderhub_config.py
 
-8. Visit [http://localhost:8585](http://localhost:8585)
+9. Visit [http://localhost:8585](http://localhost:8585)
 
 All features should work, including building and launching.
 

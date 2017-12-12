@@ -88,8 +88,7 @@ class BuildHandler(BaseHandler):
         self.finish()
 
     def initialize(self):
-        if self.settings['use_registry']:
-            self.registry = self.settings['registry']
+        self.registry = self.settings['registry']
 
     def _generate_build_name(self, build_slug, ref, prefix='', limit=63, hash_length=6, ref_length=6):
         """
@@ -177,20 +176,8 @@ class BuildHandler(BaseHandler):
             build_slug=provider.get_build_slug(), ref=ref
         ).replace('_', '-').lower()
 
-        if self.settings['use_registry']:
-            image_manifest = await self.registry.get_image_manifest(*image_name.split('/', 1)[1].split(':', 1))
-            image_found = bool(image_manifest)
-        else:
-            # Check if the image exists locally!
-            # Assume we're running in single-node mode!
-            docker_client = docker.from_env(version='auto')
-            try:
-                docker_client.images.get(image_name)
-            except docker.errors.ImageNotFound:
-                # image doesn't exist, so do a build!
-                image_found = False
-            else:
-                image_found = True
+        image_manifest = await self.registry.get_image_manifest(*image_name.split('/', 1)[1].rsplit(':', 1))
+        image_found = bool(image_manifest)
 
         if image_found:
             await self.emit({
@@ -205,10 +192,7 @@ class BuildHandler(BaseHandler):
 
         q = Queue()
 
-        if self.settings['use_registry']:
-            push_secret = self.settings['docker_push_secret']
-        else:
-            push_secret = None
+        push_secret = self.settings['docker_push_secret']
 
         BuildClass = FakeBuild if self.settings.get('fake_build', None) else Build
 
