@@ -102,7 +102,7 @@ def build_values(name, values_mods):
         rt_yaml.dump(values, f)
 
 
-def build_chart(name, version=None):
+def build_chart(name, version=None, paths=('.',)):
     rt_yaml = YAML()
     rt_yaml.indent(offset=2)
 
@@ -111,7 +111,8 @@ def build_chart(name, version=None):
         chart = rt_yaml.load(f)
 
     if version is None:
-        version = chart['version'].split('-')[0] + '-' + last_modified_commit('.')
+        commit = last_modified_commit(*paths)
+        version = chart['version'].split('-')[0] + '-' + commit
 
     chart['version'] = version
 
@@ -208,8 +209,13 @@ def main():
     for chart in config['charts']:
         value_mods = build_images(chart['imagePrefix'], chart['images'], args.tag, args.commit_range, args.push)
         build_values(chart['name'], value_mods)
-        build_chart(chart['name'], args.tag)
+        chart_paths = ['.'] + chart.get('paths', [])
+        build_chart(chart['name'], paths=chart_paths, version=args.tag)
         if args.publish_chart:
-            publish_pages(chart['name'], chart['repo']['git'], chart['repo']['published'])
+            publish_pages(chart['name'],
+                paths=chart_paths,
+                git_repo=chart['repo']['git'],
+                published_repo=chart['repo']['published'],
+            )
 
 main()
