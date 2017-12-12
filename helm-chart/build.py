@@ -111,7 +111,7 @@ def build_chart(name, version=None):
         chart = rt_yaml.load(f)
 
     if version is None:
-        version = chart['version'] + '-' + last_modified_commit('.')
+        version = chart['version'].split('-')[0] + '-' + last_modified_commit('.')
 
     chart['version'] = version
 
