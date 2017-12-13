@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import subprocess
-import argparse
-from datetime import datetime
 import shutil
 from tempfile import TemporaryDirectory
-import time
 
 from ruamel.yaml import YAML
 
@@ -29,9 +27,9 @@ def last_modified_date(*paths, **kwargs):
         *paths
     ], **kwargs).decode('utf-8')
 
-def path_touched(path, commit_range):
+def path_touched(*paths, commit_range):
     return subprocess.check_output([
-        'git', 'diff', '--name-only', commit_range, path
+        'git', 'diff', '--name-only', commit_range, *paths
     ]).decode('utf-8').strip() != ''
 
 
