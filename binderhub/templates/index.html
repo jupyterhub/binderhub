@@ -68,37 +68,6 @@
           </div>
         </div>
 
-        <div id="build-progress" class="progress on-build hidden row">
-          <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
-            Failed
-          </div>
-          <div id="phase-waiting" class="progress-bar progress-bar-danger progress-bar-striped active hidden" style="width: 10%">
-            Waiting
-          </div>
-          <div id="phase-already-built" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 90%">
-            Already built!
-          </div>
-          <div id="phase-building" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 40%">
-            Building
-          </div>
-          <div id="phase-pushing" class="progress-bar progress-bar-info progress-bar-striped active hidden" style="width: 40%">
-            Pushing
-          </div>
-          <div id="phase-launching" class="progress-bar progress-bar-success progress-bar-striped active hidden" style="width: 10%">
-            Launching
-          </div>
-        </div>
-
-        <div id="log-container" class="panel panel-default on-build hidden row">
-          <div id="toggle-logs" class="panel-heading">
-            Build logs
-            <button class="btn btn-link btn-xs pull-right">show</button>
-          </div>
-          <div class="panel-body hidden">
-            <div id="log"></div>
-          </div>
-        </div>
-
         <!--url section-->
         <div class="url row">
             <div class="bluedropdown">
@@ -130,6 +99,38 @@
               </div>
             </div>
         </div>
+        
+        <div id="build-progress" class="progress on-build hidden row">
+          <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
+            Failed
+          </div>
+          <div id="phase-waiting" class="progress-bar progress-bar-danger progress-bar-striped active hidden" style="width: 10%">
+            Waiting
+          </div>
+          <div id="phase-already-built" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 90%">
+            Already built!
+          </div>
+          <div id="phase-building" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 40%">
+            Building
+          </div>
+          <div id="phase-pushing" class="progress-bar progress-bar-info progress-bar-striped active hidden" style="width: 40%">
+            Pushing
+          </div>
+          <div id="phase-launching" class="progress-bar progress-bar-success progress-bar-striped active hidden" style="width: 10%">
+            Launching
+          </div>
+        </div>
+
+        <div id="log-container" class="panel panel-default on-build hidden row">
+          <div id="toggle-logs" class="panel-heading">
+            Build logs
+            <button class="btn btn-link btn-xs pull-right">show</button>
+          </div>
+          <div class="panel-body hidden">
+            <div id="log"></div>
+          </div>
+        </div>
+
 
       </form>
     </div>
