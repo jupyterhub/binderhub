@@ -7,6 +7,9 @@ from tempfile import TemporaryDirectory
 
 from ruamel.yaml import YAML
 
+# use safe roundtrip yaml loader
+yaml = YAML(typ='rt')
+yaml.indent(offset=2)
 
 def last_modified_commit(*paths, **kwargs):
     return subprocess.check_output([
@@ -81,13 +84,12 @@ def build_images(prefix, images, tag=None, commit_range=None, push=False):
     return value_modifications
 
 def build_values(name, values_mods):
-    rt_yaml = YAML()
-    rt_yaml.indent(offset=2)
+    """Update name/values.yaml with modifications"""
 
     values_file = os.path.join(name, 'values.yaml')
 
     with open(values_file) as f:
-        values = rt_yaml.load(f)
+        values = yaml.load(f)
 
     for key, value in values_mods.items():
         parts = key.split('.')
@@ -98,16 +100,14 @@ def build_values(name, values_mods):
 
 
     with open(values_file, 'w') as f:
-        rt_yaml.dump(values, f)
+        yaml.dump(values, f)
 
 
 def build_chart(name, version=None, paths=('.',)):
-    rt_yaml = YAML()
-    rt_yaml.indent(offset=2)
-
+    """Update chart with specified version or last-modified commit in path(s)"""
     chart_file = os.path.join(name, 'Chart.yaml')
     with open(chart_file) as f:
-        chart = rt_yaml.load(f)
+        chart = yaml.load(f)
 
     if version is None:
         commit = last_modified_commit(*paths)
@@ -116,7 +116,7 @@ def build_chart(name, version=None, paths=('.',)):
     chart['version'] = version
 
     with open(chart_file, 'w') as f:
-        rt_yaml.dump(chart, f)
+        yaml.dump(chart, f)
 
 
 def publish_pages(name, paths, git_repo, published_repo):
@@ -165,8 +165,7 @@ def publish_pages(name, paths, git_repo, published_repo):
 
 def main():
     with open('chartpress.yaml') as f:
-        safe_yaml = YAML(typ='safe')
-        config = safe_yaml.load(f)
+        config = yaml.load(f)
 
     argparser = argparse.ArgumentParser()
 
