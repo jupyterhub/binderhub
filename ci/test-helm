@@ -15,6 +15,8 @@ echo "building helm chart"
 cd helm-chart
 ./build.py --commit-range ${TRAVIS_COMMIT_RANGE}
 cd ..
+git diff
+docker images | sort
 
 # smoke test helm install
 echo "installing binderhub helm chart"
