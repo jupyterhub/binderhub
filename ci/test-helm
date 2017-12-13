@@ -12,7 +12,11 @@ echo -e "hub:\n  url: $HUB_URL" > helm-chart/travis-binder.yaml
 
 
 echo "building helm chart"
-./helm-chart/build.py build --commit-range ${TRAVIS_COMMIT_RANGE}
+cd helm-chart
+./build.py --commit-range ${TRAVIS_COMMIT_RANGE}
+cd ..
+git diff
+docker images | sort
 
 # smoke test helm install
 echo "installing binderhub helm chart"
