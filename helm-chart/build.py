@@ -55,27 +55,27 @@ def build_images(prefix, images, tag=None, commit_range=None, push=False):
     for name, options in images.items():
         image_path = os.path.join('images', name)
         paths = options.get('paths', []) + [image_path]
-        if commit_range:
-            if not path_touched(*paths, commit_range=commit_range):
-                print("Skipping {}, not touched in {}".format(name, commit_range))
-                continue
         last_commit = last_modified_commit(*paths)
         if tag is None:
             tag = last_commit
         image_name = prefix + name
         image_spec = '{}:{}'.format(image_name, tag)
+        value_modifications[options['valuesPath']] = {
+            'name': image_name,
+            'tag': tag
+        }
+
+        if commit_range and not path_touched(*paths, commit_range=commit_range):
+            print(f"Skipping {name}, not touched in {commit_range}")
+            continue
 
         template_namespace = {
             'LAST_COMMIT': last_commit,
             'TAG': tag,
         }
-        build_args = render_build_args(options, template_namespace)
 
+        build_args = render_build_args(options, template_namespace)
         build_image(image_path, image_spec, build_args)
-        value_modifications[options['valuesPath']] = {
-            'name': image_name,
-            'tag': tag
-        }
 
         if push:
             subprocess.check_call([
