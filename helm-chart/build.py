@@ -103,13 +103,15 @@ def build_values(name, values_mods):
         yaml.dump(values, f)
 
 
-def build_chart(name, version=None, paths=('.',)):
+def build_chart(name, version=None, paths=None):
     """Update chart with specified version or last-modified commit in path(s)"""
     chart_file = os.path.join(name, 'Chart.yaml')
     with open(chart_file) as f:
         chart = yaml.load(f)
 
     if version is None:
+        if paths is None:
+            paths = ['.']
         commit = last_modified_commit(*paths)
         version = chart['version'].split('-')[0] + '-' + commit
 
