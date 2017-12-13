@@ -1,3 +1,4 @@
+{{ if .Values.dind.enabled -}}
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -34,3 +35,4 @@ spec:
       - name: rundind
         hostPath:
           path: {{ .Values.dind.hostSocketDir }}
+{{- end }}
