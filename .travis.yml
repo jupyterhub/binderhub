@@ -4,16 +4,7 @@ python:
 services:
 - docker
 sudo: required
-branches:
-  only:
-  - master
 
-before_install:
-- |
-  if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TEST" == "helm" ]]; then
-    openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
-    chmod 0400 travis
-  fi
 install:
 - mkdir -p bin
 - export PATH=$PWD/bin:$PATH
@@ -27,15 +18,22 @@ after_failure:
     echo $pod
     kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod
   done
+
 after_success:
 - codecov
-- |
-  if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
-    cd helm-chart
-    ./build.py --commit-range ${TRAVIS_COMMIT_RANGE} --push
-    cd ..
-  fi
+
+jobs:
+  include:
+  - stage: deploy
+    if: type = push AND branch = master
+    # set env to avoid deploy matrix
+    env: TEST=helm
+    script:
+      - openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
+      - chmod 0400 travis
+      - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+      - cd helm-chart
+      - ./build.py --commit-range ${TRAVIS_COMMIT_RANGE} --push --publish-chart
 
 env:
   matrix:
