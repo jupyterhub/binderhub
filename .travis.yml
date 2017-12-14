@@ -28,12 +28,7 @@ jobs:
     if: type = push AND branch = master
     # set env to avoid deploy matrix
     env: TEST=helm
-    script:
-      - openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
-      - chmod 0400 travis
-      - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
-      - cd helm-chart
-      - ./build.py --commit-range ${TRAVIS_COMMIT_RANGE} --push --publish-chart
+    script: ./ci/deploy.sh
 
 env:
   matrix:
