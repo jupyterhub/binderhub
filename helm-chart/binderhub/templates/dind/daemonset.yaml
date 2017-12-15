@@ -1,3 +1,4 @@
+{{ if .Values.dind.enabled -}}
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -13,9 +14,13 @@ spec:
       labels:
         name: {{ .Release.Name }}-dind
     spec:
+      {{ if .Values.dind.initContainers -}}
+      initContainers:
+{{ toYaml .Values.dind.initContainers | indent 10 }}
+      {{- end }}
       containers:
       - name: dind
-        image: {{ .Values.dind.daemonset.image.name}}:{{ .Values.dind.daemonset.image.tag }}
+        image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
         args:
           - dockerd
           - --storage-driver={{ .Values.dind.storageDriver }}
@@ -34,3 +39,4 @@ spec:
       - name: rundind
         hostPath:
           path: {{ .Values.dind.hostSocketDir }}
+{{- end }}

@@ -133,6 +133,7 @@ deployment:
 
 dind:
   enabled: false
+  initContainers: []
   daemonset:
     image:
       name: docker
