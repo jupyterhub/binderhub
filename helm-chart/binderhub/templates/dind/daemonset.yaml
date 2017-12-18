@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         name: {{ .Release.Name }}-dind
+        app: binder
+        component: dind
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
     spec:
       {{ if .Values.dind.initContainers -}}
       initContainers:

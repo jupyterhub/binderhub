@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: binderhub-deployment
+  name: binder
 spec:
   replicas: 1
   strategy:
@@ -14,7 +14,11 @@ spec:
   template:
     metadata:
       labels:
-        name: binder-pod
+        app: binder
+        name: binder
+        component: binder
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
         {{ if .Values.deployment.labels -}}
         # Because toYaml + indent is super flaky
         {{ range $key, $value := .Values.deployment.labels -}}
