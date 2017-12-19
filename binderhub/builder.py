@@ -137,7 +137,10 @@ class BuildHandler(BaseHandler):
         })
 
     async def get(self, provider_prefix, spec):
-        """Get a built image for a given spec (user, repo, and ref).
+        """Get a built image for a given spec and repo provider.
+
+        Different repo providers will require different spec information. This
+        function relies on the functionality of the tornado `GET` request.
 
         Parameters
         ----------
