@@ -144,7 +144,8 @@ class BuildHandler(BaseHandler):
             provider_prefix : str
                 the nickname for a repo provider (i.e. 'gh')
             spec:
-                information that specifies the user, repo, and ref
+                specifies information needed by the repo provider (i.e. user,
+                repo, ref, etc.)
 
         """
         # set up for sending event streams
@@ -182,7 +183,7 @@ class BuildHandler(BaseHandler):
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
 
-        # generate a complete build name `build-{user}-{repo}-{ref}`
+        # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
         build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
@@ -242,10 +243,10 @@ class BuildHandler(BaseHandler):
             docker_host=self.settings['build_docker_host']
         )
 
-        """----- In Progress Builds -----"""
         with BUILDS_INPROGRESS.track_inprogress():
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
+            """----- Build starts here -----"""
             submit_future = pool.submit(build.submit)
             # TODO: hook up actual error handling when this fails
             IOLoop.current().add_callback(lambda : submit_future)
@@ -305,7 +306,7 @@ class BuildHandler(BaseHandler):
 
 
     async def launch(self):
-        """Ask JupyterHub's Hub to launch the image."""
+        """Ask JupyterHub to launch the image."""
         await self.emit({
             'phase': 'launching',
             'message': 'Launching server...\n',
