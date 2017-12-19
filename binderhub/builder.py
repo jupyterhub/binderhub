@@ -137,21 +137,33 @@ class BuildHandler(BaseHandler):
         })
 
     async def get(self, provider_prefix, spec):
-        """Get a built image for a given GitHub user, repo, and ref."""
-        # We gonna send out event streams!
+        """Get a built image for a given spec (user, repo, and ref).
+
+        Parameters
+        ----------
+            provider_prefix : str
+                the nickname for a repo provider (i.e. 'gh')
+            spec:
+                information that specifies the user, repo, and ref
+
+        """
+        # set up for sending event streams
         self.set_header('content-type', 'text/event-stream')
         self.set_header('cache-control', 'no-cache')
 
-        # EventSource cannot handle HTTP errors,
-        # so we have to send error messages on the eventsource
+        # Verify if the provider is valid for EventSource.
+        # EventSource cannot handle HTTP errors, so we must validate and send
+        # error messages on the eventsource.
         if provider_prefix not in self.settings['repo_providers']:
             await self.fail("No provider found for prefix %s" % provider_prefix)
             return
 
+        # create a heartbeat
         IOLoop.current().spawn_callback(self.keep_alive)
 
         key = '%s:%s' % (provider_prefix, spec)
 
+        # get a provider object that encapsulates the provider and the spec
         try:
             provider = self.get_provider(provider_prefix, spec=spec)
         except Exception as e:
@@ -169,6 +181,8 @@ class BuildHandler(BaseHandler):
         if ref is None:
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
+
+        # generate a complete build name `build-{user}-{repo}-{ref}`
         build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
         # FIXME: EnforceMax of 255 before image and 128 for tag
@@ -192,6 +206,7 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
+        """----- Launch a notebook server if the image already is built -----"""
         if image_found:
             await self.emit({
                 'phase': 'built',
@@ -201,6 +216,7 @@ class BuildHandler(BaseHandler):
             await self.launch()
             return
 
+        """----- Prepare to build -----"""
         api = client.CoreV1Api()
 
         q = Queue()
@@ -226,6 +242,7 @@ class BuildHandler(BaseHandler):
             docker_host=self.settings['build_docker_host']
         )
 
+        """----- In Progress Builds -----"""
         with BUILDS_INPROGRESS.track_inprogress():
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
@@ -280,6 +297,7 @@ class BuildHandler(BaseHandler):
 
                 await self.emit(event)
 
+        """"----- Launch after building an image -----"""
         if not failed:
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
             with LAUNCHES_INPROGRESS.track_inprogress():
@@ -287,12 +305,12 @@ class BuildHandler(BaseHandler):
 
 
     async def launch(self):
-        """Ask the Hub to launch the image"""
+        """Ask JupyterHub's Hub to launch the image."""
         await self.emit({
             'phase': 'launching',
             'message': 'Launching server...\n',
         })
-        # build finished, time to launch!
+
         launcher = self.settings['launcher']
         username = launcher.username_from_repo(self.repo)
         try:
