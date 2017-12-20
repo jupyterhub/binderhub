@@ -35,11 +35,12 @@ class BinderHub(Application):
         'config': 'BinderHub.config_file',
         'port': 'BinderHub.port',
     }
+
     flags = {
         'debug': (
-            {'Application': {'log_level': logging.DEBUG}},
-            "Enable debug-level logging",
-        ),
+            {'BinderHub': {'debug': True}},
+            "Enable debug HTTP serving & debug logging"
+        )
     }
 
     config_file = Unicode(
@@ -262,6 +263,8 @@ class BinderHub(Application):
         super().initialize(*args, **kwargs)
         self.load_config_file(self.config_file)
         # hook up tornado logging
+        if self.debug:
+            self.log_level = logging.DEBUG
         tornado.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
@@ -310,7 +313,8 @@ class BinderHub(Application):
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
-            'static_url_prefix': url_path_join(self.base_url, 'static/')
+            'static_url_prefix': url_path_join(self.base_url, 'static/'),
+            'debug': self.debug,
         })
 
         handlers = [
