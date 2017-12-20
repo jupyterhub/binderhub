@@ -13,7 +13,8 @@
     "xterm": "^2.9.2"
   },
   "scripts": {
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "webpack:watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
