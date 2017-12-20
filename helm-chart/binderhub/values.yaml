@@ -37,6 +37,8 @@ github:
   # ...or access_token
   accessToken:
 
+extraConfig: {}
+
 # have to set cors.allowOrigin twice:
 # once in top-level cors.allowOrigin,
 # and again in jupyterhub.hub.extraConfigMap.cors.allowOrigin

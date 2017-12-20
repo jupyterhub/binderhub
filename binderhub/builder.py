@@ -175,6 +175,13 @@ class BuildHandler(BaseHandler):
             await self.fail(str(e))
             return
 
+        if provider.is_banned():
+            self.emit({
+                'phase': 'failed',
+                'message': 'Sorry, {} has been temporarily disabled from launching. Please contact admins for more info!'
+            })
+            return
+
         repo = self.repo = provider.get_repo_url()
 
         try:
