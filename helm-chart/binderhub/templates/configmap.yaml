@@ -27,3 +27,4 @@ data:
   extra-config.{{ $key }}.py: |
 {{ $value | indent 4 }}
   {{- end }}
+  {{- end }}
