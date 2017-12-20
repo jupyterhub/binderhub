@@ -3,6 +3,7 @@
 {% block head %}
 <meta id="base-url" data-url="{{base_url}}">
 <script src="{{static_url("dist/bundle.js")}}"></script>
+<link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
 {{ super() }}
 <script>
  {% if submit %} window.submitBuild = true; {% endif %}

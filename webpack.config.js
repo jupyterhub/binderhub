@@ -1,4 +1,5 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     context: __dirname + "/binderhub/static/",
@@ -12,7 +13,10 @@ module.exports = {
         rules: [
             {
                 test: /\.css$/,
-                use: [ 'style-loader', 'css-loader' ]
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: "css-loader"
+                })
             },
             {
                 test: /\.(eot|woff|ttf|woff2|svg)$/,
@@ -25,6 +29,7 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
-        })
+        }),
+        new ExtractTextPlugin("styles.css"),
     ]
 }
