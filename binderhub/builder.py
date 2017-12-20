@@ -308,12 +308,21 @@ class BuildHandler(BaseHandler):
 
                 await self.emit(event)
 
-        """"----- Launch after building an image -----"""
+        # Launch after building an image
         if not failed:
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch()
 
+        # Don't close the eventstream immediately.
+        # (javascript) eventstream clients reconnect automatically on dropped connections,
+        # so if the server closes the connection first,
+        # the client will reconnect which starts a new build.
+        # If we sleep here, that makes it more likely that a well-behaved
+        # client will close its connection first.
+        # The duration of this shouldn't matter because
+        # well-behaved clients will close connections after they receive the launch event.
+        await gen.sleep(60)
 
     async def launch(self):
         """Ask JupyterHub to launch the image."""
