@@ -10,7 +10,11 @@ spec:
   loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
   {{- end }}
   selector:
-    name: binder-pod
+    app: binder
+    name: binder
+    component: binder
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
   ports:
     - protocol: TCP
       port: 80
