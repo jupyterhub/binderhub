@@ -1,4 +1,5 @@
 import os
+import glob
 import yaml
 
 def get_config(key, default=None):
@@ -46,3 +47,7 @@ if allow_origin:
             'Access-Control-Allow-Origin': allow_origin,
         }
     })
+
+
+for path in glob.glob('/etc/binderhub/config/extra-config.*.py'):
+    load_subconfig(path)

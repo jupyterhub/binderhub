@@ -18,7 +18,7 @@ from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, Bool, default
+from traitlets import Dict, Unicode, Bool, default, List
 from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
@@ -58,8 +58,26 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
+    banned_specs = List(
+        help="""
+        List of specs to blacklist building.
+
+        Should be a list of regexes (not regex objects) that match specs which should be blacklisted
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
+
+    def is_banned(self):
+        """
+        Return true if the given spec has been banned
+        """
+        for banned in self.banned_specs:
+            if re.match(banned, self.spec):
+                return True
+        return False
 
     @gen.coroutine
     def get_resolved_ref(self):
@@ -430,5 +448,3 @@ class GistRepoProvider(GitHubRepoProvider):
 
     def get_build_slug(self):
         return self.gist_id
-
-
