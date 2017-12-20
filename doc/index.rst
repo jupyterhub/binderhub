@@ -48,5 +48,5 @@ Full Table of Contents
    setup-binderhub
    debug
    turn-off
-   api/API.md
-   api/api-index.rst
+   API.md
+   reference/ref-index.rst
