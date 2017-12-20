@@ -176,9 +176,9 @@ class BuildHandler(BaseHandler):
             return
 
         if provider.is_banned():
-            self.emit({
+            await self.emit({
                 'phase': 'failed',
-                'message': 'Sorry, {} has been temporarily disabled from launching. Please contact admins for more info!'
+                'message': 'Sorry, {} has been temporarily disabled from launching. Please contact admins for more info!'.format(spec)
             })
             return
 
