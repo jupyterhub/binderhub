@@ -10,8 +10,17 @@
   pushing -> built
   pushing -> failed
 */
+import * as Terminal from 'xterm';
+import 'xterm/lib/xterm.css';
+import 'bootstrap';
 
-"use strict";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap-theme.min.css';
+import '../index.css';
+
+
+// FIXME: Can not seem to import this addon from npm
+import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
 
@@ -194,6 +203,7 @@ $(function(){
     $('#filepath').on('keyup paste', updateUrlDiv);
 
     log.open(document.getElementById('log'), false);
+    log.fit();
 
     $(window).resize(function() {
         log.fit();
@@ -248,8 +258,8 @@ $(function(){
 
         image.onStateChange('*', function(oldState, newState, data) {
             if (data.message !== undefined) {
-                log.fit();
                 log.write(data.message);
+                log.fit();
             } else {
                 console.log(data);
             }

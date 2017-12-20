@@ -94,3 +94,8 @@ ENV/
 # Sphinx stuff
 _build/
 
+# Node stuff
+node_modules/
+
+# Built files
+binderhub/static/dist
