@@ -7,9 +7,12 @@ charts:
     paths:
       - ../setup.py
       - ../binderhub
-
     images:
       binderhub:
+        # Context to send to docker build for use by the Dockerfile
+        contextPath: ..
+        # Dockerfile path relative to chartpress.yaml
+        dockerfilePath: images/binderhub/Dockerfile
         valuesPath: image
         # additional paths relevant to the image
         # in addition to image directory itself
@@ -17,5 +20,3 @@ charts:
         paths:
           - ../setup.py
           - ../binderhub
-        buildArgs:
-          BINDERHUB_VERSION: '{LAST_COMMIT}'
