@@ -16,4 +16,5 @@ FROM python:3.6-stretch
 COPY --from=0 /tmp/binderhub/dist/*.whl .
 RUN pip install --no-cache-dir *.whl
 
+CMD python3 -m binderhub
 EXPOSE 8585
