@@ -12,7 +12,7 @@ image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
-repo2dockerImage: jupyter/repo2docker:235f0ad
+repo2dockerImage: jupyter/repo2docker:v0.4.1
 
 googleAnalyticsCode:
 

@@ -53,8 +53,6 @@ class Build:
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
-            '--user-name', 'jovyan',
-            '--user-id', '1000'
         ]
 
         if self.push_secret:
