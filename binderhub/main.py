@@ -39,7 +39,7 @@ class ParameterizedMainHandler(BaseHandler):
             raise web.HTTPError(400, str(e))
 
         self.render_template(
-            "index.html",
+            "loading.html",
             base_url=self.settings['base_url'],
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
