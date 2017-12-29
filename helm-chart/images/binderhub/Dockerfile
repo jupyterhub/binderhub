@@ -14,6 +14,7 @@ RUN python3 setup.py bdist_wheel
 FROM python:3.6-stretch
 
 COPY --from=0 /tmp/binderhub/dist/*.whl .
+COPY helm-chart/images/binderhub/binderhub_config.py .
 RUN pip install --no-cache-dir *.whl
 
 CMD python3 -m binderhub
