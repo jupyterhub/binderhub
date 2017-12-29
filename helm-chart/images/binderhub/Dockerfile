@@ -17,5 +17,5 @@ COPY --from=0 /tmp/binderhub/dist/*.whl .
 COPY helm-chart/images/binderhub/binderhub_config.py .
 RUN pip install --no-cache-dir *.whl
 
-CMD python3 -m binderhub
+CMD ["python3", "-m", "binderhub"]
 EXPOSE 8585
