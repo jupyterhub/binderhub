@@ -54,9 +54,10 @@ on GitHub if you don't have a token.
 
 All features should work, including building and launching.
 
-## Increase your GitHub API
+## Increase your GitHub API limit
 
-It is recommended to create and enable your GitHub API token before running tests
+By default, GitHub has a limit of 60 API requests per hour. Thus,
+it is recommended to create and enable a GitHub API token before running tests
 in order to avoid hitting your API limit. Steps to do so are included below.
 
 1. Create a new token with default (check no boxes) permissions [here](https://github.com/settings/tokens/new)
@@ -70,7 +71,7 @@ in order to avoid hitting your API limit. Steps to do so are included below.
    ```
 
 BinderHub will automatically use the token stored in this variable when making
-API requests to GitHub, significantly raising your limit.
+API requests to GitHub, raising your hourly limit to 5000 requests.
 
 ## Testing
 
@@ -81,7 +82,7 @@ To run unit tests, navigate to the root of the repository, then call:
   ```
 
 We recommend increasing your GitHub API rate limit before running tests (see above).
-
+and increasing your
 ## Pure HTML / CSS / JS development
 
 If you do not want to set up minikube but just want to hack on the html / css / js,

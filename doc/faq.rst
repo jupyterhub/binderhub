@@ -9,8 +9,8 @@ your own BinderHub.
 How can I increase my GitHub API limit?
 ---------------------------------------
 
-By default GitHub only lets you make a handful of requests each hour. To
-increase this limit significantly, create an API access token that's attached
+By default GitHub only lets you make 60 requests each hour. To raise this
+limit to 5000 requests an hour, create an API access token that's attached
 to your GitHub username.
 
 1. Create a new token with default (check no boxes)
