@@ -54,7 +54,7 @@ on GitHub if you don't have a token.
 
 All features should work, including building and launching.
 
-## Testing
+## Increase your GitHub API
 
 It is recommended to create and enable your GitHub API token before running tests
 in order to avoid hitting your API limit. Steps to do so are included below.
@@ -63,12 +63,24 @@ in order to avoid hitting your API limit. Steps to do so are included below.
 
 2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
 
-3. To run unit tests call:
+3. Before running your BinderHub server, run the following:
+
+   ```bash
+   export GITHUB_ACCESS_TOKEN=insert_token_value_here
+   ```
+
+BinderHub will automatically use the token stored in this variable when making
+API requests to GitHub, significantly raising your limit.
+
+## Testing
+
+To run unit tests, navigate to the root of the repository, then call:
 
   ```bash
-  export GITHUB_ACCESS_TOKEN=insert_token_value_here
   pytest
   ```
+
+We recommend increasing your GitHub API rate limit before running tests (see above).
 
 ## Pure HTML / CSS / JS development
 
