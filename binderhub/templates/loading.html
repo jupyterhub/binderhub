@@ -19,6 +19,16 @@
 	<p>Loading your Binder...</p>
 </div>
 
+<div id="log-container" class="panel panel-default on-build hidden row">
+  <div id="toggle-logs" class="panel-heading">
+    Build logs
+    <button class="btn btn-link btn-xs pull-right">show</button>
+  </div>
+  <div class="panel-body hidden">
+    <div id="log"></div>
+  </div>
+</div>
+
 <!-- Keep the build form so that the JS works the same as index, but hide it -->
 <form id="build-form" class="form jumbotron hidden">
   <h4 id="form-header" class='row'>Build and launch a repository</h4>

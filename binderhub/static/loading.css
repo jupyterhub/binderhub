@@ -74,6 +74,25 @@ https://ihatetomatoes.net for initial code templates.*/
         }
     }
 
+.error, .error:after, .error:before {
+    border-top-color: red !important;
+}
+
+.error {
+    -webkit-animation: spin 30s linear infinite !important; /* Chrome, Opera 15+, Safari 5+ */
+    animation: spin 30s linear infinite !important; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
+.error:after {
+  -webkit-animation: spin 10s linear infinite !important; /* Chrome, Opera 15+, Safari 5+ */
+  animation: spin 10s linear infinite !important; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
+.error:before {
+  -webkit-animation: spin 20s linear infinite !important; /* Chrome, Opera 15+, Safari 5+ */
+  animation: spin 20s linear infinite !important; /* Chrome, Firefox 16+, IE 10+, Opera */
+}
+
 #demo-content {
 	padding-top: 100px;
 }
@@ -84,7 +103,11 @@ https://ihatetomatoes.net for initial code templates.*/
     text-align: center;
 }
 
-/*To prevent the terminal from popping up on submit*/
-div.terminal {
+div#log-container {
+    width: 80%;
+    margin: 0% 10%;
+}
+
+.hidden {
     display: none;
 }
