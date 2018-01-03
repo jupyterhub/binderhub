@@ -48,6 +48,5 @@ Full Table of Contents
    setup-binderhub
    debug
    turn-off
-   faq
    api
    reference/ref-index.rst

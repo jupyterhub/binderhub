@@ -168,5 +168,34 @@ Note the IP address in ``EXTERNAL-IP``. This is your BinderHub IP address.
 Type this IP address in your browser and a BinderHub should be waiting there
 for you.
 
-You now have a functioning BinderHub at the above IP address. For next
-steps, see :doc:`debug` and :doc:`turn-off`.
+You now have a functioning BinderHub at the above IP address.
+
+.. _api-limit:
+
+Increase your GitHub API limit
+------------------------------
+
+.. note::
+
+   Increasing the GitHub API limit is not strictly required, but is recommended
+   before sharing your BinderHub URL with users.
+
+By default GitHub only lets you make 60 requests each hour. If you
+expect your users to serve repositories hosted on GitHub, we recommend creating
+an API access token to raise your API limit to 5000 requests an hour.
+
+1. Create a new token with default (check no boxes)
+   permissions `here <https://github.com/settings/tokens/new>`_.
+
+2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
+
+3. Before running your BinderHub server, run the following::
+
+       export GITHUB_ACCESS_TOKEN=<insert_token_value_here>
+
+BinderHub will automatically use the token stored in this variable when making
+API requests to GitHub. See the `GitHub authentication documentation
+<https://developer.github.com/v3/guides/getting-started/#authentication>`_ for
+more information about API limits.
+
+For next steps, see :doc:`debug` and :doc:`turn-off`.
