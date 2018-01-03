@@ -20,6 +20,7 @@ import '../index.css';
 
 
 // FIXME: Can not seem to import this addon from npm
+// See https://github.com/xtermjs/xterm.js/issues/1018 for more details
 import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
