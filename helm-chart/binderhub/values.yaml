@@ -15,6 +15,7 @@ image:
 repo2dockerImage: jupyter/repo2docker:235f0ad
 
 googleAnalyticsCode:
+googleAnalyticsDomain:
 
 registry:
   enabled: false
