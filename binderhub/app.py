@@ -64,6 +64,17 @@ class BinderHub(Application):
         config=True
     )
 
+    google_analytics_domain = Unicode(
+        'auto',
+        help="""
+        The Google Analytics domain to use on the main page.
+
+        By default this is set to 'auto', which sets it up for current domain and all
+        subdomains. This can be set to a more restrictive domain here for better privacy
+        """,
+        config=True
+    )
+
     base_url = Unicode(
         '/',
         help="The base URL of the entire application",
@@ -306,6 +317,7 @@ class BinderHub(Application):
             'registry': registry,
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
+            'google_analytics_domain': self.google_analytics_domain,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,

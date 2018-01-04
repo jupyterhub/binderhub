@@ -19,7 +19,8 @@ class MainHandler(BaseHandler):
             ref='',
             filepath=None,
             submit=False,
-            google_analytics_code=self.settings['google_analytics_code']
+            google_analytics_code=self.settings['google_analytics_code'],
+            google_analytics_domain=self.settings['google_analytics_domain'],
         )
 
 
@@ -46,6 +47,7 @@ class ParameterizedMainHandler(BaseHandler):
             urlpath=self.get_argument('urlpath', None),
             submit=True,
             google_analytics_code=self.settings['google_analytics_code'],
+            google_analytics_domain=self.settings['google_analytics_domain'],
         )
 
 
