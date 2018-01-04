@@ -54,21 +54,22 @@ on GitHub if you don't have a token.
 
 All features should work, including building and launching.
 
+## Increase your GitHub API limit
+
+By default, GitHub has a limit of 60 API requests per hour. We recommend
+using a GitHub API token before running tests
+in order to avoid hitting your API limit. Steps to do so are outlined in
+the [BinderHub documentation](https://binderhub.readthedocs.io/en/latest/setup-binderhub.html#increase-your-github-api-limit).
+
 ## Testing
 
-It is recommended to create and enable your GitHub API token before running tests
-in order to avoid hitting your API limit. Steps to do so are included below.
-
-1. Create a new token with default (check no boxes) permissions [here](https://github.com/settings/tokens/new)
-
-2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
-
-3. To run unit tests call:
+To run unit tests, navigate to the root of the repository, then call:
 
   ```bash
-  export GITHUB_ACCESS_TOKEN=insert_token_value_here
   pytest
   ```
+
+We recommend increasing your GitHub API rate limit before running tests (see above).
 
 ## Pure HTML / CSS / JS development
 
