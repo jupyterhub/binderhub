@@ -11,6 +11,9 @@ data:
   {{ if .Values.googleAnalyticsCode -}}
   binder.google-analytics-code: {{ .Values.googleAnalyticsCode | quote }}
   {{- end }}
+  {{ if .Values.googleAnalyticsDomain -}}
+  binder.google-analytics-domain: {{ .Values.googleAnalyticsDomain | quote }}
+  {{- end }}
   binder.cors: {{ toJson .Values.cors | quote }}
   binder.registry.prefix: {{ .Values.registry.prefix | quote }}
   binder.repo2docker-image: {{ .Values.repo2dockerImage | quote }}
