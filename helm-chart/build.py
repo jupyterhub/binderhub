@@ -43,8 +43,8 @@ def render_build_args(options, ns):
         build_args[key] = value.format(**ns)
     return build_args
 
-def build_image(image_path, image_spec, build_args):
-    cmd = ['docker', 'build', '-t', image_spec, image_path]
+def build_image(image_path, image_spec, build_args, dockerfile_path='Dockerfile'):
+    cmd = ['docker', 'build', '-t', image_spec, image_path, '-f', dockerfile_path]
 
     for k, v in build_args.items():
         cmd += ['--build-arg', '{}={}'.format(k, v)]
@@ -53,7 +53,7 @@ def build_image(image_path, image_spec, build_args):
 def build_images(prefix, images, tag=None, commit_range=None, push=False):
     value_modifications = {}
     for name, options in images.items():
-        image_path = os.path.join('images', name)
+        image_path = options.get('contextPath', os.path.join('images', name))
         paths = options.get('paths', []) + [image_path]
         last_commit = last_modified_commit(*paths)
         if tag is None:
@@ -75,7 +75,7 @@ def build_images(prefix, images, tag=None, commit_range=None, push=False):
         }
 
         build_args = render_build_args(options, template_namespace)
-        build_image(image_path, image_spec, build_args)
+        build_image(image_path, image_spec, build_args, options.get('dockerfilePath', 'Dockerfile'))
 
         if push:
             subprocess.check_call([

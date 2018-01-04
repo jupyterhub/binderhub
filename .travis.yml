@@ -8,11 +8,15 @@ branches:
   only:
   - master
 
+before_install:
+- nvm install 8; nvm use 8
 install:
 - mkdir -p bin
 - export PATH=$PWD/bin:$PATH
 - ./ci/install.sh
-- pip install . -r dev-requirements.txt
+- pip install --no-cache-dir . -r dev-requirements.txt
+- npm install
+- npm run webpack
 script:
 - export BINDER_TEST_NAMESPACE=binder-test-$TEST
 - ./ci/test-$TEST

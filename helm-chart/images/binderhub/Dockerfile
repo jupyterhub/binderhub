@@ -1,12 +1,21 @@
-FROM python:3.6-alpine@sha256:00320c25fa72df54c7ef0181c9e55f59f58b1facb943cb825e4c65fb572ac74b
+FROM buildpack-deps:stretch
 
-ARG BINDERHUB_VERSION
-RUN pip install --no-cache-dir \
-    https://github.com/jupyterhub/binderhub/archive/${BINDERHUB_VERSION}.zip
-ADD binderhub_config.py /etc
+RUN echo 'deb http://deb.nodesource.com/node_8.x artful main' > /etc/apt/sources.list.d/nodesource.list
 
-WORKDIR /etc
+RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+RUN apt-get update && \
+    apt-get install --yes nodejs python3 python3-pip python3-wheel python3-setuptools
 
-CMD python3 -m binderhub
+COPY . /tmp/binderhub
+WORKDIR /tmp/binderhub
 
+RUN python3 setup.py bdist_wheel
+
+FROM python:3.6-stretch
+
+COPY --from=0 /tmp/binderhub/dist/*.whl .
+COPY helm-chart/images/binderhub/binderhub_config.py .
+RUN pip install --no-cache-dir *.whl
+
+CMD ["python3", "-m", "binderhub"]
 EXPOSE 8585
