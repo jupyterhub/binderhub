@@ -169,7 +169,7 @@ h4 {
 }
 
 
-.badge-snippet-row {
+.badge-snippet-row, .url-row {
     width: 100%;
     display: flex;
     flex-direction: reverse;
@@ -177,7 +177,7 @@ h4 {
     padding: 10px;
 }
 
-.badge-snippet-row .icon{
+.badge-snippet-row .icon, .url-row .icon {
     order: 0;
     max-width: 30px;
     max-height: 40px;
@@ -188,9 +188,9 @@ h4 {
 
 .input-group-btn .btn {
     border: solid #ccc 1px;
-} 
+}
 
-.badge-snippet-row pre{
+.badge-snippet-row pre, .url-row pre {
     order: 1;
     margin: 0;
     flex-grow: 1;
@@ -252,17 +252,6 @@ h4.logo-subtext {
   margin-top: -60px;
 }
 
-.url-row {
-  height: 100%;
-  width:  100%;
-  display: table;
-  padding: 10px;
-}
-
-.url-row pre {
-  margin-bottom: 0;
-}
-
 .form-row .form-group:first-child{
   padding-left: 0;
 }
@@ -287,4 +276,3 @@ h4.logo-subtext {
     }
 
 }
-

@@ -8,6 +8,7 @@
 <script>
  {% if submit %} window.submitBuild = true; {% endif %}
 </script>
+
 {% endblock head %}
 
 {% block main %}
@@ -69,16 +70,17 @@
         <!--url section-->
         <div class="url row">
             <div class="bluedropdown">
-              <label>Copy and share this URL:</label>
+              <label>Click the icon below to copy and share this URL:</label>
             </div>
             <div class="url-row">
-              <pre id="basic-url-snippet">After filling in the form, a generated URL for sharing your Binder will be displayed here.</pre>
+              <pre id="basic-url-snippet">Fill in the fields to see a URL for sharing your Binder.</pre>
+              <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}" data-clipboard-target="#basic-url-snippet" alt="Copy to clipboard">
             </div>
         </div>
 
         <div class="badges row">
             <div class="bluedropdown" id="toggle-badge-snippet">
-              <label>Click, then paste into your README to get badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
+              <label>Click an icon below, then paste into your README to show a binder badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
               <a id="badge-link"></a>
               <a href="#" title="show badge snippets"><span class="caret"></span></a>
 
@@ -87,17 +89,17 @@
             <div id="badge-snippets" class="hidden">
               <!--Markdown section-->
               <div  class="badge-snippet-row">
-                 <pre id="markdown-badge-snippet">Fill in the fields to see the markdown badge snippet</pre>
-                 <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
+                 <pre id="markdown-badge-snippet">Fill in the fields to see the markdown badge snippet.</pre>
+                 <img class="icon clipboard" src="{{static_url("images/markdown-icon.svg")}}" data-clipboard-target="#markdown-badge-snippet">
               </div>
               <!--RST section-->
               <div  class="badge-snippet-row">
-                <pre id="rst-badge-snippet">Fill in the fields to see the rST badge snippet</pre>
-                <img class="icon" src="{{static_url("images/rst-icon.svg")}}">
+                <pre id="rst-badge-snippet">Fill in the fields to see the rST badge snippet.</pre>
+                <img class="icon clipboard" src="{{static_url("images/rst-icon.svg")}}" data-clipboard-target="#rst-badge-snippet">
               </div>
             </div>
         </div>
-        
+
         <div id="build-progress" class="progress on-build hidden row">
           <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
             Failed
