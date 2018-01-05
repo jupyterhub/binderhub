@@ -72,12 +72,9 @@ Create a file called ``secret.yaml`` and enter the following::
 
 .. tip::
 
-   The content you put just after ``password: |`` must all line up at the same
-   tab level.
-
-.. tip::
-
-   Don't forget the ``|`` after the ``password:`` label.
+   * The content you put just after ``password: |`` must all line up at the same
+     tab level.
+   * Don't forget the ``|`` after the ``password:`` label.
 
 Create ``config.yaml``
 ----------------------
@@ -98,14 +95,11 @@ Create a file called ``config.yaml`` and enter the following::
 
 .. note::
 
-   **``<google-project-id>``** can be found in the JSON file that you
-   pasted above. It is the text that is in the ``project_id`` field. This is
-   the project *ID*, which may be different from the project *name*.
-
-.. note::
-
-   **``<prefix>``** can be any string, and will be prepended to image names. We
-   recommend something descriptive such as ``dev`` or ``prod``.
+   * **``<google-project-id>``** can be found in the JSON file that you
+     pasted above. It is the text that is in the ``project_id`` field. This is
+     the project *ID*, which may be different from the project *name*.
+   * **``<prefix>``** can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``dev`` or ``prod``.
 
 Install BinderHub
 -----------------
@@ -122,13 +116,10 @@ that you've just created. Do this by running the following command::
 
 .. note::
 
-   ``--version`` refers to the version of the BinderHub **Helm Chart**.
-
-.. note::
-
-   ``name`` and ``namespace`` may be different, but we recommend using
-   the same ``name`` and ``namespace`` to avoid confusion. We recommend
-   something descriptive and short.
+   * ``--version`` refers to the version of the BinderHub **Helm Chart**.
+   * ``name`` and ``namespace`` may be different, but we recommend using
+     the same ``name`` and ``namespace`` to avoid confusion. We recommend
+     something descriptive and short.
 
 This installation step will deploy both a BinderHub and a JupyterHub, but
 they are not yet set up to communicate with each other. We'll fix this in
