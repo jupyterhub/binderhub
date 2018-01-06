@@ -229,8 +229,12 @@ $(function(){
         var badgeSnippets = $('#badge-snippets');
         if (badgeSnippets.hasClass('hidden')) {
             badgeSnippets.removeClass('hidden');
+            $("#badge-snippet-caret").removeClass("glyphicon-triangle-right")
+            $("#badge-snippet-caret").addClass("glyphicon-triangle-bottom")
         } else {
             badgeSnippets.addClass('hidden');
+            $("#badge-snippet-caret").removeClass("glyphicon-triangle-bottom")
+            $("#badge-snippet-caret").addClass("glyphicon-triangle-right")
         }
 
         return false;

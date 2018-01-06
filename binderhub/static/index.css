@@ -276,3 +276,21 @@ h4.logo-subtext {
     }
 
 }
+
+/*Clipboard styling*/
+
+img.icon.clipboard{
+    order: 1;
+    border: thin solid silver;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-left: none;
+}
+img.icon.clipboard:hover {
+    background: #f5f5f5;
+}
+
+img.icon.clipboard:active {
+    background: #ddd;
+}
