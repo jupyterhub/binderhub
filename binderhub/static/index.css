@@ -194,6 +194,8 @@ h4 {
     order: 1;
     margin: 0;
     flex-grow: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 
