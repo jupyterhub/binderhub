@@ -259,6 +259,11 @@ $(function(){
         // Update the text of the loading page if it exists
         if ($('div#loader-text').length > 0) {
             $('div#loader-text p').text("Loading repository: " + repo)
+            window.setTimeout( function() {
+                $('#loader').addClass("paused");
+                $('div#loader-text p').html("Repository " + repo + " is taking a long time to load!<br />See the logs for details.")
+                $('#loader').hover(function() {$('#loader').removeClass("paused")}, function() {$('#loader').addClass("paused")});
+            }, 30000)
         }
 
         $('#build-progress .progress-bar').addClass('hidden');

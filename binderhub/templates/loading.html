@@ -6,11 +6,9 @@
 <script>
   {% if submit %} window.submitBuild = true; {% endif %}
 </script>
-<link href="{{static_url("vendor/xterm.js-2.6.0/xterm.css")}}" rel="stylesheet" />
-<script src="{{static_url("vendor/xterm.js-2.6.0/xterm.js")}}"></script>
-<script src="{{static_url("vendor/xterm.js-2.6.0/addons/fit/fit.js")}}"></script>
-<script src="{{static_url("index.js")}}"></script>
-<link rel="stylesheet" href="{{static_url("loading.css")}}">
+<script src="{{static_url("dist/bundle.js")}}"></script>
+<link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
+<link rel="stylesheet" href="{{static_url("loading.css")}}"
 {% endblock head %}
 
 {% block main %}
