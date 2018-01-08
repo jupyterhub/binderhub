@@ -11,13 +11,13 @@
   pushing -> failed
 */
 import * as Terminal from 'xterm';
+import Clipboard from 'clipboard';
 import 'xterm/lib/xterm.css';
 import 'bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import '../index.css';
-
 
 // FIXME: Can not seem to import this addon from npm
 // See https://github.com/xtermjs/xterm.js/issues/1018 for more details
@@ -197,11 +197,11 @@ $(function(){
     });
     updatePathText();
 
-    $('#repository').on('keyup paste', updateUrlDiv);
+    $('#repository').on('keyup paste change', updateUrlDiv);
 
-    $('#ref').on('keyup paste', updateUrlDiv);
+    $('#ref').on('keyup paste change', updateUrlDiv);
 
-    $('#filepath').on('keyup paste', updateUrlDiv);
+    $('#filepath').on('keyup paste change', updateUrlDiv);
 
     log.open(document.getElementById('log'), false);
     log.fit();
@@ -229,8 +229,12 @@ $(function(){
         var badgeSnippets = $('#badge-snippets');
         if (badgeSnippets.hasClass('hidden')) {
             badgeSnippets.removeClass('hidden');
+            $("#badge-snippet-caret").removeClass("glyphicon-triangle-right")
+            $("#badge-snippet-caret").addClass("glyphicon-triangle-bottom")
         } else {
             badgeSnippets.addClass('hidden');
+            $("#badge-snippet-caret").removeClass("glyphicon-triangle-bottom")
+            $("#badge-snippet-caret").addClass("glyphicon-triangle-right")
         }
 
         return false;
@@ -312,3 +316,8 @@ $(function(){
         $('#build-form').submit();
     }
 });
+
+// Load the clipboard after the page loads so it can find the buttons it needs
+window.onload = function() {
+  new Clipboard('.clipboard');
+}
