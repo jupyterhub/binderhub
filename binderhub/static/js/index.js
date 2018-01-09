@@ -256,6 +256,16 @@ $(function(){
         updateUrlDiv(url);
         update_favicon("/favicon_building.ico");
 
+        // Update the text of the loading page if it exists
+        if ($('div#loader-text').length > 0) {
+            $('div#loader-text p').text("Loading repository: " + repo)
+            window.setTimeout( function() {
+                $('#loader').addClass("paused");
+                $('div#loader-text p').html("Repository " + repo + " is taking a long time to load!<br />See the logs for details.")
+                $('#loader').hover(function() {$('#loader').removeClass("paused")}, function() {$('#loader').addClass("paused")});
+            }, 30000)
+        }
+
         $('#build-progress .progress-bar').addClass('hidden');
         log.clear();
 
@@ -288,6 +298,12 @@ $(function(){
             // If we fail for any reason, we will show logs!
             if (!logsVisible) {
                 $('#toggle-logs').click();
+            }
+
+            // Show error on loading page
+            if ($('div#loader-text').length > 0) {
+                $('#loader').addClass("error");
+                $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.')
             }
             image.close();
         });
