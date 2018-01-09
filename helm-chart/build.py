@@ -155,7 +155,7 @@ def publish_pages(name, paths, git_repo, published_repo, extra_message=''):
             )
     subprocess.check_call(['git', 'add', '.'], cwd=checkout_dir)
     if extra_message:
-        exta = '\n\n%s' % extra_message
+        extra = '\n\n%s' % extra_message
     else:
         extra = ''
     subprocess.check_call([
