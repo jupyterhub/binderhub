@@ -31,7 +31,7 @@ class Build:
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
+    def __init__(self, q, api, name, namespace, git_url, ref, git_credential, builder_image,
                  image_name, push_secret, memory_limit, docker_host):
         self.q = q
         self.api = api
@@ -45,6 +45,7 @@ class Build:
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.docker_host = docker_host
+        self.git_credential = git_credential
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -93,6 +94,10 @@ class Build:
                 secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
             ))
 
+        env = []
+        if provider.git_credential:
+            env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=provider.git_credential))
+
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
@@ -112,7 +117,8 @@ class Build:
                         resources=client.V1ResourceRequirements(
                             limits={'memory': self.memory_limit},
                             requests={'memory': self.memory_limit}
-                        )
+                        ),
+                        env=env
                     )
                 ],
                 volumes=volumes,
