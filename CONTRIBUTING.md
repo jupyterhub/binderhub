@@ -71,6 +71,18 @@ To run unit tests, navigate to the root of the repository, then call:
 
 We recommend increasing your GitHub API rate limit before running tests (see above).
 
+## Building JS and CSS
+
+We use [npm](https://www.npmjs.com) for managing our JS / CSS dependencies and
+[webpack](https://webpack.js.org/) for bundling them together. You need to have
+a recent version of `npm` installed to run things locally.
+
+1. Run `npm install`. This should fetch and install all our frontend dependencies.
+2. Run `npm run webpack`. This runs webpack and creates our JS / CSS bundles. You
+   *need* to run this every time you make CSS / JS changes to see them live. Alternatively,
+   you can run `npm run webpack:watch` to automatically rebuild JS / CSS changes as
+   you make them.
+
 ## Pure HTML / CSS / JS development
 
 If you do not want to set up minikube but just want to hack on the html / css / js,
