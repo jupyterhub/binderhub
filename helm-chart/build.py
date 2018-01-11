@@ -155,13 +155,13 @@ def publish_pages(name, paths, git_repo, published_repo, extra_message=''):
             )
     subprocess.check_call(['git', 'add', '.'], cwd=checkout_dir)
     if extra_message:
-        extra = '\n\n%s' % extra_message
+        extra_message = '\n\n%s' % extra_message
     else:
-        extra = ''
+        extra_message = ''
     subprocess.check_call([
         'git',
         'commit',
-        '-m', '[{}] Automatic update for commit {}{}'.format(name, version, extra)
+        '-m', '[{}] Automatic update for commit {}{}'.format(name, version, extra_message)
     ], cwd=checkout_dir)
     subprocess.check_call(
         ['git', 'push', 'origin', 'gh-pages'],
@@ -179,7 +179,7 @@ def main():
     argparser.add_argument('--push', action='store_true')
     argparser.add_argument('--publish-chart', action='store_true')
     argparser.add_argument('--tag', default=None, help='Use this tag for images & charts')
-    argparser.add_argument('--extra', default='', help='extra message to add to the commit message')
+    argparser.add_argument('--extra-message', default='', help='extra message to add to the commit message')
 
     args = argparser.parse_args()
 
@@ -193,7 +193,7 @@ def main():
                 paths=chart_paths,
                 git_repo=chart['repo']['git'],
                 published_repo=chart['repo']['published'],
-                extra_message=args.extra
+                extra_message=args.extra_message
             )
 
 main()
