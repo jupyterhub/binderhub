@@ -14,6 +14,7 @@ import * as Terminal from 'xterm';
 import Clipboard from 'clipboard';
 import 'xterm/lib/xterm.css';
 import 'bootstrap';
+import 'event-source-polyfill';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
