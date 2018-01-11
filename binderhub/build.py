@@ -95,7 +95,7 @@ class Build:
             ))
 
         env = []
-        if provider.git_credential:
+        if self.git_credential:
             env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=provider.git_credential))
 
         self.pod = client.V1Pod(
