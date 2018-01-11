@@ -49,5 +49,6 @@ done
 
 echo "running tests against $BINDER_TEST_URL"
 # run a few tests again, this time against the helm-installed binder
+export ASYNC_TEST_TIMEOUT=15
 pytest -vsx -m remote
 helm delete --purge binder-test
