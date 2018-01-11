@@ -13,7 +13,7 @@ echo -e "hub:\n  url: $HUB_URL" > helm-chart/travis-binder.yaml
 
 echo "building helm chart"
 cd helm-chart
-./build.py --commit-range ${TRAVIS_COMMIT_RANGE} --extra "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
+./build.py --commit-range ${TRAVIS_COMMIT_RANGE} --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
 cd ..
 git diff
 docker images | sort
