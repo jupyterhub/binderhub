@@ -32,7 +32,11 @@ class BinderHandler(BaseHandler):
         portal_address = self.settings['cannonical_address']
         default_binders_list = self.settings['default_binders_list']
         new_cookie = {}
-        new_cookie['known'] = list(sorted(set(cookie.get('known', [portal_address]) + [portal_address] + default_binders_list)))
+        if self.settings['list_cookie_set_binders']:
+            cookie_listed = cookie.get('known', [portal_address])
+        else:
+            cookie_listed = []
+        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders_list)))
         default = cookie.get('default', portal_address)
         if default not in new_cookie['known']:
             default = portal_address
@@ -124,6 +128,7 @@ class SettingsHandler(BinderHandler):
     
     def _get(self, cookie=None):
         binders = cookie or self.get_json_cookie('known_binders')
+        self.add_header('X-Frame-Options','DENY')
         self.render_template(
             "settings.html", 
             binders=binders['known'],
@@ -160,6 +165,7 @@ class RegisterHandler(BinderHandler):
 
 
     def get(self, url):
+        self.add_header('X-Frame-Options','DENY')
         binders = self.get_json_cookie('known_binders', '{}')
         binders['known'].append(url_unescape(url))
         self.set_json_cookie('known_binders', binders)

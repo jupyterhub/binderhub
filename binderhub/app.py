@@ -265,9 +265,19 @@ class BinderHub(Application):
 
     default_binders_list = List([], config=True,
         help="""
-        A list of known default binder which can be chosen by users.
+        EXPERIMENTAL: A list of known default binder which can be chosen by users.
         """
     )
+
+    list_cookie_set_binders = Bool(False, config=True,
+        help="""
+        EXPERIMENTAL: Federation between binder can optionally be done by listing
+        binders in a cookie, which allow users to enable their own binders.
+
+        In some cases this can be undesirable, so disabled by default.
+        """
+    )
+
 
     cannonical_address = Unicode('', config=True, 
         help="""Set the canonical address to register self to a binder federation portal
@@ -355,6 +365,7 @@ class BinderHub(Application):
             'cannonical_address' : self.cannonical_address,
             'use_as_federation_portal' : self.use_as_federation_portal,
             'default_binders_list' : self.default_binders_list,
+            'list_cookie_set_binders' : self.list_cookie_set_binders,
         })
         
         federation_handlers = []
