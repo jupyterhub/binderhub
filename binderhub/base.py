@@ -1,6 +1,9 @@
 """Base classes for request handlers"""
 
+import json
+
 from http.client import responses
+from tornado.escape import url_escape, url_unescape
 from tornado import web
 
 
@@ -54,6 +57,44 @@ class BaseHandler(web.RequestHandler):
             status_message=status_message,
             message=message,
         )
+
+    def _normalize_cookie(self, cookie):
+        """
+        Make sure the json cookie is normalized to have a know schema:
+        {
+            'known': [list of unique strings]
+            'default': [string found in known section]
+        }
+
+        We could (should ?) be stricter.
+
+        """
+
+        portal_address = self.settings['cannonical_address']
+        default_binders_list = self.settings['default_binders_list']
+        new_cookie = {}
+        if self.settings['list_cookie_set_binders']:
+            cookie_listed = cookie.get('known', [portal_address])
+        else:
+            cookie_listed = []
+        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders_list)))
+        default = cookie.get('default', portal_address)
+        if default not in new_cookie['known']:
+            default = portal_address
+
+        new_cookie['default'] = default
+        return new_cookie
+
+    def set_json_cookie(self, name, value, *args, **kwargs):
+        self.set_secure_cookie(name, url_escape(json.dumps(value)), *args, **kwargs)
+
+    def get_json_cookie(self, name, *args, **kwargs):
+        cookie = self.get_secure_cookie(name, *args, **kwargs)
+        if not cookie:
+            return self._normalize_cookie({})
+        return self._normalize_cookie(json.loads(url_unescape(cookie)))
+
+
 
 
 class Custom404(BaseHandler):

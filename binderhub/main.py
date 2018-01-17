@@ -7,61 +7,18 @@ from tornado.log import app_log
 
 from .base import BaseHandler
 
-from tornado.escape import url_escape, url_unescape
 import json
-
-class BinderHandler(BaseHandler):
-    """
-    Base class with utility methods to set and get a json cookie.
-
-    """
-
-
-    def _normalize_cookie(self, cookie):
-        """
-        Make sure the json cookie is normalized to have a know schema:
-        {
-            'known': [list of unique strings]
-            'default': [string found in known section]
-        }
-
-        We could (should ?) be stricter.
-
-        """
-
-        portal_address = self.settings['cannonical_address']
-        default_binders_list = self.settings['default_binders_list']
-        new_cookie = {}
-        if self.settings['list_cookie_set_binders']:
-            cookie_listed = cookie.get('known', [portal_address])
-        else:
-            cookie_listed = []
-        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders_list)))
-        default = cookie.get('default', portal_address)
-        if default not in new_cookie['known']:
-            default = portal_address
-
-        new_cookie['default'] = default
-        return new_cookie
-
-    def set_json_cookie(self, name, value, *args, **kwargs):
-        self.set_cookie(name, url_escape(json.dumps(value)), *args, **kwargs)
-
-    def get_json_cookie(self, name, *args, **kwargs):
-        cookie = self.get_cookie(name, *args, **kwargs)
-        if not cookie:
-            return self._normalize_cookie({})
-        return self._normalize_cookie(json.loads(url_unescape(cookie)))
 
 
 class ExposeHandler(BaseHandler):
-    """Main handler for requests"""
+    """Main handler for the page allowing to expose a binder."""
 
     def get(self):
         self.render_template(
             "expose.html",
             escaped_adresse=url_escape(self.settings['cannonical_address']),
-            google_analytics_code=self.settings['google_analytics_code']
+            google_analytics_code=self.settings['google_analytics_code'],
+            google_analytics_domain=self.settings['google_analytics_domain'],
         )
 
 
@@ -81,14 +38,14 @@ class MainHandler(BaseHandler):
         )
 
 
-class ParameterizedMainHandler(BinderHandler):
+class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
     def get(self, provider_prefix, spec):
         # http://localhost:8585/v2/gh/binder-examples/dockerfile-rstudio/master
         if self.settings['use_as_federation_portal']:
             default = self.get_json_cookie('known_binders')['default']
-            if default: 
+            if default:
             #    ## todo don't trigger if self !
                 self.redirect(f'{default}/v2/{provider_prefix}/{spec}')
                 return
@@ -116,7 +73,7 @@ class ParameterizedMainHandler(BinderHandler):
 
 
 
-class SettingsHandler(BinderHandler):
+class SettingsHandler(BaseHandler):
     """
     This shows the settings page, mostly get the know binder for current user
     from a cookie, and display it as a list. Also get the default binder
@@ -136,6 +93,7 @@ class SettingsHandler(BinderHandler):
             raw=json.dumps(binders, indent=2),
             use_as_federation_portal=self.settings['use_as_federation_portal'],
             google_analytics_code=self.settings['google_analytics_code']
+            google_analytics_domain=self.settings['google_analytics_domain'],
         )
 
     def post(self, arg):
@@ -147,7 +105,7 @@ class SettingsHandler(BinderHandler):
         return self._get(cookie)
 
 
-class RegisterHandler(BinderHandler):
+class RegisterHandler(BaseHandler):
     """
     This allows a third party binder to register an
     available binder for to a federation portal (typically mybinder.org).

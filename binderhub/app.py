@@ -251,7 +251,7 @@ class BinderHub(Application):
         """
     )
 
-    use_as_federation_portal = Bool(False, config=True, 
+    use_as_federation_portal = Bool(False, config=True,
         help="""configure the current binder to also act as a federation portal.
 
         This settings should be used only on mybinder.org deployment or if you
@@ -266,6 +266,12 @@ class BinderHub(Application):
     default_binders_list = List([], config=True,
         help="""
         EXPERIMENTAL: A list of known default binder which can be chosen by users.
+
+        Example:
+            c.BinderHub.default_binders_list = [
+                    'https://staging.mybinder.org',
+                    'https://mybinder.org'
+            ]
         """
     )
 
@@ -279,10 +285,14 @@ class BinderHub(Application):
     )
 
 
-    cannonical_address = Unicode('', config=True, 
+    cannonical_address = Unicode('', config=True,
         help="""Set the canonical address to register self to a binder federation portal
 
         When current instance is used as a portal also used to avoid redirect loops to self.
+        Trailing slash is required.
+
+        Example:
+            c.BinderHub.cannonical_address = 'https://binder.example.com/'
         """
     )
 
@@ -338,6 +348,13 @@ class BinderHub(Application):
             hub_api_token=self.hub_api_token,
         )
 
+        if not self.cannonical_address.endswith('/'):
+            self.log.warning(
+                'c.BinderHub.cannonical_address does not ends with a slash: `{}`'.format(
+                    self.cannonical_address
+                )
+            )
+
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -367,7 +384,7 @@ class BinderHub(Application):
             'default_binders_list' : self.default_binders_list,
             'list_cookie_set_binders' : self.list_cookie_set_binders,
         })
-        
+
         federation_handlers = []
 
         if self.use_as_federation_portal:
@@ -385,9 +402,9 @@ class BinderHub(Application):
             (r'/metrics', MetricsHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler), 
+            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
             (r"/settings/(.+)?", SettingsHandler),
-            ] + federation_handlers +  [
+            ] + federation_handlers + [
             # for backward-compatible mybinder.org badge URLs
             # /assets/images/badge.svg
             (r'/assets/(images/badge\.svg)',
