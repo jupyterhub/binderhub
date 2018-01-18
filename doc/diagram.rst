@@ -15,6 +15,8 @@ BinderHub primarily does the following things:
 
 Here is a high-level overview of the components that make up BinderHub.
 
+.. This image was generated at the following URL: https://docs.google.com/presentation/d/1t5W4Rnez6xBRz4YxCxWYAx8t4KRfUosbCjS4Z1or7rM/edit#slide=id.g25dbc82125_0_53
+
 .. raw:: html
 
-   <img src="_static/binder_flow.svg" />
+   <img src="_static/images/binderhub_diagram.png" />
