@@ -35,7 +35,19 @@ google_analytics_domain = get_config('binder.google-analytics-domain', None)
 if google_analytics_domain:
     c.BinderHub.google_analytics_domain = google_analytics_domain
 
-c.BinderHub.base_url = get_config('binder.base_url')
+c.BinderHub.base_url = get_config('binder.base-url')
+
+
+###  Federation configuration, ###
+
+# this is necessary when not a federation portal to self-register
+c.BinderHub.cannonical_address = get_config('binder.cannonical-address', '')
+
+# by default we are _never_ a federation portal, don't know any other binders,
+# and do not allow to store known binder in cookies.
+c.BinderHub.use_as_federation_portal = get_config('binder.use-as-federation-portal', False)
+c.BinderHub.default_binders_list = get_config('binder.default-binder-list', [])
+c.BinderHub.list_cookie_set_binders = get_config('binder.list-cookie-set-binders', False)
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(

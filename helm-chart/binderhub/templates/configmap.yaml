@@ -18,19 +18,19 @@ data:
   binder.registry.prefix: {{ .Values.registry.prefix | quote }}
   binder.repo2docker-image: {{ .Values.repo2dockerImage | quote }}
   binder.hub-url: {{ .Values.hub.url | quote }}
-  binder.base_url: {{ .Values.baseUrl | quote }}
-  {{ if .Value.use_as_federation_portal -}}
-  binder.use_as_federation_portal: {{ .Value.use_as_federation_portal }}
+  binder.base-url: {{ .Values.baseUrl | quote }}
+  {{ if .Value.useAsFederationPortal -}}
+  binder.use-as-federation-portal: {{ .Value.useAsFederationPortal }}
   {{- end }}
-  binder.cannonical_address: {{.Values.cannonical_address | quote }}
-  {{ if .Value.list_cookie_set_binders -}}
-  binder.list_cookie_set_binders: {{ .Values.list_cookie_set_binders }}
+  {{ if .Value.cannonicalAddress -}}
+  binder.cannonical-address: {{.Values.cannonicalAddress | quote }}
   {{- end }}
-  {{ if .Value.default_binders_list-}}
-  binder.default_binders_list:
-  {{ range $value := .Values.default_binders_list -}}
-{{'-'+$value | indent 4 }}
-  {{-end}}
+  {{ if .Value.listCookieSetBinders -}}
+  binder.list-cookie-set-binders: {{ .Values.listCookieSetBinders }}
+  {{- end }}
+  {{ if .Value.defaultBindersList-}}
+  binder.default-binders-list:
+{{toYaml .Values.defaultBindersList | indent 4 }}
   {{-end}}
 
   dind.enabled: {{ .Values.dind.enabled | quote }}
