@@ -112,14 +112,17 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-397eb59 --name=binder --namespace=binder -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=v0.1.0-fbd816c --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
    * ``--version`` refers to the version of the BinderHub **Helm Chart**.
    * ``name`` and ``namespace`` may be different, but we recommend using
      the same ``name`` and ``namespace`` to avoid confusion. We recommend
-     something descriptive and short.
+     something descriptive and short, such as ``binder``.
+   * If you run ``kubectl get pod --namespace=<namespace-from-above>`` you may
+     notice the binder pod in ``CrashLoopBackoff``. This is expected, and will
+     be resolved in the next section.
 
 This installation step will deploy both a BinderHub and a JupyterHub, but
 they are not yet set up to communicate with each other. We'll fix this in
@@ -132,7 +135,7 @@ Connect BinderHub and JupyterHub
 In the google console, run the following command to print the IP address
 of the JupyterHub we just deployed.::
 
-  kubectl --namespace=binder get svc proxy-public
+  kubectl --namespace=<namespace-from-above> get svc proxy-public
 
 Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
 JupyterHub. Now, add the following lines to ``config.yaml`` file::
@@ -142,7 +145,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade binder jupyterhub/binderhub --version=v0.1.0-397eb59 -f secret.yaml -f config.yaml
+  helm upgrade <namespace-from-above> jupyterhub/binderhub --version=v0.1.0-fbd816c -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
@@ -153,7 +156,7 @@ BinderHub deployment.
 First, find the IP address of the BinderHub deployment by running the following
 command::
 
-  kubectl --namespace=binder get svc binder
+  kubectl --namespace=<namespace-from-above> get svc binder
 
 Note the IP address in ``EXTERNAL-IP``. This is your BinderHub IP address.
 Type this IP address in your browser and a BinderHub should be waiting there
