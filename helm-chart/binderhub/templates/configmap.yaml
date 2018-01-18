@@ -28,10 +28,10 @@ data:
   {{ if .Value.listCookieSetBinders -}}
   binder.list-cookie-set-binders: {{ .Values.listCookieSetBinders }}
   {{- end }}
-  {{ if .Value.defaultBindersList-}}
+  {{ if .Value.defaultBindersList -}}
   binder.default-binders-list:
 {{toYaml .Values.defaultBindersList | indent 4 }}
-  {{-end}}
+  {{- end}}
 
   dind.enabled: {{ .Values.dind.enabled | quote }}
   {{ if .Values.dind.enabled }}
