@@ -301,7 +301,7 @@ class GitHubRepoProvider(RepoProvider):
     def _default_git_credentials(self):
         if self.access_token:
             # Based on https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-            return 'username={}\npassword=x-oauth-basic'
+            return 'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
         return ""
 
     def __init__(self, *args, **kwargs):
