@@ -251,24 +251,16 @@ class BinderHub(Application):
         """
     )
 
-    use_as_federation_portal = Bool(False, config=True,
-        help="""configure the current binder to also act as a federation portal.
+    enable_federation_portal = Bool(False, config=True,
+        help="EXPERIMENTAL. Enable as a federation portal. Refer to documentation"
+        " for additional information."    )
 
-        This settings should be used only on mybinder.org deployment or if you
-        have multiple internal private deployment of binderhubs inside a closed
-        network. It exposes a couple of extra endpoints to binderhub for remote
-        services to register themselves. Once register for a specific user, the
-        binder portal will redirect users to these endpoints instead of running
-        them locally.
-        """
-    )
-
-    default_binders_list = List([], config=True,
+    default_binders = List([], config=True,
         help="""
         EXPERIMENTAL: A list of known default binder which can be chosen by users.
 
         Example:
-            c.BinderHub.default_binders_list = [
+            c.BinderHub.default_binders = [
                     'https://staging.mybinder.org',
                     'https://mybinder.org'
             ]
@@ -381,7 +373,7 @@ class BinderHub(Application):
             'debug': self.debug,
             'cannonical_address' : self.cannonical_address,
             'use_as_federation_portal' : self.use_as_federation_portal,
-            'default_binders_list' : self.default_binders_list,
+            'default_binders' : self.default_binders,
             'list_cookie_set_binders' : self.list_cookie_set_binders,
         })
 

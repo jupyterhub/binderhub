@@ -37,7 +37,7 @@ resources.
 By setting the ``c.BinderHub.use_as_federation_portal=True`` this will tell
 the target binderhub to redirect to the user-selected binder. 
 
-The ``c.BinderHub.default_binders_list`` can be used to pre-register a number of
+The ``c.BinderHub.default_binders`` can be used to pre-register a number of
 known binder.
 
 And the ``c.BinderHub.list_cookie_set_binders`` can be used to allow users to

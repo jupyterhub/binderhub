@@ -71,13 +71,13 @@ class BaseHandler(web.RequestHandler):
         """
 
         portal_address = self.settings['cannonical_address']
-        default_binders_list = self.settings['default_binders_list']
+        default_binders = self.settings['default_binders']
         new_cookie = {}
         if self.settings['list_cookie_set_binders']:
             cookie_listed = cookie.get('known', [portal_address])
         else:
             cookie_listed = []
-        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders_list)))
+        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders)))
         default = cookie.get('default', portal_address)
         if default not in new_cookie['known']:
             default = portal_address

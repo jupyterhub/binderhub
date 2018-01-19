@@ -28,9 +28,9 @@ data:
   {{ if .Values.listCookieSetBinders -}}
   binder.list-cookie-set-binders: {{ .Values.listCookieSetBinders }}
   {{- end }}
-  {{ if .Values.defaultBindersList -}}
+  {{ if .Values.defaultBinders -}}
   binder.default-binders-list:
-{{toYaml .Values.defaultBindersList | indent 4 }}
+{{toYaml .Values.defaultBinders | indent 4 }}
   {{- end}}
 
   dind.enabled: {{ .Values.dind.enabled | quote }}
