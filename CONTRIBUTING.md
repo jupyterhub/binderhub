@@ -8,12 +8,14 @@ on GitHub if you don't have a token.
 
 ## Installation
 
-1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and start it: `minikube start`.
-
+1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to run Kubernetes locally.
+   
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
    more stable than using Homebrew.
+   
+   To interact with your minikube cluster, run the command: `minikube start`, this creates a kubectl context that contains the configuration to communicate with your cluster.
 
-2. Install helm
+2. Install helm to manage Kubernetes charts,
 
    ```bash
    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
@@ -22,7 +24,7 @@ on GitHub if you don't have a token.
    [Alternative methods](https://docs.helm.sh/using_helm/#installing-the-helm-client) for helm installation
    exist if you prefer installing without using the script.
 
-3. Initialize helm in minikube
+3. Initialize helm in minikube. This command initialize the local CLI and also install Tiller into your Kubernetes in one step:
 
    ```bash
    helm init
@@ -34,23 +36,30 @@ on GitHub if you don't have a token.
    helm repo update
    ```
 
-5. Install JupyterHub in minikube with helm
+5. Install binderhub and its development requirements:
 
-        ./testing/minikube/install-hub
+      python3 -m pip install -e . -r dev-requirements.txt
+          
+  This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, it will install what the user needs to build the Docker image.
+  
+6. Install JupyterHub in minikube with helm
 
-6. Install binderhub and its development requirements:
-
-        python3 -m pip install -e . -r dev-requirements.txt
-
+    ./testing/minikube/install-hub
+  
 7. Before starting the local dev/test deployment run:
 
-        eval $(minikube docker-env)
+    eval $(minikube docker-env)
+    
+  This command builds the image using the same docker host as the minikube VM, so that the images are automatically present.
+  Note: when you no longer wish to use the minikueb host, you can undo this change by running:
+  
+   eval $(minikube docker-env -u)
 
-7. Start binderhub with the testing config file:
+8. Start binderhub with the testing config file:
 
-        python3 -m binderhub -f testing/minikube/binderhub_config.py
+    python3 -m binderhub -f testing/minikube/binderhub_config.py
 
-8. Visit [http://localhost:8585](http://localhost:8585)
+9. Visit [http://localhost:8585](http://localhost:8585)
 
 All features should work, including building and launching.
 
@@ -70,18 +79,6 @@ To run unit tests, navigate to the root of the repository, then call:
   ```
 
 We recommend increasing your GitHub API rate limit before running tests (see above).
-
-## Building JS and CSS
-
-We use [npm](https://www.npmjs.com) for managing our JS / CSS dependencies and
-[webpack](https://webpack.js.org/) for bundling them together. You need to have
-a recent version of `npm` installed to run things locally.
-
-1. Run `npm install`. This should fetch and install all our frontend dependencies.
-2. Run `npm run webpack`. This runs webpack and creates our JS / CSS bundles. You
-   *need* to run this every time you make CSS / JS changes to see them live. Alternatively,
-   you can run `npm run webpack:watch` to automatically rebuild JS / CSS changes as
-   you make them.
 
 ## Pure HTML / CSS / JS development
 
