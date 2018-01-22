@@ -13,7 +13,7 @@ on GitHub if you don't have a token.
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
    more stable than using Homebrew.
    
-   To interact with your minikube cluster, run the command: `minikube start`, this creates a kubectl context that contains the configuration to communicate with your cluster.
+   To interact with your minikube cluster, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/
 
 2. Install helm to manage Kubernetes charts,
 
@@ -62,6 +62,12 @@ on GitHub if you don't have a token.
 9. Visit [http://localhost:8585](http://localhost:8585)
 
 All features should work, including building and launching.
+
+### Debugging tips
+
+There is an option to configure the disk size of the minikube VM on start using the flag `minikube start --disk-size string` the default value is "20g".
+
+If you get a Disk Available error you can run `minikube delete` and then reinstall binderhub following the installation guide above.
 
 ## Increase your GitHub API limit
 
