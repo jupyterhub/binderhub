@@ -17,7 +17,7 @@ class ExposeHandler(BaseHandler):
     def get(self):
         self.render_template(
             "expose.html",
-            escaped_adresse=url_escape(self.settings['cannonical_address']),
+            escaped_adresse=url_escape(self.settings['federation_site_address']),
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
         )

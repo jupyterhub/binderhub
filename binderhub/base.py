@@ -70,7 +70,7 @@ class BaseHandler(web.RequestHandler):
 
         """
 
-        portal_address = self.settings['cannonical_address']
+        portal_address = self.settings['federation_site_address']
         default_binders = self.settings['default_binders']
         new_cookie = {}
         if self.settings['enable_federation_sites_cookie']:

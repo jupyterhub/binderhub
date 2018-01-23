@@ -277,14 +277,14 @@ class BinderHub(Application):
     )
 
 
-    cannonical_address = Unicode('', config=True,
+    federation_site_address = Unicode('', config=True,
         help="""Set the canonical address to register self to a binder federation portal
 
         When current instance is used as a portal also used to avoid redirect loops to self.
         Trailing slash is required.
 
         Example:
-            c.BinderHub.cannonical_address = 'https://binder.example.com/'
+            c.BinderHub.federation_site_address = 'https://binder.example.com/'
         """
     )
 
@@ -340,10 +340,10 @@ class BinderHub(Application):
             hub_api_token=self.hub_api_token,
         )
 
-        if not self.cannonical_address.endswith('/'):
+        if not self.federation_site_address.endswith('/'):
             self.log.warning(
-                'c.BinderHub.cannonical_address does not ends with a slash: `{}`'.format(
-                    self.cannonical_address
+                'c.BinderHub.federation_site_address does not ends with a slash: `{}`'.format(
+                    self.federation_site_address
                 )
             )
 
@@ -371,7 +371,7 @@ class BinderHub(Application):
             'base_url': self.base_url,
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'debug': self.debug,
-            'cannonical_address' : self.cannonical_address,
+            'federation_site_address' : self.federation_site_address,
             'enable_federation_portal' : self.enable_federation_portal,
             'default_binders' : self.default_binders,
             'enable_federation_sites_cookie' : self.enable_federation_sites_cookie,
@@ -380,8 +380,8 @@ class BinderHub(Application):
         federation_handlers = []
 
         if self.enable_federation_portal:
-            if not self.cannonical_address:
-                raise ValueError("When using binderhub as a federation portal you must set the `cannonical_address`.")
+            if not self.federation_site_address:
+                raise ValueError("When using binderhub as a federation portal you must set the `federation_site_address`.")
             federation_handlers = [
                 (r"/register/(.+)", RegisterHandler),
             ]

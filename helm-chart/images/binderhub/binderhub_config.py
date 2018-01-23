@@ -41,7 +41,7 @@ c.BinderHub.base_url = get_config('binder.base-url')
 ###  Federation configuration, ###
 
 # this is necessary when not a federation portal to self-register
-c.BinderHub.cannonical_address = get_config('binder.cannonical-address', '')
+c.BinderHub.federation_site_address = get_config('binder.federation-site-address', '')
 
 # by default we are _never_ a federation portal, don't know any other binders,
 # and do not allow to store known binder in cookies.

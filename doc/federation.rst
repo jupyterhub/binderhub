@@ -13,9 +13,9 @@ select on which instance to run their code.
 For this reason BinderHub have a number of settings allowing it to register
 an instance with the main MyBinder.org and which users should be sent your way. 
 
-To do so you must set the ``c.BinderHub.cannonical_address`` to the full
+To do so you must set the ``c.BinderHub.federation_site_address`` to the full
 canonical canonical address of your binder instance (including ``https://``
-prefix). For example in the Binder Config file: ``c.BinderHub.cannonical_address = 'https://binder.example.com/'``.
+prefix). For example in the Binder Config file: ``c.BinderHub.federation_site_address = 'https://binder.example.com/'``.
 
 By doing so binder will now expose an ``https://binder.example.com/expose/``
 url. Containing a "Register" button. When your users click this buttons, they

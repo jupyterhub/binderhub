@@ -22,8 +22,8 @@ data:
   {{ if .Values.enableFederationPortal -}}
   binder.enable-federation-portal: {{ .Values.enableFederationPortal }}
   {{- end }}
-  {{ if .Values.cannonicalAddress -}}
-  binder.cannonical-address: {{.Values.cannonicalAddress | quote }}
+  {{ if .Values.federationSiteAddress -}}
+  binder.federation-site-address: {{.Values.federationSiteAddress | quote }}
   {{- end }}
   {{ if .Values.enableFederationSitesCookie -}}
   binder.enable-federation-sites-cookie: {{ .Values.enableFederationSitesCookie }}
