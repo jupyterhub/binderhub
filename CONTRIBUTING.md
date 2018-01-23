@@ -40,7 +40,7 @@ on GitHub if you don't have a token.
 
       python3 -m pip install -e . -r dev-requirements.txt
           
-  This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, it will install what the user needs to build the Docker image.
+  This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, the requirements file will install what the user needs to build the Docker image.
   
 6. Install JupyterHub in minikube with helm
 
