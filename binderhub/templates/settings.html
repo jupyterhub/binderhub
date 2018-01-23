@@ -12,22 +12,22 @@
     {%if enable_federation_portal %}
     <div class="col-lg-10 col-lg-offset-1">
       <div id="header" class="text-center">
-        <h3>Your Known Binders</h3>
+        <h3>Your Federation Binder Sites</h3>
         <div id="explanation">
-            Here is a list of all the binder you can select as your default one.
+            Here is a list of the binder sites available in your federation.</h3>
         </div>
       </div>
 
       <form id="build-form" class="form jumbotron">
-          <p>Click on the binder instance you want to make your default</p>
-          <div class="list-group">
-            {% for b in binders %}
-            <button id='{{b}}' class="list-group-item list-group-item-action {% if b == default_binder %}active{% endif %}"
-                            attr-binder='{{b}}'
-                      onClick="postOnClick(this); return false;">{{b}}</button>
-            {% endfor %}
-           </div>
-           <a href='{{base_url}}/' type="submit" class="btn btn-warning">Ok</a>
+        <p>Click on the binder instance you want to make your default</p>
+        <div class="list-group">
+          {% for b in binders %}
+          <button id='{{b}}' class="list-group-item list-group-item-action {% if b == default_binder %}active{% endif %}"
+                          attr-binder='{{b}}'
+                    onClick="postOnClick(this); return false;">{{b}}</button>
+          {% endfor %}
+         </div>
+         <a href='{{base_url}}/' type="submit" class="btn btn-warning">Ok</a>
       </form>
     </div>
     {%else%}

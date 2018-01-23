@@ -60,7 +60,7 @@ class BaseHandler(web.RequestHandler):
 
     def _normalize_cookie(self, cookie):
         """
-        Make sure the json cookie is normalized to have a know schema:
+        Make sure the json cookie is normalized to have a known schema:
         {
             'known': [list of unique strings]
             'default': [string found in known section]
@@ -70,17 +70,17 @@ class BaseHandler(web.RequestHandler):
 
         """
 
-        portal_address = self.settings['federation_site_address']
+        federation_site_address = self.settings['federation_site_address']
         default_binders = self.settings['default_binders']
         new_cookie = {}
         if self.settings['enable_federation_sites_cookie']:
-            cookie_listed = cookie.get('known', [portal_address])
+            cookie_listed = cookie.get('known', [federation_site_address])
         else:
             cookie_listed = []
-        new_cookie['known'] = list(sorted(set( cookie_listed + [portal_address] + default_binders)))
-        default = cookie.get('default', portal_address)
+        new_cookie['known'] = list(sorted(set( cookie_listed + [federation_site_address] + default_binders)))
+        default = cookie.get('default', federation_site_address)
         if default not in new_cookie['known']:
-            default = portal_address
+            default = federation_site_address
 
         new_cookie['default'] = default
         return new_cookie

@@ -278,13 +278,22 @@ class BinderHub(Application):
 
 
     federation_site_address = Unicode('', config=True,
-        help="""Set the canonical address to register self to a binder federation portal
-
-        When current instance is used as a portal also used to avoid redirect loops to self.
-        Trailing slash is required.
+        help="""EXPERIMENTAL. Canonical address of a federation site. This address
+        is used by the federation portal.
 
         Example:
             c.BinderHub.federation_site_address = 'https://binder.example.com/'
+    
+        Trailing slash is required.
+
+        When ``c.BinderHub.enable_federation_portal`` is set to ``False`` this value
+        is transmited to a federation portal as the url of current binder, to which
+        users should be redirected to.
+
+        When ``c.BinderHub.enable_federation_portal`` is set to ``True`` this
+        value is used to avoid redirect loop.
+
+        Example:
         """
     )
 
