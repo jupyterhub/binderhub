@@ -7,13 +7,21 @@ import os
 from urllib.parse import urlparse
 
 import kubernetes.config
+
 from jinja2 import Environment, FileSystemLoader
+
 import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, List
+
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, List, Bytes, default
 from traitlets.config import Application
+
+from base64 import encodebytes
+
+import hmac
+
 
 from .base import Custom404
 from .builder import BuildHandler
@@ -277,13 +285,45 @@ class BinderHub(Application):
     )
 
 
+    cookie_secret_file = Unicode(config=True,
+        help="""The file where the cookie secret is stored."""
+    )
+
+    @default('cookie_secret_file')
+    def _default_cookie_secret_file(self):
+        return os.path.join(self.runtime_dir, 'notebook_cookie_secret')
+
+    cookie_secret = Bytes(b'', config=True,
+        help="""The random bytes used to secure cookies.
+        By default this is a new random number every time you start the Notebook.
+        Set it to a value in a config file to enable logins to persist across server sessions.
+
+        Note: Cookie secrets should be kept private, do not share config files with
+        cookie_secret stored in plaintext (you can read the value from a file).
+        """
+    )
+
+    @default('cookie_secret')
+    def _default_cookie_secret(self):
+        if os.path.exists(self.cookie_secret_file):
+            with open(self.cookie_secret_file, 'rb') as f:
+                key =  f.read()
+        else:
+            key = encodebytes(os.urandom(1024))
+            self._write_cookie_secret_file(key)
+        h = hmac.HMAC(key)
+        h.digest_size = len(key)
+        h.update(self.password.encode())
+        return h.digest()
+
+
     federation_site_address = Unicode('', config=True,
         help="""EXPERIMENTAL. Canonical address of a federation site. This address
         is used by the federation portal.
 
         Example:
             c.BinderHub.federation_site_address = 'https://binder.example.com/'
-    
+
         Trailing slash is required.
 
         When ``c.BinderHub.enable_federation_portal`` is set to ``False`` this value
@@ -357,11 +397,11 @@ class BinderHub(Application):
             )
 
         self.tornado_settings.update({
+            "cookie_secret": self.cookie_secret,
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
-            "debug": self.debug,
             'hub_url': self.hub_url,
             'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
