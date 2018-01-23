@@ -13,9 +13,9 @@ on GitHub if you don't have a token.
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
    more stable than using Homebrew.
    
-   To interact with your minikube cluster, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/
+   To start your cluster on minikube, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/xhyve/KVM2. 
 
-2. Install helm to manage Kubernetes charts,
+2. Install helm to manage installing and running binderhub on your cluster,
 
    ```bash
    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
@@ -24,7 +24,7 @@ on GitHub if you don't have a token.
    [Alternative methods](https://docs.helm.sh/using_helm/#installing-the-helm-client) for helm installation
    exist if you prefer installing without using the script.
 
-3. Initialize helm in minikube. This command initialize the local CLI and also install Tiller into your Kubernetes in one step:
+3. Initialize helm in minikube. This command initializes the local CLI and installs Tiller on your kubernetes cluster in one step:
 
    ```bash
    helm init
@@ -50,8 +50,8 @@ on GitHub if you don't have a token.
 
     eval $(minikube docker-env)
     
-  This command builds the image using the same docker host as the minikube VM, so that the images are automatically present.
-  Note: when you no longer wish to use the minikueb host, you can undo this change by running:
+  This command sets up docker to use the same docker daemon as your minikube cluster does. This means images you build are directly available to the cluster.
+  Note: when you no longer wish to use the minikube host, you can undo this change by running:
   
    eval $(minikube docker-env -u)
 
