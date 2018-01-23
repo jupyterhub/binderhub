@@ -34,7 +34,7 @@ If you are running in a close network and have multiple teams with their own
 binder instances with various authorisations and difference in allocated
 resources. 
 
-By setting the ``c.BinderHub.use_as_federation_portal=True`` this will tell
+By setting the ``c.BinderHub.enable_federation_portal=True`` this will tell
 the target binderhub to redirect to the user-selected binder. 
 
 The ``c.BinderHub.default_binders`` can be used to pre-register a number of

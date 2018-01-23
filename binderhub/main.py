@@ -44,7 +44,7 @@ class ParameterizedMainHandler(BaseHandler):
 
     def get(self, provider_prefix, spec):
         # http://localhost:8585/v2/gh/binder-examples/dockerfile-rstudio/master
-        if self.settings['use_as_federation_portal']:
+        if self.settings['enable_federation_portal']:
             default = self.get_json_cookie('known_binders')['default']
             if default:
             #    ## todo don't trigger if self !
@@ -92,7 +92,7 @@ class SettingsHandler(BaseHandler):
             binders=binders['known'],
             default_binder= binders['default'],
             raw=json.dumps(binders, indent=2),
-            use_as_federation_portal=self.settings['use_as_federation_portal'],
+            enable_federation_portal=self.settings['enable_federation_portal'],
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
         )

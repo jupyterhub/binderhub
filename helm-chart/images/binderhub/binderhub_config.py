@@ -45,7 +45,7 @@ c.BinderHub.cannonical_address = get_config('binder.cannonical-address', '')
 
 # by default we are _never_ a federation portal, don't know any other binders,
 # and do not allow to store known binder in cookies.
-c.BinderHub.use_as_federation_portal = get_config('binder.use-as-federation-portal', False)
+c.BinderHub.enable_federation_portal = get_config('binder.enable-federation-portal', False)
 c.BinderHub.default_binders = get_config('binder.default-binder-list', [])
 c.BinderHub.list_cookie_set_binders = get_config('binder.list-cookie-set-binders', False)
 

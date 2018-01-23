@@ -372,14 +372,14 @@ class BinderHub(Application):
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'debug': self.debug,
             'cannonical_address' : self.cannonical_address,
-            'use_as_federation_portal' : self.use_as_federation_portal,
+            'enable_federation_portal' : self.enable_federation_portal,
             'default_binders' : self.default_binders,
             'list_cookie_set_binders' : self.list_cookie_set_binders,
         })
 
         federation_handlers = []
 
-        if self.use_as_federation_portal:
+        if self.enable_federation_portal:
             if not self.cannonical_address:
                 raise ValueError("When using binderhub as a federation portal you must set the `cannonical_address`.")
             federation_handlers = [
