@@ -40,7 +40,7 @@ the target binderhub to redirect to the user-selected binder.
 The ``c.BinderHub.default_binders`` can be used to pre-register a number of
 known binder.
 
-And the ``c.BinderHub.list_cookie_set_binders`` can be used to allow users to
+And the ``c.BinderHub.enable_federation_sites_cookie`` can be used to allow users to
 register their own binders.
 
 A binder cannot be both exposed and be a portal to avoid redirect loop. 

@@ -47,7 +47,7 @@ c.BinderHub.cannonical_address = get_config('binder.cannonical-address', '')
 # and do not allow to store known binder in cookies.
 c.BinderHub.enable_federation_portal = get_config('binder.enable-federation-portal', False)
 c.BinderHub.default_binders = get_config('binder.default-binder-list', [])
-c.BinderHub.list_cookie_set_binders = get_config('binder.list-cookie-set-binders', False)
+c.BinderHub.enable_federation_sites_cookie = get_config('binder.enable-federation-sites-cookie', False)
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(

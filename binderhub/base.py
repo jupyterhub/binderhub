@@ -73,7 +73,7 @@ class BaseHandler(web.RequestHandler):
         portal_address = self.settings['cannonical_address']
         default_binders = self.settings['default_binders']
         new_cookie = {}
-        if self.settings['list_cookie_set_binders']:
+        if self.settings['enable_federation_sites_cookie']:
             cookie_listed = cookie.get('known', [portal_address])
         else:
             cookie_listed = []

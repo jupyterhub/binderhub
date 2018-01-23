@@ -267,7 +267,7 @@ class BinderHub(Application):
         """
     )
 
-    list_cookie_set_binders = Bool(False, config=True,
+    enable_federation_sites_cookie = Bool(False, config=True,
         help="""
         EXPERIMENTAL: Federation between binder can optionally be done by listing
         binders in a cookie, which allow users to enable their own binders.
@@ -374,7 +374,7 @@ class BinderHub(Application):
             'cannonical_address' : self.cannonical_address,
             'enable_federation_portal' : self.enable_federation_portal,
             'default_binders' : self.default_binders,
-            'list_cookie_set_binders' : self.list_cookie_set_binders,
+            'enable_federation_sites_cookie' : self.enable_federation_sites_cookie,
         })
 
         federation_handlers = []
