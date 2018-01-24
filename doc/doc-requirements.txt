@@ -1,6 +1,3 @@
-mne
-graphviz
-pygraphviz==1.4rc1
 sphinx>=1.4, !=1.5.4
 traitlets>=4.1
 recommonmark
