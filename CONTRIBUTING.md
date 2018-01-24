@@ -9,11 +9,11 @@ on GitHub if you don't have a token.
 ## Installation
 
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to run Kubernetes locally.
-   
+
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
    more stable than using Homebrew.
-   
-   To start your cluster on minikube, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/xhyve/KVM2. 
+
+   To start your cluster on minikube, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/xhyve/KVM2.
 
 2. Install helm to manage installing and running binderhub on your cluster,
 
@@ -39,20 +39,20 @@ on GitHub if you don't have a token.
 5. Install binderhub and its development requirements:
 
       python3 -m pip install -e . -r dev-requirements.txt
-          
+
   This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, the requirements file will install what the user needs to build the Docker image.
-  
+
 6. Install JupyterHub in minikube with helm
 
     ./testing/minikube/install-hub
-  
+
 7. Before starting the local dev/test deployment run:
 
     eval $(minikube docker-env)
-    
+
   This command sets up docker to use the same docker daemon as your minikube cluster does. This means images you build are directly available to the cluster.
   Note: when you no longer wish to use the minikube host, you can undo this change by running:
-  
+
    eval $(minikube docker-env -u)
 
 8. Start binderhub with the testing config file:
@@ -120,3 +120,24 @@ there is a simpler method!
 Note that building and launching will not work, but the
 `testing/localonly/binderhub_config.py` setup a fake building process which
 allows you to work on the UI experience.
+
+
+## Bumping the JupyterHub Helm Chart version
+
+BinderHub uses the [JupyterHub Helm Chart](https://jupyterhub.github.io/helm-chart/)
+to install the proper version of JupyterHub. The version that is used is specified
+in the BinderHub Meta Chart, `helm-chart/binderhub/requirements.yaml`.
+
+To bump the version of JupyterHub that BinderHub uses, go to the [JupyterHub Helm Chart](https://jupyterhub.github.io/helm-chart/) version page, find the release
+hash that you want (e.g. `0.6.0-2c53640`) and update the following field in
+the `requirements.yaml` file:
+
+```yaml
+dependencies:
+  version: "<helm-chart-version>"
+```
+
+**Make sure to double-check that there are no breaking changes in JupyterHub**.
+Sometimes JupyterHub introduces breaking changes to its helm chart (such as the
+structure of particular fields). Make sure that none of these changes have been
+introduced, particularly when bumping major versions of JupyterHub.
