@@ -129,7 +129,8 @@ jupyterhub:
     memory:
       guarantee:
   prePuller:
-    enabled: false
+    hook:
+      enabled: false
 
 deployment:
   labels: {}
