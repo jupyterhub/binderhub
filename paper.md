@@ -35,7 +35,7 @@ authors:
    orcid: 0000-0003-4371-9659
    affiliation: Simula Research Laboratory
  - name: Carol Willing
-   orcid: 0000-0003-4371-9659
+   orcid: 0000-0002-9817-8485
    affiliation: Cal Poly
 date: YYYY-MM-DD
 bibliography: paper.bib
