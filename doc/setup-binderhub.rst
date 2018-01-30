@@ -105,7 +105,7 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-fbd816c --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=v0.1.0-85ac189  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
@@ -138,7 +138,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <namespace-from-above> jupyterhub/binderhub --version=v0.1.0-fbd816c -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-85ac189  -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
