@@ -85,13 +85,6 @@ Create a file called ``config.yaml`` and enter the following::
     prefix:  gcr.io/<google-project-id>/<prefix>
     enabled: true
 
-  rbac:
-     enabled: false
-  jupyterhub:
-     hub:
-        rbac:
-           enabled: false
-
 
 .. note::
 
