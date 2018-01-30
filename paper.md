@@ -32,7 +32,7 @@ authors:
    orcid: 0000-0003-4371-9659
    affiliation: University of California, Berkeley
  - name: Min Ragan-Kelley
-   orcid: 0000-0003-4371-9659
+   orcid:  0000-0002-1023-7082
    affiliation: Simula Research Laboratory
  - name: Carol Willing
    orcid: 0000-0002-9817-8485
