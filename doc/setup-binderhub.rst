@@ -92,7 +92,7 @@ Create a file called ``config.yaml`` and enter the following::
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``dev`` or ``prod``.
+     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
 
 Install BinderHub
 -----------------
