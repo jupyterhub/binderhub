@@ -85,13 +85,6 @@ Create a file called ``config.yaml`` and enter the following::
     prefix:  gcr.io/<google-project-id>/<prefix>
     enabled: true
 
-  rbac:
-     enabled: false
-  jupyterhub:
-     hub:
-        rbac:
-           enabled: false
-
 
 .. note::
 
@@ -99,7 +92,7 @@ Create a file called ``config.yaml`` and enter the following::
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``dev`` or ``prod``.
+     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
 
 Install BinderHub
 -----------------
@@ -112,7 +105,7 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-fbd816c --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=v0.1.0-85ac189  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
@@ -145,7 +138,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <namespace-from-above> jupyterhub/binderhub --version=v0.1.0-fbd816c -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-85ac189  -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
