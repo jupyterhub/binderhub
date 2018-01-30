@@ -96,6 +96,11 @@ _build/
 
 # Node stuff
 node_modules/
+package-lock.json
 
 # Built files
 binderhub/static/dist
+
+# Instructions we download
+k8s.txt
+helm.txt
