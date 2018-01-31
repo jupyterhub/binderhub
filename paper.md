@@ -14,22 +14,25 @@ authors:
    orcid:
    affiliation:
  - name: Tim Head
-   orcid: 0000-0003-4371-9659
+   orcid: XXXX
    affiliation: Wild Tree Tech
  - name: Jessica Forde
-   orcid: 0000-0003-4371-9659
+   orcid: XXXX
    affiliation: Project Jupyter
  - name: Brian Granger
-   orcid: 0000-0003-4371-9659
+   orcid: 0000-0002-5223-6168
    affiliation: Cal Poly
  - name: Chris Holdgraf
-   orcid: 0000-0003-4371-9659
-   affiliation: University of California, Davis
+   orcid: 0000-0002-2391-0678
+   affiliation: University of California, Berkeley
+ - name: M Pacer
+   orcid: XXX
+   affiliation: University of California, Berkeley
  - name: Yuvi Panda
-   orcid: 0000-0003-4371-9659
+   orcid: XXXX
    affiliation: University of California, Berkeley
  - name: Fernando Perez
-   orcid: 0000-0003-4371-9659
+   orcid: XXXX
    affiliation: University of California, Berkeley
  - name: Min Ragan-Kelley
    orcid:  0000-0002-1023-7082
