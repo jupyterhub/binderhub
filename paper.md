@@ -46,17 +46,28 @@ bibliography: paper.bib
 
 # Summary
 
-BinderHub is a framework for enabling authors to create sharable, interactive
+BinderHub enables authors to create sharable, interactive
 computational environments by specifying their environment in an online
 git repository.
 
+BinderHub runs a service that lets users put their code in a repository online, use
+the BinderHub service to build a Docker image using configuration files in that
+repository, then serve that Docker image to users via a public link. BinderHub
+will flexibly create cloud resources as users request to interact with a
+particular repository's link, and will automatically destroy these resources
+after periods of inactivity. A public deployment of BinderHub exists at
+`mybinder.org`, though BinderHub is designed to be deployed by anyone. It is
+cloud-agnostic and can support many different workflows.
+
 BinderHub interfaces closely with the [JupyterHub Helm Chart](https://github.com/jupyterhub/zero-to-jupyterhub-k8s),
 which runs a JupyterHub service on Kubernetes. It includes a Python module
-with logic for reading Git repositories from various providers (e.g., GitHub),
-generating a Docker image for the environment specified in that repository,
-and creating a link that users can share with others. It also includes a Helm
+that interfaces with other open-source tools (e.g., [repo2docker](https://github.com/jupyter/repo2docker)) to run the service
+described above. It also includes a Helm
 chart template that allows others to deploy their own Binder service using
 Kubernetes.
+
+For more information, see the [BinderHub documentation](https://binderhub.readthedocs.io)
+as well as the [Binder user documentation](https://docs.mybinder.org).
 
 _Note: Author ordering is in alphabetical order._
 
