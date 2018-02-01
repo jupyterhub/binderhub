@@ -38,26 +38,36 @@ on GitHub if you don't have a token.
 
 5. Install binderhub and its development requirements:
 
-      python3 -m pip install -e . -r dev-requirements.txt
+    ```bash
+    python3 -m pip install -e . -r dev-requirements.txt
+    ```
 
   This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, the requirements file will install what the user needs to build the Docker image.
 
 6. Install JupyterHub in minikube with helm
 
-    ./testing/minikube/install-hub
+   ```bash
+   ./testing/minikube/install-hub
+   ```
 
 7. Before starting the local dev/test deployment run:
 
-    eval $(minikube docker-env)
+   ```bash
+   eval $(minikube docker-env)
+   ```
 
   This command sets up docker to use the same docker daemon as your minikube cluster does. This means images you build are directly available to the cluster.
   Note: when you no longer wish to use the minikube host, you can undo this change by running:
 
+   ```bash
    eval $(minikube docker-env -u)
+   ```
 
 8. Start binderhub with the testing config file:
 
+    ```bash
     python3 -m binderhub -f testing/minikube/binderhub_config.py
+    ```
 
 9. Visit [http://localhost:8585](http://localhost:8585)
 
@@ -80,9 +90,9 @@ the [BinderHub documentation](https://binderhub.readthedocs.io/en/latest/setup-b
 
 To run unit tests, navigate to the root of the repository, then call:
 
-  ```bash
-  pytest
-  ```
+   ```bash
+   pytest
+   ```
 
 We recommend increasing your GitHub API rate limit before running tests (see above).
 
@@ -132,10 +142,10 @@ To bump the version of JupyterHub that BinderHub uses, go to the [JupyterHub Hel
 hash that you want (e.g. `0.6.0-2c53640`) and update the following field in
 the `requirements.yaml` file:
 
-```yaml
-dependencies:
-  version: "<helm-chart-version>"
-```
+   ```yaml
+   dependencies:
+     version: "<helm-chart-version>"
+   ```
 
 **Make sure to double-check that there are no breaking changes in JupyterHub**.
 Sometimes JupyterHub introduces breaking changes to its helm chart (such as the
