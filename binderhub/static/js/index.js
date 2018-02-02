@@ -109,7 +109,8 @@ Image.prototype.launch = function(url, token, filepath, pathType) {
       }
 
     }
-    url = url + '?' + $.param({token: token});
+    var sep = (url.indexOf('?') == -1) ? '?' : '&';
+    url = url + sep + $.param({token: token});
     window.location.href = url;
 };
 
