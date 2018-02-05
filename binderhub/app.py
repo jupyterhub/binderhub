@@ -327,7 +327,7 @@ class BinderHub(Application):
         Trailing slash is required.
 
         When ``c.BinderHub.enable_federation_portal`` is set to ``False`` this value
-        is transmited to a federation portal as the url of current binder, to which
+        is transmitted to a federation portal as the URL of current binder, to which
         users should be redirected to.
 
         When ``c.BinderHub.enable_federation_portal`` is set to ``True`` this

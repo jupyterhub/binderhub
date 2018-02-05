@@ -27,6 +27,7 @@ data:
   {{- end }}
   {{ if .Values.enableFederationSitesCookie -}}
   binder.enable-federation-sites-cookie: {{ .Values.enableFederationSitesCookie }}
+  binder.cookie-secret: {{ .Values.cookieSecret }}
   {{- end }}
   {{ if .Values.defaultBinders -}}
   binder.default-binders-list:

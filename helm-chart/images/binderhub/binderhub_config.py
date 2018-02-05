@@ -48,6 +48,7 @@ c.BinderHub.federation_site_address = get_config('binder.federation-site-address
 c.BinderHub.enable_federation_portal = get_config('binder.enable-federation-portal', False)
 c.BinderHub.default_binders = get_config('binder.default-binder-list', [])
 c.BinderHub.enable_federation_sites_cookie = get_config('binder.enable-federation-sites-cookie', False)
+c.BinderHub.cookie_secret = get_config('binder.cookie-secret')
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
