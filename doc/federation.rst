@@ -34,8 +34,12 @@ If you are running in a close network and have multiple teams with their own
 binder instances with various authorisations and difference in allocated
 resources. 
 
-By setting the ``c.BinderHub.enable_federation_portal=True`` this will tell
-the target binderhub to redirect to the user-selected binder. 
+By setting the ``c.BinderHub.enable_federation_portal=True`` this will tell the
+target binderhub to redirect to the user-selected binder. Running a federation
+portal requires the ability to set/get a secure cookies on user computers. You
+will thus need to provide a ``cookie_secret`` via
+``c.BinderHub.cookie_secret=b"<your secret>"``. Even is no cookie is actually
+stored on user's machines, a cookie secret is required to start the application.
 
 The ``c.BinderHub.default_binders`` can be used to pre-register a number of
 known binder.
