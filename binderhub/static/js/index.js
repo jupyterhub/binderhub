@@ -161,9 +161,16 @@ function updateUrl() {
 
 function updateUrlDiv() {
   var url = updateUrl()
-  $('#basic-url-snippet').text(url);
-  $('#markdown-badge-snippet').text(markdownBadge(url));
-  $('#rst-badge-snippet').text(rstBadge(url));
+  if ((url||'').trim().length > 0){
+    $('#basic-url-snippet').text(url);
+    $('#markdown-badge-snippet').text(markdownBadge(url));
+    $('#rst-badge-snippet').text(rstBadge(url));
+  } else {
+    ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item, ind){
+      var el = $(item)
+      el.text(el.attr('data-default'));
+    })
+  }
 }
 
 
@@ -189,8 +196,8 @@ $(function(){
         disableStdin: true
     });
 
-    // setup badge dropdown
-    updateUrl();
+    // setup badge dropdown and default values.
+    updateUrlDiv();
 
     $("#url-or-file-btn").find("a").click(function (evt) {
       $("#url-or-file-selected").text($(this).text());
