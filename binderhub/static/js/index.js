@@ -262,7 +262,7 @@ $(function(){
         if ($('div#loader-text').length > 0) {
             $('div#loader-text p').text("Loading repository: " + repo)
             window.setTimeout( function() {
-                $('div#loader-text p').html("Repository " + repo + " is taking a long time to load!<br />See the logs for details.")
+                $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
             }, 120000)
         }
 
