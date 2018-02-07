@@ -262,9 +262,7 @@ $(function(){
         if ($('div#loader-text').length > 0) {
             $('div#loader-text p').text("Loading repository: " + repo)
             window.setTimeout( function() {
-                $('#loader').addClass("paused");
-                $('div#loader-text p').html("Repository " + repo + " is taking a long time to load!<br />See the logs for details.")
-                $('#loader').hover(function() {$('#loader').removeClass("paused")}, function() {$('#loader').addClass("paused")});
+                $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
             }, 120000)
         }
 
@@ -296,6 +294,9 @@ $(function(){
             failed = true;
             $('#build-progress .progress-bar').addClass('hidden');
             $('#phase-failed').removeClass('hidden');
+
+            $("#loader").addClass("paused");
+            $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.")
             update_favicon("/favicon_fail.ico");
             // If we fail for any reason, we will show logs!
             if (!logsVisible) {
