@@ -329,9 +329,15 @@ class BuildHandler(BaseHandler):
         # check quota first
         quota = self.settings.get('per_repo_quota')
 
+        # the image name (without tag) is unique per repo
+        # use this to count the number of pods running with a given repo
+        # if we added annotations/labels with the repo name via KubeSpawner
+        # we could do this better
         image_no_tag = self.image_name.rsplit(':', 1)[0]
         matching_pods = 0
         total_pods = 0
+
+        # TODO: run a watch to keep this up to date in the background
         pool = self.settings['build_pool']
         f = pool.submit(kube.list_namespaced_pod,
             self.settings["build_namespace"],
@@ -346,12 +352,16 @@ class BuildHandler(BaseHandler):
         for pod in pods.items:
             total_pods += 1
             for container in pod.spec.containers:
+                # is the container running the same image as us?
+                # if so, count one for the current repo.
                 image = container.image.rsplit(':', 1)[0]
                 if image == image_no_tag:
                     matching_pods += 1
                     break
 
         # TODO: allow whitelist of repos to exceed quota
+        # TODO: put busy users in a queue rather than fail?
+        # That would be hard to do without in-memory state.
         if quota and matching_pods >= quota:
             app_log.error("%s has exceeded quota: %s/%s (%s total)",
                 self.repo, matching_pods, quota, total_pods)
