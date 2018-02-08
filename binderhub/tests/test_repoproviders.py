@@ -45,6 +45,7 @@ def test_github_ref():
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
 
+
 def test_not_banned():
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
@@ -54,6 +55,7 @@ def test_not_banned():
     )
     assert not provider.is_banned()
 
+
 def test_banned():
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
@@ -62,6 +64,16 @@ def test_banned():
         ]
     )
     assert provider.is_banned()
+
+
+@pytest.mark.parametrize('ban_spec', ['.*ddEEff.*', '.*ddEEFF.*'])
+def test_ban_is_case_insensitive(ban_spec):
+    provider = GitHubRepoProvider(
+        spec='AABBCcc/DDeeFF/v0.4',
+        banned_specs=[ban_spec]
+    )
+    assert provider.is_banned()
+
 
 def test_github_missing_ref():
     provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.1.2.3.4.5.6')
