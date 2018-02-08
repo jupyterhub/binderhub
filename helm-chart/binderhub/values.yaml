@@ -13,7 +13,7 @@ image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
-repo2dockerImage: jupyter/repo2docker:6e9088d
+repo2dockerImage: jupyter/repo2docker:687788f
 
 perRepoQuota: 100
 
