@@ -75,7 +75,9 @@ class RepoProvider(LoggingConfigurable):
         Return true if the given spec has been banned
         """
         for banned in self.banned_specs:
-            if re.match(banned, self.spec):
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(banned, self.spec, re.IGNORECASE):
                 return True
         return False
 
