@@ -5,19 +5,19 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 import hashlib
 from http.client import responses
 import json
-import threading
 import string
 import time
 import escapism
 
 import docker
 from kubernetes import client
+from tornado.concurrent import chain_future, Future
 from tornado import gen, web
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from prometheus_client import Histogram, Gauge, Counter
+from prometheus_client import Histogram, Gauge
 
 from .base import BaseHandler
 from .build import Build, FakeBuild
@@ -217,19 +217,19 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
-        """----- Launch a notebook server if the image already is built -----"""
+        # Launch a notebook server if the image already is built
+        kube = client.CoreV1Api()
+
         if image_found:
             await self.emit({
                 'phase': 'built',
                 'imageName': image_name,
                 'message': 'Found built image, launching...\n'
             })
-            await self.launch()
+            await self.launch(kube)
             return
 
-        """----- Prepare to build -----"""
-        api = client.CoreV1Api()
-
+        # Prepare to build
         q = Queue()
 
         if self.settings['use_registry']:
@@ -241,7 +241,7 @@ class BuildHandler(BaseHandler):
 
         build = BuildClass(
             q=q,
-            api=api,
+            api=kube,
             name=build_name,
             namespace=self.settings["build_namespace"],
             git_url=repo,
@@ -312,7 +312,7 @@ class BuildHandler(BaseHandler):
         if not failed:
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch()
+                await self.launch(kube)
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
@@ -324,8 +324,57 @@ class BuildHandler(BaseHandler):
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
 
-    async def launch(self):
+    async def launch(self, kube):
         """Ask JupyterHub to launch the image."""
+        # check quota first
+        quota = self.settings.get('per_repo_quota')
+
+        # the image name (without tag) is unique per repo
+        # use this to count the number of pods running with a given repo
+        # if we added annotations/labels with the repo name via KubeSpawner
+        # we could do this better
+        image_no_tag = self.image_name.rsplit(':', 1)[0]
+        matching_pods = 0
+        total_pods = 0
+
+        # TODO: run a watch to keep this up to date in the background
+        pool = self.settings['build_pool']
+        f = pool.submit(kube.list_namespaced_pod,
+            self.settings["build_namespace"],
+            label_selector='app=jupyterhub,component=singleuser-server',
+        )
+        # concurrent.futures.Future isn't awaitable
+        # wrap in tornado Future
+        # tornado 5 will have `.run_in_executor`
+        tf = Future()
+        chain_future(f, tf)
+        pods = await tf
+        for pod in pods.items:
+            total_pods += 1
+            for container in pod.spec.containers:
+                # is the container running the same image as us?
+                # if so, count one for the current repo.
+                image = container.image.rsplit(':', 1)[0]
+                if image == image_no_tag:
+                    matching_pods += 1
+                    break
+
+        # TODO: allow whitelist of repos to exceed quota
+        # TODO: put busy users in a queue rather than fail?
+        # That would be hard to do without in-memory state.
+        if quota and matching_pods >= quota:
+            app_log.error("%s has exceeded quota: %s/%s (%s total)",
+                self.repo, matching_pods, quota, total_pods)
+            await self.fail("Too many users running %s! Try again soon." % self.repo)
+            return
+
+        if quota and matching_pods >= 0.5 * quota:
+            log = app_log.warning
+        else:
+            log = app_log.info
+        log("Launching pod for %s: %s other pods running this repo (%s total)",
+            self.repo, matching_pods, total_pods)
+
         await self.emit({
             'phase': 'launching',
             'message': 'Launching server...\n',
