@@ -108,6 +108,18 @@ class BinderHub(Application):
         config=True
     )
 
+    per_repo_quota = Integer(
+        0,
+        help="""
+        Maximum number of concurrent users running from a given repo.
+
+        Limits the amount of Binder that can be consumed by a single repo.
+
+        0 (default) means no quotas.
+        """,
+        config=True,
+    )
+
     docker_push_secret = Unicode(
         'docker-push-secret',
         allow_none=True,
@@ -315,6 +327,7 @@ class BinderHub(Application):
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'build_pool': self.build_pool,
+            'per_repo_quota': self.per_repo_quota,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,
