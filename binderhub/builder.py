@@ -5,7 +5,7 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 import hashlib
 from http.client import responses
 import json
-import string
+import  string
 import time
 import escapism
 
@@ -119,6 +119,7 @@ class BuildHandler(BaseHandler):
         safe_chars = set(string.ascii_letters + string.digits)
         def escape(s):
             return escapism.escape(s, safe=safe_chars, escape_char='-')
+        
         build_slug = self._safe_build_slug(build_slug, limit= limit - len(prefix) - ref_length - 1)
         ref = escape(ref)
 
@@ -129,6 +130,9 @@ class BuildHandler(BaseHandler):
         ).lower()
 
     def _safe_build_slug(self, build_slug, limit, hash_length=6):
+        """
+        Makes sure the user and repository names have only safe characters: ASCII lowercase and digits.
+        """
         build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
         safe_chars = set(string.ascii_letters + string.digits)
         def escape(s):
@@ -206,6 +210,7 @@ class BuildHandler(BaseHandler):
 
         image_prefix = self.settings['docker_image_prefix']
 
+        # Enforces max 255 characters before image
         safe_build_slug = self._safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
 
         build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
