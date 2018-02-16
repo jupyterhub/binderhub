@@ -234,6 +234,15 @@ class BinderHub(Application):
         config=True
     )
 
+    build_node_selector = Dict(
+        default_value=None,
+        allow_none=True,
+        config=True,
+        help="""
+        Select the node where build pod runs on.
+        """
+    )
+
     repo_providers = Dict(
         {
             'gh': GitHubRepoProvider,
@@ -326,6 +335,7 @@ class BinderHub(Application):
             'launcher': self.launcher,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
+            'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
             'per_repo_quota': self.per_repo_quota,
             'repo_providers': self.repo_providers,

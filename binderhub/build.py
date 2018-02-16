@@ -32,7 +32,7 @@ class Build:
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
-                 image_name, push_secret, memory_limit, docker_host):
+                 image_name, push_secret, memory_limit, docker_host, node_selector):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -45,6 +45,7 @@ class Build:
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.docker_host = docker_host
+        self.node_selector = node_selector
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -115,6 +116,7 @@ class Build:
                         )
                     )
                 ],
+                node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never"
             )
