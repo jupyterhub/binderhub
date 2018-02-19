@@ -1,0 +1,10 @@
+{% extends "templates/login.html" %}
+{% block site %}
+
+<div id="ipython-main-app" class="container">
+    <h1>You don't have access to this Binder!</h1>
+    <h2>
+        You can get a new Binder for this repo by clicking <a href="{{binder_url}}">here</a>
+    </h2>
+</div>
+{% endblock site %}
