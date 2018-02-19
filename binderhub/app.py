@@ -235,8 +235,7 @@ class BinderHub(Application):
     )
 
     build_node_selector = Dict(
-        default_value=None,
-        allow_none=True,
+        {},
         config=True,
         help="""
         Select the node where build pod runs on.
