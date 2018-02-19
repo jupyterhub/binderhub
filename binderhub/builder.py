@@ -207,7 +207,7 @@ class BuildHandler(BaseHandler):
             image_found = bool(image_manifest)
         else:
             # Check if the image exists locally!
-            # Assume we're running in single-node mode!
+            # Assume we're running in single-node mode or all binder pods are assigned to the same node!
             docker_client = docker.from_env(version='auto')
             try:
                 docker_client.images.get(image_name)
@@ -250,7 +250,8 @@ class BuildHandler(BaseHandler):
             push_secret=push_secret,
             builder_image=self.settings['builder_image_spec'],
             memory_limit=self.settings['build_memory_limit'],
-            docker_host=self.settings['build_docker_host']
+            docker_host=self.settings['build_docker_host'],
+            node_selector=self.settings['build_node_selector']
         )
 
         with BUILDS_INPROGRESS.track_inprogress():
