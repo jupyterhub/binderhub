@@ -215,6 +215,7 @@ class BuildHandler(BaseHandler):
                 image_found = False
             else:
                 image_found = True
+            image_found = False
 
         # Launch a notebook server if the image already is built
         kube = client.CoreV1Api()
@@ -237,6 +238,17 @@ class BuildHandler(BaseHandler):
             push_secret = None
 
         BuildClass = FakeBuild if self.settings.get('fake_build', None) else Build
+        binder_url = '{proto}://{host}/v2/{provider}/{spec}'.format(
+            proto=self.request.protocol,
+            host=self.request.host,
+            provider=provider_prefix,
+            spec=spec,
+        )
+        appendix = self.settings['appendix'].format(
+            binder_url=binder_url,
+            repo_url=repo,
+        )
+
 
         build = BuildClass(
             q=q,
@@ -250,7 +262,8 @@ class BuildHandler(BaseHandler):
             builder_image=self.settings['builder_image_spec'],
             memory_limit=self.settings['build_memory_limit'],
             docker_host=self.settings['build_docker_host'],
-            node_selector=self.settings['build_node_selector']
+            node_selector=self.settings['build_node_selector'],
+            appendix=appendix,
         )
 
         with BUILDS_INPROGRESS.track_inprogress():

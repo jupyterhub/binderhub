@@ -13,7 +13,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
+from traitlets import Unicode, Integer, Bool, Dict, observe, validate, TraitError
 from traitlets.config import Application
 
 from .base import Custom404
@@ -26,6 +26,18 @@ from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
+
+DEFAULT_APPENDIX_TEMPLATE = """
+USER root
+ENV BINDER_URL={{binder_url}}
+ENV REPO_URL={{repo_url}}
+RUN cd /tmp \
+ && wget -q {appendix_archive_url} -O binderhub.tar.gz \
+ && tar --wildcards -xzf binderhub.tar.gz --strip 1 */appendix\
+ && ./appendix/run-appendix \
+ && rm -rf binderhub.tar.gz appendix
+USER $NB_USER
+"""
 
 
 class BinderHub(Application):
@@ -97,6 +109,41 @@ class BinderHub(Application):
         """,
         config=True
     )
+
+    appendix = Unicode(
+        help="""
+        Appendix to pass to repo2docker
+
+        A multi-line string of Docker directives to run.
+        Since the build context cannot be affected,
+        ADD will typically not be useful.
+
+        This should be a Python string template.
+        It will be formatted with at least the following names available:
+
+        - binder_url: the binder URL for (e.g. for linking)
+        - repo_url: the repository URL used to build the image
+        """,
+        config=True,
+    )
+
+    binderhub_appendix_url = Unicode(
+        help="""url of binderhub git-archive tarball for using the default appendix
+
+        appendix/appendix.sh in this repo will be used if set.
+
+        For example:
+
+        binderhub_appendix_url = 'https://github.com/jupyterhub/binderhub/archive/abc123.tar.gz'
+        """,
+        config=True,
+    )
+    @observe('binderhub_appendix_url')
+    def _appendix_url_changed(self, change):
+        url = change.new
+        if url:
+            self.appendix = DEFAULT_APPENDIX_TEMPLATE.format(
+                appendix_archive_url=url)
 
     use_registry = Bool(
         True,
@@ -341,6 +388,7 @@ class BinderHub(Application):
             'hub_url': self.hub_url,
             'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
+            'appendix': self.appendix,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'build_node_selector': self.build_node_selector,
@@ -357,7 +405,6 @@ class BinderHub(Application):
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
-            'debug': self.debug,
         })
 
         handlers = [

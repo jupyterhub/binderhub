@@ -32,7 +32,8 @@ class Build:
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
-                 image_name, push_secret, memory_limit, docker_host, node_selector):
+                 image_name, push_secret, memory_limit, docker_host, node_selector,
+                 appendix=''):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -46,6 +47,7 @@ class Build:
         self.memory_limit = memory_limit
         self.docker_host = docker_host
         self.node_selector = node_selector
+        self.appendix = appendix
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -55,8 +57,10 @@ class Build:
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
             '--user-name', 'jovyan',
-            '--user-id', '1000'
+            '--user-id', '1000',
         ]
+        if self.appendix:
+            cmd.extend(['--appendix', self.appendix])
 
         if self.push_secret:
             cmd.append('--push')
