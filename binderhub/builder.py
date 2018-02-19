@@ -131,7 +131,11 @@ class BuildHandler(BaseHandler):
 
     def _safe_build_slug(self, build_slug, limit, hash_length=6):
         """
-        Makes sure the user and repository names have only safe characters: ASCII lowercase and digits.
+        This function catches a bug where build slug may not produce a valid image name 
+        (e.g. repo name ending with _, which results in image name ending with '-' which is invalid).
+        This ensures that the image name is always safe, regardless of build slugs returned by providers
+        (rather than requiring all providers to return image-safe build slugs below a certain length).
+        Since this changes the image name generation scheme, all existing cached images will be invalidated.
         """
         build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
         safe_chars = set(string.ascii_letters + string.digits)
