@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
+from tornado.httpclient import AsyncHTTPClient
 import tornado.ioloop
 import tornado.options
 import tornado.log
@@ -289,6 +290,12 @@ class BinderHub(Application):
             handlers[i] = tuple(lis)
         return handlers
 
+    def init_pycurl(self):
+        try:
+            AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+        except ImportError as e:
+            self.log.debug("Could not load pycurl: %s\npycurl is recommended if you have a large number of users.", e)
+
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
@@ -299,6 +306,8 @@ class BinderHub(Application):
         tornado.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
+
+        self.init_pycurl()
 
         # initialize kubernetes config
         if self.builder_required:
