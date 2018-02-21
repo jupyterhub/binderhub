@@ -55,6 +55,9 @@ class BaseHandler(web.RequestHandler):
             message=message,
         )
 
+    def options(self, *args, **kwargs):
+        pass
+
 
 class Custom404(BaseHandler):
     """Raise a 404 error, rendering the error.html template"""
