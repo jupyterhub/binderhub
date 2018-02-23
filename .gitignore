@@ -100,6 +100,7 @@ package-lock.json
 
 # Built files
 binderhub/static/dist
+helm-chart/binderhub/charts
 
 # Instructions we download
 k8s.txt

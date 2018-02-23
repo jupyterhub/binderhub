@@ -16,7 +16,7 @@ charts:
         valuesPath: image
         # additional paths relevant to the image
         # in addition to image directory itself
-        # paths are relative to build.py
+        # paths are relative to chartpress.yaml
         paths:
           - ../setup.py
           - ../binderhub
