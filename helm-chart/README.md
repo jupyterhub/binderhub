@@ -36,19 +36,17 @@ Docker images for applications including:
 
 - `binderhub`
 
-### `Makefile`
+### `chartpress`
 
 Useful for compiling custom charts.
 
 ## Usage
 
-To build Docker images in the `images` directory:
+In the helm-chart directory:
 
-    make images
+    chartpress
 
-To create chart metadata and package chart for use:
-
-    make chart
+to build the docker images and rerender the helm chart.
 
 
 [BinderHub]: https://binderhub.readthedocs.io/en/latest/
