@@ -159,6 +159,7 @@ dind:
       tag: 17.11.0-ce-dind
   storageDriver: overlay2
   hostSocketDir: /var/run/dind
+  resources: {}
 
 imageCleaner:
   image:

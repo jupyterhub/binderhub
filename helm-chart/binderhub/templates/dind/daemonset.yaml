@@ -25,6 +25,8 @@ spec:
       containers:
       - name: dind
         image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
+        resources:
+{{ toYaml .Values.dind.resources | indent 10}}
         args:
           - dockerd
           - --storage-driver={{ .Values.dind.storageDriver }}
