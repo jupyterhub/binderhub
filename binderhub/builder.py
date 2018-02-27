@@ -21,10 +21,9 @@ from prometheus_client import Histogram, Gauge
 
 from .base import BaseHandler
 from .build import Build, FakeBuild
-
-
-BUILD_TIME = Histogram('binderhub_build_time_seconds', 'Histogram of build times', ['status'], buckets=[1, 5, 10, 30, 60, 300, 600, float("inf")])
-LAUNCH_TIME = Histogram('binderhub_launch_time_seconds', 'Histogram of launch times', ['status'], buckets=[1, 5, 10, 30, 60, 300, 600, float("inf")])
+BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
+BUILD_TIME = Histogram('binderhub_build_time_seconds', 'Histogram of build times', ['status'], buckets=BUCKETS)
+LAUNCH_TIME = Histogram('binderhub_launch_time_seconds', 'Histogram of launch times', ['status'], buckets=BUCKETS)
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
