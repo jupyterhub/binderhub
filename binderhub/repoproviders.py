@@ -135,6 +135,7 @@ class GitRepoProvider(RepoProvider):
             raise ValueError("`resolved_ref` must be specified as a query parameter for the basic git provider")
         self.sha1_validate(resolved_ref)
         self.resolved_ref = resolved_ref
+        self.unresolved_ref = resolved_ref
 
     @gen.coroutine
     def get_resolved_ref(self):

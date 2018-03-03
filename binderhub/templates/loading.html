@@ -30,6 +30,7 @@
 <!-- Keep the build form so that the JS works the same as index, but hide it -->
 <form id="build-form" class="form jumbotron hidden">
   <h4 id="form-header" class='row'>Build and launch a repository</h4>
+  <input type="hidden" id="provider_prefix" value="{{ provider_prefix or 'gh' }}"/>
   <div class="form-group row">
     <label for="repository">GitHub repo or URL</label>
     <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or '' }}"/>

@@ -114,13 +114,13 @@ Image.prototype.launch = function(url, token, filepath, pathType) {
     window.location.href = url;
 };
 
-function v2url(repository, ref, path, pathType) {
-  // return a v2 url from a repository, ref, and (file|url)path
+function v2url(provider_prefix, repository, ref, path, pathType) {
+  // return a v2 url from a provider_prefix, repository, ref, and (file|url)path
   if (repository.length === 0) {
     // no repo, no url
     return null;
   }
-  var url = window.location.origin + BASE_URL + 'v2/gh/' + repository + '/' + ref;
+  var url = window.location.origin + BASE_URL + 'v2/' + provider_prefix + '/' + repository + '/' + ref;
   if (path && path.length > 0) {
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
   }
@@ -147,13 +147,19 @@ function updatePathText() {
 
 function updateUrl() {
   // update URLs and links (badges, etc.)
+  var provider_prefix = $('#provider_prefix').val().trim();
   var repo = $('#repository').val().trim();
   repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
   // trim trailing or leading '/' on repo
   repo = repo.replace(/(^\/)|(\/?$)/g, '');
+  // git providers encode the URL of the git repository as the repo
+  // argument.
+  if (repo.includes("://")) {
+    repo = encodeURIComponent(repo);
+  }
   var ref = $('#ref').val().trim() || 'master';
   var filepath = $('#filepath').val().trim();
-  var url = v2url(repo, ref, filepath, getPathType());
+  var url = v2url(provider_prefix, repo, ref, filepath, getPathType());
   // update URL references
   $("#badge-link").attr('href', url);
   return url;
@@ -252,10 +258,16 @@ $(function(){
     $('#build-form').submit(function() {
         var repo = $('#repository').val().trim();
         var ref =  $('#ref').val().trim() || 'master';
+        var provider_prefix =  $('#provider_prefix').val().trim();
         repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
         // trim trailing or leading '/' on repo
         repo = repo.replace(/(^\/)|(\/?$)/g, '');
-        var image = new Image('gh', repo + '/' + ref);
+        // git providers encode the URL of the git repository as the
+        // repo argument.
+        if (repo.includes("://")) {
+          repo = encodeURIComponent(repo);
+        }
+        var image = new Image(provider_prefix, repo + '/' + ref);
 
         var url = updateUrl();
         // add fixed build URL to window history so that reload with refill the form

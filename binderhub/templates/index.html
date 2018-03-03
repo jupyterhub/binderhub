@@ -24,6 +24,7 @@
 
       <form id="build-form" class="form jumbotron">
         <h4 id="form-header" class='row'>Build and launch a repository</h4>
+        <input type="hidden" id="provider_prefix" value="gh"/>
         <div class="form-group row">
           <label for="repository">GitHub repo or URL</label>
           <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or '' }}"/>

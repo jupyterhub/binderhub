@@ -41,6 +41,7 @@ class ParameterizedMainHandler(BaseHandler):
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
+            provider_prefix=provider_prefix,
             url=provider.get_repo_url(),
             ref=provider.unresolved_ref,
             filepath=self.get_argument('filepath', None),
