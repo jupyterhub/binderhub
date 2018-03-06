@@ -9,6 +9,7 @@ import kubernetes.client
 import kubernetes.config
 import pytest
 import requests
+from tornado import ioloop
 from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
@@ -27,6 +28,20 @@ ON_TRAVIS = os.environ.get('TRAVIS')
 # this will skip launching BinderHub internally in the app fixture
 BINDER_URL = os.environ.get('BINDER_TEST_URL')
 REMOTE_BINDER = bool(BINDER_URL)
+
+
+@pytest.fixture
+def io_loop(request):
+    """Fix tornado-5 compatibility in pytest_tornado io_loop"""
+    io_loop = ioloop.IOLoop()
+    io_loop.make_current()
+
+    def _close():
+        io_loop.clear_current()
+        io_loop.close(all_fds=True)
+
+    request.addfinalizer(_close)
+    return io_loop
 
 
 @pytest.fixture(scope='session')
