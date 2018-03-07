@@ -195,12 +195,14 @@ function rstBadge(url) {
 
 function build(spec, log) {
   update_favicon("/favicon_building.ico");
+  // split provider prefix off of spec
+  var repo = decodeURIComponent(spec.slice(spec.indexOf('/') + 1));
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository: " + spec);
+    $('div#loader-text p').text("Loading repository: " + repo);
     window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
+      $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
     }, 120000);
   }
 
@@ -237,7 +239,7 @@ function build(spec, log) {
     $('#phase-failed').removeClass('hidden');
 
     $("#loader").addClass("paused");
-    $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
+    $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.");
     update_favicon("/favicon_fail.ico");
     // If we fail for any reason, we will show logs!
     log.show();
@@ -245,7 +247,7 @@ function build(spec, log) {
     // Show error on loading page
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
-      $('div#loader-text p').html('Error loading ' + spec + '!<br /> See logs below for details.');
+      $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.');
     }
     image.close();
   });
