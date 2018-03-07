@@ -29,6 +29,8 @@ c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
 
 c.BinderHub.builder_image_spec = get_config('binder.repo2docker-image')
 c.BinderHub.build_node_selector = get_config('binder.build-node-selector', {})
+c.BinderHub.appendix = get_config('binder.appendix', '')
+
 c.BinderHub.hub_url = get_config('binder.hub-url')
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 

@@ -13,7 +13,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError
+from traitlets import Unicode, Integer, Bool, Dict, observe, validate, TraitError
 from traitlets.config import Application
 
 from .base import Custom404
@@ -96,6 +96,24 @@ class BinderHub(Application):
         Port for the builder to listen on.
         """,
         config=True
+    )
+
+    appendix = Unicode(
+        help="""
+        Appendix to pass to repo2docker
+
+        A multi-line string of Docker directives to run.
+        Since the build context cannot be affected,
+        ADD will typically not be useful.
+
+        This should be a Python string template.
+        It will be formatted with at least the following names available:
+
+        - binder_url: the shareable URL for the current image
+          (e.g. for sharing links to the current Binder)
+        - repo_url: the repository URL used to build the image
+        """,
+        config=True,
     )
 
     use_registry = Bool(
@@ -341,6 +359,7 @@ class BinderHub(Application):
             'hub_url': self.hub_url,
             'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
+            'appendix': self.appendix,
             "build_namespace": self.build_namespace,
             "builder_image_spec": self.builder_image_spec,
             'build_node_selector': self.build_node_selector,
@@ -357,7 +376,6 @@ class BinderHub(Application):
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
-            'debug': self.debug,
         })
 
         handlers = [

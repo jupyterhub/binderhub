@@ -13,8 +13,10 @@ image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
-repo2dockerImage: jupyter/repo2docker:687788f
-buildNodeSelector: {}
+build:
+  repo2dockerImage: jupyter/repo2docker:687788f
+  nodeSelector: {}
+  appendix: null
 
 perRepoQuota: 100
 
