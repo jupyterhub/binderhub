@@ -58,13 +58,6 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
-    @observe('spec')
-    def _spec_changed(self, change):
-        # specs must always end with "/<ref>"
-        self.repo_spec, self.unresolved_ref = change.new.rsplit('/', 1)
-
-    repo_spec = Unicode()
-
     banned_specs = List(
         help="""
         List of specs to blacklist building.

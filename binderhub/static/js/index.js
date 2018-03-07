@@ -193,14 +193,14 @@ function rstBadge(url) {
   return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
-function build(provider, repo, ref, log) {
+function build(spec, log) {
   update_favicon("/favicon_building.ico");
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository: " + repo)
+    $('div#loader-text p').text("Loading repository: " + spec)
     window.setTimeout( function() {
-      $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
+      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
     }, 120000)
   }
 
@@ -209,7 +209,7 @@ function build(provider, repo, ref, log) {
 
   $('.on-build').removeClass('hidden');
 
-  var image = new Image(provider + '/' + repo + '/' + ref);
+  var image = new Image(spec);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
@@ -237,7 +237,7 @@ function build(provider, repo, ref, log) {
     $('#phase-failed').removeClass('hidden');
 
     $("#loader").addClass("paused");
-    $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.");
+    $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
     update_favicon("/favicon_fail.ico");
     // If we fail for any reason, we will show logs!
     log.show();
@@ -352,15 +352,15 @@ function indexMain() {
         if (repo.includes("://")) {
           repo = encodeURIComponent(repo);
         }
-        return build(provider_prefix, repo, ref, log);
+        return build(provider_prefix + '/' + repo + '/' + ref, log);
         var url = updateUrl();
         updateUrlDiv(url);
     });
 }
 
-function loadingMain(provider_prefix, repo, ref) {
+function loadingMain(spec, ref) {
   log = setUpLog();
-  build(provider_prefix, repo, ref, log);
+  build(spec, log);
 }
 
 // export entrypoints
