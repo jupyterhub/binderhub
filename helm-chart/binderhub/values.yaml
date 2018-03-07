@@ -38,11 +38,17 @@ service:
   nodePort:
 
 github:
+  hostname:
   # either id + secret...
   clientId:
   clientSecret:
   # ...or access_token
   accessToken:
+
+gitlab:
+  hostname:
+  accessToken:
+  privateToken:
 
 extraConfig: {}
 

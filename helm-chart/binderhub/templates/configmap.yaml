@@ -27,6 +27,13 @@ data:
   binder.hub-url: {{ .Values.hub.url | quote }}
   binder.base_url: {{ .Values.baseUrl | quote }}
 
+  {{ if .Values.github.hostname -}}
+  github.hostname: {{ .Values.github.hostname | quote }}
+  {{- end }}
+  {{ if .Values.gitlab.hostname -}}
+  gitlab.hostname: {{ .Values.gitlab.hostname | quote }}
+  {{- end }}
+
   dind.enabled: {{ .Values.dind.enabled | quote }}
   {{ if .Values.dind.enabled }}
   dind.host-socket-dir: {{ .Values.dind.hostSocketDir | quote }}

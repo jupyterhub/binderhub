@@ -46,6 +46,14 @@ if get_config('dind.enabled', False):
         get_config('dind.host-socket-dir')
     )
 
+github_hostname = get_config('github.hostname')
+if github_hostname:
+    c.GitHubRepoProvider.hostname = github_hostname
+
+gitlab_hostname = get_config('gitlab.hostname')
+if gitlab_hostname:
+    c.GitHubRepoProvider.hostname = gitlab_hostname
+
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')
 if allow_origin:
