@@ -30,7 +30,7 @@ class ParameterizedMainHandler(BaseHandler):
         except web.HTTPError:
             raise
         except Exception as e:
-            app_log.error("Failed to construct provider for %s/%s")
+            app_log.exception("Failed to construct provider for %s/%s", provider_prefix, spec)
             # FIXME: 400 assumes it's the user's fault (?)
             # maybe we should catch a special InvalidSpecError here
             raise web.HTTPError(400, str(e))
