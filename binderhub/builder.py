@@ -215,7 +215,6 @@ class BuildHandler(BaseHandler):
                 image_found = False
             else:
                 image_found = True
-            image_found = False
 
         # Launch a notebook server if the image already is built
         kube = client.CoreV1Api()
