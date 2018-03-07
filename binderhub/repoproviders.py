@@ -18,7 +18,7 @@ from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, Bool, default, List
+from traitlets import Dict, Unicode, Bool, default, List, observe
 from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
@@ -58,6 +58,13 @@ class RepoProvider(LoggingConfigurable):
         """
     )
 
+    @observe('spec')
+    def _spec_changed(self, change):
+        # specs must always end with "/<ref>"
+        self.repo_spec, self.unresolved_ref = change.new.rsplit('/', 1)
+
+    repo_spec = Unicode()
+
     banned_specs = List(
         help="""
         List of specs to blacklist building.
@@ -86,9 +93,11 @@ class RepoProvider(LoggingConfigurable):
         raise NotImplementedError("Must be overridden in child class")
 
     def get_repo_url(self):
+        """Return the git clone-able repo URL"""
         raise NotImplementedError("Must be overridden in the child class")
 
     def get_build_slug(self):
+        """Return a unique build slug"""
         raise NotImplementedError("Must be overriden in the child class")
 
     @staticmethod
@@ -105,7 +114,7 @@ class FakeProvider(RepoProvider):
         return "1a2b3c4d5e6f"
 
     def get_repo_url(self):
-        return "fake/repo"
+        return "https://example.com/fake/repo.git"
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
