@@ -4,10 +4,6 @@
 <meta id="base-url" data-url="{{base_url}}">
 <script src="{{static_url("dist/bundle.js")}}"></script>
 {{ super() }}
-<script>
- {% if submit %} window.submitBuild = true; {% endif %}
-</script>
-
 {% endblock head %}
 
 {% block main %}
@@ -173,3 +169,10 @@
   </div>
 </div>
 {% endblock main %}
+
+{% block footer %}
+{{ super () }}
+<script type="text/javascript">
+indexMain();
+</script>
+{% endblock footer %}

@@ -34,9 +34,8 @@ function update_favicon(path) {
     document.getElementsByTagName('head')[0].appendChild(link);
 }
 
-function Image(provider, spec) {
-    this.provider = provider;
-    this.spec = spec;
+function Image(provider_spec) {
+    this.provider_spec = provider_spec;
     this.callbacks = {};
     this.state = null;
 }
@@ -67,7 +66,7 @@ Image.prototype.changeState = function(state, data) {
 };
 
 Image.prototype.fetch = function() {
-    var apiUrl = BASE_URL + 'build/' + this.provider + '/' + this.spec;
+    var apiUrl = BASE_URL + 'build/' + this.provider_spec;
     this.eventSource = new EventSource(apiUrl);
     var that = this;
     this.eventSource.onerror = function (err) {
@@ -194,13 +193,121 @@ function rstBadge(url) {
   return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
-$(function(){
-    var failed = false;
-    var logsVisible = false;
-    var log = new Terminal({
-        convertEol: true,
-        disableStdin: true
-    });
+function build(provider, repo, ref, log) {
+  update_favicon("/favicon_building.ico");
+
+  // Update the text of the loading page if it exists
+  if ($('div#loader-text').length > 0) {
+    $('div#loader-text p').text("Loading repository: " + repo)
+    window.setTimeout( function() {
+      $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
+    }, 120000)
+  }
+
+  $('#build-progress .progress-bar').addClass('hidden');
+  log.clear();
+
+  $('.on-build').removeClass('hidden');
+
+  var image = new Image(provider + '/' + repo + '/' + ref);
+
+  image.onStateChange('*', function(oldState, newState, data) {
+    if (data.message !== undefined) {
+      log.write(data.message);
+      log.fit();
+    } else {
+      console.log(data);
+    }
+  });
+
+  image.onStateChange('waiting', function(oldState, newState, data) {
+    $('#phase-waiting').removeClass('hidden');
+  });
+
+  image.onStateChange('building', function(oldState, newState, data) {
+    $('#phase-building').removeClass('hidden');
+  });
+
+  image.onStateChange('pushing', function(oldState, newState, data) {
+    $('#phase-pushing').removeClass('hidden');
+  });
+
+  image.onStateChange('failed', function(oldState, newState, data) {
+    $('#build-progress .progress-bar').addClass('hidden');
+    $('#phase-failed').removeClass('hidden');
+
+    $("#loader").addClass("paused");
+    $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.");
+    update_favicon("/favicon_fail.ico");
+    // If we fail for any reason, we will show logs!
+    log.show();
+
+    // Show error on loading page
+    if ($('div#loader-text').length > 0) {
+      $('#loader').addClass("error");
+      $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.');
+    }
+    image.close();
+  });
+
+  image.onStateChange('built', function(oldState, newState, data) {
+    if (oldState === null) {
+      $('#phase-already-built').removeClass('hidden');
+      $('#phase-launching').removeClass('hidden');
+    }
+    $('#phase-launching').removeClass('hidden');
+    update_favicon("/favicon_success.ico");
+  });
+
+  image.onStateChange('ready', function(oldState, newState, data) {
+    image.close();
+    // fetch runtime params!
+    var filepath = $("#filepath").val().trim();
+    image.launch(data.url, data.token, filepath, getPathType());
+  });
+
+  image.fetch();
+  return image;
+}
+
+function setUpLog() {
+  var log = new Terminal({
+    convertEol: true,
+    disableStdin: true
+  });
+
+  log.open(document.getElementById('log'), false);
+  log.fit();
+
+  $(window).resize(function() {
+    log.fit();
+  });
+
+  var $panelBody = $("div.panel-body")
+  log.show = function () {
+    $('#toggle-logs button').text('hide');
+    $panelBody.removeClass('hidden');
+  };
+
+  log.hide = function () {
+    $('#toggle-logs button').text('show');
+    $panelBody.addClass('hidden');
+  };
+
+  log.toggle = function () {
+    if ($panelBody.hasClass('hidden')) {
+      log.show();
+    } else {
+      log.hide();
+    }
+  };
+
+  $('#toggle-logs').click(log.toggle);
+  return log;
+}
+
+function indexMain() {
+    var log = setUpLog();
 
     // setup badge dropdown and default values.
     updateUrlDiv();
@@ -217,28 +324,6 @@ $(function(){
     $('#ref').on('keyup paste change', updateUrlDiv);
 
     $('#filepath').on('keyup paste change', updateUrlDiv);
-
-    log.open(document.getElementById('log'), false);
-    log.fit();
-
-    $(window).resize(function() {
-        log.fit();
-    });
-
-    $('#toggle-logs').click(function() {
-        var $panelBody = $('#log-container .panel-body');
-        if ($panelBody.hasClass('hidden')) {
-            $('#toggle-logs button').text('hide');
-            $panelBody.removeClass('hidden');
-            logsVisible = true;
-        } else {
-            $('#toggle-logs button').text('show');
-            $panelBody.addClass('hidden');
-            logsVisible = false;
-        }
-
-        return false;
-    });
 
     $('#toggle-badge-snippet').on('click', function() {
         var badgeSnippets = $('#badge-snippets');
@@ -267,89 +352,20 @@ $(function(){
         if (repo.includes("://")) {
           repo = encodeURIComponent(repo);
         }
-        var image = new Image(provider_prefix, repo + '/' + ref);
-
+        return build(provider_prefix, repo, ref, log);
         var url = updateUrl();
         updateUrlDiv(url);
-        update_favicon("/favicon_building.ico");
-
-        // Update the text of the loading page if it exists
-        if ($('div#loader-text').length > 0) {
-            $('div#loader-text p').text("Loading repository: " + repo)
-            window.setTimeout( function() {
-                $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
-            }, 120000)
-        }
-
-        $('#build-progress .progress-bar').addClass('hidden');
-        log.clear();
-
-        $('.on-build').removeClass('hidden');
-
-        image.onStateChange('*', function(oldState, newState, data) {
-            if (data.message !== undefined) {
-                log.write(data.message);
-                log.fit();
-            } else {
-                console.log(data);
-            }
-        });
-
-        image.onStateChange('waiting', function(oldState, newState, data) {
-            $('#phase-waiting').removeClass('hidden');
-        });
-        image.onStateChange('building', function(oldState, newState, data) {
-            $('#phase-building').removeClass('hidden');
-        });
-
-        image.onStateChange('pushing', function(oldState, newState, data) {
-            $('#phase-pushing').removeClass('hidden');
-        });
-        image.onStateChange('failed', function(oldState, newState, data) {
-            failed = true;
-            $('#build-progress .progress-bar').addClass('hidden');
-            $('#phase-failed').removeClass('hidden');
-
-            $("#loader").addClass("paused");
-            $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.")
-            update_favicon("/favicon_fail.ico");
-            // If we fail for any reason, we will show logs!
-            if (!logsVisible) {
-                $('#toggle-logs').click();
-            }
-
-            // Show error on loading page
-            if ($('div#loader-text').length > 0) {
-                $('#loader').addClass("error");
-                $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.')
-            }
-            image.close();
-        });
-
-        image.onStateChange('built', function(oldState, newState, data) {
-            if (oldState === null) {
-                $('#phase-already-built').removeClass('hidden');
-                $('#phase-launching').removeClass('hidden');
-            }
-            $('#phase-launching').removeClass('hidden');
-            update_favicon("/favicon_success.ico");
-        });
-
-        image.onStateChange('ready', function(oldState, newState, data) {
-            image.close();
-            // fetch runtime params!
-            var filepath = $("#filepath").val().trim();
-            image.launch(data.url, data.token, filepath, getPathType());
-        });
-
-        image.fetch();
-        return false;
     });
+}
 
-    if (window.submitBuild) {
-        $('#build-form').submit();
-    }
-});
+function loadingMain(provider_prefix, repo, ref) {
+  log = setUpLog();
+  build(provider_prefix, repo, ref, log);
+}
+
+// export entrypoints
+window.loadingMain = loadingMain;
+window.indexMain = indexMain;
 
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
