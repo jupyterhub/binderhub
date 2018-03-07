@@ -121,20 +121,24 @@ class BinderHub(Application):
         This should be a Python string template.
         It will be formatted with at least the following names available:
 
-        - binder_url: the binder URL for (e.g. for linking)
+        - binder_url: the shareable URL for the current image
+          (e.g. for sharing links to the current Binder)
         - repo_url: the repository URL used to build the image
         """,
         config=True,
     )
 
     binderhub_appendix_url = Unicode(
-        help="""url of binderhub git-archive tarball for using the default appendix
+        help="""url of git-archive tarball containing an appendix
 
-        appendix/appendix.sh in this repo will be used if set.
+        If set, an appendix is generated that does:
 
-        For example:
+        - download and extract the /appendix subdirectory of the tarball
+        - execute /appendix/run-appendix
 
-        binderhub_appendix_url = 'https://github.com/jupyterhub/binderhub/archive/abc123.tar.gz'
+        For example, to use the appendix in the binderhub repo:
+
+        binderhub_appendix_url = 'https://github.com/jupyterhub/binderhub/archive/<commit-hash>.tar.gz'
         """,
         config=True,
     )
