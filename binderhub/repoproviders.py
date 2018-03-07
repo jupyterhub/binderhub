@@ -160,7 +160,13 @@ class GitLabRepoProvider(RepoProvider):
     """
 
     name = Unicode('GitLab')
-    hostname = Unicode('gitlab.com')
+
+    hostname = Unicode('gitlab.com', config=True,
+        help="""The host of the GitLab instance
+
+        For personal GitLab servers.
+        """
+        )
 
     access_token = Unicode(config=True,
         help="""GitLab OAuth2 access token for authentication with the GitLab API
@@ -214,7 +220,9 @@ class GitLabRepoProvider(RepoProvider):
         namespace = urllib.parse.quote(self.namespace, safe='')
         client = AsyncHTTPClient()
         api_url = "https://{hostname}/api/v4/projects/{namespace}/repository/commits/{ref}".format(
-            namespace=namespace, ref=urllib.parse.quote(self.unresolved_ref, safe=''), hostname=self.hostname
+            hostname=self.hostname,
+            namespace=namespace,
+            ref=urllib.parse.quote(self.unresolved_ref, safe=''),
         )
         self.log.debug("Fetching %s", api_url)
 
@@ -239,12 +247,20 @@ class GitLabRepoProvider(RepoProvider):
         return '-'.join(p.replace('-', '_-') for p in self.namespace.split('/'))
 
     def get_repo_url(self):
-        return "https://{hostname}/{namespace}.git".format(hostname=self.hostname, namespace=self.namespace)
+        return "https://{hostname}/{namespace}.git".format(
+            hostname=self.hostname, namespace=self.namespace)
 
 
 class GitHubRepoProvider(RepoProvider):
     """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
+    hostname = Unicode('github.com',
+        config=True,
+        help="""The GitHub hostname to use
+
+        Only necessary if not github.com,
+        e.g. GitHub Enterprise.
+        """)
 
     client_id = Unicode(config=True,
         help="""GitHub client id for authentication with the GitHub API
@@ -299,7 +315,8 @@ class GitHubRepoProvider(RepoProvider):
         self.repo = strip_suffix(self.repo, ".git")
 
     def get_repo_url(self):
-        return "https://github.com/{user}/{repo}".format(user=self.user, repo=self.repo)
+        return "https://{hostname}/{user}/{repo}".format(
+            hostname=self.hostname, user=self.user, repo=self.repo)
 
     @gen.coroutine
     def github_api_request(self, api_url):
@@ -366,8 +383,9 @@ class GitHubRepoProvider(RepoProvider):
         if hasattr(self, 'resolved_ref'):
             return self.resolved_ref
 
-        api_url = "https://api.github.com/repos/{user}/{repo}/commits/{ref}".format(
-            user=self.user, repo=self.repo, ref=self.unresolved_ref
+        api_url = "https://api.{hostname}/repos/{user}/{repo}/commits/{ref}".format(
+            user=self.user, repo=self.repo, ref=self.unresolved_ref,
+            hostname=self.hostname,
         )
         self.log.debug("Fetching %s", api_url)
 
