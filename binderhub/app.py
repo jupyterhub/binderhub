@@ -27,18 +27,6 @@ from .utils import ByteSpecification, url_path_join
 
 TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
-DEFAULT_APPENDIX_TEMPLATE = """
-USER root
-ENV BINDER_URL={{binder_url}}
-ENV REPO_URL={{repo_url}}
-RUN cd /tmp \
- && wget -q {appendix_archive_url} -O binderhub.tar.gz \
- && tar --wildcards -xzf binderhub.tar.gz --strip 1 */appendix\
- && ./appendix/run-appendix \
- && rm -rf binderhub.tar.gz appendix
-USER $NB_USER
-"""
-
 
 class BinderHub(Application):
     """An Application for starting a builder."""
@@ -127,27 +115,6 @@ class BinderHub(Application):
         """,
         config=True,
     )
-
-    binderhub_appendix_url = Unicode(
-        help="""url of git-archive tarball containing an appendix
-
-        If set, an appendix is generated that does:
-
-        - download and extract the /appendix subdirectory of the tarball
-        - execute /appendix/run-appendix
-
-        For example, to use the appendix in the binderhub repo:
-
-        binderhub_appendix_url = 'https://github.com/jupyterhub/binderhub/archive/<commit-hash>.tar.gz'
-        """,
-        config=True,
-    )
-    @observe('binderhub_appendix_url')
-    def _appendix_url_changed(self, change):
-        url = change.new
-        if url:
-            self.appendix = DEFAULT_APPENDIX_TEMPLATE.format(
-                appendix_archive_url=url)
 
     use_registry = Bool(
         True,

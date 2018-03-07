@@ -21,9 +21,6 @@ data:
   {{ if .Values.build.nodeSelector -}}
   binder.build-node-selector: {{ toJson .Values.build.nodeSelector | quote }}
   {{- end }}
-  {{ if .Values.build.appendixUrl -}}
-  binder.appendix-url: {{ .Values.build.appendixUrl | quote }}
-  {{- end }}
   {{ if .Values.build.appendix -}}
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
