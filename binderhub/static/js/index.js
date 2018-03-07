@@ -198,10 +198,10 @@ function build(spec, log) {
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository: " + spec)
-    window.setTimeout( function() {
+    $('div#loader-text p').text("Loading repository: " + spec);
+    window.setTimeout(function() {
       $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
-    }, 120000)
+    }, 120000);
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
@@ -245,7 +245,7 @@ function build(spec, log) {
     // Show error on loading page
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
-      $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.');
+      $('div#loader-text p').html('Error loading ' + spec + '!<br /> See logs below for details.');
     }
     image.close();
   });
@@ -283,7 +283,7 @@ function setUpLog() {
     log.fit();
   });
 
-  var $panelBody = $("div.panel-body")
+  var $panelBody = $("div.panel-body");
   log.show = function () {
     $('#toggle-logs button').text('hide');
     $panelBody.removeClass('hidden');
@@ -352,14 +352,14 @@ function indexMain() {
         if (repo.includes("://")) {
           repo = encodeURIComponent(repo);
         }
-        return build(provider_prefix + '/' + repo + '/' + ref, log);
         var url = updateUrl();
         updateUrlDiv(url);
+        return build(provider_prefix + '/' + repo + '/' + ref, log);
     });
 }
 
 function loadingMain(spec, ref) {
-  log = setUpLog();
+  var log = setUpLog();
   build(spec, log);
 }
 
@@ -370,4 +370,4 @@ window.indexMain = indexMain;
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
   new Clipboard('.clipboard');
-}
+};
