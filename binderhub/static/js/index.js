@@ -270,10 +270,6 @@ $(function(){
         var image = new Image(provider_prefix, repo + '/' + ref);
 
         var url = updateUrl();
-        // add fixed build URL to window history so that reload with refill the form
-        if (window.location.href !== url) {
-          window.history.pushState({}, '', url);
-        }
         updateUrlDiv(url);
         update_favicon("/favicon_building.ico");
 
