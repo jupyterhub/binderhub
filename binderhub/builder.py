@@ -5,7 +5,7 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 import hashlib
 from http.client import responses
 import json
-import  string
+import string
 import time
 import escapism
 
@@ -120,7 +120,7 @@ class BuildHandler(BaseHandler):
         def escape(s):
             return escapism.escape(s, safe=safe_chars, escape_char='-')
         
-        build_slug = self._safe_build_slug(build_slug, limit= limit - len(prefix) - ref_length - 1)
+        build_slug = self._safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
         ref = escape(ref)
 
         return '{prefix}{safe_slug}-{ref}'.format(
