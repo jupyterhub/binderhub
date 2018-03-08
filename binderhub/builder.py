@@ -90,7 +90,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 
-    def _generate_build_name(self, build_slug, ref, prefix='', limit=63, hash_length=6, ref_length=6):
+    def _generate_build_name(self, build_slug, ref, prefix='', limit=63, ref_length=6):
         """
         Generate a unique build name with a limited character length..
 
@@ -110,8 +110,7 @@ class BuildHandler(BaseHandler):
         We also ensure that the returned value is DNS safe, by only using
         ascii lowercase + digits. everything else is escaped
         """
-        build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
-
+        
         # escape parts that came from providers (build slug, ref)
         # only build_slug *really* needs this (refs should be sha1 hashes)
         # build names are case-insensitive because ascii_letters are allowed,
@@ -119,14 +118,32 @@ class BuildHandler(BaseHandler):
         safe_chars = set(string.ascii_letters + string.digits)
         def escape(s):
             return escapism.escape(s, safe=safe_chars, escape_char='-')
-        build_slug = escape(build_slug)
+        
+        build_slug = self._safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
         ref = escape(ref)
 
-        return '{prefix}{name}-{hash}-{ref}'.format(
+        return '{prefix}{safe_slug}-{ref}'.format(
             prefix=prefix,
-            name=build_slug[:limit - hash_length - ref_length - len(prefix) - 2],
-            hash=build_slug_hash[:hash_length],
+            safe_slug=build_slug,
             ref=ref[:ref_length],
+        ).lower()
+
+    def _safe_build_slug(self, build_slug, limit, hash_length=6):
+        """
+        This function catches a bug where build slug may not produce a valid image name 
+        (e.g. repo name ending with _, which results in image name ending with '-' which is invalid).
+        This ensures that the image name is always safe, regardless of build slugs returned by providers
+        (rather than requiring all providers to return image-safe build slugs below a certain length).
+        Since this changes the image name generation scheme, all existing cached images will be invalidated.
+        """
+        build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
+        safe_chars = set(string.ascii_letters + string.digits)
+        def escape(s):
+            return escapism.escape(s, safe=safe_chars, escape_char='-')
+        build_slug = escape(build_slug)
+        return '{name}-{hash}'.format(
+            name=build_slug[:limit - hash_length - 1],
+            hash=build_slug_hash[:hash_length],
         ).lower()
 
     async def fail(self, message):
@@ -193,12 +210,18 @@ class BuildHandler(BaseHandler):
             return
 
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
+
+        image_prefix = self.settings['docker_image_prefix']
+
+        # Enforces max 255 characters before image
+        safe_build_slug = self._safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
+
         build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
-        # FIXME: EnforceMax of 255 before image and 128 for tag
         image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
-            prefix=self.settings['docker_image_prefix'],
-            build_slug=provider.get_build_slug(), ref=ref
+            prefix=image_prefix,
+            build_slug=safe_build_slug, 
+            ref=ref
         ).replace('_', '-').lower()
 
         if self.settings['use_registry']:
