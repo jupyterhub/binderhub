@@ -181,6 +181,7 @@ class BuildHandler(BaseHandler):
         # create a heartbeat
         IOLoop.current().spawn_callback(self.keep_alive)
 
+        spec = spec.rstrip("/")
         key = '%s:%s' % (provider_prefix, spec)
 
         # get a provider object that encapsulates the provider and the spec
