@@ -1,6 +1,8 @@
 language: python
 python:
 - 3.6
+git:
+  depth: false
 services:
 - docker
 sudo: required
