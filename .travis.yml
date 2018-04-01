@@ -21,13 +21,16 @@ script:
 - export BINDER_TEST_NAMESPACE=binder-test-$TEST
 - ./ci/test-$TEST
 after_failure:
-- for pod in $(kubectl get pod --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
+- |
+  # get pod logs
+  for pod in $(kubectl get pod --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
     echo $pod
     kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod
   done
 after_success:
 - codecov
 - |
+  # publish helm chart
   if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TEST" == "helm" ]]; then
     openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
     chmod 0400 travis
@@ -35,6 +38,7 @@ after_success:
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
     cd helm-chart
     chartpress --commit-range "${TRAVIS_COMMIT_RANGE}" --push --publish-chart
+    git diff
     cd ..
   fi
 
