@@ -263,7 +263,7 @@ $(function(){
           window.history.pushState({}, '', url);
         }
         updateUrlDiv(url);
-        update_favicon("/favicon_building.ico");
+        update_favicon(BASE_URL + "favicon_building.ico");
 
         // Update the text of the loading page if it exists
         if ($('div#loader-text').length > 0) {
@@ -304,7 +304,7 @@ $(function(){
 
             $("#loader").addClass("paused");
             $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.")
-            update_favicon("/favicon_fail.ico");
+            update_favicon(BASE_URL + "favicon_fail.ico");
             // If we fail for any reason, we will show logs!
             if (!logsVisible) {
                 $('#toggle-logs').click();
@@ -324,7 +324,7 @@ $(function(){
                 $('#phase-launching').removeClass('hidden');
             }
             $('#phase-launching').removeClass('hidden');
-            update_favicon("/favicon_success.ico");
+            update_favicon(BASE_URL + "favicon_success.ico");
         });
 
         image.onStateChange('ready', function(oldState, newState, data) {
