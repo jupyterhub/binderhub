@@ -40,6 +40,8 @@ after_success:
     docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
     cd helm-chart
     chartpress --commit-range "${TRAVIS_COMMIT_RANGE}" --push --publish-chart
+    # git diff will show us the result of the chartpress render.
+    # This should only include the tags for chartpress images.
     git diff
     cd ..
   fi
