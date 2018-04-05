@@ -13,7 +13,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, observe, validate, TraitError
+from traitlets import Unicode, Integer, Bool, Dict, observe, validate, TraitError, default
 from traitlets.config import Application
 
 from .base import Custom404
@@ -159,6 +159,33 @@ class BinderHub(Application):
         Set according to whatever registry you are pushing to.
 
         Defaults to "", which is probably not what you want :)
+        """,
+        config=True
+    )
+
+    docker_registry_host = Unicode(
+        "",
+        help="""
+        Docker registry host.
+        """,
+        config=True
+    )
+
+    docker_auth_host = Unicode(
+        help="""
+        Docker authentication host.
+        """,
+        config=True
+    )
+
+    @default('docker_auth_host')
+    def _docker_auth_host_default(self):
+        return self.docker_registry_host
+
+    docker_token_url = Unicode(
+        "",
+        help="""
+        Url to request docker registry authentication token.
         """,
         config=True
     )
@@ -340,7 +367,9 @@ class BinderHub(Application):
         jinja_options = dict(autoescape=True, )
         jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
         if self.use_registry and self.builder_required:
-            registry = DockerRegistry(self.docker_image_prefix.split('/', 1)[0])
+            registry = DockerRegistry(self.docker_auth_host,
+                                      self.docker_token_url,
+                                      self.docker_registry_host)
         else:
             registry = None
 
