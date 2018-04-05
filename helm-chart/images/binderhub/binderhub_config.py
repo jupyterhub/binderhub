@@ -29,6 +29,11 @@ c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
 
 c.BinderHub.builder_image_spec = get_config('binder.repo2docker-image')
 c.BinderHub.build_node_selector = get_config('binder.build-node-selector', {})
+
+if os.path.exists('/etc/binderhub/config/binder.appendix'):
+    with open('/etc/binderhub/config/binder.appendix') as f:
+        c.BinderHub.appendix = f.read()
+
 c.BinderHub.hub_url = get_config('binder.hub-url')
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
@@ -43,6 +48,14 @@ if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
         get_config('dind.host-socket-dir')
     )
+
+github_hostname = get_config('github.hostname')
+if github_hostname:
+    c.GitHubRepoProvider.hostname = github_hostname
+
+gitlab_hostname = get_config('gitlab.hostname')
+if gitlab_hostname:
+    c.GitHubRepoProvider.hostname = gitlab_hostname
 
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')

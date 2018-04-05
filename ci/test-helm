@@ -9,7 +9,9 @@ export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
 export BINDER_TEST_URL=http://$IP:30901
 export HUB_URL=http://$IP:30902
 echo -e "hub:\n  url: $HUB_URL" > helm-chart/travis-binder.yaml
-
+if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
+  echo -e "github:\n  accessToken: '$GITHUB_ACCESS_TOKEN'" >> helm-chart/travis-binder.yaml
+fi
 
 echo "building helm chart"
 cd helm-chart

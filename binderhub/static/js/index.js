@@ -194,7 +194,7 @@ function rstBadge(url) {
 }
 
 function build(spec, log) {
-  update_favicon("/favicon_building.ico");
+  update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of spec
   var repo = decodeURIComponent(spec.slice(spec.indexOf('/') + 1));
 
