@@ -165,7 +165,7 @@ function updateUrl() {
 }
 
 function updateUrlDiv() {
-  var url = updateUrl()
+  var url = updateUrl();
   if ((url||'').trim().length > 0){
     $('#basic-url-snippet').text(url);
     $('#markdown-badge-snippet').text(markdownBadge(url));
@@ -193,7 +193,7 @@ function rstBadge(url) {
   return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
-function build(spec, log) {
+function build(spec, log, filepath, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of spec
   var repo = decodeURIComponent(spec.slice(spec.indexOf('/') + 1));
@@ -263,9 +263,7 @@ function build(spec, log) {
 
   image.onStateChange('ready', function(oldState, newState, data) {
     image.close();
-    // fetch runtime params!
-    var filepath = $("#filepath").val().trim();
-    image.launch(data.url, data.token, filepath, getPathType());
+    image.launch(data.url, data.token, filepath, pathType);
   });
 
   image.fetch();
@@ -356,13 +354,35 @@ function indexMain() {
         }
         var url = updateUrl();
         updateUrlDiv(url);
-        return build(provider_prefix + '/' + repo + '/' + ref, log);
+        build(
+          provider_prefix + '/' + repo + '/' + ref,
+          log,
+          $("#filepath").val().trim(),
+          getPathType()
+        );
+        return false;
     });
 }
 
 function loadingMain(spec, ref) {
   var log = setUpLog();
-  build(spec, log);
+  // retrieve filepath/urlpath from URL
+  var params = new URL(location.href).searchParams;
+  var pathType, path;
+  path = params.get('urlpath');
+  if (path) {
+    pathType = 'url';
+  } else {
+    path = params.get('filepath');
+    if (path) {
+      pathType = 'file';
+    }
+  }
+  if (path) {
+    path = decodeURIComponent(path);
+  }
+  build(spec, log, path, pathType);
+  return false;
 }
 
 // export entrypoints
