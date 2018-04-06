@@ -20,6 +20,11 @@ def get_config(key, default=None):
 c.BinderHub.debug = True
 
 c.BinderHub.docker_image_prefix = get_config('binder.registry.prefix')
+if get_config('binder.use-registry'):
+    c.BinderHub.docker_registry_host = get_config('binder.registry.host')
+    if get_config('binder.registry.auth-host'):
+        c.BinderHub.docker_auth_host = get_config('binder.registry.auth-host')
+    c.BinderHub.docker_token_url = get_config('binder.registry.auth-token-url')
 
 c.BinderHub.docker_push_secret = get_config('binder.push-secret')
 c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']

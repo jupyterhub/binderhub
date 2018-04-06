@@ -7,6 +7,10 @@ data:
   {{ if .Values.registry.enabled -}}
   binder.push-secret: binder-secret
   binder.registry.host: {{ .Values.registry.host | quote }}
+  {{ if .Values.registry.authHost -}}
+  binder.registry.auth-host: {{ .Values.registry.authHost | quote }}
+  {{- end }}
+  binder.registry.auth-token-url: {{ .Values.registry.authTokenUrl | quote }}
   {{ end -}}
   {{ if .Values.googleAnalyticsCode -}}
   binder.google-analytics-code: {{ .Values.googleAnalyticsCode | quote }}
