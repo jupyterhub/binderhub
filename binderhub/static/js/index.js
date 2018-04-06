@@ -378,7 +378,10 @@ function loadingMain(spec, ref) {
       pathType = 'file';
     }
   }
-  build(spec, log, decodeURIComponent(path), pathType);
+  if (path) {
+    path = decodeURIComponent(path);
+  }
+  build(spec, log, path, pathType);
   return false;
 }
 
