@@ -15,9 +15,6 @@ class MainHandler(BaseHandler):
         self.render_template(
             "index.html",
             base_url=self.settings['base_url'],
-            url=None,
-            ref='',
-            filepath=None,
             submit=False,
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
@@ -27,9 +24,15 @@ class MainHandler(BaseHandler):
 class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
-    def get(self, provider_prefix, spec):
+    def get(self, provider_prefix, _unescaped_spec):
+        # re-extract spec from request.path
+        # get the original, raw spec, without tornado's unquoting
+        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
+        prefix = '/v2/' + provider_prefix
+        idx = self.request.path.index(prefix)
+        spec = self.request.path[idx + len(prefix) + 1:]
         try:
-            provider = self.get_provider(provider_prefix, spec=spec)
+            self.get_provider(provider_prefix, spec=spec)
         except web.HTTPError:
             raise
         except Exception as e:
@@ -44,8 +47,7 @@ class ParameterizedMainHandler(BaseHandler):
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
-            url=provider.get_repo_url(),
-            ref=provider.unresolved_ref,
+            provider_spec='{}/{}'.format(provider_prefix, spec),
             filepath=self.get_argument('filepath', None),
             urlpath=self.get_argument('urlpath', None),
             submit=True,

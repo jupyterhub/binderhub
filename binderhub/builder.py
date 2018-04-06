@@ -152,7 +152,7 @@ class BuildHandler(BaseHandler):
             'message': message + '\n',
         })
 
-    async def get(self, provider_prefix, spec):
+    async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
 
         Different repo providers will require different spec information. This
@@ -167,6 +167,13 @@ class BuildHandler(BaseHandler):
                 repo, ref, etc.)
 
         """
+        # re-extract spec from request.path
+        # get the original, raw spec, without tornado's unquoting
+        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
+        prefix = '/build/' + provider_prefix
+        idx = self.request.path.index(prefix)
+        spec = self.request.path[idx + len(prefix) + 1:]
+
         # set up for sending event streams
         self.set_header('content-type', 'text/event-stream')
         self.set_header('cache-control', 'no-cache')

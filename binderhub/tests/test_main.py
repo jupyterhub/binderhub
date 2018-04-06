@@ -74,11 +74,9 @@ def test_main_page(app):
 
 
 @pytest.mark.gen_test
-def test_parametrized_page(app):
+def test_loading_page(app):
     sha = 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195'
     r = yield async_requests.get(app.url + f'/v2/gh/minrk/ligo-binder/{sha}?filepath=index.ipynb')
     assert r.status_code == 200
     soup = BeautifulSoup(r.text, 'html5lib')
-    assert soup.find(id='repository')['value'] == 'https://github.com/minrk/ligo-binder'
-    assert soup.find(id='ref')['value'] == sha
-    assert soup.find(id='filepath')['value'] == 'index.ipynb'
+    assert soup.find(id='log-container')

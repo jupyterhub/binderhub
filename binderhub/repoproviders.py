@@ -18,7 +18,7 @@ from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, Bool, default, List
+from traitlets import Dict, Unicode, Bool, default, List, observe
 from traitlets.config import LoggingConfigurable
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
@@ -86,9 +86,11 @@ class RepoProvider(LoggingConfigurable):
         raise NotImplementedError("Must be overridden in child class")
 
     def get_repo_url(self):
+        """Return the git clone-able repo URL"""
         raise NotImplementedError("Must be overridden in the child class")
 
     def get_build_slug(self):
+        """Return a unique build slug"""
         raise NotImplementedError("Must be overriden in the child class")
 
     @staticmethod
@@ -105,7 +107,7 @@ class FakeProvider(RepoProvider):
         return "1a2b3c4d5e6f"
 
     def get_repo_url(self):
-        return "fake/repo"
+        return "https://example.com/fake/repo.git"
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
@@ -135,6 +137,7 @@ class GitRepoProvider(RepoProvider):
             raise ValueError("`resolved_ref` must be specified as a query parameter for the basic git provider")
         self.sha1_validate(resolved_ref)
         self.resolved_ref = resolved_ref
+        self.unresolved_ref = resolved_ref
 
     @gen.coroutine
     def get_resolved_ref(self):
