@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+appendix_dir="$(dirname "$0")"
+mkdir -p /etc/jupyter
+# add and register custom templates and config
+cp -r "${appendix_dir}/templates" /etc/jupyter/binder_templates
+cat "${appendix_dir}/extra_notebook_config.py" >> /etc/jupyter/jupyter_notebook_config.py
+# ensure /etc/jupyter has read+listdir permissions for all
+chmod -R a+rX /etc/jupyter

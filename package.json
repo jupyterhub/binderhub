@@ -1,0 +1,31 @@
+{
+  "name": "binderhub",
+  "version": "0.1.0",
+  "description": "`BinderHub`",
+  "devDependencies": {
+    "bootstrap": "^3.3.7",
+    "clipboard": "^1.7.1",
+    "css-loader": "^0.28.7",
+    "event-source-polyfill": "^0.0.12",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.6",
+    "jquery": "^3.2.1",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.10.0",
+    "xterm": "^2.9.2"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "webpack:watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jupyterhub/binderhub.git"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jupyterhub/binderhub/issues"
+  },
+  "homepage": "https://github.com/jupyterhub/binderhub#readme"
+}

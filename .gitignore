@@ -94,3 +94,16 @@ ENV/
 # Sphinx stuff
 _build/
 
+# Node stuff
+node_modules/
+package-lock.json
+
+# Built files
+binderhub/static/dist
+helm-chart/binderhub/charts
+
+# Instructions we download
+k8s.txt
+helm.txt
+travis
+helm-chart/travis-binder.yaml

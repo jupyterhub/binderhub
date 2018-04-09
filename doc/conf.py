@@ -19,6 +19,7 @@
 #
 import os
 import sys
+import requests
 curdir = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join(curdir, 'script')))
 
@@ -188,3 +189,22 @@ texinfo_documents = [
      author, 'BinderHub', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+# -- Custom scripts -------------------------------------------
+
+# Grab the latest version of the k8s and helm install instructions.
+k8s_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/create-k8s-cluster.rst"
+helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-helm.rst"
+
+resp = requests.get(k8s_instructions)
+with open('./k8s.txt', 'w') as ff:
+    ff.write(resp.text)
+
+resp = requests.get(helm_instructions)
+with open('./helm.txt', 'w') as ff:
+    # Bump section headers
+    lines = resp.text.split('\n')
+    for ii, ln in enumerate(lines):
+        if ln.startswith('---'):
+            lines[ii] = ln.replace('-', '~')
+    ff.write('\n'.join(lines))

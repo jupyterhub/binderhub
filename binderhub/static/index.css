@@ -2,30 +2,24 @@
 
 @font-face {
     font-family: ClearSans-Thin;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Thin.woff');
+    src: url('../static/fonts/clearsans/WOFF/ClearSans-Thin.woff');
 }
 
 @font-face {
     font-family: ClearSans-Light;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Light.woff');
+    src: url('../static/fonts/clearsans/WOFF/ClearSans-Light.woff');
 }
 
 @font-face {
     font-family: ClearSans-Bold;
-    src: url('/static/vendor/clearsans/WOFF/ClearSans-Bold.woff');
+    src: url('../static/fonts/clearsans/WOFF/ClearSans-Bold.woff');
 }
 
 .hidden {
     display: none;
 }
 
-#badge-snippet {
-  max-width: 200px;
-  font-size: 75%;
-}
-
 body {
-    padding-top: 32px;
     font-family: "ClearSans-Thin", sans-serif;
 }
 
@@ -50,7 +44,7 @@ p > a:hover {
 #build-form {
     color: rgb(50,50,50);
     background: rgb(235, 236, 237);
-    padding: 40px;
+    padding: 55px;
     padding-top: 25px;
     padding-bottom: 20px;
 }
@@ -72,6 +66,16 @@ p > a:hover {
     margin-left: 5%;
     width: 90%;
     padding-bottom: 24px;
+}
+
+.btn-submit{
+    background-color:rgb(243, 162, 83);
+    box-shadow: 1px 1px rgba(0,0,0,.075);
+    color:white;
+    border:none;
+    height:35px;
+    width: 100%;
+    border-radius: 4px;
 }
 
 .jumbotron {
@@ -119,6 +123,7 @@ h4 {
 
 #launch-buttons {
     margin-top: 24px;
+    width: 100%;
 }
 
 #log {
@@ -128,6 +133,71 @@ h4 {
 #log .terminal {
     font-family: "Roboto Mono", monospace;
 }
+
+.url, .badges{
+    background-color: #ffffff;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+.url{
+    margin-bottom:20px;
+}
+
+.badges{
+    margin-bottom:40px;
+}
+
+.bluedropdown{
+    background-color:#579ACA;
+    border-radius: 3px 3px 0px 0px;
+    height:35px;
+    width: 100%;
+}
+
+.bluedropdown label{
+    color:white;
+    padding: 6px 12px;
+    margin:0px;
+    width: 95%;
+}
+
+
+.badge-snippet-row, .url-row {
+    width: 100%;
+    display: flex;
+    flex-direction: reverse;
+    border-bottom: 1px #ccc solid;
+    padding: 10px;
+}
+
+.badge-snippet-row .icon, .url-row .icon {
+    order: 0;
+    max-width: 30px;
+    max-height: 40px;
+    padding:3px;
+    /* margin-top: 13px; */
+    /*margin-left: 4px; */
+}
+
+.input-group-btn .btn {
+    border: solid #ccc 1px;
+}
+
+.badge-snippet-row pre, .url-row pre {
+    order: 1;
+    margin: 0;
+    flex-grow: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 
 #how-it-works {
     line-height: 1.5;
@@ -182,4 +252,47 @@ div.front {
 
 h4.logo-subtext {
   margin-top: -60px;
+}
+
+.form-row .form-group:first-child{
+  padding-left: 0;
+}
+
+.form-row .form-group:last-child{
+  padding-right: 0;
+}
+
+#badge-snippets {
+  width: 100%;
+}
+
+/**/
+
+@media (max-width: 991px){
+    .form-row .form-group {
+        padding: 0;
+    }
+
+    #launch-buttons {
+        margin-top: inherit;
+    }
+
+}
+
+/*Clipboard styling*/
+
+img.icon.clipboard{
+    order: 1;
+    border: thin solid silver;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-left: none;
+}
+img.icon.clipboard:hover {
+    background: #f5f5f5;
+}
+
+img.icon.clipboard:active {
+    background: #ddd;
 }

@@ -1,12 +1,17 @@
 import os
 
 from setuptools import setup, find_packages
+import subprocess
 
 # get the version
 version_ns = {}
 here = os.path.dirname(__file__)
 with open(os.path.join(here, 'binderhub', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
+
+# Build our js and css files before packaging
+subprocess.check_call(['npm', 'install'])
+subprocess.check_call(['npm', 'run', 'webpack'])
 
 setup(
     name='binderhub',
@@ -19,6 +24,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'kubernetes==3.*',
+        'escapism',
         'tornado',
         'traitlets',
         'docker',

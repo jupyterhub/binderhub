@@ -1,0 +1,33 @@
+{% extends "page.html" %}
+
+{% block head %}
+<meta id="base-url" data-url="{{base_url}}">
+{{ super() }}
+<script src="{{static_url("dist/bundle.js")}}"></script>
+<link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
+<link rel="stylesheet" href="{{static_url("loading.css")}}">
+{% endblock head %}
+
+{% block main %}
+<div id="loader"></div>
+<div id="loader-text">
+	<p>Loading your Binder...</p>
+</div>
+
+<div id="log-container" class="panel panel-default on-build hidden row">
+  <div id="toggle-logs" class="panel-heading">
+    Build logs
+    <button class="btn btn-link btn-xs pull-right">show</button>
+  </div>
+  <div class="panel-body hidden">
+    <div id="log"></div>
+  </div>
+</div>
+
+{% endblock main %}
+
+{% block footer %}
+<script type="text/javascript">
+loadingMain("{{provider_spec}}");
+</script>
+{% endblock footer %}

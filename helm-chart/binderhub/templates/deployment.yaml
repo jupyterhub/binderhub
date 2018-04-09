@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: binderhub-deployment
+  name: binder
 spec:
   replicas: 1
   strategy:
@@ -14,7 +14,11 @@ spec:
   template:
     metadata:
       labels:
-        name: binder-pod
+        app: binder
+        name: binder
+        component: binder
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
         {{ if .Values.deployment.labels -}}
         # Because toYaml + indent is super flaky
         {{ range $key, $value := .Values.deployment.labels -}}
@@ -26,6 +30,7 @@ spec:
         checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
+      nodeSelector: {{ toJson .Values.nodeSelector }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: binderhub
       {{- end }}
@@ -89,6 +94,20 @@ spec:
             secretKeyRef:
               name: binder-secret
               key: "github.access-token"
+        {{- end }}
+        {{ if .Values.gitlab.accessToken -}}
+        - name: GITLAB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: binder-secret
+              key: "gitlab.access-token"
+        {{- end }}
+        {{ if .Values.gitlab.privateToken -}}
+        - name: GITLAB_PRIVATE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: binder-secret
+              key: "gitlab.private-token"
         {{- end }}
         ports:
           - containerPort: 8585

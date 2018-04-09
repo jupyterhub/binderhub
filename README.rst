@@ -53,6 +53,12 @@ Installation
 However, it can be installed using ``pip``::
 
     pip install git+https://github.com/jupyterhub/binderhub
+    
+See `the BinderHub documentation <https://binderhub.readthedocs.io>`_ for a detailed guide on setting
+up your own BinderHub server.
+
+**Local development**: To run BinderHub locally in order to make contributions to the codebase,
+see `the contribution guide <https://github.com/jupyterhub/binderhub/blob/master/CONTRIBUTING.md>`_.
 
 Documentation
 -------------

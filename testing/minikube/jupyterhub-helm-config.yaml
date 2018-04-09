@@ -3,9 +3,9 @@
 
 # the binder apiToken bit requires jupyterhub helm-chart v0.5.x
 
+rbac:
+  enabled: false
 hub:
-  rbac:
-    enabled: false
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
     type: "sqlite-memory"
@@ -13,37 +13,38 @@ hub:
     binder:
       admin: true
       apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
-  extraConfig: |
-    # disable login (users created exclusively via API)
-    c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
+  extraConfig:
+    binder: |
+      # disable login (users created exclusively via API)
+      c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
-    # image & token are set via spawn options
-    from kubespawner import KubeSpawner
+      # image & token are set via spawn options
+      from kubespawner import KubeSpawner
 
-    class BinderSpawner(KubeSpawner):
-      def get_args(self):
-          return [
-              '--ip=0.0.0.0',
-              '--port=%i' % self.port,
-              '--NotebookApp.base_url=%s' % self.server.base_url,
-              '--NotebookApp.token=%s' % self.user_options['token'],
-              '--NotebookApp.allow_origin=*',
-          ] + self.args
+      class BinderSpawner(KubeSpawner):
+        def get_args(self):
+            return [
+                '--ip=0.0.0.0',
+                '--port=%i' % self.port,
+                '--NotebookApp.base_url=%s' % self.server.base_url,
+                '--NotebookApp.token=%s' % self.user_options['token'],
+                '--NotebookApp.allow_origin=*',
+            ] + self.args
 
-      def start(self):
-          if 'token' not in self.user_options:
-            raise web.HTTPError(400, "token required")
-          if 'image' not in self.user_options:
-            raise web.HTTPError(400, "image required")
+        def start(self):
+            if 'token' not in self.user_options:
+              raise web.HTTPError(400, "token required")
+            if 'image' not in self.user_options:
+              raise web.HTTPError(400, "image required")
 
-          self.singleuser_image_spec = self.user_options['image']
-          return super().start()
+            self.singleuser_image_spec = self.user_options['image']
+            return super().start()
 
-    # launch jupyter notebook instead of jupyterhub-singleuser
-    c.JupyterHub.spawner_class = BinderSpawner
+      # launch jupyter notebook instead of jupyterhub-singleuser
+      c.JupyterHub.spawner_class = BinderSpawner
 
-    # debug!
-    c.JupyterHub.log_level = 10
+      # debug!
+      c.JupyterHub.log_level = 10
 
 singleuser:
   cmd: jupyter-notebook
@@ -60,4 +61,5 @@ proxy:
   secretToken: "443fa28905c209eaf5803f911de7748f443c78062767d9d28d514dc4fbefd843"
   service:
     type: NodePort
-    nodePort: 30123
+    nodePorts:
+      http: 30123

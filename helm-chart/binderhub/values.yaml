@@ -6,18 +6,29 @@ resources:
 rbac:
   enabled: true
 
+baseUrl: /
+nodeSelector: {}
+
 image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
-repo2dockerImage: jupyter/repo2docker:v0.4.1
+build:
+  repo2dockerImage: jupyter/repo2docker:687788f
+  nodeSelector: {}
+  appendix:
+
+perRepoQuota: 100
 
 googleAnalyticsCode:
+googleAnalyticsDomain:
 
 registry:
   enabled: false
   prefix: binderhub-local/
-  host: gcr.io
+  host: https://gcr.io
+  authHost:
+  authTokenUrl: https://gcr.io/v2/token?service=gcr.io
   username: _json_key
   password:
 
@@ -29,11 +40,19 @@ service:
   nodePort:
 
 github:
+  hostname:
   # either id + secret...
   clientId:
   clientSecret:
   # ...or access_token
   accessToken:
+
+gitlab:
+  hostname:
+  accessToken:
+  privateToken:
+
+extraConfig: {}
 
 # have to set cors.allowOrigin twice:
 # once in top-level cors.allowOrigin,
@@ -59,55 +78,56 @@ jupyterhub:
   hub:
     rbac:
       enabled: true
-    extraConfig: |
-      import os
-      import sys
-      import yaml
-      def get_config_map(key, default=None):
-          """
-          Find a configmap item of a given name & return it
+    extraConfig:
+      binder: |
+        import os
+        import sys
+        import yaml
+        def get_config_map(key, default=None):
+            """
+            Find a configmap item of a given name & return it
 
-          Parses everything as YAML, so lists and dicts are available too
-          """
-          path = os.path.join('/etc/jupyterhub/config', key)
-          try:
-              with open(path) as f:
-                  return yaml.safe_load(f)
-          except FileNotFoundError:
-              return default
+            Parses everything as YAML, so lists and dicts are available too
+            """
+            path = os.path.join('/etc/jupyterhub/config', key)
+            try:
+                with open(path) as f:
+                    return yaml.safe_load(f)
+            except FileNotFoundError:
+                return default
 
-      # get cors config from config-map
-      cors = get_config_map('custom.cors', {})
+        # get cors config from config-map
+        cors = get_config_map('custom.cors', {})
 
-      # disable login (users created exclusively via API)
-      c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
+        # disable login (users created exclusively via API)
+        c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
-      # image & token are set via spawn options
-      from kubespawner import KubeSpawner
+        # image & token are set via spawn options
+        from kubespawner import KubeSpawner
 
-      class BinderSpawner(KubeSpawner):
-        def get_args(self):
-            args = [
-                '--ip=0.0.0.0',
-                '--port=%i' % self.port,
-                '--NotebookApp.base_url=%s' % self.server.base_url,
-                '--NotebookApp.token=%s' % self.user_options['token'],
-            ]
-            allow_origin = cors.get('allowOrigin')
-            if allow_origin:
-                args.append('--NotebookApp.allow_origin=' + allow_origin)
-            return args + self.args
+        class BinderSpawner(KubeSpawner):
+          def get_args(self):
+              args = [
+                  '--ip=0.0.0.0',
+                  '--port=%i' % self.port,
+                  '--NotebookApp.base_url=%s' % self.server.base_url,
+                  '--NotebookApp.token=%s' % self.user_options['token'],
+              ]
+              allow_origin = cors.get('allowOrigin')
+              if allow_origin:
+                  args.append('--NotebookApp.allow_origin=' + allow_origin)
+              return args + self.args
 
-        def start(self):
-            if 'token' not in self.user_options:
-              raise web.HTTPError(400, "token required")
-            if 'image' not in self.user_options:
-              raise web.HTTPError(400, "image required")
+          def start(self):
+              if 'token' not in self.user_options:
+                raise web.HTTPError(400, "token required")
+              if 'image' not in self.user_options:
+                raise web.HTTPError(400, "image required")
 
-            self.singleuser_image_spec = self.user_options['image']
-            return super().start()
+              self.singleuser_image_spec = self.user_options['image']
+              return super().start()
 
-      c.JupyterHub.spawner_class = BinderSpawner
+        c.JupyterHub.spawner_class = BinderSpawner
 
     extraConfigMap:
       cors: *cors
@@ -124,10 +144,21 @@ jupyterhub:
     memory:
       guarantee:
   prePuller:
-    enabled: false
+    hook:
+      enabled: false
 
 deployment:
   labels: {}
+
+dind:
+  enabled: false
+  initContainers: []
+  daemonset:
+    image:
+      name: docker
+      tag: 17.11.0-ce-dind
+  storageDriver: overlay2
+  hostSocketDir: /var/run/dind
 
 ingress:
   enabled: false

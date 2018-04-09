@@ -3,6 +3,7 @@ Contains build of a docker image from a git repository.
 """
 
 import json
+from urllib.parse import urlparse
 
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
@@ -31,7 +32,8 @@ class Build:
 
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
-                 image_name, push_secret):
+                 image_name, push_secret, memory_limit, docker_host, node_selector,
+                 appendix=''):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -41,6 +43,11 @@ class Build:
         self.image_name = image_name
         self.push_secret = push_secret
         self.builder_image = builder_image
+        self.main_loop = IOLoop.current()
+        self.memory_limit = memory_limit
+        self.docker_host = docker_host
+        self.node_selector = node_selector
+        self.appendix = appendix
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -49,10 +56,18 @@ class Build:
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
+            '--user-name', 'jovyan',
+            '--user-id', '1000',
         ]
+        if self.appendix:
+            cmd.extend(['--appendix', self.appendix])
 
         if self.push_secret:
             cmd.append('--push')
+
+        if self.memory_limit:
+            cmd.append('--build-memory-limit')
+            cmd.append(str(self.memory_limit))
 
         # git_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
@@ -63,16 +78,17 @@ class Build:
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
-        IOLoop.instance().add_callback(self.q.put, {'kind': kind, 'payload': obj})
+        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
     def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
+        docker_socket_path = urlparse(self.docker_host).path
         volumes = [client.V1Volume(
             name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path="/var/run/docker.sock")
+            host_path=client.V1HostPathVolumeSource(path=docker_socket_path)
         )]
 
         if self.push_secret:
@@ -85,7 +101,10 @@ class Build:
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
-                labels={"name": self.name}
+                labels={
+                    "name": self.name,
+                    "component": "binderhub-build",
+                },
             ),
             spec=client.V1PodSpec(
                 containers=[
@@ -95,8 +114,13 @@ class Build:
                         args=self.get_cmd(),
                         image_pull_policy='Always',
                         volume_mounts=volume_mounts,
+                        resources=client.V1ResourceRequirements(
+                            limits={'memory': self.memory_limit},
+                            requests={'memory': self.memory_limit}
+                        )
                     )
                 ],
+                node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never"
             )
@@ -126,6 +150,9 @@ class Build:
                     self.cleanup()
                 elif self.pod.status.phase == 'Failed':
                     self.cleanup()
+        except Exception as e:
+            app_log.exception("Error in watch stream")
+            raise
         finally:
             w.stop()
 

@@ -1,6 +1,9 @@
+beautifulsoup4
+codecov
+html5lib
 pytest
 pytest-cov
 pytest-tornado
-codecov
-ruamel.yaml
 requests
+ruamel.yaml>=0.15
+https://github.com/jupyterhub/chartpress/archive/271c75e.tar.gz

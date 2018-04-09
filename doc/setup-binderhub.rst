@@ -72,12 +72,9 @@ Create a file called ``secret.yaml`` and enter the following::
 
 .. tip::
 
-   The content you put just after ``password: |`` must all line up at the same
-   tab level.
-
-.. tip::
-
-   Don't forget the ``|`` after the ``password:`` label.
+   * The content you put just after ``password: |`` must all line up at the same
+     tab level.
+   * Don't forget the ``|`` after the ``password:`` label.
 
 Create ``config.yaml``
 ----------------------
@@ -88,24 +85,14 @@ Create a file called ``config.yaml`` and enter the following::
     prefix:  gcr.io/<google-project-id>/<prefix>
     enabled: true
 
-  rbac:
-     enabled: false
-  jupyterhub:
-     hub:
-        rbac:
-           enabled: false
-
 
 .. note::
 
-   **``<google-project-id>``** can be found in the JSON file that you
-   pasted above. It is the text that is in the ``project_id`` field. This is
-   the project *ID*, which may be different from the project *name*.
-
-.. note::
-
-   **``<prefix>``** can be any string, and will be prepended to image names. We
-   recommend something descriptive such as ``dev`` or ``prod``.
+   * **``<google-project-id>``** can be found in the JSON file that you
+     pasted above. It is the text that is in the ``project_id`` field. This is
+     the project *ID*, which may be different from the project *name*.
+   * **``<prefix>``** can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
 
 Install BinderHub
 -----------------
@@ -118,17 +105,17 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-397eb59 --name=binder --namespace=binder -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=v0.1.0-85ac189  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
-   ``--version`` refers to the version of the BinderHub **Helm Chart**.
-
-.. note::
-
-   ``name`` and ``namespace`` may be different, but we recommend using
-   the same ``name`` and ``namespace`` to avoid confusion. We recommend
-   something descriptive and short.
+   * ``--version`` refers to the version of the BinderHub **Helm Chart**.
+   * ``name`` and ``namespace`` may be different, but we recommend using
+     the same ``name`` and ``namespace`` to avoid confusion. We recommend
+     something descriptive and short, such as ``binder``.
+   * If you run ``kubectl get pod --namespace=<namespace-from-above>`` you may
+     notice the binder pod in ``CrashLoopBackoff``. This is expected, and will
+     be resolved in the next section.
 
 This installation step will deploy both a BinderHub and a JupyterHub, but
 they are not yet set up to communicate with each other. We'll fix this in
@@ -141,7 +128,7 @@ Connect BinderHub and JupyterHub
 In the google console, run the following command to print the IP address
 of the JupyterHub we just deployed.::
 
-  kubectl --namespace=binder get svc proxy-public
+  kubectl --namespace=<namespace-from-above> get svc proxy-public
 
 Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
 JupyterHub. Now, add the following lines to ``config.yaml`` file::
@@ -151,7 +138,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade binder jupyterhub/binderhub --version=v0.1.0-397eb59 -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-85ac189  -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
@@ -162,11 +149,40 @@ BinderHub deployment.
 First, find the IP address of the BinderHub deployment by running the following
 command::
 
-  kubectl --namespace=binder get svc binder
+  kubectl --namespace=<namespace-from-above> get svc binder
 
 Note the IP address in ``EXTERNAL-IP``. This is your BinderHub IP address.
 Type this IP address in your browser and a BinderHub should be waiting there
 for you.
 
-You now have a functioning BinderHub at the above IP address. For next
-steps, see :doc:`debug` and :doc:`turn-off`.
+You now have a functioning BinderHub at the above IP address.
+
+.. _api-limit:
+
+Increase your GitHub API limit
+------------------------------
+
+.. note::
+
+   Increasing the GitHub API limit is not strictly required, but is recommended
+   before sharing your BinderHub URL with users.
+
+By default GitHub only lets you make 60 requests each hour. If you
+expect your users to serve repositories hosted on GitHub, we recommend creating
+an API access token to raise your API limit to 5000 requests an hour.
+
+1. Create a new token with default (check no boxes)
+   permissions `here <https://github.com/settings/tokens/new>`_.
+
+2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
+
+3. Before running your BinderHub server, run the following::
+
+       export GITHUB_ACCESS_TOKEN=<insert_token_value_here>
+
+BinderHub will automatically use the token stored in this variable when making
+API requests to GitHub. See the `GitHub authentication documentation
+<https://developer.github.com/v3/guides/getting-started/#authentication>`_ for
+more information about API limits.
+
+For next steps, see :doc:`debug` and :doc:`turn-off`.

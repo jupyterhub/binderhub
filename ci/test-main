@@ -1,0 +1,11 @@
+#!/bin/bash
+# main test script: runs the basic Python tests,
+# with JupyterHub launched via helm
+
+set -ex
+./testing/minikube/install-hub
+# DEBUG: give the hub a chance to wake up
+sleep 10
+export ASYNC_TEST_TIMEOUT=15
+pytest -vsx --cov binderhub
+helm delete --purge binder-test-hub

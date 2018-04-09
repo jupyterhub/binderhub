@@ -14,17 +14,21 @@ metadata:
   {{- end }}
 spec:
   rules:
-    - http:
+    {{- range $host := .Values.ingress.hosts }}
+    - host: {{ $host }}
+      http:
         paths:
           - path: /
             backend:
               serviceName: binder
               servicePort: 8585
-      host: {{ .Values.ingress.host }}
+    {{- end }}
 {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
   tls:
     - secretName: kubelego-tls-binder-{{ .Release.Name }}
       hosts:
-        - {{ .Values.ingress.host }}
+        {{- range $host := .Values.ingress.hosts }}
+        - {{ $host }}
+        {{- end }}
 {{- end }}
 {{- end -}}

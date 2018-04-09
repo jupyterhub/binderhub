@@ -1,0 +1,46 @@
+{{ if .Values.dind.enabled -}}
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}-dind
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name:  {{ .Release.Name }}-dind
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-dind
+        app: binder
+        component: dind
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      {{ if .Values.dind.initContainers -}}
+      initContainers:
+{{ toYaml .Values.dind.initContainers | indent 10 }}
+      {{- end }}
+      containers:
+      - name: dind
+        image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
+        args:
+          - dockerd
+          - --storage-driver={{ .Values.dind.storageDriver }}
+          - -H unix://{{ .Values.dind.hostSocketDir }}/docker.sock
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: varlibdocker
+          mountPath: /var/lib/docker
+        - name: rundind
+          mountPath: {{ .Values.dind.hostSocketDir }}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlibdocker
+        emptyDir: {}
+      - name: rundind
+        hostPath:
+          path: {{ .Values.dind.hostSocketDir }}
+{{- end }}

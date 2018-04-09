@@ -1,3 +1,4 @@
+from traitlets import Integer
 
 # async-request utility from jupyterhub.tests.utils v0.8.1
 # used under BSD license
@@ -16,6 +17,14 @@ class _AsyncRequests:
     def __getattr__(self, name):
         requests_method = getattr(requests, name)
         return lambda *args, **kwargs: self.executor.submit(requests_method, *args, **kwargs)
+
+    def iter_lines(self, response):
+        """Asynchronously iterate through the lines of a response"""
+        it = response.iter_lines()
+        while True:
+            yield self.executor.submit(lambda : next(it))
+
+
 
 # async_requests.get = requests.get returning a Future, etc.
 async_requests = _AsyncRequests()

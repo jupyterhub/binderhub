@@ -1,14 +1,9 @@
 {% extends "page.html" %}
 
 {% block head %}
+<meta id="base-url" data-url="{{base_url}}">
+<script src="{{static_url("dist/bundle.js")}}"></script>
 {{ super() }}
-<script>
- {% if submit %} window.submitBuild = true; {% endif %}
-</script>
-<link href="{{static_url("vendor/xterm.js-2.6.0/xterm.css")}}" rel="stylesheet" />
-<script src="{{static_url("vendor/xterm.js-2.6.0/xterm.js")}}"></script>
-<script src="{{static_url("vendor/xterm.js-2.6.0/addons/fit/fit.js")}}"></script>
-<script src="{{static_url("index.js")}}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -24,22 +19,22 @@
       </div>
 
       <form id="build-form" class="form jumbotron">
-        <h4 id="form-header">Build and launch a repository</h4>
-        <div class="form-group">
+        <h4 id="form-header" class='row'>Build and launch a repository</h4>
+        <input type="hidden" id="provider_prefix" value="gh"/>
+        <div class="form-group row">
           <label for="repository">GitHub repo or URL</label>
-          <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link" value="{{ url or '' }}"/>
+          <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link"/>
         </div>
-        <div class="row">
+        <div class="form-row row">
           <div class="form-group col-md-4">
             <label for="ref">Git branch, tag, or commit</label>
-            <input class="form-control" type="text" id="ref" placeholder="master" value="{{ ref or '' }}"/>
+            <input class="form-control" type="text" id="ref" placeholder="master"/>
           </div>
           <div class="form-group col-md-6">
             <label for="filepath"></label>
             <div class="input-group">
               <input class="form-control" type="text" id="filepath"
                 placeholder=""
-                value="{{ urlpath or filepath or '' }}"
               />
               <div class="input-group-btn" id="url-or-file-btn">
                 <button type="button" class="btn btn-secondary dropdown-toggle"
@@ -58,30 +53,53 @@
               </div>
             </div>
           </div>
+
           <div class="form-group col-md-2">
             <div class="btn-group" id="launch-buttons">
-              <button id="submit" class="btn btn-warning submit" type="submit">launch</button>
-              <button id="badge-dropdown" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu" id="badge-text">
-                <li class="dropdown-header">Grab badge code in your format</li>
-                <li><a href="#" id="markdown-badge-toggle" title="show markdown badge snippet">markdown</a></li>
-                <li><a href="#" id="rst-badge-toggle" title="show rst badge snippet">rst</a></li>
-                <li><a href="#" id="basic-url-toggle" title="show binder url">url</a></li>
-                <li><pre id="badge-snippet"></pre></li>
-                <li class="dropdown-header">Paste into your README to get</li>
-                <li>
-                  <a id="badge-link">
-                    <img id="badge" src="/static/images/badge.svg">
-                  </a>
-                </li>
-              </ul>
+              <button id="submit" class="btn-submit" type="submit">launch</button>
             </div>
           </div>
         </div>
 
-        <div id="build-progress" class="progress on-build hidden">
+        <!--url section-->
+        <div class="url row">
+            <div class="bluedropdown">
+              <label>Copy the URL below and share your Binder with others:</label>
+            </div>
+            <div class="url-row">
+              <pre id="basic-url-snippet" data-default="Fill in the fields to see a URL for sharing your Binder."></pre>
+              <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}" data-clipboard-target="#basic-url-snippet" alt="Copy to clipboard">
+            </div>
+        </div>
+
+        <div class="badges row">
+            <div class="bluedropdown" id="toggle-badge-snippet">
+              <label>Copy the text below, then paste into your README to show a binder badge: <img id="badge" src="{{static_url("images/badge.svg")}}"></label>
+              <a id="badge-link"></a>
+              <a href="#" title="show badge snippets"><span id="badge-snippet-caret" class="glyphicon glyphicon-triangle-right"></span></a>
+            </div>
+            <div id="badge-snippets" class="hidden">
+              <!--Markdown section-->
+              <div  class="badge-snippet-row">
+                 <pre id="markdown-badge-snippet" data-default="Fill in the fields to see the markdown badge snippet."></pre>
+                 <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
+                 <img class="icon clipboard"
+                    src="{{static_url("images/copy-icon-black.svg")}}"
+                    data-clipboard-target="#markdown-badge-snippet"
+                    alt="Copy markdown link to clipboard">
+              </div>
+              <!--RST section-->
+              <div  class="badge-snippet-row">
+                  <pre id="rst-badge-snippet" data-default="Fill in the fields to see the rST badge snippet."></pre>
+                  <img class="icon" src="{{static_url("images/rst-icon.svg")}}">
+                  <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}"
+                    data-clipboard-target="#rst-badge-snippet"
+                    alt="Copy rst link to clipboard">
+              </div>
+            </div>
+        </div>
+
+        <div id="build-progress" class="progress on-build hidden row">
           <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
             Failed
           </div>
@@ -102,7 +120,7 @@
           </div>
         </div>
 
-        <div id="log-container" class="panel panel-default on-build hidden">
+        <div id="log-container" class="panel panel-default on-build hidden row">
           <div id="toggle-logs" class="panel-heading">
             Build logs
             <button class="btn btn-link btn-xs pull-right">show</button>
@@ -131,7 +149,7 @@
         <span class="point point-red">2</span>
       </div>
       <div class="col-md-7 front">
-        <span class="front-em">We build a Docker image of your repository</span><br />Does your repository depend on files being loaded for your live notebooks? We will search in your repository's root for a dependency such as a requirements.txt, environment.yml or Dockerfile. The first dependency file found will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
+        <span class="front-em">We build a Docker image of your repository</span><br />Binder will search for a dependency file, such as requirements.txt or environment.yml, in the repository's root directory (<a href="http://mybinder.readthedocs.io/en/latest/using.html#preparing-a-repository-for-binder">more details on more complex dependencies in documentation</a>). The dependency files will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
       </div>
     </div>
 
@@ -146,3 +164,10 @@
   </div>
 </div>
 {% endblock main %}
+
+{% block footer %}
+{{ super () }}
+<script type="text/javascript">
+indexMain();
+</script>
+{% endblock footer %}
