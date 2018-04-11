@@ -1,8 +1,11 @@
 """pytest fixtures for binderhub"""
 
 from binascii import b2a_hex
+from collections import defaultdict
+import json
 import os
 import time
+from urllib.parse import urlparse
 from unittest import mock
 
 import kubernetes.client
@@ -32,29 +35,39 @@ BINDER_URL = os.environ.get('BINDER_TEST_URL')
 REMOTE_BINDER = bool(BINDER_URL)
 
 
-def pytest_addoption(parser):
-    parser.addoption("--record-http", action="store_true",
-        help="record and report http responses, for use in mocking")
-
-
 def pytest_terminal_summary(terminalreporter, exitstatus):
-    if (
-        exitstatus != 0
-        or not terminalreporter.config.getoption('--record-http')
-        or not MockAsyncHTTPClient.records
-    ):
+    if not MockAsyncHTTPClient.records:
         return
+    hosts = defaultdict(dict)
+    # group records by host
+    for url, response in MockAsyncHTTPClient.records.items():
+        host = urlparse(url).hostname
+        hosts[host][url] = response
+    # save records to files
+    for host, records in hosts.items():
+        fname = 'http-record.{}.json'.format(host)
+        print("Recorded http responses for {} in {}".format(host, fname))
 
-    print("Recorded HTTP responses:")
-    print("Save these in MockAsyncHTTPClient.mocks, if needed")
-    import pprint
-    pprint.pprint(MockAsyncHTTPClient.records)
+        with open(fname, 'w') as f:
+            json.dump(records, f, sort_keys=True, indent=1)
+
+
+def load_mock_responses(host):
+    fname = os.path.join(here, 'http-record.{}.json'.format(host))
+    if not os.path.exists(fname):
+        return {}
+    with open(fname) as f:
+        records = json.load(f)
+    MockAsyncHTTPClient.mocks.update(records)
+
 
 
 @pytest.fixture(autouse=True, scope="session")
 def mock_asynchttpclient(request):
     """mock AsyncHTTPClient for recording responses"""
     AsyncHTTPClient.configure(MockAsyncHTTPClient)
+    if not os.getenv('GITHUB_ACCESS_TOKEN'):
+        load_mock_responses('api.github.com')
 
 
 @pytest.fixture
