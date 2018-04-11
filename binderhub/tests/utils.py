@@ -9,9 +9,17 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
     mocks = {}
     records = {}
 
+    def url_key(self, url):
+        """cache key is url without query
+
+        to avoid caching things like access tokens
+        """
+        return url.split('?')[0]
+
+
     def fetch_mock(self, req):
-        mock_data = self.mocks[req.url]
         response = HTTPResponse(req, mock_data.get('code', 200))
+        mock_data = self.mocks[self.url_key(req.url)]
         response.buffer = io.BytesIO(mock_data['body'].encode('utf8'))
         return response
 
@@ -21,12 +29,12 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         else:
             req = HTTPRequest(req_or_url, *args, **kwargs)
 
-        if req.url in self.mocks:
+        if self.url_key(req.url) in self.mocks:
             return self.fetch_mock(req)
         else:
             resp = await super().fetch(req)
             # record the response
-            self.records[req.url] = {
+            self.records[self.url_key(req.url)] = {
                 'code': resp.code,
                 'body': resp.body.decode('utf8'),
             }
