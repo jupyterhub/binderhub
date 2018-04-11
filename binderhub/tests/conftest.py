@@ -10,9 +10,11 @@ import kubernetes.config
 import pytest
 import requests
 from tornado import ioloop
+from tornado.httpclient import AsyncHTTPClient
 from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
+from .utils import MockAsyncHTTPClient
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -28,6 +30,31 @@ ON_TRAVIS = os.environ.get('TRAVIS')
 # this will skip launching BinderHub internally in the app fixture
 BINDER_URL = os.environ.get('BINDER_TEST_URL')
 REMOTE_BINDER = bool(BINDER_URL)
+
+
+def pytest_addoption(parser):
+    parser.addoption("--record-http", action="store_true",
+        help="record and report http responses, for use in mocking")
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus):
+    if (
+        exitstatus != 0
+        or not terminalreporter.config.getoption('--record-http')
+        or not MockAsyncHTTPClient.records
+    ):
+        return
+
+    print("Recorded HTTP responses:")
+    print("Save these in MockAsyncHTTPClient.mocks, if needed")
+    import pprint
+    pprint.pprint(MockAsyncHTTPClient.records)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def mock_asynchttpclient(request):
+    """mock AsyncHTTPClient for recording responses"""
+    AsyncHTTPClient.configure(MockAsyncHTTPClient)
 
 
 @pytest.fixture
@@ -122,9 +149,13 @@ def app(request, io_loop, _binderhub_config):
         app.url = BINDER_URL
         return app
 
+
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
+    # instantiating binderhub configures this
+    # override again
+    AsyncHTTPClient.configure(MockAsyncHTTPClient)
 
     def cleanup():
         bhub.stop()
