@@ -13,7 +13,7 @@ from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Unicode
+from traitlets import Integer, Unicode
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -30,14 +30,43 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    retries = Integer(
+        4,
+        config=True,
+        help="""Number of attempts to make on Hub API requests.
+
+        Adds resiliency to intermittent Hub failures,
+        most commonly due to Hub, proxy, or ingress interruptions.
+        """
+    )
+    retry_delay = Integer(
+        10,
+        config=True,
+        help="""
+        Time (seconds) to wait between retries for Hub API requests.
+
+        Time is scaled by the retry attempt (i.e. first retry after 1 * delay, second after 2 * delay)
+        """
+    )
 
     async def api_request(self, url, *args, **kwargs):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
         req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
-        resp = await AsyncHTTPClient().fetch(req)
-        # TODO: handle errors
+        for i in range(1, self.retries + 1):
+            try:
+                resp = await AsyncHTTPClient().fetch(req)
+            except HTTPError as e:
+                # retry requests that fail with error codes greater than 500
+                # because they are likely intermittent issues in the cluster
+                # e.g. 502,504 due to ingress issues or Hub relocating,
+                # 599 due to connection issues such as Hub restarting
+                if e.code >= 500:
+                    self.log.error("Error accessing Hub API (%s)", e)
+                    await gen.sleep(i * self.retry_delay)
+                else:
+                    raise
         return resp
 
     def username_from_repo(self, repo):
