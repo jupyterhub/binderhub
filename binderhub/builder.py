@@ -438,14 +438,28 @@ class BuildHandler(BaseHandler):
         })
 
         launcher = self.settings['launcher']
-        username = launcher.username_from_repo(self.repo)
-        try:
+        for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
-            server_info = await launcher.launch(image=self.image_name, username=username)
-            LAUNCH_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
-        except Exception:
-            LAUNCH_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
-            raise
+            username = launcher.username_from_repo(self.repo)
+            try:
+                server_info = await launcher.launch(image=self.image_name, username=username)
+                LAUNCH_TIME.labels(status='success', retries=i, **self.metric_labels).observe(time.perf_counter() - launch_starttime)
+            except Exception as e:
+                LAUNCH_TIME.labels(status='failure', retries=i, **self.metric_labels).observe(time.perf_counter() - launch_starttime)
+                if i + 1 == launcher.retries:
+                    # last attempt failed, let it raise
+                    raise
+                else:
+                    app_log.error("Retrying launch after failure: %s", e)
+                    await self.emit({
+                        'phase': 'launching',
+                        'message': 'Launch attempt {} failed, retrying...\n'.format(i + 1),
+                    })
+                    await gen.sleep((i + 1) * launcher.retry_delay)
+                    continue
+            else:
+                # success
+                break
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],
