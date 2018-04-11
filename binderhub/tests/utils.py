@@ -1,8 +1,8 @@
-
+"""Testing utilities"""
 import io
-import pprint
 
-from tornado.httpclient import HTTPRequest, HTTPResponse, AsyncHTTPClient
+from tornado.httputil import HTTPHeaders
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest, HTTPResponse
 
 
 class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
@@ -18,9 +18,14 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 
 
     def fetch_mock(self, req):
-        response = HTTPResponse(req, mock_data.get('code', 200))
         mock_data = self.mocks[self.url_key(req.url)]
+        code = mock_data.get('code', 200)
+        headers = HTTPHeaders(mock_data.get('headers', {}))
+        response = HTTPResponse(req, code, headers=headers)
         response.buffer = io.BytesIO(mock_data['body'].encode('utf8'))
+        if code >= 400:
+            raise HTTPError(mock_data['code'], response=response)
+
         return response
 
     async def fetch(self, req_or_url, *args, **kwargs):
@@ -32,13 +37,24 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         if self.url_key(req.url) in self.mocks:
             return self.fetch_mock(req)
         else:
-            resp = await super().fetch(req)
+            error = None
+            try:
+                resp = await super().fetch(req)
+            except HTTPError as e:
+                error = e
+                resp = e.response
+
             # record the response
             self.records[self.url_key(req.url)] = {
                 'code': resp.code,
+                'headers': dict(resp.headers),
                 'body': resp.body.decode('utf8'),
             }
-            return resp
+            # return or raise the original result
+            if error:
+                raise error
+            else:
+                return resp
 
 
 # async-request utility from jupyterhub.tests.utils v0.8.1
