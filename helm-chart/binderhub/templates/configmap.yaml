@@ -29,6 +29,7 @@ data:
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
   binder.hub-url: {{ .Values.hub.url | quote }}
+  binder.hub-api-concurrency: {{ .Values.hub.concurrency | quote }}
   binder.base_url: {{ .Values.baseUrl | quote }}
 
   {{ if .Values.github.hostname -}}

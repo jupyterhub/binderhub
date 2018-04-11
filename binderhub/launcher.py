@@ -31,7 +31,7 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
-    concurrency = Integer(20,
+    concurrency = Integer(10,
         help="""The maximum number of concurrently outstanding requests to the Hub
 
         too many concurrently outstanding requests may result in TimeoutErrors

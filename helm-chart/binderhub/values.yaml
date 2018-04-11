@@ -70,6 +70,7 @@ cors: &cors
 
 hub:
   url:
+  concurrency: 10
 
 jupyterhub:
   cull:
