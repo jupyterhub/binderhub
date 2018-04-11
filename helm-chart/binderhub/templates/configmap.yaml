@@ -29,6 +29,10 @@ data:
   {{ if .Values.build.appendix -}}
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
+
+  binder.retries.count: {{ .Values.retries.count | quote }}
+  binder.retries.delay: {{ .Values.retries.delay | quote }}
+
   binder.hub-url: {{ .Values.hub.url | quote }}
   binder.base_url: {{ .Values.baseUrl | quote }}
 

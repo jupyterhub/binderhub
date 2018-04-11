@@ -9,6 +9,10 @@ resources:
 rbac:
   enabled: true
 
+retries:
+  count: 4
+  delay: 10
+
 baseUrl: /
 nodeSelector: {}
 
