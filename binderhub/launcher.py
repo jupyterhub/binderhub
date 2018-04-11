@@ -121,6 +121,8 @@ class Launcher(LoggingConfigurable):
                     body = json.loads(resp.body.decode('utf-8'))
                     if body['server']:
                         break
+                    if not body['pending']:
+                        raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start
                     # and tune this appropriately
