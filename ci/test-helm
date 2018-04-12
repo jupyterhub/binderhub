@@ -52,7 +52,7 @@ sleep 10
 export ASYNC_TEST_TIMEOUT=15
 mark="remote"
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
-  mark="$mark not github_api"
+  mark="$mark and not github_api"
 fi
 pytest -vsx -m "$mark"
 helm delete --purge binder-test
