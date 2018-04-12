@@ -2,6 +2,7 @@
 
 import json
 import sys
+from urllib.parse import quote
 
 import pytest
 from tornado.httputil import url_concat
@@ -12,6 +13,9 @@ from .utils import async_requests
 @pytest.mark.gen_test(timeout=900)
 @pytest.mark.parametrize("slug", [
     "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
+    "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
+        quote("https://github.com/binderhub-ci-repos/requirements")
+    ),
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
 @pytest.mark.remote
