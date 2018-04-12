@@ -17,11 +17,20 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         return url.split('?')[0]
 
 
-    def fetch_mock(self, req):
-        mock_data = self.mocks[self.url_key(req.url)]
+    def fetch_mock(self, request):
+        """Fetch a mocked request
+
+        Arguments:
+            request (HTTPRequest): the request to fetch
+        Returns:
+            HTTPResponse constructed from the info stored in the mocks
+        Raises:
+            HTTPError if the cached response has status >= 400
+        """
+        mock_data = self.mocks[self.url_key(request.url)]
         code = mock_data.get('code', 200)
         headers = HTTPHeaders(mock_data.get('headers', {}))
-        response = HTTPResponse(req, code, headers=headers)
+        response = HTTPResponse(request, code, headers=headers)
         response.buffer = io.BytesIO(mock_data['body'].encode('utf8'))
         if code >= 400:
             raise HTTPError(mock_data['code'], response=response)
@@ -29,23 +38,28 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         return response
 
     async def fetch(self, req_or_url, *args, **kwargs):
-        if isinstance(req_or_url, HTTPRequest):
-            req = req_or_url
-        else:
-            req = HTTPRequest(req_or_url, *args, **kwargs)
+        """Mocked HTTP fetch
 
-        if self.url_key(req.url) in self.mocks:
-            return self.fetch_mock(req)
+        If the request URL is in self.mocks, build a response from the cached response.
+        Otherwise, run the actual request and store the response in self.records.
+        """
+        if isinstance(req_or_url, HTTPRequest):
+            request = req_or_url
+        else:
+            request = HTTPRequest(req_or_url, *args, **kwargs)
+
+        if self.url_key(request.url) in self.mocks:
+            return self.fetch_mock(request)
         else:
             error = None
             try:
-                resp = await super().fetch(req)
+                resp = await super().fetch(request)
             except HTTPError as e:
                 error = e
                 resp = e.response
 
             # record the response
-            self.records[self.url_key(req.url)] = {
+            self.records[self.url_key(request.url)] = {
                 'code': resp.code,
                 'headers': dict(resp.headers),
                 'body': resp.body.decode('utf8'),
