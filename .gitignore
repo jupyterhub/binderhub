@@ -44,6 +44,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+/http-record.*.json
 
 # Translations
 *.mo
@@ -107,3 +108,4 @@ k8s.txt
 helm.txt
 travis
 helm-chart/travis-binder.yaml
+
