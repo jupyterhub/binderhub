@@ -61,7 +61,6 @@ def load_mock_responses(host):
     MockAsyncHTTPClient.mocks.update(records)
 
 
-
 @pytest.fixture(autouse=True, scope="session")
 def mock_asynchttpclient(request):
     """mock AsyncHTTPClient for recording responses"""

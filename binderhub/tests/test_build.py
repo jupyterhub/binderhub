@@ -15,7 +15,10 @@ from .utils import async_requests
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
 @pytest.mark.remote
-def test_build(app, needs_build, needs_launch, always_build, slug):
+def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
+    # can't use mark.github_api since only some tests here use GitHub
+    if slug.startswith('gh/') and "not github_api" in pytestconfig.getoption('markexpr'):
+        pytest.skip("Skipping GitHub API test")
     build_url = f"{app.url}/build/{slug}"
     r = yield async_requests.get(build_url, stream=True)
     r.raise_for_status()
