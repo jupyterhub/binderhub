@@ -1,6 +1,7 @@
 """Testing utilities"""
 import io
 
+from tornado import gen
 from tornado.httputil import HTTPHeaders
 from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest, HTTPResponse
 
@@ -15,7 +16,6 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         to avoid caching things like access tokens
         """
         return url.split('?')[0]
-
 
     def fetch_mock(self, request):
         """Fetch a mocked request
@@ -37,6 +37,14 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 
         return response
 
+    def _record_response(self, url_key, response):
+        """Record a response in self.records"""
+        self.records[url_key] = {
+            'code': response.code,
+            'headers': dict(response.headers),
+            'body': response.body.decode('utf8'),
+        }
+
     async def fetch(self, req_or_url, *args, **kwargs):
         """Mocked HTTP fetch
 
@@ -48,27 +56,26 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
         else:
             request = HTTPRequest(req_or_url, *args, **kwargs)
 
-        if self.url_key(request.url) in self.mocks:
-            return self.fetch_mock(request)
-        else:
-            error = None
-            try:
-                resp = await super().fetch(request)
-            except HTTPError as e:
-                error = e
-                resp = e.response
+        url_key = self.url_key(request.url)
 
-            # record the response
-            self.records[self.url_key(request.url)] = {
-                'code': resp.code,
-                'headers': dict(resp.headers),
-                'body': resp.body.decode('utf8'),
-            }
-            # return or raise the original result
-            if error:
-                raise error
-            else:
-                return resp
+        if url_key in self.mocks:
+            fetch = self.fetch_mock
+        else:
+            fetch = super().fetch
+
+        error = None
+        try:
+            response = await gen.maybe_future(fetch(request))
+        except HTTPError as e:
+            error = e
+            response = e.response
+
+        self._record_response(url_key, response)
+        # return or raise the original result
+        if error:
+            raise error
+        else:
+            return response
 
 
 # async-request utility from jupyterhub.tests.utils v0.8.1
