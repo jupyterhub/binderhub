@@ -36,6 +36,7 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_ref == unresolved_ref
 
 
+@pytest.mark.github_api
 def test_github_ref():
     provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4')
     slug = provider.get_build_slug()
@@ -75,6 +76,7 @@ def test_ban_is_case_insensitive(ban_spec):
     assert provider.is_banned()
 
 
+@pytest.mark.github_api
 def test_github_missing_ref():
     provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.1.2.3.4.5.6')
     ref = IOLoop().run_sync(provider.get_resolved_ref)
@@ -136,6 +138,7 @@ def test_gitlab_ref():
     assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
 
 
+@pytest.mark.github_api
 def test_gist_ref():
     spec = '{}/{}'.format('mariusvniekerk', '8a658f7f63b13768d1e75fa2464f5092')
 
@@ -148,6 +151,7 @@ def test_gist_ref():
     assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
 
 
+@pytest.mark.github_api
 def test_gist_secret():
     spec = '{}/{}'.format('mariusvniekerk', 'bd01411ea4bf4eb8135893ef237398ba')
 

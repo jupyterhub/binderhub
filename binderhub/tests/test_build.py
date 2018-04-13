@@ -2,6 +2,7 @@
 
 import json
 import sys
+from urllib.parse import quote
 
 import pytest
 from tornado.httputil import url_concat
@@ -12,10 +13,16 @@ from .utils import async_requests
 @pytest.mark.gen_test(timeout=900)
 @pytest.mark.parametrize("slug", [
     "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
+    "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
+        quote("https://github.com/binderhub-ci-repos/requirements")
+    ),
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
 @pytest.mark.remote
-def test_build(app, needs_build, needs_launch, always_build, slug):
+def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
+    # can't use mark.github_api since only some tests here use GitHub
+    if slug.startswith('gh/') and "not github_api" in pytestconfig.getoption('markexpr'):
+        pytest.skip("Skipping GitHub API test")
     build_url = f"{app.url}/build/{slug}"
     r = yield async_requests.get(build_url, stream=True)
     r.raise_for_status()

@@ -50,5 +50,9 @@ echo "running tests against $BINDER_TEST_URL"
 # run a few tests again, this time against the helm-installed binder
 sleep 10
 export ASYNC_TEST_TIMEOUT=15
-pytest -vsx -m remote
+mark="remote"
+if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
+  mark="$mark and not github_api"
+fi
+pytest -vsx -m "$mark"
 helm delete --purge binder-test
