@@ -43,6 +43,9 @@ spec:
           mountPath: /var/lib/docker
         - name: rundind
           mountPath: {{ .Values.dind.hostSocketDir }}
+        command:
+        - python3
+        - /usr/local/bin/image-cleaner.py
         env:
         - name: PATH_TO_CHECK
           value: /var/lib/docker

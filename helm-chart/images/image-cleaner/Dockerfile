@@ -1,8 +1,5 @@
 FROM python:3.6-alpine3.6
 
-ADD *.py /srv/image-cleaner/
-WORKDIR /srv/image-cleaner
+ADD image-cleaner.py /usr/local/bin/image-cleaner.py
 
 RUN pip3 install --no-cache-dir docker-py
-
-ENTRYPOINT ['/srv/image-cleaner/image-cleaner.py']
