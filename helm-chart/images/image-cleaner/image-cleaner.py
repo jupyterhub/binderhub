@@ -59,6 +59,7 @@ def main():
                 except docker.errors.APIError as e:
                     if e.status_code == 409:
                         # This means the image can not be removed right now
+                        print(f'Failed to remove {image.id}, skipping this image')
                         print(str(e))
                     else:
                         raise
