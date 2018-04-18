@@ -22,8 +22,16 @@ from prometheus_client import Histogram, Gauge
 from .base import BaseHandler
 from .build import Build, FakeBuild
 BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
-BUILD_TIME = Histogram('binderhub_build_time_seconds', 'Histogram of build times', ['status'], buckets=BUCKETS)
-LAUNCH_TIME = Histogram('binderhub_launch_time_seconds', 'Histogram of launch times', ['status'], buckets=BUCKETS)
+BUILD_TIME = Histogram(
+    'binderhub_build_time_seconds',
+    'Histogram of build times',
+    ['status', 'provider', 'repo'],
+    buckets=BUCKETS)
+LAUNCH_TIME = Histogram(
+    'binderhub_launch_time_seconds',
+    'Histogram of launch times',
+    ['status', 'provider', 'repo'],
+    buckets=BUCKETS)
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
@@ -208,6 +216,12 @@ class BuildHandler(BaseHandler):
 
         repo = self.repo = provider.get_repo_url()
 
+        # labels to apply to build/launch metrics
+        self.metric_labels = {
+            'provider': provider.name,
+            'repo': repo,
+        }
+
         try:
             ref = await provider.get_resolved_ref()
         except Exception as e:
@@ -228,7 +242,7 @@ class BuildHandler(BaseHandler):
 
         image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=image_prefix,
-            build_slug=safe_build_slug, 
+            build_slug=safe_build_slug,
             ref=ref
         ).replace('_', '-').lower()
 
@@ -347,13 +361,13 @@ class BuildHandler(BaseHandler):
                     payload = json.loads(event)
                     if payload.get('phase', None) == 'failure':
                         failed = True
-                        BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
+                        BUILD_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - build_starttime)
 
                 await self.emit(event)
 
         # Launch after building an image
         if not failed:
-            BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
+            BUILD_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - build_starttime)
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
 
@@ -428,9 +442,9 @@ class BuildHandler(BaseHandler):
         try:
             launch_starttime = time.perf_counter()
             server_info = await launcher.launch(image=self.image_name, username=username)
-            LAUNCH_TIME.labels(status='success').observe(time.perf_counter() - launch_starttime)
-        except:
-            LAUNCH_TIME.labels(status='failure').observe(time.perf_counter() - launch_starttime)
+            LAUNCH_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
+        except Exception:
+            LAUNCH_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
             raise
         event = {
             'phase': 'ready',
