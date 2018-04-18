@@ -8,6 +8,8 @@ charts:
       - ../setup.py
       - ../binderhub
     images:
+      image-cleaner:
+        valuesPath: imageCleaner.image
       binderhub:
         # Context to send to docker build for use by the Dockerfile
         contextPath: ..

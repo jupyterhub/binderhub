@@ -160,6 +160,13 @@ dind:
   storageDriver: overlay2
   hostSocketDir: /var/run/dind
 
+imageCleaner:
+  image:
+    name: jupyterhub/k8s-image-cleaner
+    tag: local
+    repository: jupyterhub/k8s-image-cleaner
+  inodeAvailThreshold: 0.8
+
 ingress:
   enabled: false
   hosts:
