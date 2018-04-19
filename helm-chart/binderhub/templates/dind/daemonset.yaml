@@ -52,7 +52,7 @@ spec:
         - name: INODE_AVAIL_THRESHOLD
           value: {{ .Values.imageCleaner.inodeAvailThreshold | quote }}
         - name: DOCKER_HOST
-          value: {{ .Values.dind.hostSocketDir }}/docker.sock
+          value: unix://{{ .Values.dind.hostSocketDir }}/docker.sock
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlibdocker
