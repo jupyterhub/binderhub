@@ -11,6 +11,7 @@ def get_inodes_available_fraction(path):
     stat = os.statvfs(path)
     return float(stat.f_favail) / float(stat.f_files)
 
+
 def get_docker_images(client):
     """
     Return list of docker images, sorted by size
@@ -19,6 +20,7 @@ def get_docker_images(client):
     images.sort(key=lambda i: i.attrs['Size'], reverse=True)
     return images
 
+
 def main():
     if 'PATH_TO_CHECK' not in os.environ:
         print(
@@ -26,7 +28,7 @@ def main():
             file=sys.stderr
         )
         sys.exit(1)
-    
+
     if 'INODE_AVAIL_THRESHOLD' not in os.environ:
         print(
             'Set INODE_AVAIL_THRESHOLD to threshold at which docker images should be cleaned up',
@@ -36,18 +38,18 @@ def main():
 
     path_to_check = os.environ['PATH_TO_CHECK']
     inode_avail_threshold = float(os.environ['INODE_AVAIL_THRESHOLD'])
+    client = docker.from_env()
 
     print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold}% inodes free')
 
     while True:
-        inode_avail = get_inodes_available_fraction(path_to_check) 
+        inode_avail = get_inodes_available_fraction(path_to_check)
         if inode_avail > inode_avail_threshold:
             # Do nothing! We have enough inodes
             print(f'{inode_avail} inode% available, not pruning any images')
             time.sleep(60)
             continue
         else:
-            client = docker.from_env()
 
             images = get_docker_images(client)
             while get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
@@ -63,6 +65,7 @@ def main():
                         print(str(e))
                     else:
                         raise
+
 
 if __name__ == '__main__':
     main()
