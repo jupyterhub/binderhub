@@ -10,10 +10,11 @@ from urllib.parse import urlparse
 import uuid
 
 from tornado.log import app_log
+from tornado.locks import Semaphore
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Unicode
+from traitlets import Any, Integer, Unicode, default
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -30,13 +31,28 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    concurrency = Integer(10,
+        help="""The maximum number of concurrently outstanding requests to the Hub
+
+        too many concurrently outstanding requests may result in TimeoutErrors
+
+        uses a semaphore to limit the number of requests
+        """,
+        config=True,
+    )
+
+    semaphore = Any()
+    @default('semaphore')
+    def _semaphore_default(self):
+        return Semaphore(self.concurrency)
 
     async def api_request(self, url, *args, **kwargs):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
         req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
-        resp = await AsyncHTTPClient().fetch(req)
+        async with self.semaphore:
+            resp = await AsyncHTTPClient().fetch(req)
         # TODO: handle errors
         return resp
 
@@ -47,7 +63,6 @@ class Launcher(LoggingConfigurable):
         from https://github.com/minrk/binder-example.git
         """
         # start with url path
-        print
         if '://' not in repo and _ssh_repo_pat.match(repo):
             # ssh url
             path = repo.split(':', 1)[1]
