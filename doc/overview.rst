@@ -54,4 +54,4 @@ Here is a high-level overview of the components that make up BinderHub.
 
 .. raw:: html
 
-   <img src="_static/images/binderhub_diagram.png" />
+   <img src="_static/images/architecture.png" />
