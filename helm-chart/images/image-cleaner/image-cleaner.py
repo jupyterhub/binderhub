@@ -40,17 +40,16 @@ def main():
     inode_avail_threshold = float(os.environ['INODE_AVAIL_THRESHOLD'])
     client = docker.from_env()
 
-    print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold}% inodes free')
+    print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold * 100}% inodes free')
 
     while True:
         inode_avail = get_inodes_available_fraction(path_to_check)
         if inode_avail > inode_avail_threshold:
             # Do nothing! We have enough inodes
-            print(f'{inode_avail} inode% available, not pruning any images')
+            print(f'{inode_avail * 100}% inodes available, not pruning any images')
             time.sleep(60)
             continue
         else:
-
             images = get_docker_images(client)
             while get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
                 # Remove biggest image
