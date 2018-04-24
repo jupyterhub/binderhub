@@ -282,9 +282,10 @@ class BuildHandler(BaseHandler):
             push_secret = None
 
         BuildClass = FakeBuild if self.settings.get('fake_build', None) else Build
-        binder_url = '{proto}://{host}/v2/{provider}/{spec}'.format(
+        binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
             proto=self.request.protocol,
             host=self.request.host,
+            base_url=self.settings['base_url'],
             provider=provider_prefix,
             spec=spec,
         )
@@ -292,7 +293,6 @@ class BuildHandler(BaseHandler):
             binder_url=binder_url,
             repo_url=repo,
         )
-
 
         build = BuildClass(
             q=q,
