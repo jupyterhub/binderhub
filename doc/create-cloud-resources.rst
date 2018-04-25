@@ -43,7 +43,7 @@ BinderHub will build Docker images out of GitHub repositories, and then push
 them to a docker registry so that JupyterHub can launch user servers based
 on these images.You can use any registry that
 you like, though this guide covers how to properly configure the **Google
-Container Registry** (``gcr.io``).
+Container Registry** (``gcr.io``). For an alternative, see :ref:`use-docker-hub`.
 
 You need to provide BinderHub with proper credentials so it can push images
 to the Google Container Registry. You can do so by creating a service

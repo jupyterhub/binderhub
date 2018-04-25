@@ -47,5 +47,6 @@ Customization and more information
    overview
    debug
    customizing
+   docker-hub-registry
    api
    reference/ref-index.rst
