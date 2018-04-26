@@ -38,7 +38,7 @@ def main():
 
     path_to_check = os.environ['PATH_TO_CHECK']
     inode_avail_threshold = float(os.environ['INODE_AVAIL_THRESHOLD'])
-    client = docker.from_env()
+    client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
     print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold * 100}% inodes free')
