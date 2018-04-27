@@ -48,7 +48,7 @@ def main():
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
-    print(f'Pruning docker images when {path_to_check} has used {inode_gc_high}% inodes used')
+    print(f'Pruning docker images when {path_to_check} has {inode_gc_high}% inodes used')
 
     while True:
         inodes_used = get_inodes_used_percent(path_to_check)
