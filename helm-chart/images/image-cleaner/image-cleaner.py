@@ -41,7 +41,7 @@ def main():
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
-    print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold * 100}% inodes free')
+    print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold * 100:.1f}% inodes free')
 
     while True:
         inode_avail = get_inodes_available_fraction(path_to_check)
@@ -53,7 +53,7 @@ def main():
             if not images:
                 print(f'No images to delete but only {inode_avail * 100}% inodes available')
             else:
-                print(f'{inode_avail * 100}% inodes available, pruning from {len(images)} images')
+                print(f'{inode_avail * 100:.1f}% inodes available, pruning from {len(images)} images')
 
             while images and get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
                 if not images:
