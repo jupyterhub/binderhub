@@ -34,45 +34,4 @@ Install Helm
    :start-after: ===============
    :end-before: Next Step
 
-.. _setup-registry:
-
-Set up the container registry
------------------------------
-
-BinderHub will build Docker images out of GitHub repositories, and then push
-them to a docker registry so that JupyterHub can launch user servers based
-on these images.You can use any registry that
-you like, though this guide covers how to properly configure the **Google
-Container Registry** (``gcr.io``). For an alternative, see :ref:`use-docker-hub`.
-
-You need to provide BinderHub with proper credentials so it can push images
-to the Google Container Registry. You can do so by creating a service
-account that has authorization to push to Google Container Registry:
-
-1. Go to `console.cloud.google.com`_
-2. Make sure your project is selected
-3. Click ``<top-left menu w/ three horizontal bars> -> IAM & Admin -> Service Accounts`` menu option
-4. Click **Create service account**
-5. Give your account a descriptive name such as "binderhub-builder"
-6. Click ``Role -> Storage -> Storage Admin`` menu option
-7. Check **Furnish new private key**
-8. Leave key type as default of **JSON**
-9. Click **Create**
-
-These steps will download a **JSON file** to your computer. The JSON file
-contains the password that can be used to push Docker images to the ``gcr.io``
-registry.
-
-.. warning::
-
-   Don't share the contents of this JSON file with anyone. It can be used to
-   gain access to your google cloud account!
-
-.. important::
-
-   Make sure to store this JSON file as you cannot generate a second one
-   without re-doing the steps above.
-
-Now that our cloud resources are set up, it's time to :doc:`setup-binderhub`.
-
-.. _console.cloud.google.com: http://console.cloud.google.com
+Now that you've installed Kubernetes and Helm, it's time to :ref:`setup-registry`.

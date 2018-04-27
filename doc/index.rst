@@ -34,6 +34,7 @@ A guide to help you create your own BinderHub from scratch.
    :numbered:
 
    create-cloud-resources
+   setup-registry
    setup-binderhub
    turn-off
 

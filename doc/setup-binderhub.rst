@@ -40,7 +40,7 @@ outputs.::
 Create ``secret.yaml`` file
 ---------------------------
 
-Create a file called ``secret.yaml`` and enter the following::
+Create a file called ``secret.yaml`` and add the following::
 
   jupyterhub:
       hub:
@@ -49,6 +49,19 @@ Create a file called ``secret.yaml`` and enter the following::
             apiToken: "<output of FIRST `openssl rand -hex 32` command>"
       proxy:
         secretToken: "<output of SECOND `openssl rand -hex 32` command>"
+  hub:
+    services:
+      binder:
+        apiToken: "<output of FIRST `openssl rand -hex 32` command>"
+
+Next, we'll configure this file to connect with our registry.
+
+If you are using ``gcr.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add the following section to ``secret.yaml``. Note that the first line is not
+indented at all.
+
   registry:
     password: |
       <content of the JSON file downloaded earlier for the container registry from Service Accounts>
@@ -65,10 +78,6 @@ Create a file called ``secret.yaml`` and enter the following::
       "auth_provider_x509_cert_url": "",
       "client_x509_cert_url": ""
       }
-  hub:
-    services:
-      binder:
-        apiToken: "<output of FIRST `openssl rand -hex 32` command>"
 
 .. tip::
 
@@ -76,21 +85,64 @@ Create a file called ``secret.yaml`` and enter the following::
      tab level.
    * Don't forget the ``|`` after the ``password:`` label.
 
+If you are using Docker Hub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update ``secret.yaml`` by entering the following::
+
+  registry:
+    username: <docker-id>
+    password: <password>
+
+.. note::
+
+   * **``<docker-id>``** and **``<password>``** are your credentials to login to Docker Hub.
+     If you use an organization to store your Docker images, this account must be a member of it.
+
+
 Create ``config.yaml``
 ----------------------
 
-Create a file called ``config.yaml`` and enter the following::
+Create a file called ``config.yaml`` and choose the following directions based
+on the registry you are using.
+
+If you are using ``gcr.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure BinderHub to use ``gcr.io``, simply add the following to
+your ``config.yaml`` file.
 
   registry:
     prefix:  gcr.io/<google-project-id>/<prefix>
     enabled: true
-
 
 .. note::
 
    * **``<google-project-id>``** can be found in the JSON file that you
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
+   * **``<prefix>``** can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+
+If you are using Docker Hub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using Docker Hub is slightly more involved as the registry is not being run
+by the same platform that runs BinderHub.
+
+Update ``config.yaml`` by entering the following::
+
+  registry:
+    enabled: true
+    prefix: <docker-id/organization-name>/<prefix>
+    host: https://registry.hub.docker.com
+    authHost: https://index.docker.io/v1
+    authTokenUrl: https://auth.docker.io/token?service=registry.docker.io
+
+.. note::
+
+   * **``<docker-id/organization-name>``** is where you want to store Docker images.
+     This can be your Docker ID account or an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
 
