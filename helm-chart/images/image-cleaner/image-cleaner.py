@@ -48,23 +48,38 @@ def main():
         if inode_avail > inode_avail_threshold:
             # Do nothing! We have enough inodes
             print(f'{inode_avail * 100}% inodes available, not pruning any images')
-            time.sleep(60)
-            continue
         else:
             images = get_docker_images(client)
-            while get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
+            if not images:
+                print(f'No images to delete but only {inode_avail * 100}% inodes available')
+            else:
+                print(f'{inode_avail * 100}% inodes available, pruning from {len(images)} images')
+
+            while images and get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
+                if not images:
+                    avail_percent = get_inodes_available_fraction(path_to_check) * 100
+                    break
                 # Remove biggest image
                 image = images.pop(0)
+                if image.tags:
+                    # does it have a name, e.g. jupyter/base-notebook:12345
+                    name = image.tags[0]
+                else:
+                    # no name, use id
+                    name = image.id
+                gb = image.attrs['Size'] / (2**30)
+                print(f'Removing image {name} (size={gb:.2f}GB)')
                 try:
                     client.images.remove(image=image.id)
-                    print(f'Removed {image.id}')
+                    print(f'Removed {name}')
                 except docker.errors.APIError as e:
                     if e.status_code == 409:
                         # This means the image can not be removed right now
-                        print(f'Failed to remove {image.id}, skipping this image')
+                        print(f'Failed to remove {name}, skipping this image')
                         print(str(e))
                     else:
                         raise
+        time.sleep(60)
 
 
 if __name__ == '__main__':
