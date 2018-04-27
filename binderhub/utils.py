@@ -67,3 +67,17 @@ def url_path_join(*pieces):
         result = '/'
 
     return result
+
+
+# FIXME: remove when instantiating a kubernetes client
+# doesn't create N-CPUs threads unconditionally.
+# monkeypatch threadpool in kubernetes api_client
+# to avoid instantiating ThreadPools.
+# This is known to work for kubernetes-4.0
+# and may need updating with later kubernetes clients
+
+from unittest.mock import Mock
+from kubernetes.client import api_client
+
+_dummy_pool = Mock()
+api_client.ThreadPool = lambda *args, **kwargs: _dummy_pool
