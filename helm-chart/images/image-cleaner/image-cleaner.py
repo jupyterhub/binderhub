@@ -11,6 +11,7 @@ import os
 import time
 
 import docker
+import requests
 
 
 def get_inodes_used_percent(path):
@@ -60,7 +61,7 @@ def main():
             if not images:
                 print(f'No images to delete')
             else:
-                print(f'Pruning from {len(images)} images')
+                print(f'{len(images)} images available to prune')
 
             while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
                 # Remove biggest image
@@ -83,6 +84,8 @@ def main():
                         print(str(e))
                     else:
                         raise
+                except requests.exceptions.ReadTimeout:
+                    print(f'Timeout removing {name}')
         time.sleep(60)
 
 
