@@ -1,64 +1,68 @@
 #!/usr/bin/env python3
+"""
+Clean docker images
+
+This serves as a substitute for Kubernetes ImageGC
+which has thresholds that are not sufficiently configurable on GKE
+at this time.
+"""
+
 import os
-import sys
-import docker
 import time
 
-def get_inodes_available_fraction(path):
+import docker
+
+
+def get_inodes_used_percent(path):
     """
-    Return available_inodes / total_inodes in device containing path
+    Return used_inodes / total_inodes in device containing path
+    as a percentage (100 is full, 0 is empty)
     """
     stat = os.statvfs(path)
-    return float(stat.f_favail) / float(stat.f_files)
+    return 100 * (1 - float(stat.f_favail) / float(stat.f_files))
+
+
+def image_key(image):
+    """Sort key for images
+
+    Prefers untagged images, sorted by size
+    """
+    return (not image.tags, image.attrs['Size'])
 
 
 def get_docker_images(client):
+    """Return list of docker images, sorted by size
+
+    Untagged images will come first
     """
-    Return list of docker images, sorted by size
-    """
-    images = client.images.list()
-    images.sort(key=lambda i: i.attrs['Size'], reverse=True)
+    images = client.images.list(all=True)
+    images.sort(key=image_key, reverse=True)
     return images
 
 
 def main():
-    if 'PATH_TO_CHECK' not in os.environ:
-        print(
-            'Set PATH_TO_CHECK to path to monitor for inode exhaustion',
-            file=sys.stderr
-        )
-        sys.exit(1)
-
-    if 'INODE_AVAIL_THRESHOLD' not in os.environ:
-        print(
-            'Set INODE_AVAIL_THRESHOLD to threshold at which docker images should be cleaned up',
-            file=sys.stderr
-        )
-        sys.exit(1)
-
-    path_to_check = os.environ['PATH_TO_CHECK']
-    inode_avail_threshold = float(os.environ['INODE_AVAIL_THRESHOLD'])
+    path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
+    inode_gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
+    inode_gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
-    print(f'Pruning docker images when {path_to_check} has less than {inode_avail_threshold * 100:.1f}% inodes free')
+    print(f'Pruning docker images when {path_to_check} has used {inode_gc_high}% inodes used')
 
     while True:
-        inode_avail = get_inodes_available_fraction(path_to_check)
-        if inode_avail > inode_avail_threshold:
+        inodes_used = get_inodes_used_percent(path_to_check)
+        print(f'{inodes_used:.1f}% inodes used')
+        if inodes_used < inode_gc_high:
             # Do nothing! We have enough inodes
-            print(f'{inode_avail * 100}% inodes available, not pruning any images')
+            pass
         else:
             images = get_docker_images(client)
             if not images:
-                print(f'No images to delete but only {inode_avail * 100}% inodes available')
+                print(f'No images to delete')
             else:
-                print(f'{inode_avail * 100:.1f}% inodes available, pruning from {len(images)} images')
+                print(f'Pruning from {len(images)} images')
 
-            while images and get_inodes_available_fraction(path_to_check) < inode_avail_threshold:
-                if not images:
-                    avail_percent = get_inodes_available_fraction(path_to_check) * 100
-                    break
+            while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
                 # Remove biggest image
                 image = images.pop(0)
                 if image.tags:
@@ -68,7 +72,7 @@ def main():
                     # no name, use id
                     name = image.id
                 gb = image.attrs['Size'] / (2**30)
-                print(f'Removing image {name} (size={gb:.2f}GB)')
+                print(f'Removing {name} (size={gb:.2f}GB)')
                 try:
                     client.images.remove(image=image.id)
                     print(f'Removed {name}')
