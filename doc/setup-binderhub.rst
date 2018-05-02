@@ -60,7 +60,7 @@ If you are using ``gcr.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Add the following section to ``secret.yaml``. Note that the first line is not
-indented at all.
+indented at all::
 
   registry:
     password: |
@@ -110,7 +110,7 @@ If you are using ``gcr.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To configure BinderHub to use ``gcr.io``, simply add the following to
-your ``config.yaml`` file.
+your ``config.yaml`` file::
 
   registry:
     prefix:  gcr.io/<google-project-id>/<prefix>

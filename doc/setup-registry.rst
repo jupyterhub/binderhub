@@ -45,7 +45,7 @@ registry.
 
 .. _use-docker-hub:
 
-Set up ``Docker Hub`` registry
+Set up Docker Hub registry
 ------------------------------
 
 To use **Docker Hub** as a registry first you have to create a
