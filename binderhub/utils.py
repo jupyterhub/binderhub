@@ -1,3 +1,5 @@
+"""Miscellaneous utilities"""
+from collections import OrderedDict
 from traitlets import Integer, TraitError
 
 
@@ -44,6 +46,33 @@ class ByteSpecification(Integer):
             raise TraitError('{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T'.format(val=value))
         else:
             return int(float(num) * self.UNIT_SUFFIXES[suffix])
+
+
+class Cache(OrderedDict):
+    """Basic LRU Cache with get/set"""
+    def __init__(self, max_size=1024):
+        self.max_size = max_size
+
+    def get(self, key, default=None):
+        """Get an item from the cache
+
+        same as dict.get
+        """
+        if key in self:
+            self.move_to_end(key)
+        return super().get(key, default)
+
+    def set(self, key, value):
+        """Store an item in the cache
+
+        - if already there, moves to the most recent
+        - if full, delete the oldest item
+        """
+        self[key] = value
+        self.move_to_end(key)
+        if len(self) > self.max_size:
+            first_key = next(iter(self))
+            self.pop(first_key)
 
 
 def url_path_join(*pieces):
