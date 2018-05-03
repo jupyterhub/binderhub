@@ -62,6 +62,13 @@ gitlab_hostname = get_config('gitlab.hostname')
 if gitlab_hostname:
     c.GitHubRepoProvider.hostname = gitlab_hostname
 
+template_variables = get_config('template.variables')
+if template_variables:
+    c.BinderHub.template_variables = template_variables
+template_path = get_config('template.path')
+if template_path:
+    c.BinderHub.template_path = template_path
+
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')
 if allow_origin:

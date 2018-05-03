@@ -192,3 +192,7 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
+
+template:
+  variables: {}
+  path:

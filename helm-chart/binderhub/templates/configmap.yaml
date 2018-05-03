@@ -39,6 +39,13 @@ data:
   gitlab.hostname: {{ .Values.gitlab.hostname | quote }}
   {{- end }}
 
+  {{ if .Values.template.variables -}}
+  template.variables: {{ toJson .Values.template.variables | quote }}
+  {{- end }}
+  {{ if .Values.template.path -}}
+  template.path: {{ .Values.template.path | quote }}
+  {{- end }}
+
   dind.enabled: {{ .Values.dind.enabled | quote }}
   {{ if .Values.dind.enabled }}
   dind.host-socket-dir: {{ .Values.dind.hostSocketDir | quote }}
