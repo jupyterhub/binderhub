@@ -4,6 +4,7 @@ The binderhub application
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
+import re
 from urllib.parse import urlparse
 
 import kubernetes.client
@@ -339,6 +340,17 @@ class BinderHub(Application):
     def _template_path_default(self):
         return os.path.join(os.path.dirname(__file__), 'templates')
 
+    extra_static_path = Unicode(
+        help='Path to search for extra static files.',
+        config=True,
+    )
+
+    extra_static_url_prefix = Unicode(
+        'extra_static/',
+        help='Url prefix to serve extra static files.',
+        config=True,
+    )
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -414,7 +426,6 @@ class BinderHub(Application):
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
-            "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
             'hub_url': self.hub_url,
@@ -436,6 +447,7 @@ class BinderHub(Application):
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
+            "static_path": os.path.join(os.path.dirname(__file__), "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
         })
@@ -467,6 +479,10 @@ class BinderHub(Application):
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
+        if self.extra_static_path:
+            handlers.insert(-2, (re.escape(self.extra_static_url_prefix) + r"(.*)",
+                                 tornado.web.StaticFileHandler,
+                                 {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)
         self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 

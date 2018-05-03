@@ -44,6 +44,12 @@ data:
   {{- end }}
   {{ if .Values.template.path -}}
   template.path: {{ .Values.template.path | quote }}
+  {{ if .Values.template.static.path -}}
+  template.static.path: {{ .Values.template.static.path | quote }}
+  {{- end }}
+  {{ if .Values.template.static.urlPrefix -}}
+  template.static.url-prefix: {{ .Values.template.static.urlPrefix | quote }}
+  {{- end }}
   {{- end }}
 
   dind.enabled: {{ .Values.dind.enabled | quote }}

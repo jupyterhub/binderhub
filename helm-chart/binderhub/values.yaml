@@ -196,3 +196,6 @@ ingress:
 template:
   variables: {}
   path:
+  static:
+    path:
+    urlPrefix: extra_static/

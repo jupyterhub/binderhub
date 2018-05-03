@@ -68,6 +68,12 @@ if template_variables:
 template_path = get_config('template.path')
 if template_path:
     c.BinderHub.template_path = template_path
+    static_path = get_config('template.static.path')
+    if static_path:
+        c.BinderHub.extra_static_path = static_path
+    static_url_prefix = get_config('template.static.url-prefix')
+    if static_url_prefix:
+        c.BinderHub.extra_static_url_prefix = static_url_prefix
 
 cors = get_config('binder.cors', {})
 allow_origin = cors.get('allowOrigin')
