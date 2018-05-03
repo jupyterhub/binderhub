@@ -348,7 +348,7 @@ class BinderHub(Application):
         # hook up tornado logging
         if self.debug:
             self.log_level = logging.DEBUG
-        tornado.options.logging = logging.getLevelName(self.log_level)
+        tornado.options.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
 
