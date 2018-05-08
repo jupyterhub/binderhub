@@ -48,7 +48,7 @@ spec:
           path: /var/run/docker.sock
       {{- end }}
       containers:
-      - name: binder-container
+      - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
         volumeMounts:
           - mountPath: /etc/binderhub/config/
