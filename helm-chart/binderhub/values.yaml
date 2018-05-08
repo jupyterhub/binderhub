@@ -1,3 +1,6 @@
+debug:
+  enabled: false
+
 resources:
   requests:
     cpu: 0.2

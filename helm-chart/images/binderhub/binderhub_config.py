@@ -17,7 +17,7 @@ def get_config(key, default=None):
     except FileNotFoundError:
         return default
 
-c.BinderHub.debug = True
+c.BinderHub.debug = get_config('binder.debug.enabled', False)
 
 c.BinderHub.docker_image_prefix = get_config('binder.registry.prefix')
 if get_config('binder.use-registry'):

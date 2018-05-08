@@ -3,6 +3,7 @@ apiVersion: v1
 metadata:
   name: binder-config
 data:
+  binder.debug: {{ .Values.debug.enabled | quote }}
   binder.use-registry: {{ .Values.registry.enabled | quote }}
   {{ if .Values.registry.enabled -}}
   binder.push-secret: binder-secret
