@@ -6,6 +6,7 @@ import logging
 import os
 from urllib.parse import urlparse
 
+import kubernetes.client
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
 from tornado.httpclient import AsyncHTTPClient
@@ -360,6 +361,8 @@ class BinderHub(Application):
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
+            self.tornado_settings["kubernetes_client"] = kubernetes.client.CoreV1Api()
+
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
