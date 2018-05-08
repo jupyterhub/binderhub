@@ -443,13 +443,17 @@ class BuildHandler(BaseHandler):
             username = launcher.username_from_repo(self.repo)
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username)
-                LAUNCH_TIME.labels(status='success', retries=i, **self.metric_labels).observe(time.perf_counter() - launch_starttime)
+                LAUNCH_TIME.labels(
+                    status='success', retries=i, **self.metric_labels
+                ).observe(time.perf_counter() - launch_starttime)
             except Exception as e:
                 if i + 1 == launcher.retries:
                     status = 'failure'
                 else:
                     status = 'retry'
-                LAUNCH_TIME.labels(status=status, retries=i, **self.metric_labels).observe(time.perf_counter() - launch_starttime)
+                LAUNCH_TIME.labels(
+                    status=status, retries=i, **self.metric_labels
+                ).observe(time.perf_counter() - launch_starttime)
 
                 if i + 1 == launcher.retries:
                     # last attempt failed, let it raise
