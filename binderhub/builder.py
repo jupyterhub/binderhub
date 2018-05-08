@@ -30,7 +30,7 @@ BUILD_TIME = Histogram(
 LAUNCH_TIME = Histogram(
     'binderhub_launch_time_seconds',
     'Histogram of launch times',
-    ['status', 'provider', 'repo'],
+    ['status', 'provider', 'repo', 'retries'],
     buckets=BUCKETS)
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
