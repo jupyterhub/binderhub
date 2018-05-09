@@ -82,6 +82,8 @@ def main():
                         # This means the image can not be removed right now
                         print(f'Failed to remove {name}, skipping this image')
                         print(str(e))
+                    elif e.status_code == 404:
+                        print(f'{name} not found, probably already deleted')
                     else:
                         raise
                 except requests.exceptions.ReadTimeout:
