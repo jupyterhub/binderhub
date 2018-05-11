@@ -480,7 +480,7 @@ class BinderHub(Application):
             (r'.*', Custom404),
         ]
         if self.extra_static_path:
-            handlers.insert(-2, (re.escape(self.extra_static_url_prefix) + r"(.*)",
+            handlers.insert(-1, (re.escape(self.extra_static_url_prefix) + r"(.*)",
                                  tornado.web.StaticFileHandler,
                                  {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)

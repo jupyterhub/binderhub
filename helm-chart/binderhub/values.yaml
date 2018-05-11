@@ -196,6 +196,12 @@ ingress:
 template:
   variables: {}
   path:
+  # to use extra static files in templates.
+  # they are looked up after binder base static files.
   static:
     path:
     urlPrefix: extra_static/
+
+initContainers: []
+extraVolumes: []
+extraVolumeMounts: []

@@ -30,6 +30,10 @@ spec:
         checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
+      {{ if .Values.initContainers -}}
+      initContainers:
+{{ toYaml .Values.initContainers | indent 6 }}
+      {{- end }}
       nodeSelector: {{ toJson .Values.nodeSelector }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: binderhub
@@ -47,6 +51,9 @@ spec:
         hostPath:
           path: /var/run/docker.sock
       {{- end }}
+      {{ if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 6 }}
+      {{ end }}
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
@@ -61,6 +68,9 @@ spec:
           - mountPath: /var/run/docker.sock
             name: docker-socket
           {{- end }}
+          {{ if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+          {{ end }}
         resources:
 {{ toYaml .Values.resources | indent 12}}
         imagePullPolicy: IfNotPresent
