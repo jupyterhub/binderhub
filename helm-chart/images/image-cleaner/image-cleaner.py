@@ -41,7 +41,44 @@ def get_docker_images(client):
     return images
 
 
+def cordon(kube, node):
+    """cordon a kubernetes node"""
+    kube.patch_node(
+        node,
+        {
+            "spec": {
+                "unschedulable": True,
+            },
+        },
+    )
+
+
+def uncordon(kube, node):
+    """uncordon a kubernetes node"""
+    kube.patch_node(
+        node,
+        {
+            "spec": {
+                "unschedulable": False,
+            },
+        },
+    )
+
+
 def main():
+    node = os.getenv('NODE_NAME')
+    if node:
+        import kubernetes.config
+        import kubernetes.client
+        try:
+            kubernetes.config.load_incluster_config()
+        except Exception:
+            kubernetes.config.load_kube_config()
+        kube = kubernetes.client.CoreV1Api()
+        # verify that we can talk to the node
+        kube.read_node(node)
+
+
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
     inode_gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     inode_gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
@@ -62,6 +99,10 @@ def main():
                 print(f'No images to delete')
             else:
                 print(f'{len(images)} images available to prune')
+
+            if node:
+                print(f"Cordoning node {node}")
+                cordon(kube, node)
 
             while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
                 # Remove biggest image
@@ -88,6 +129,9 @@ def main():
                         raise
                 except requests.exceptions.ReadTimeout:
                     print(f'Timeout removing {name}')
+            if node:
+                print(f"Uncordoning node {node}")
+                uncordon(kube, node)
         time.sleep(60)
 
 

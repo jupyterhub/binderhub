@@ -28,4 +28,33 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: binderhub
+---
+# image-cleaner role
+# needs to cordon nodes during image cleaning
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: image-cleaner
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["nodes"]
+  verbs: ["get", "patch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: image-cleaner
+subjects:
+- kind: ServiceAccount
+  namespace: {{ .Release.Namespace }}
+  name: image-cleaner
+roleRef:
+  kind: Role
+  name: image-cleaner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: image-cleaner
 {{- end }}

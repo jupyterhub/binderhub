@@ -19,6 +19,9 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- if .Values.rbac.enabled }}
+      serviceAccountName: image-cleaner
+      {{- end }}
       containers:
       {{- range $i, $kind := tuple "host" "dind" }}
       {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
@@ -33,6 +36,10 @@ spec:
         - python3
         - /usr/local/bin/image-cleaner.py
         env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: PATH_TO_CHECK
           value: /var/lib/docker
         - name: IMAGE_GC_THRESHOLD_HIGH
