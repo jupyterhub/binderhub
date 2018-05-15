@@ -34,13 +34,13 @@ echo "installing helm"
 curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.7.2-linux-amd64.tar.gz \
   | tar -xz -C bin --strip-components 1 linux-amd64/helm
 chmod +x bin/helm
-helm init
+
+kubectl --namespace kube-system create sa tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+helm init --service-account tiller
 
 echo "waiting for tiller"
-until helm version; do
-    sleep 1
-  done
-helm version
+kubectl --namespace=kube-system rollout status --watch deployment/tiller-deploy
 
 echo "installing git-crypt"
 curl -L https://github.com/minrk/git-crypt-bin/releases/download/0.5.0/git-crypt > bin/git-crypt
