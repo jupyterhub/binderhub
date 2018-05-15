@@ -1,5 +1,5 @@
 rbac:
-  enabled: false
+  enabled: true
 
 resources:
   requests:
@@ -18,7 +18,7 @@ service:
 
 jupyterhub:
   rbac:
-    enabled: false
+    enabled: true
   hub:
     resources:
       requests:
