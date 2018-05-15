@@ -2,6 +2,10 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   name: binderhub
 rules:
 - apiGroups: [""] # "" indicates the core API group
@@ -14,6 +18,11 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   name: binderhub
 subjects:
 - kind: ServiceAccount
@@ -27,6 +36,11 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   name: binderhub
 ---
 # image-cleaner role
@@ -35,6 +49,11 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: image-cleaner
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["nodes"]
@@ -44,6 +63,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: image-cleaner
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 subjects:
 - kind: ServiceAccount
   namespace: {{ .Release.Namespace }}
@@ -56,5 +80,10 @@ roleRef:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   name: image-cleaner
 {{- end }}
