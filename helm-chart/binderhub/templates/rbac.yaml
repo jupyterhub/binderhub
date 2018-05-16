@@ -53,7 +53,7 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: image-cleaner-{{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["nodes"]
@@ -67,14 +67,14 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: image-cleaner-{{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
 subjects:
 - kind: ServiceAccount
   namespace: {{ .Release.Namespace }}
-  name: image-cleaner
+  name: {{ .Release.Name }}-image-cleaner
 roleRef:
   kind: ClusterRole
-  name: image-cleaner-{{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
@@ -85,5 +85,5 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: image-cleaner
+  name: {{ .Release.Name }}-image-cleaner
 {{- end }}

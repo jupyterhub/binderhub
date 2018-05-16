@@ -20,7 +20,7 @@ spec:
         heritage: {{ .Release.Service }}
     spec:
       {{- if .Values.rbac.enabled }}
-      serviceAccountName: image-cleaner
+      serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
       containers:
       {{- range $i, $kind := tuple "host" "dind" }}
