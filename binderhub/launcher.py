@@ -58,6 +58,10 @@ class Launcher(LoggingConfigurable):
             try:
                 return await AsyncHTTPClient().fetch(req)
             except HTTPError as e:
+                # swallow 409 errors on retry only (not first attempt)
+                if i > 1 and e.code == 409 and e.response:
+                    self.log.warning("Treating 409 conflict on retry as success")
+                    return e.response
                 # retry requests that fail with error codes greater than 500
                 # because they are likely intermittent issues in the cluster
                 # e.g. 502,504 due to ingress issues or Hub relocating,
