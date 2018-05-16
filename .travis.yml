@@ -24,9 +24,10 @@ script:
 after_failure:
 - |
   # get pod logs
-  for pod in $(kubectl get pod --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
+  kubectl get pod --all-namespaces
+  for pod in $(kubectl get pod --no-headers --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
     echo $pod
-    kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod
+    kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
   done
 after_success:
 - codecov
