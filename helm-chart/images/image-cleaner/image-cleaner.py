@@ -43,9 +43,6 @@ def get_docker_images(client):
 
 def cordon(kube, node):
     """cordon a kubernetes node"""
-    # FIXME: cordoning permission doesn't work yet
-    print("CORDONING DISABLED")
-    return
     kube.patch_node(
         node,
         {
@@ -58,8 +55,6 @@ def cordon(kube, node):
 
 def uncordon(kube, node):
     """uncordon a kubernetes node"""
-    # FIXME: cordoning permission doesn't work yet
-    print("CORDONING DISABLED")
     kube.patch_node(
         node,
         {
@@ -80,8 +75,8 @@ def main():
         except Exception:
             kubernetes.config.load_kube_config()
         kube = kubernetes.client.CoreV1Api()
-        # FIXME: verify that we can talk to the node
-        # kube.read_node(node)
+        # verify that we can talk to the node
+        kube.read_node(node)
 
 
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')

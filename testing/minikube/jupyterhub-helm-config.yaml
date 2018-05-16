@@ -4,7 +4,7 @@
 # the binder apiToken bit requires jupyterhub helm-chart v0.5.x
 
 rbac:
-  enabled: false
+  enabled: true
 hub:
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
