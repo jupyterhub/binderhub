@@ -25,7 +25,7 @@ mv minikube bin/
 minikube addons disable dashboard
 
 echo "starting minikube with RBAC"
-sudo CHANGE_MINIKUBE_NONE_USER=true $PWD/bin/minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION} --extra-config=apiserver.Authorization.Mode=RBAC
+sudo CHANGE_MINIKUBE_NONE_USER=true $PWD/bin/minikube start --bootstrapper=localkube --vm-driver=none --kubernetes-version=v${KUBE_VERSION} --extra-config=apiserver.Authorization.Mode=RBAC
 minikube update-context
 
 echo "waiting for kubernetes"
