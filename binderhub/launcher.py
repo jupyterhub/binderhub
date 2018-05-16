@@ -56,7 +56,7 @@ class Launcher(LoggingConfigurable):
         req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
         for i in range(1, self.retries + 1):
             try:
-                resp = await AsyncHTTPClient().fetch(req)
+                return await AsyncHTTPClient().fetch(req)
             except HTTPError as e:
                 # retry requests that fail with error codes greater than 500
                 # because they are likely intermittent issues in the cluster
@@ -67,7 +67,6 @@ class Launcher(LoggingConfigurable):
                     await gen.sleep(i * self.retry_delay)
                 else:
                     raise
-        return resp
 
     def username_from_repo(self, repo):
         """Generate a username for a git repo url
