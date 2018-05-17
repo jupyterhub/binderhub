@@ -15,7 +15,8 @@ import docker
 import requests
 
 
-logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO)
 
 
 def get_inodes_used_percent(path):
