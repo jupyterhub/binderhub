@@ -109,6 +109,8 @@ def main():
                 cordon(kube, node)
 
             while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
+                # Ensure the node is still cordoned
+                cordon(kube, node)
                 # Remove biggest image
                 image = images.pop(0)
                 if image.tags:
