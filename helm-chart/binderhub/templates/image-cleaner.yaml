@@ -42,6 +42,8 @@ spec:
               fieldPath: spec.nodeName
         - name: PATH_TO_CHECK
           value: /var/lib/docker
+        - name: IMAGE_GC_DELAY
+          value: {{ $Values.imageCleaner.delay | quote }}
         - name: IMAGE_GC_THRESHOLD_HIGH
           value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
         - name: IMAGE_GC_THRESHOLD_LOW

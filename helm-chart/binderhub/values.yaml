@@ -170,6 +170,8 @@ imageCleaner:
     name: jupyterhub/k8s-image-cleaner
     tag: local
     repository: jupyterhub/k8s-image-cleaner
+  # delete an image at most every 5 seconds
+  delay: 5
   # when 80% of inodes are used,
   # cull images until it drops below 60%
   imageGCThresholdHigh: 80
