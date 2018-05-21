@@ -105,6 +105,9 @@ def main():
             else:
                 logging.info(f'{len(images)} images available to prune')
 
+            start = time.perf_counter()
+            images_before = len(images)
+
             if node:
                 logging.info(f"Cordoning node {node}")
                 cordon(kube, node)
@@ -149,6 +152,12 @@ def main():
             if node:
                 logging.info(f"Uncordoning node {node}")
                 uncordon(kube, node)
+
+            # log what we did and how long it took
+            duration = time.perf_counter() - start
+            images_deleted = len(images) - images_before
+            logging.info(f"Deleted {images_deleted} images in {int(duration)} seconds")
+
         time.sleep(60)
 
 
