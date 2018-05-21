@@ -84,6 +84,7 @@ def main():
         kube.read_node(node)
 
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
+    delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
     inode_gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     inode_gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
     client = docker.from_env(version='auto')
@@ -120,21 +121,31 @@ def main():
                     # no name, use id
                     name = image.id
                 gb = image.attrs['Size'] / (2**30)
-                logging.info(f'Removing {name} (size={gb:.2f}GB)')
-                try:
-                    client.images.remove(image=image.id)
-                    logging.info(f'Removed {name}')
-                except docker.errors.APIError as e:
-                    if e.status_code == 409:
-                        # This means the image can not be removed right now
-                        logging.info(f'Failed to remove {name}, skipping this image')
-                        logging.info(str(e))
-                    elif e.status_code == 404:
-                        logging.info(f'{name} not found, probably already deleted')
-                    else:
-                        raise
-                except requests.exceptions.ReadTimeout:
-                    logging.info(f'Timeout removing {name}')
+                while True:
+                    logging.info(f'Removing {name} (size={gb:.2f}GB)')
+                    try:
+                        client.images.remove(image=image.id)
+                        logging.info(f'Removed {name}')
+                        # Delay between deletions.
+                        # A sleep here avoids monopolizing the Docker API with deletions.
+                        time.sleep(delay)
+                    except docker.errors.APIError as e:
+                        if e.status_code == 409:
+                            # This means the image can not be removed right now
+                            logging.info(f'Failed to remove {name}, skipping this image')
+                            logging.info(str(e))
+                        elif e.status_code == 404:
+                            logging.info(f'{name} not found, probably already deleted')
+                        else:
+                            raise
+                    except requests.exceptions.ReadTimeout:
+                        logging.warning(f'Timeout removing {name}')
+                        # Retry after timeout rather than proceeding to the next image
+                        time.sleep(delay)
+                        continue
+                    # if we got here, move on to the next image
+                    break
+
             if node:
                 logging.info(f"Uncordoning node {node}")
                 uncordon(kube, node)
