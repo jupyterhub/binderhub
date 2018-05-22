@@ -155,7 +155,7 @@ def main():
 
             # log what we did and how long it took
             duration = time.perf_counter() - start
-            images_deleted = len(images) - images_before
+            images_deleted = images_before - len(images)
             logging.info(f"Deleted {images_deleted} images in {int(duration)} seconds")
 
         time.sleep(60)
