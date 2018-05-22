@@ -124,30 +124,26 @@ def main():
                     # no name, use id
                     name = image.id
                 gb = image.attrs['Size'] / (2**30)
-                while True:
-                    logging.info(f'Removing {name} (size={gb:.2f}GB)')
-                    try:
-                        client.images.remove(image=image.id)
-                        logging.info(f'Removed {name}')
-                        # Delay between deletions.
-                        # A sleep here avoids monopolizing the Docker API with deletions.
-                        time.sleep(delay)
-                    except docker.errors.APIError as e:
-                        if e.status_code == 409:
-                            # This means the image can not be removed right now
-                            logging.info(f'Failed to remove {name}, skipping this image')
-                            logging.info(str(e))
-                        elif e.status_code == 404:
-                            logging.info(f'{name} not found, probably already deleted')
-                        else:
-                            raise
-                    except requests.exceptions.ReadTimeout:
-                        logging.warning(f'Timeout removing {name}')
-                        # Retry after timeout rather than proceeding to the next image
-                        time.sleep(delay)
-                        continue
-                    # if we got here, move on to the next image
-                    break
+                logging.info(f'Removing {name} (size={gb:.2f}GB)')
+                try:
+                    client.images.remove(image=image.id)
+                    logging.info(f'Removed {name}')
+                    # Delay between deletions.
+                    # A sleep here avoids monopolizing the Docker API with deletions.
+                    time.sleep(delay)
+                except docker.errors.APIError as e:
+                    if e.status_code == 409:
+                        # This means the image can not be removed right now
+                        logging.info(f'Failed to remove {name}, skipping this image')
+                        logging.info(str(e))
+                    elif e.status_code == 404:
+                        logging.info(f'{name} not found, probably already deleted')
+                    else:
+                        raise
+                except requests.exceptions.ReadTimeout:
+                    logging.warning(f'Timeout removing {name}')
+                    # Delay longer after a timeout, which indicates that Docker is overworked
+                    time.sleep(max(delay, 30))
 
             if node:
                 logging.info(f"Uncordoning node {node}")
