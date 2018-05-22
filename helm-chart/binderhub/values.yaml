@@ -11,7 +11,7 @@ rbac:
 
 retries:
   count: 4
-  delay: 10
+  delay: 4
 
 baseUrl: /
 nodeSelector: {}

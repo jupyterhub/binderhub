@@ -438,6 +438,7 @@ class BuildHandler(BaseHandler):
         })
 
         launcher = self.settings['launcher']
+        retry_delay = launcher.retry_delay
         for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
             username = launcher.username_from_repo(self.repo)
@@ -465,7 +466,9 @@ class BuildHandler(BaseHandler):
                     'phase': 'launching',
                     'message': 'Launch attempt {} failed, retrying...\n'.format(i + 1),
                 })
-                await gen.sleep((i + 1) * launcher.retry_delay)
+                await gen.sleep(retry_delay)
+                # exponential backoff for consecutive failures
+                retry_delay *= 2
                 continue
             else:
                 # success

@@ -40,12 +40,12 @@ class Launcher(LoggingConfigurable):
         """
     )
     retry_delay = Integer(
-        10,
+        4,
         config=True,
         help="""
         Time (seconds) to wait between retries for Hub API requests.
 
-        Time is scaled by the retry attempt (i.e. first retry after 1 * delay, second after 2 * delay)
+        Time is scaled exponentially by the retry attempt (i.e. 2, 4, 8, 16 seconds)
         """
     )
 
@@ -54,6 +54,7 @@ class Launcher(LoggingConfigurable):
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
         req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
+        retry_delay = self.retry_delay
         for i in range(1, self.retries + 1):
             try:
                 return await AsyncHTTPClient().fetch(req)
@@ -68,7 +69,9 @@ class Launcher(LoggingConfigurable):
                 # 599 due to connection issues such as Hub restarting
                 if e.code >= 500:
                     self.log.error("Error accessing Hub API (%s)", e)
-                    await gen.sleep(i * self.retry_delay)
+                    await gen.sleep(retry_delay)
+                    # exponential backoff for consecutive failures
+                    retry_delay *= 2
                 else:
                     raise
 
