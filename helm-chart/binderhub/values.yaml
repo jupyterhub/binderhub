@@ -161,6 +161,7 @@ dind:
       name: docker
       tag: 17.11.0-ce-dind
   storageDriver: overlay2
+  resources: {}
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
 
