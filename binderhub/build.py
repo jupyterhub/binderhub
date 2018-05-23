@@ -88,7 +88,7 @@ class Build:
         docker_socket_path = urlparse(self.docker_host).path
         volumes = [client.V1Volume(
             name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path=docker_socket_path)
+            host_path=client.V1HostPathVolumeSource(path=docker_socket_path, type='Socket')
         )]
 
         if self.push_secret:

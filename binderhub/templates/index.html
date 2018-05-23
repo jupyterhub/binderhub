@@ -23,7 +23,7 @@
         <input type="hidden" id="provider_prefix" value="gh"/>
         <div class="form-group row">
           <label for="repository">GitHub repo or URL</label>
-          <input class="form-control" type="text" id="repository" placeholder="GitHub repository name or link"/>
+          <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
         </div>
         <div class="form-row row">
           <div class="form-group col-md-4">
@@ -123,7 +123,7 @@
         <div id="log-container" class="panel panel-default on-build hidden row">
           <div id="toggle-logs" class="panel-heading">
             Build logs
-            <button class="btn btn-link btn-xs pull-right">show</button>
+            <button type="button" class="btn btn-link btn-xs pull-right">show</button>
           </div>
           <div class="panel-body hidden">
             <div id="log"></div>

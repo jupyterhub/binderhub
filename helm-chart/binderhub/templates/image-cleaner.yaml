@@ -1,0 +1,73 @@
+{{ if .Values.imageCleaner.enabled -}}
+{{- $Values := .Values -}}
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}-image-cleaner
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name:  {{ .Release.Name }}-image-cleaner
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-image-cleaner
+        app: binder
+        component: image-cleaner
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      {{- if .Values.rbac.enabled }}
+      serviceAccountName: {{ .Release.Name }}-image-cleaner
+      {{- end }}
+      containers:
+      {{- range $i, $kind := tuple "host" "dind" }}
+      {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
+      - name: image-cleaner-{{ $kind }}
+        image: {{ $Values.imageCleaner.image.name }}:{{ $Values.imageCleaner.image.tag }}
+        volumeMounts:
+        - name: dockerlib-{{ $kind }}
+          mountPath: /var/lib/docker
+        - name: dockersocket-{{ $kind }}
+          mountPath: /var/run/docker.sock
+        command:
+        - python3
+        - /usr/local/bin/image-cleaner.py
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: PATH_TO_CHECK
+          value: /var/lib/docker
+        - name: IMAGE_GC_DELAY
+          value: {{ $Values.imageCleaner.delay | quote }}
+        - name: IMAGE_GC_THRESHOLD_HIGH
+          value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
+        - name: IMAGE_GC_THRESHOLD_LOW
+          value: {{ $Values.imageCleaner.imageGCThresholdLow | quote }}
+      {{- end }}
+      {{- end }}
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: dockerlib-host
+        hostPath:
+          path: {{ .Values.imageCleaner.host.dockerLibDir }}
+      - name: dockersocket-host
+        hostPath:
+          path: {{ .Values.imageCleaner.host.dockerSocket }}
+          type: Socket
+      {{- if .Values.dind.enabled }}
+      - name: dockerlib-dind
+        hostPath:
+          path: {{ .Values.dind.hostLibDir }}
+          type: DirectoryOrCreate
+      - name: dockersocket-dind
+        hostPath:
+          path: {{ .Values.dind.hostSocketDir }}/docker.sock
+          type: Socket
+      {{- end }}
+
+{{- end }}

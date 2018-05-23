@@ -15,11 +15,13 @@ import re
 from prometheus_client import Gauge
 
 from tornado import gen
-from tornado.httpclient import AsyncHTTPClient, HTTPError
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httputil import url_concat
 
 from traitlets import Dict, Unicode, Bool, default, List, observe
 from traitlets.config import LoggingConfigurable
+
+from .utils import Cache
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 SHA1_PATTERN = re.compile(r'[0-9a-f]{40}')
@@ -257,6 +259,10 @@ class GitLabRepoProvider(RepoProvider):
 class GitHubRepoProvider(RepoProvider):
     """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
+
+    # shared cache for resolved refs
+    cache = Cache(1024)
+
     hostname = Unicode('github.com',
         config=True,
         help="""The GitHub hostname to use
@@ -322,16 +328,23 @@ class GitHubRepoProvider(RepoProvider):
             hostname=self.hostname, user=self.user, repo=self.repo)
 
     @gen.coroutine
-    def github_api_request(self, api_url):
+    def github_api_request(self, api_url, etag=None):
         client = AsyncHTTPClient()
         if self.auth:
             # Add auth params. After logging!
             api_url = url_concat(api_url, self.auth)
 
+        headers = {}
+        if etag:
+            headers['If-None-Match'] = etag
+        req = HTTPRequest(api_url, headers=headers, user_agent="BinderHub")
+
         try:
-            resp = yield client.fetch(api_url, user_agent="BinderHub")
+            resp = yield client.fetch(req)
         except HTTPError as e:
-            if (
+            if e.code == 304:
+                resp = e.response
+            elif (
                 e.code == 403
                 and e.response
                 and e.response.headers.get('x-ratelimit-remaining') == '0'
@@ -391,16 +404,40 @@ class GitHubRepoProvider(RepoProvider):
             hostname=self.hostname,
         )
         self.log.debug("Fetching %s", api_url)
+        cached = self.cache.get(api_url)
+        if cached:
+            etag = cached['etag']
+            self.log.debug("Cache hit for %s: %s", api_url, etag)
+        else:
+            etag = None
 
-        resp = yield self.github_api_request(api_url)
+        resp = yield self.github_api_request(api_url, etag=etag)
         if resp is None:
             return None
+        if resp.code == 304:
+            self.log.info("Using cached ref for %s: %s", api_url, cached['sha'])
+            self.resolved_ref = cached['sha']
+            # refresh cache entry
+            self.cache.move_to_end(api_url)
+            return self.resolved_ref
+        elif cached:
+            self.log.debug("Cache outdated for %s", api_url)
 
         ref_info = json.loads(resp.body.decode('utf-8'))
         if 'sha' not in ref_info:
             # TODO: Figure out if we should raise an exception instead?
+            self.log.warning("No sha for %s in %s", api_url, ref_info)
+            self.resolved_ref = None
             return None
+        # store resolved ref and cache for later
         self.resolved_ref = ref_info['sha']
+        self.cache.set(
+            api_url,
+            {
+                'etag': resp.headers.get('ETag'),
+                'sha': self.resolved_ref,
+            },
+        )
         return self.resolved_ref
 
     def get_build_slug(self):

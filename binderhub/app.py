@@ -6,6 +6,7 @@ import logging
 import os
 from urllib.parse import urlparse
 
+import kubernetes.client
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
 from tornado.httpclient import AsyncHTTPClient
@@ -340,6 +341,12 @@ class BinderHub(Application):
             AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
         except ImportError as e:
             self.log.debug("Could not load pycurl: %s\npycurl is recommended if you have a large number of users.", e)
+        # set max verbosity of curl_httpclient at INFO
+        # because debug-logging from curl_httpclient
+        # includes every full request and response
+        if self.log_level < logging.INFO:
+            curl_log = logging.getLogger('tornado.curl_httpclient')
+            curl_log.setLevel(logging.INFO)
 
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
@@ -348,7 +355,7 @@ class BinderHub(Application):
         # hook up tornado logging
         if self.debug:
             self.log_level = logging.DEBUG
-        tornado.options.logging = logging.getLevelName(self.log_level)
+        tornado.options.options.logging = logging.getLevelName(self.log_level)
         tornado.log.enable_pretty_logging()
         self.log = tornado.log.app_log
 
@@ -360,6 +367,8 @@ class BinderHub(Application):
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
+            self.tornado_settings["kubernetes_client"] = kubernetes.client.CoreV1Api()
+
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)

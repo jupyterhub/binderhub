@@ -1,3 +1,6 @@
+debug:
+  enabled: false
+
 resources:
   requests:
     cpu: 0.2
@@ -158,15 +161,27 @@ dind:
       name: docker
       tag: 17.11.0-ce-dind
   storageDriver: overlay2
-  hostSocketDir: /var/run/dind
   resources: {}
+  hostSocketDir: /var/run/dind
+  hostLibDir: /var/lib/dind
 
 imageCleaner:
+  enabled: true
   image:
     name: jupyterhub/k8s-image-cleaner
     tag: local
     repository: jupyterhub/k8s-image-cleaner
-  inodeAvailThreshold: 0.8
+  # delete an image at most every 5 seconds
+  delay: 5
+  # when 80% of inodes are used,
+  # cull images until it drops below 60%
+  imageGCThresholdHigh: 80
+  imageGCThresholdLow: 60
+  # cull images on the host docker as well as dind
+  host:
+    enabled: true
+    dockerSocket: /var/run/docker.sock
+    dockerLibDir: /var/lib/docker
 
 ingress:
   enabled: false

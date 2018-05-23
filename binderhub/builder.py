@@ -262,7 +262,7 @@ class BuildHandler(BaseHandler):
                 image_found = True
 
         # Launch a notebook server if the image already is built
-        kube = client.CoreV1Api()
+        kube = self.settings['kubernetes_client']
 
         if image_found:
             await self.emit({
