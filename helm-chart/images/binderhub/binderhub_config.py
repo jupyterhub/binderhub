@@ -71,6 +71,13 @@ if allow_origin:
         }
     })
 
+retries = get_config('binder.retries.count', None)
+if retries is not None:
+    c.Launcher.retries = retries
+
+retry_delay = get_config('binder.retries.delay', None)
+if retry_delay is not None:
+    c.Launcher.retry_delay = retry_delay
 
 for path in glob.glob('/etc/binderhub/config/extra-config.*.py'):
     load_subconfig(path)

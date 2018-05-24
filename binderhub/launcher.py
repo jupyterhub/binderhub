@@ -13,7 +13,7 @@ from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Unicode
+from traitlets import Integer, Unicode
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -30,15 +30,50 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    retries = Integer(
+        4,
+        config=True,
+        help="""Number of attempts to make on Hub API requests.
+
+        Adds resiliency to intermittent Hub failures,
+        most commonly due to Hub, proxy, or ingress interruptions.
+        """
+    )
+    retry_delay = Integer(
+        4,
+        config=True,
+        help="""
+        Time (seconds) to wait between retries for Hub API requests.
+
+        Time is scaled exponentially by the retry attempt (i.e. 2, 4, 8, 16 seconds)
+        """
+    )
 
     async def api_request(self, url, *args, **kwargs):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
         req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
-        resp = await AsyncHTTPClient().fetch(req)
-        # TODO: handle errors
-        return resp
+        retry_delay = self.retry_delay
+        for i in range(1, self.retries + 1):
+            try:
+                return await AsyncHTTPClient().fetch(req)
+            except HTTPError as e:
+                # swallow 409 errors on retry only (not first attempt)
+                if i > 1 and e.code == 409 and e.response:
+                    self.log.warning("Treating 409 conflict on retry as success")
+                    return e.response
+                # retry requests that fail with error codes greater than 500
+                # because they are likely intermittent issues in the cluster
+                # e.g. 502,504 due to ingress issues or Hub relocating,
+                # 599 due to connection issues such as Hub restarting
+                if e.code >= 500:
+                    self.log.error("Error accessing Hub API (%s)", e)
+                    await gen.sleep(retry_delay)
+                    # exponential backoff for consecutive failures
+                    retry_delay *= 2
+                else:
+                    raise
 
     def username_from_repo(self, repo):
         """Generate a username for a git repo url
