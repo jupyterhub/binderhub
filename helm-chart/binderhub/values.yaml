@@ -119,6 +119,7 @@ jupyterhub:
                   '--port=%i' % self.port,
                   '--NotebookApp.base_url=%s' % self.server.base_url,
                   '--NotebookApp.token=%s' % self.user_options['token'],
+                  '--NotebookApp.trust_xheaders=True',
               ]
               allow_origin = cors.get('allowOrigin')
               if allow_origin:
