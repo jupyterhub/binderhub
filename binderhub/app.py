@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import kubernetes.client
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader
+from tornado.httpserver import HTTPServer
 from tornado.httpclient import AsyncHTTPClient
 import tornado.ioloop
 import tornado.options
@@ -452,7 +453,11 @@ class BinderHub(Application):
 
     def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
-        self.http_server = self.tornado_app.listen(self.port)
+        self.http_server = HTTPServer(
+            self.tornado_app,
+            xheaders=True,
+        )
+        self.http_server.listen(self.port)
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 
