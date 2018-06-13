@@ -9,9 +9,14 @@ at this time.
 
 import os
 import time
+import logging
 
 import docker
 import requests
+
+
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO)
 
 
 def get_inodes_used_percent(path):
@@ -43,9 +48,6 @@ def get_docker_images(client):
 
 def cordon(kube, node):
     """cordon a kubernetes node"""
-    # FIXME: cordoning permission doesn't work yet
-    print("CORDONING DISABLED")
-    return
     kube.patch_node(
         node,
         {
@@ -58,8 +60,6 @@ def cordon(kube, node):
 
 def uncordon(kube, node):
     """uncordon a kubernetes node"""
-    # FIXME: cordoning permission doesn't work yet
-    print("CORDONING DISABLED")
     kube.patch_node(
         node,
         {
@@ -80,36 +80,41 @@ def main():
         except Exception:
             kubernetes.config.load_kube_config()
         kube = kubernetes.client.CoreV1Api()
-        # FIXME: verify that we can talk to the node
-        # kube.read_node(node)
-
+        # verify that we can talk to the node
+        kube.read_node(node)
 
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
+    delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
     inode_gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     inode_gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
-    print(f'Pruning docker images when {path_to_check} has {inode_gc_high}% inodes used')
+    logging.info(f'Pruning docker images when {path_to_check} has {inode_gc_high}% inodes used')
 
     while True:
         inodes_used = get_inodes_used_percent(path_to_check)
-        print(f'{inodes_used:.1f}% inodes used')
+        logging.info(f'{inodes_used:.1f}% inodes used')
         if inodes_used < inode_gc_high:
             # Do nothing! We have enough inodes
             pass
         else:
             images = get_docker_images(client)
             if not images:
-                print(f'No images to delete')
+                logging.info(f'No images to delete')
             else:
-                print(f'{len(images)} images available to prune')
+                logging.info(f'{len(images)} images available to prune')
+
+            start = time.perf_counter()
+            images_before = len(images)
 
             if node:
-                print(f"Cordoning node {node}")
+                logging.info(f"Cordoning node {node}")
                 cordon(kube, node)
 
             while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
+                # Ensure the node is still cordoned
+                cordon(kube, node)
                 # Remove biggest image
                 image = images.pop(0)
                 if image.tags:
@@ -119,24 +124,36 @@ def main():
                     # no name, use id
                     name = image.id
                 gb = image.attrs['Size'] / (2**30)
-                print(f'Removing {name} (size={gb:.2f}GB)')
+                logging.info(f'Removing {name} (size={gb:.2f}GB)')
                 try:
                     client.images.remove(image=image.id)
-                    print(f'Removed {name}')
+                    logging.info(f'Removed {name}')
+                    # Delay between deletions.
+                    # A sleep here avoids monopolizing the Docker API with deletions.
+                    time.sleep(delay)
                 except docker.errors.APIError as e:
                     if e.status_code == 409:
                         # This means the image can not be removed right now
-                        print(f'Failed to remove {name}, skipping this image')
-                        print(str(e))
+                        logging.info(f'Failed to remove {name}, skipping this image')
+                        logging.info(str(e))
                     elif e.status_code == 404:
-                        print(f'{name} not found, probably already deleted')
+                        logging.info(f'{name} not found, probably already deleted')
                     else:
                         raise
                 except requests.exceptions.ReadTimeout:
-                    print(f'Timeout removing {name}')
+                    logging.warning(f'Timeout removing {name}')
+                    # Delay longer after a timeout, which indicates that Docker is overworked
+                    time.sleep(max(delay, 30))
+
             if node:
-                print(f"Uncordoning node {node}")
+                logging.info(f"Uncordoning node {node}")
                 uncordon(kube, node)
+
+            # log what we did and how long it took
+            duration = time.perf_counter() - start
+            images_deleted = images_before - len(images)
+            logging.info(f"Deleted {images_deleted} images in {int(duration)} seconds")
+
         time.sleep(60)
 
 

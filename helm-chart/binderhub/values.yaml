@@ -9,6 +9,10 @@ resources:
 rbac:
   enabled: true
 
+retries:
+  count: 4
+  delay: 4
+
 baseUrl: /
 nodeSelector: {}
 
@@ -115,6 +119,7 @@ jupyterhub:
                   '--port=%i' % self.port,
                   '--NotebookApp.base_url=%s' % self.server.base_url,
                   '--NotebookApp.token=%s' % self.user_options['token'],
+                  '--NotebookApp.trust_xheaders=True',
               ]
               allow_origin = cors.get('allowOrigin')
               if allow_origin:
@@ -161,6 +166,7 @@ dind:
       name: docker
       tag: 17.11.0-ce-dind
   storageDriver: overlay2
+  resources: {}
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
 
@@ -170,6 +176,8 @@ imageCleaner:
     name: jupyterhub/k8s-image-cleaner
     tag: local
     repository: jupyterhub/k8s-image-cleaner
+  # delete an image at most every 5 seconds
+  delay: 5
   # when 80% of inodes are used,
   # cull images until it drops below 60%
   imageGCThresholdHigh: 80

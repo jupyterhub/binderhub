@@ -11,6 +11,7 @@ import kubernetes.client
 import kubernetes.config
 from jinja2 import Environment, FileSystemLoader, PrefixLoader, ChoiceLoader
 from tornado.httpclient import AsyncHTTPClient
+from tornado.httpserver import HTTPServer
 import tornado.ioloop
 import tornado.options
 import tornado.log
@@ -492,7 +493,11 @@ class BinderHub(Application):
 
     def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
-        self.http_server = self.tornado_app.listen(self.port)
+        self.http_server = HTTPServer(
+            self.tornado_app,
+            xheaders=True,
+        )
+        self.http_server.listen(self.port)
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 

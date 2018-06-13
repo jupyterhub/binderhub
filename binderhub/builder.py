@@ -30,7 +30,7 @@ BUILD_TIME = Histogram(
 LAUNCH_TIME = Histogram(
     'binderhub_launch_time_seconds',
     'Histogram of launch times',
-    ['status', 'provider', 'repo'],
+    ['status', 'provider', 'repo', 'retries'],
     buckets=BUCKETS)
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
@@ -438,14 +438,41 @@ class BuildHandler(BaseHandler):
         })
 
         launcher = self.settings['launcher']
-        username = launcher.username_from_repo(self.repo)
-        try:
+        retry_delay = launcher.retry_delay
+        for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
-            server_info = await launcher.launch(image=self.image_name, username=username)
-            LAUNCH_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
-        except Exception:
-            LAUNCH_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - launch_starttime)
-            raise
+            username = launcher.username_from_repo(self.repo)
+            try:
+                server_info = await launcher.launch(image=self.image_name, username=username)
+                LAUNCH_TIME.labels(
+                    status='success', retries=i, **self.metric_labels
+                ).observe(time.perf_counter() - launch_starttime)
+            except Exception as e:
+                if i + 1 == launcher.retries:
+                    status = 'failure'
+                else:
+                    status = 'retry'
+                LAUNCH_TIME.labels(
+                    status=status, retries=i, **self.metric_labels
+                ).observe(time.perf_counter() - launch_starttime)
+
+                if i + 1 == launcher.retries:
+                    # last attempt failed, let it raise
+                    raise
+
+                # not the last attempt, try again
+                app_log.error("Retrying launch after error: %s", e)
+                await self.emit({
+                    'phase': 'launching',
+                    'message': 'Launch attempt {} failed, retrying...\n'.format(i + 1),
+                })
+                await gen.sleep(retry_delay)
+                # exponential backoff for consecutive failures
+                retry_delay *= 2
+                continue
+            else:
+                # success
+                break
         event = {
             'phase': 'ready',
             'message': 'server running at %s\n' % server_info['url'],
