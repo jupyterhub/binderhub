@@ -11,8 +11,8 @@ If you or your organization has set up a BinderHub that isn't listed here,
 please `open an issue <https://github.com/jupyterhub/binderhub/issues>`_ on
 our GitHub repository to discuss adding it!
 
-GESIS Institute for Social Sciences
------------------------------------
+GESIS - Leibniz-Institute for the Social Sciences
+-------------------------------------------------
 
 Deployed on bare-metal using ``kubeadm``.
 
