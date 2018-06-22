@@ -25,20 +25,22 @@
 </div>
 
 {% block preview %}
-<p class="preview-text text-center">
-Here's a preview on
-<a href="https://nbviewer.jupyter.org">nbviewer</a>
-while we start a server for you.
-</p>
 {# we can only produce an nbviewer URL for github right now #}
 {% set prefix, repo_ref = provider_spec.split('/', 1) %}
 {% if prefix == "gh" %}
+<div class="preview container">
+<p class="preview-text text-center">
+Here's a non-interactive preview on
+<a href="https://nbviewer.jupyter.org">nbviewer</a>
+while we start a server for you.
+Your binder will open automatically when it is ready.
+</p>
 {% set repo, ref = repo_ref.rsplit('/', 1) %}
 <div id="nbviewer-preview">
-    <iframe
-        src="https://nbviewer.jupyter.org/github/{{repo}}/tree/{{ref}}/{% if filepath %}{{ filepath }}{% endif %}"
-        style="width: 80%; margin-left: 10%; height: 80vh; border: 1px solid #aaa;"
-    >
+  <iframe
+    src="https://nbviewer.jupyter.org/github/{{repo}}/tree/{{ref}}/{% if filepath %}{{ filepath }}{% endif %}"
+  ></iframe>
+</div>
 </div>
 {% endif %}
 {% endblock preview %}
