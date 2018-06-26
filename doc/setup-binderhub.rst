@@ -49,10 +49,6 @@ Create a file called ``secret.yaml`` and add the following::
             apiToken: "<output of FIRST `openssl rand -hex 32` command>"
       proxy:
         secretToken: "<output of SECOND `openssl rand -hex 32` command>"
-  hub:
-    services:
-      binder:
-        apiToken: "<output of FIRST `openssl rand -hex 32` command>"
 
 Next, we'll configure this file to connect with our registry.
 
