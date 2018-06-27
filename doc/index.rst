@@ -1,7 +1,7 @@
 BinderHub
 =========
 
-.. warning::
+.. note::
 
    BinderHub is under active development and subject to breaking changes.
 
@@ -19,16 +19,20 @@ your BinderHub deployment.
 
 To get started creating your own BinderHub, start with :doc:`create-cloud-resources`.
 
-.. tip::
+Extending JupyterHub
+--------------------
 
-   If you’d like to extend your JupyterHub setup, see the complementary guide
-   `Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html>`_.
+If you’d like to extend your JupyterHub setup, see
+`Zero to JupyterHub <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html#customization-guide>`_.
 
-.. note::
+BinderHub Deployments
+---------------------
 
-   If you or your organization has set up a BinderHub that isn't listed here,
-   please `open an issue <https://github.com/jupyterhub/binderhub/issues>`_ on
-   our GitHub repository to discuss adding it!
+Our directory of BinderHubs is published at :doc:`known-deployments`.
+
+If your BinderHub deployment is not listed, please
+`open an issue <https://github.com/jupyterhub/binderhub/issues>`_
+to discuss adding it.
 
 Zero to BinderHub
 -----------------
