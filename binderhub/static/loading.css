@@ -92,6 +92,7 @@ div#log-container {
 
 .preview {
   margin-top: 40px;
+  width: 70%;
 }
 
 #nbviewer-preview > iframe {
