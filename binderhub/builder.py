@@ -18,7 +18,7 @@ from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from prometheus_client import Histogram, Gauge
 
-from .base import BaseHandler
+from .base import BaseHandler, authenticated
 from .build import Build, FakeBuild
 
 BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
@@ -100,7 +100,8 @@ class BuildHandler(BaseHandler):
         self.write('data: {}\n\n'.format(evt))
         self.finish()
 
-    def initialize(self):
+    def initialize(self, *args, **kwargs):
+        super().initialize(*args, **kwargs)
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 
@@ -166,6 +167,7 @@ class BuildHandler(BaseHandler):
             'message': message + '\n',
         })
 
+    @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
 
@@ -448,9 +450,15 @@ class BuildHandler(BaseHandler):
         retry_delay = launcher.retry_delay
         for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
-            username = launcher.username_from_repo(self.repo)
+            if self.settings['auth_enabled']:
+                user_model = self.hub_auth.get_user(self)
+                username = user_model['name']
+                server_name = 'server-{}'.format(launcher.username_from_repo(self.repo))
+            else:
+                username = launcher.username_from_repo(self.repo)
+                server_name = ''
             try:
-                server_info = await launcher.launch(image=self.image_name, username=username)
+                server_info = await launcher.launch(image=self.image_name, username=username, server_name=server_name)
                 LAUNCH_TIME.labels(
                     status='success', retries=i, **self.metric_labels
                 ).observe(time.perf_counter() - launch_starttime)

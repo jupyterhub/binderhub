@@ -13,7 +13,7 @@ from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Integer, Unicode
+from traitlets import Integer, Unicode, Bool
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -25,11 +25,13 @@ SUFFIX_CHARS = string.ascii_lowercase + string.digits
 # Set length of suffix. Number of combinations = SUFFIX_CHARS**SUFFIX_LENGTH = 36**8 ~= 2**41
 SUFFIX_LENGTH = 8
 
+
 class Launcher(LoggingConfigurable):
     """Object for encapsulating launching an image for a user"""
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    create_user = Bool(True, help="Create a new Hub user")
     retries = Integer(
         4,
         config=True,
@@ -101,7 +103,7 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username):
+    async def launch(self, image, username, server_name=''):
         """Launch a server for a given image
 
         - creates the user on the Hub
@@ -115,17 +117,18 @@ class Launcher(LoggingConfigurable):
 
         # create a new user
         app_log.info("Creating user %s for image %s", username, image)
-        try:
-            await self.api_request('users/%s' % username, body=b'', method='POST')
-        except HTTPError as e:
-            if e.response:
-                body = e.response.body
-            else:
-                body = ''
-            app_log.error("Error creating user %s: %s\n%s",
-                username, e, body,
-            )
-            raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
+        if self.create_user:
+            try:
+                await self.api_request('users/%s' % username, body=b'', method='POST')
+            except HTTPError as e:
+                if e.response:
+                    body = e.response.body
+                else:
+                    body = ''
+                app_log.error("Error creating user %s: %s\n%s",
+                    username, e, body,
+                )
+                raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
 
         # generate a token
         token = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
@@ -133,8 +136,10 @@ class Launcher(LoggingConfigurable):
         # start server
         app_log.info("Starting server for user %s with image %s", username, image)
         try:
+            url = 'users/{}/server{}'.format(username,
+                                             's/{}'.format(server_name) if server_name else '')
             resp = await self.api_request(
-                'users/%s/server' % username,
+                url,
                 method='POST',
                 body=json.dumps({
                     'token': token,
@@ -152,9 +157,9 @@ class Launcher(LoggingConfigurable):
                     )
 
                     body = json.loads(resp.body.decode('utf-8'))
-                    if body['server']:
+                    if body['servers'][server_name]['ready']:
                         break
-                    if not body['pending']:
+                    if not body['servers'][server_name]['pending']:
                         raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start

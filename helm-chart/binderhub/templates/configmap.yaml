@@ -37,6 +37,12 @@ data:
   binder.hub-url: {{ .Values.hub.url | quote }}
   binder.base_url: {{ .Values.baseUrl | quote }}
 
+  {{- if and (eq .Values.jupyterhub.auth.type "custom") (eq .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
+  binder.auth-enabled: "false"
+  {{- else }}
+  binder.auth-enabled: "true"
+  {{- end }}
+
   {{ if .Values.github.hostname -}}
   github.hostname: {{ .Values.github.hostname | quote }}
   {{- end }}

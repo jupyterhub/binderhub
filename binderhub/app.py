@@ -96,6 +96,11 @@ class BinderHub(Application):
             proposal.value = proposal.value + '/'
         return proposal.value
 
+    auth_enabled = Bool(
+        False,
+        help="If JupyterHub authentication enabled, don't create users during launch.",
+        config=True)
+
     port = Integer(
         8585,
         help="""
@@ -448,6 +453,7 @@ class BinderHub(Application):
             parent=self,
             hub_url=self.hub_url,
             hub_api_token=self.hub_api_token,
+            create_user=not self.auth_enabled,
         )
 
         self.tornado_settings.update({
@@ -479,6 +485,7 @@ class BinderHub(Application):
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
+            'auth_enabled': self.auth_enabled,
         })
 
         handlers = [

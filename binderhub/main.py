@@ -5,12 +5,13 @@ from tornado import web
 from tornado.httputil import url_concat
 from tornado.log import app_log
 
-from .base import BaseHandler
+from .base import BaseHandler, authenticated
 
 
 class MainHandler(BaseHandler):
     """Main handler for requests"""
 
+    @authenticated
     def get(self):
         self.render_template(
             "index.html",
@@ -24,6 +25,7 @@ class MainHandler(BaseHandler):
 class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
+    @authenticated
     def get(self, provider_prefix, _unescaped_spec):
         # re-extract spec from request.path
         # get the original, raw spec, without tornado's unquoting
@@ -59,6 +61,7 @@ class ParameterizedMainHandler(BaseHandler):
 class LegacyRedirectHandler(BaseHandler):
     """Redirect handler from legacy Binder"""
 
+    @authenticated
     def get(self, user, repo, urlpath=None):
         url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
         if urlpath is not None and urlpath.strip('/'):

@@ -82,6 +82,7 @@ hub:
 jupyterhub:
   cull:
     enabled: true
+    # NOTE set false when authentication is enabled
     users: true
   hub:
     rbac:
@@ -106,9 +107,6 @@ jupyterhub:
 
         # get cors config from config-map
         cors = get_config_map('custom.cors', {})
-
-        # disable login (users created exclusively via API)
-        c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
@@ -137,6 +135,8 @@ jupyterhub:
               return super().start()
 
         c.JupyterHub.spawner_class = BinderSpawner
+        # NOTE set True when authentication is enabled
+        c.JupyterHub.allow_named_servers = False
 
     extraConfigMap:
       cors: *cors
@@ -144,8 +144,15 @@ jupyterhub:
       binder:
         admin: true
         apiToken:
-
+  auth:
+    type: custom
+    custom:
+      # disable login (users created exclusively via API)
+      className: "nullauthenticator.NullAuthenticator"
   singleuser:
+    # NOTE set cmd as jupyterhub-singleuser when authentication is enabled
+    # nullauthenticator doesn't work with jhub-singleuser and jhub installation is required in single user image
+    # cmd: jupyterhub-singleuser
     # start jupyter notebook
     cmd: jupyter-notebook
     events: false

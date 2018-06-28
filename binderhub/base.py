@@ -2,9 +2,52 @@
 
 from http.client import responses
 from tornado import web
+# TODO HubOAuthenticated condition
+from jupyterhub.services.auth import HubAuthenticated, HubOAuthenticated
+import functools
+import urllib.parse as urlparse
+from urllib.parse import urlencode
 
 
-class BaseHandler(web.RequestHandler):
+def authenticated(method):
+    """Copied from tornado.web.authenticated and `auth_enabled` condition is added.
+    If authentication in not enabled, this decorator doesn't do anything.
+    """
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        # get_current_user() will be called automatically the first time self.current_user is accessed
+        if self.settings['auth_enabled'] and not self.current_user:
+            if self.request.method in ("GET", "HEAD"):
+                url = self.get_login_url()
+                if "?" not in url:
+                    # if urlparse.urlsplit(url).scheme:
+                    #     # if login url is absolute, make next absolute too
+                    #     next_url = self.request.full_url()
+                    # else:
+                    #     next_url = self.request.uri
+                    next_url = self.request.uri
+                    url += "?" + urlencode(dict(next=next_url))
+                self.redirect(url)
+                return
+            raise web.HTTPError(403)
+        return method(self, *args, **kwargs)
+    return wrapper
+
+
+class BinderHubAuthenticated(HubAuthenticated):
+    hub_services = None  # set of allowed services
+    hub_users = None  # set of allowed users
+    hub_groups = None  # set of allowed groups
+    allow_admin = True  # allow any admin user access
+
+    # def initialize(self, hub_auth):
+    def initialize(self):
+        # self.hub_auth = hub_auth
+        self.hub_auth.api_token = self.settings['hub_api_token']
+        self.hub_auth.hub_host = self.settings['hub_url'].rstrip('/')
+
+
+class BaseHandler(BinderHubAuthenticated, web.RequestHandler):
     @property
     def template_namespace(self):
         return dict(static_url=self.static_url, **self.settings.get('template_variables', {}))
