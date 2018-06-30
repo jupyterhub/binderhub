@@ -89,3 +89,14 @@ div#log-container {
 .hidden {
     display: none;
 }
+
+.preview {
+  margin-top: 40px;
+  width: 70%;
+}
+
+#nbviewer-preview > iframe {
+  width: 100%;
+  height: 80vh;
+  border: 1px solid #aaa;
+}
