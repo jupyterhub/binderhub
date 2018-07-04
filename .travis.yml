@@ -20,7 +20,7 @@ install:
 - npm run webpack
 script:
 - export BINDER_TEST_NAMESPACE=binder-test-$TEST
-- ./ci/test-$TEST
+- travis_wait ./ci/test-$TEST
 after_failure:
 - |
   # get pod logs
