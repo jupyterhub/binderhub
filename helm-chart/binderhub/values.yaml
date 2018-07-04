@@ -132,7 +132,7 @@ jupyterhub:
               if 'image' not in self.user_options:
                 raise web.HTTPError(400, "image required")
 
-              self.singleuser_image_spec = self.user_options['image']
+              self.image_spec = self.user_options['image']
               return super().start()
 
         c.JupyterHub.spawner_class = BinderSpawner
