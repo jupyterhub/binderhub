@@ -7,7 +7,7 @@ from tornado import web
 class BaseHandler(web.RequestHandler):
     @property
     def template_namespace(self):
-        return dict(static_url=self.static_url)
+        return dict(static_url=self.static_url, **self.settings.get('template_variables', {}))
 
     def set_default_headers(self):
         headers = self.settings.get('headers', {})

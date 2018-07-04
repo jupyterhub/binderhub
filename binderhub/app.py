@@ -4,18 +4,19 @@ The binderhub application
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
+import re
 from urllib.parse import urlparse
 
 import kubernetes.client
 import kubernetes.config
-from jinja2 import Environment, FileSystemLoader
-from tornado.httpserver import HTTPServer
+from jinja2 import Environment, FileSystemLoader, PrefixLoader, ChoiceLoader
 from tornado.httpclient import AsyncHTTPClient
+from tornado.httpserver import HTTPServer
 import tornado.ioloop
 import tornado.options
 import tornado.log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, observe, validate, TraitError, default
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
 
 from .base import Custom404
@@ -26,8 +27,6 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
-
-TEMPLATE_PATH = [os.path.join(os.path.dirname(__file__), 'templates')]
 
 
 class BinderHub(Application):
@@ -328,6 +327,31 @@ class BinderHub(Application):
         """
     )
 
+    template_variables = Dict(
+        config=True,
+        help="Extra variables to supply to jinja templates when rendering.",
+    )
+
+    template_path = Unicode(
+        help="Path to search for custom jinja templates, before using the default templates.",
+        config=True,
+    )
+
+    @default('template_path')
+    def _template_path_default(self):
+        return os.path.join(os.path.dirname(__file__), 'templates')
+
+    extra_static_path = Unicode(
+        help='Path to search for extra static files.',
+        config=True,
+    )
+
+    extra_static_url_prefix = Unicode(
+        'extra_static/',
+        help='Url prefix to serve extra static files.',
+        config=True,
+    )
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -375,7 +399,18 @@ class BinderHub(Application):
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
 
         jinja_options = dict(autoescape=True, )
-        jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), **jinja_options)
+        template_paths = [self.template_path]
+        base_template_path = self._template_path_default()
+        if base_template_path not in template_paths:
+            # add base templates to the end, so they are looked up at last after custom templates
+            template_paths.append(base_template_path)
+        loader = ChoiceLoader([
+            # first load base templates with prefix
+            PrefixLoader({'templates': FileSystemLoader([base_template_path])}, '/'),
+            # load all templates
+            FileSystemLoader(template_paths)
+        ])
+        jinja_env = Environment(loader=loader, **jinja_options)
         if self.use_registry and self.builder_required:
             registry = DockerRegistry(self.docker_auth_host,
                                       self.docker_token_url,
@@ -392,7 +427,6 @@ class BinderHub(Application):
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
-            "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
             'hub_url': self.hub_url,
@@ -414,7 +448,9 @@ class BinderHub(Application):
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
+            "static_path": os.path.join(os.path.dirname(__file__), "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
+            'template_variables': self.template_variables,
         })
 
         handlers = [
@@ -444,6 +480,10 @@ class BinderHub(Application):
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
+        if self.extra_static_path:
+            handlers.insert(-1, (re.escape(self.extra_static_url_prefix) + r"(.*)",
+                                 tornado.web.StaticFileHandler,
+                                 {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)
         self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 

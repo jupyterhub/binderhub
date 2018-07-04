@@ -15,11 +15,11 @@
   <div class="container">
     <div class="row">
       <div id="logo-container">
-        <img id="logo" src="{{static_url("logo.svg")}}" width="390px"  />
+        <img id="logo" src={% block logo_image %}"{{static_url("logo.svg")}}"{% endblock logo_image %} width="390px"  />
       </div>
     </div>
   </div>
-  {% endblock %}
+  {% endblock logo %}
 
   {% block main %}
   {% endblock main %}
