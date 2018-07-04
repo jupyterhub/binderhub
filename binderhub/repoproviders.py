@@ -364,7 +364,9 @@ class GitHubRepoProvider(RepoProvider):
                 raise ValueError("GitHub rate limit exceeded. Try again in %i minutes."
                     % minutes_until_reset
                 )
-            elif e.code == 404:
+            # Status 422 is returned by the API when we try and resolve a non
+            # existent reference
+            elif e.code in (404, 422):
                 return None
             else:
                 raise
