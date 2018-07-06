@@ -6,3 +6,4 @@ docker
 kubernetes
 escapism
 requests
+sphinx-copybutton
