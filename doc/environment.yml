@@ -12,3 +12,4 @@ dependencies:
   - docker
   - kubernetes==3.*
   - prometheus_client
+  - sphinx-copybutton
