@@ -312,6 +312,12 @@ function indexMain() {
     // setup badge dropdown and default values.
     updateUrlDiv();
 
+    $("#provider_prefix_sel li").click(function(){
+      $("#provider_prefix-selected").text($(this).text());
+      $("#provider_prefix").val($(this).attr("value"));
+      updateUrlDiv();
+    });
+
     $("#url-or-file-btn").find("a").click(function (evt) {
       $("#url-or-file-selected").text($(this).text());
       updatePathText();
