@@ -144,18 +144,45 @@ function updatePathText() {
 }
 
 
+function updateRepoText() {
+  var text;
+  var provider = $("#provider_prefix").val();
+  var tag_text = "Git branch, tag, or commit";
+  if (provider === "gh") {
+    text = "GitHub repository name or URL";
+  } else if (provider === "gl") {
+    text = "GitLab.com repository or URL";
+  }
+  else if (provider === "gist") {
+    text = "Gist ID (username/gistId)";
+  }
+  else if (provider === "git") {
+    text = "Arbitrary git repository URL (http://git.example.com/repo)";
+    tag_text = "Git commit SHA";
+  }
+  $("#repository").attr('placeholder', text);
+  $("label[for=repository]").text(text);
+  $("#ref").attr('placeholder', tag_text);
+  $("label[for=ref]").text(tag_text);
+}
+
+
 function updateUrl() {
   // update URLs and links (badges, etc.)
   var provider_prefix = $('#provider_prefix').val().trim();
   var repo = $('#repository').val().trim();
-  repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+  if (provider_prefix !== 'git') {
+    repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+    repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
+  }
   // trim trailing or leading '/' on repo
   repo = repo.replace(/(^\/)|(\/?$)/g, '');
   // git providers encode the URL of the git repository as the repo
   // argument.
-  if (repo.includes("://")) {
+  if (repo.includes("://") || provider_prefix === 'gl') {
     repo = encodeURIComponent(repo);
   }
+
   var ref = $('#ref').val().trim() || 'master';
   var filepath = $('#filepath').val().trim();
   var url = v2url(provider_prefix, repo, ref, filepath, getPathType());
@@ -315,6 +342,7 @@ function indexMain() {
     $("#provider_prefix_sel li").click(function(){
       $("#provider_prefix-selected").text($(this).text());
       $("#provider_prefix").val($(this).attr("value"));
+      updateRepoText();
       updateUrlDiv();
     });
 
@@ -324,6 +352,7 @@ function indexMain() {
       updateUrlDiv();
     });
     updatePathText();
+    updateRepoText();
 
     $('#repository').on('keyup paste change', updateUrlDiv);
 
@@ -350,12 +379,15 @@ function indexMain() {
         var repo = $('#repository').val().trim();
         var ref =  $('#ref').val().trim() || 'master';
         var provider_prefix =  $('#provider_prefix').val().trim();
-        repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+        if (provider_prefix !== 'git') {
+          repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
+          repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
+        }
         // trim trailing or leading '/' on repo
         repo = repo.replace(/(^\/)|(\/?$)/g, '');
         // git providers encode the URL of the git repository as the
         // repo argument.
-        if (repo.includes("://")) {
+        if (repo.includes("://") || provider_prefix === 'gl') {
           repo = encodeURIComponent(repo);
         }
         var url = updateUrl();
