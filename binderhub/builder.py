@@ -118,7 +118,7 @@ class BuildHandler(BaseHandler):
         We also ensure that the returned value is DNS safe, by only using
         ascii lowercase + digits. everything else is escaped
         """
-        
+
         # escape parts that came from providers (build slug, ref)
         # only build_slug *really* needs this (refs should be sha1 hashes)
         # build names are case-insensitive because ascii_letters are allowed,
@@ -126,7 +126,7 @@ class BuildHandler(BaseHandler):
         safe_chars = set(string.ascii_letters + string.digits)
         def escape(s):
             return escapism.escape(s, safe=safe_chars, escape_char='-')
-        
+
         build_slug = self._safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
         ref = escape(ref)
 
@@ -138,7 +138,7 @@ class BuildHandler(BaseHandler):
 
     def _safe_build_slug(self, build_slug, limit, hash_length=6):
         """
-        This function catches a bug where build slug may not produce a valid image name 
+        This function catches a bug where build slug may not produce a valid image name
         (e.g. repo name ending with _, which results in image name ending with '-' which is invalid).
         This ensures that the image name is always safe, regardless of build slugs returned by providers
         (rather than requiring all providers to return image-safe build slugs below a certain length).

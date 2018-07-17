@@ -25,8 +25,27 @@
         <h4 id="form-header" class='row'>Build and launch a repository</h4>
         <input type="hidden" id="provider_prefix" value="gh"/>
         <div class="form-group row">
-          <label for="repository">GitHub repo or URL</label>
-          <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
+          <label for="repository">GitHub repo or Gist name or GitLab.com URL</label>
+          <div class="input-group">
+            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
+            <div class="input-group-btn" id="url-type-btn">
+              <button type="button" class="btn btn-secondary dropdown-toggle"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                title="Specify source of repository"
+              >
+              <span id="provider_prefix-selected">
+              GitHub
+              </span>
+              <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" id="provider_prefix_sel">
+                <li class="dropdown-item" value="gh"><a href="#">GitHub</a></li>
+                <li class="dropdown-item" value="gist"><a href="#">Gist</a></li>
+                <li class="dropdown-item" value="gl"><a href="#">GitLab.com</a></li>
+                <li class="dropdown-item" value="git"><a href="#">Git repository</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
         <div class="form-row row">
           <div class="form-group col-md-4">
