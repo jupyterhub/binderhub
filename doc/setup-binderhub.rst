@@ -55,25 +55,29 @@ Next, we'll configure this file to connect with our registry.
 If you are using ``gcr.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Add the following section to ``secret.yaml``. Note that the first line is not
-indented at all::
+Add the information needed to connect with the registry to ``secret.yaml``.
+You'll need the content in the JSON file that was created when we created
+our ``gcr.io`` registry account. Below we show the structure of the YAML you
+need to insert. Note that the first line is not indented at all::
 
   registry:
+    # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
+    # it will look something like the following (with actual values instead of empty strings)
+    # paste the content after `password: |` below
     password: |
-      <content of the JSON file downloaded earlier for the container registry from Service Accounts>
-      <it will look something like the following (with actual values instead of empty strings)>
       {
-      "type": "",
-      "project_id": "",
-      "private_key_id": "",
-      "private_key": "",
-      "client_email": "",
-      "client_id": "",
-      "auth_uri": "",
-      "token_uri": "",
-      "auth_provider_x509_cert_url": "",
-      "client_x509_cert_url": ""
+      "type": "<REPLACE>",
+      "project_id": "<REPLACE>",
+      "private_key_id": "<REPLACE>",
+      "private_key": "<REPLACE>",
+      "client_email": "<REPLACE>",
+      "client_id": "<REPLACE>",
+      "auth_uri": "<REPLACE>",
+      "token_uri": "<REPLACE>",
+      "auth_provider_x509_cert_url": "<REPLACE>",
+      "client_x509_cert_url": "<REPLACE>"
       }
+
 
 .. tip::
 
