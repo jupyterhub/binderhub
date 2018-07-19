@@ -18,9 +18,12 @@ install:
 - pip install --no-cache-dir . -r dev-requirements.txt
 - npm install
 - npm run webpack
+# sphinx requirements
+- pip install --no-cache-dir . -r docs/doc-requirements.txt
 script:
 - export BINDER_TEST_NAMESPACE=binder-test-$TEST
 - travis_wait ./ci/test-$TEST
+- cd docs && make html
 after_failure:
 - |
   # get pod logs
