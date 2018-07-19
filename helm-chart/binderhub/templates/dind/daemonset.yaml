@@ -18,6 +18,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      nodeSelector: {{ toJson .Values.build.nodeSelector }}
       {{ if .Values.dind.initContainers -}}
       initContainers:
 {{ toYaml .Values.dind.initContainers | indent 10 }}
