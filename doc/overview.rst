@@ -33,12 +33,13 @@ After a user clicks a Binder link, the following chain of events happens:
    ``ref`` (git commit hash, branch, or tag).
 3. **If the image doesn't exist**, BinderHub creates a ``build`` pod that uses
    `repo2docker <https://github.com/jupyter/repo2docker>`_ to do the following:
-      * Fetch the repository associated with the link
-      * Build a Docker container image containing the environment specified in
-        `configuration files <https://mybinder.readthedocs.io/en/latest/using.html#supported-configuration-files>`_
-        in the repository.
-      * Push that image to a Docker registry, and send the registry information
-        to the BinderHub for future reference.
+
+   - Fetch the repository associated with the link
+   - Build a Docker container image containing the environment specified in
+     `configuration files <https://mybinder.readthedocs.io/en/latest/using.html#supported-configuration-files>`_
+     in the repository.
+   - Push that image to a Docker registry, and send the registry information
+     to the BinderHub for future reference.
 4. BinderHub sends the Docker image registry to **JupyterHub**.
 5. JupyterHub creates a Kubernetes pod for the user that serves the built Docker image
    for the repository.
