@@ -34,8 +34,7 @@ data:
   binder.retries.count: {{ .Values.retries.count | quote }}
   binder.retries.delay: {{ .Values.retries.delay | quote }}
 
-  binder.hub-url: {{ .Values.hub.url | quote }}
-  binder.base_url: {{ .Values.baseUrl | quote }}
+  binder.base-url: {{ .Values.baseUrl | quote }}
 
   {{- if and (eq .Values.jupyterhub.auth.type "custom") (eq .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
   binder.auth-enabled: "false"

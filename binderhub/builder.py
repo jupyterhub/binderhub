@@ -100,8 +100,7 @@ class BuildHandler(BaseHandler):
         self.write('data: {}\n\n'.format(evt))
         self.finish()
 
-    def initialize(self, *args, **kwargs):
-        super().initialize(*args, **kwargs)
+    def initialize(self):
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 

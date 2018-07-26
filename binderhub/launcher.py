@@ -31,6 +31,7 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    hub_api_url = Unicode(help="The URL of the Hub API")
     create_user = Bool(True, help="Create a new Hub user")
     retries = Integer(
         4,
@@ -55,10 +56,12 @@ class Launcher(LoggingConfigurable):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
-        req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
+        url = self.hub_api_url + url
+        req = HTTPRequest(url, *args, **kwargs)
         retry_delay = self.retry_delay
         for i in range(1, self.retries + 1):
             try:
+                self.log.info("JupyterHub api request: %s", url)
                 return await AsyncHTTPClient().fetch(req)
             except HTTPError as e:
                 # swallow 409 errors on retry only (not first attempt)
@@ -174,11 +177,12 @@ class Launcher(LoggingConfigurable):
             else:
                 body = ''
 
-            app_log.error("Error starting server for %s: %s\n%s",
-                username, e, body,
-            )
+            app_log.error("Error starting server{} for {}: {}\n{}".
+                          format(" '{}'".format(server_name) if server_name else '',
+                                 username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
+        # TODO update this url for named servers
         url = self.hub_url + 'user/%s/' % username
 
         return {

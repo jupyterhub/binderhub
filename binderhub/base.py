@@ -2,10 +2,8 @@
 
 from http.client import responses
 from tornado import web
-# TODO HubOAuthenticated condition
 from jupyterhub.services.auth import HubAuthenticated, HubOAuthenticated
 import functools
-import urllib.parse as urlparse
 from urllib.parse import urlencode
 
 
@@ -35,16 +33,10 @@ def authenticated(method):
 
 
 class BinderHubAuthenticated(HubAuthenticated):
-    hub_services = None  # set of allowed services
-    hub_users = None  # set of allowed users
-    hub_groups = None  # set of allowed groups
-    allow_admin = True  # allow any admin user access
-
-    # def initialize(self, hub_auth):
-    def initialize(self):
-        # self.hub_auth = hub_auth
-        self.hub_auth.api_token = self.settings['hub_api_token']
-        self.hub_auth.hub_host = self.settings['hub_url'].rstrip('/')
+    # allow_all -> True: all successfully identified user or service should be allowed
+    hub_services = None
+    hub_users = None
+    hub_groups = None
 
 
 class BaseHandler(BinderHubAuthenticated, web.RequestHandler):
