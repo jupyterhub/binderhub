@@ -267,9 +267,6 @@ class BinderHub(Application):
         config=True,
     )
 
-    hub_api_url = Unicode(os.getenv('JUPYTERHUB_API_URL'),
-                          help="The URL of the Hub API")
-
     hub_url = Unicode(
         help="""
         The base URL of the JupyterHub instance where users will run.
@@ -456,7 +453,6 @@ class BinderHub(Application):
         self.launcher = Launcher(
             parent=self,
             hub_url=self.hub_url,
-            hub_api_url=self.hub_api_url,
             hub_api_token=self.hub_api_token,
             create_user=not self.auth_enabled,
         )
@@ -466,8 +462,6 @@ class BinderHub(Application):
             "docker_image_prefix": self.docker_image_prefix,
             "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_url': self.hub_url,
-            'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
             'appendix': self.appendix,
             "build_namespace": self.build_namespace,

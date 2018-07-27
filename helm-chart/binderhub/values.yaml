@@ -92,6 +92,7 @@ jupyterhub:
         import os
         import sys
         import yaml
+        from tornado import web
         def get_config_map(key, default=None):
             """
             Find a configmap item of a given name & return it
@@ -142,6 +143,8 @@ jupyterhub:
       cors: *cors
     services:
       binder:
+        # NOTE set 'url' when authentication is enabled.
+        # because cookie 'jupyterhub-services', which is used for authentication, is available under '/services/'.
         admin: true
         apiToken:
   auth:

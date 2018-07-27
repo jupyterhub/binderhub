@@ -32,14 +32,9 @@ def authenticated(method):
     return wrapper
 
 
-class BinderHubAuthenticated(HubAuthenticated):
-    # allow_all -> True: all successfully identified user or service should be allowed
-    hub_services = None
-    hub_users = None
-    hub_groups = None
+class BaseHandler(HubAuthenticated, web.RequestHandler):
+    """HubAuthenticated by default allows all successfully identified users (allow_all property)."""
 
-
-class BaseHandler(BinderHubAuthenticated, web.RequestHandler):
     @property
     def template_namespace(self):
         return dict(static_url=self.static_url, **self.settings.get('template_variables', {}))

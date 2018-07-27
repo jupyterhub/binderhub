@@ -89,6 +89,7 @@ spec:
         - name: JUPYTERHUB_API_URL
           value: "$(JUPYTERHUB_URL)/hub/api/"
         {{- if and (eq .Values.jupyterhub.auth.type "custom") (eq .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
+        # auth is not enabled
         {{- else }}
         - name: JUPYTERHUB_SERVICE_PREFIX
           value: {{ .Values.baseUrl | quote }}
