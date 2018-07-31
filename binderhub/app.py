@@ -306,6 +306,16 @@ class BinderHub(Application):
         config=True,
         help="""The number of concurrent builds to allow."""
     )
+    executor_threads = Integer(
+        5,
+        config=True,
+        help="""The number of threads to use for blocking calls
+
+        Should generaly be a small number because we don't
+        care about high concurrency here, just not blocking the webserver.
+        This executor is not used for long-running tasks (e.g. builds).
+        """,
+    )
 
     # FIXME: Come up with a better name for it?
     builder_required = Bool(
@@ -397,6 +407,9 @@ class BinderHub(Application):
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
+        # default executor for asyncifying blocking calls (e.g. to kubernetes, docker).
+        # this should not be used for long-running requests
+        self.executor = ThreadPoolExecutor(self.executor_threads)
 
         jinja_options = dict(autoescape=True, )
         template_paths = [self.template_path]
@@ -451,6 +464,7 @@ class BinderHub(Application):
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
+            'executor': self.executor,
         })
 
         handlers = [

@@ -82,7 +82,6 @@ class Launcher(LoggingConfigurable):
         from https://github.com/minrk/binder-example.git
         """
         # start with url path
-        print
         if '://' not in repo and _ssh_repo_pat.match(repo):
             # ssh url
             path = repo.split(':', 1)[1]
@@ -104,7 +103,6 @@ class Launcher(LoggingConfigurable):
 
     async def launch(self, image, username):
         """Launch a server for a given image
-
 
         - creates the user on the Hub
         - spawns a server for that user
