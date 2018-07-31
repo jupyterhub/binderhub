@@ -140,6 +140,14 @@ class BinderHub(Application):
         config=True,
     )
 
+    log_tail_lines = Integer(
+        100,
+        help="""
+        Limit number of log lines to show when connecting to an already running build.
+        """,
+        config=True,
+    )
+
     docker_push_secret = Unicode(
         'docker-push-secret',
         allow_none=True,
@@ -437,6 +445,7 @@ class BinderHub(Application):
             "builder_image_spec": self.builder_image_spec,
             'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
+            'log_tail_lines': self.log_tail_lines,
             'per_repo_quota': self.per_repo_quota,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,

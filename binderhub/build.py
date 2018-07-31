@@ -33,7 +33,7 @@ class Build:
     """
     def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
-                 appendix=''):
+                 appendix='', log_tail_lines=100):
         self.q = q
         self.api = api
         self.git_url = git_url
@@ -48,6 +48,7 @@ class Build:
         self.docker_host = docker_host
         self.node_selector = node_selector
         self.appendix = appendix
+        self.log_tail_lines = log_tail_lines
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -162,6 +163,7 @@ class Build:
                 self.name,
                 self.namespace,
                 follow=True,
+                tail_lines=self.log_tail_lines,
                 _preload_content=False):
             # verify that the line is JSON
             line = line.decode('utf-8')
