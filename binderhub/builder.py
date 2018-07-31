@@ -395,7 +395,7 @@ class BuildHandler(BaseHandler):
         total_pods = 0
 
         # TODO: run a watch to keep this up to date in the background
-        pool = self.settings['build_pool']
+        pool = self.settings['executor']
         f = pool.submit(kube.list_namespaced_pod,
             self.settings["build_namespace"],
             label_selector='app=jupyterhub,component=singleuser-server',
