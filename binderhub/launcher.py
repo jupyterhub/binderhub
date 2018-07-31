@@ -121,9 +121,9 @@ class Launcher(LoggingConfigurable):
         """
         # TODO: validate the image argument?
 
-        # create a new user
-        app_log.info("Creating user %s for image %s", username, image)
         if self.create_user:
+            # create a new user
+            app_log.info("Creating user %s for image %s", username, image)
             try:
                 await self.api_request('users/%s' % username, body=b'', method='POST')
             except HTTPError as e:
@@ -135,21 +135,24 @@ class Launcher(LoggingConfigurable):
                     username, e, body,
                 )
                 raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
+        # data to be passed into spawner's user_options during launch
+        # and also to be returned to user when launch is successful
+        data = {'image': image}
+        if self.create_user:
+            # if auth is enabled, user can reach this notebook via login.
+            data['token'] = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
 
-        # generate a token
-        token = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
+        # server name to be used in logs
+        _server_name = " {}".format(server_name) if server_name else ''
 
         # start server
-        app_log.info("Starting server for user %s with image %s", username, image)
+        app_log.info("Starting server%s for user %s with image %s", _server_name, username, image)
         try:
             url = 'users/{}/servers/{}'.format(username, server_name)
             resp = await self.api_request(
                 url,
                 method='POST',
-                body=json.dumps({
-                    'token': token,
-                    'image': image,
-                }).encode('utf8'),
+                body=json.dumps(data).encode('utf8'),
             )
             if resp.code == 202:
                 # Server hasn't actually started yet
@@ -179,14 +182,9 @@ class Launcher(LoggingConfigurable):
             else:
                 body = ''
 
-            app_log.error("Error starting server{} for {}: {}\n{}".
-                          format(" '{}'".format(server_name) if server_name else '',
-                                 username, e, body))
+            app_log.error("Error starting server{} for user {}: {}\n{}".
+                          format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        url = self.hub_url + 'user/%s/%s' % (username, server_name)
-
-        return {
-            'url': url,
-            'token': token,
-        }
+        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
+        return data

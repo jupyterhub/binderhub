@@ -23,6 +23,7 @@ def authenticated(method):
                     #     next_url = self.request.full_url()
                     # else:
                     #     next_url = self.request.uri
+                    # always have relative url
                     next_url = self.request.uri
                     url += "?" + urlencode(dict(next=next_url))
                 self.redirect(url)
@@ -33,7 +34,7 @@ def authenticated(method):
 
 
 class BaseHandler(HubAuthenticated, web.RequestHandler):
-    """HubAuthenticated by default allows all successfully identified users (allow_all property)."""
+    """HubAuthenticated by default allows all successfully identified users (see allow_all property)."""
 
     @property
     def template_namespace(self):

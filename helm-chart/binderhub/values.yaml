@@ -135,6 +135,7 @@ jupyterhub:
               self.image_spec = self.user_options['image']
               return super().start()
 
+        # NOTE use modified BinderSpawner when authentication is enabled
         c.JupyterHub.spawner_class = BinderSpawner
         # NOTE set True when authentication is enabled
         c.JupyterHub.allow_named_servers = False
@@ -155,7 +156,6 @@ jupyterhub:
   singleuser:
     # NOTE set cmd as jupyterhub-singleuser when authentication is enabled
     # nullauthenticator doesn't work with jhub-singleuser and jhub installation is required in single user image
-    # cmd: jupyterhub-singleuser
     # start jupyter notebook
     cmd: jupyter-notebook
     events: false

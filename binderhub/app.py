@@ -98,7 +98,9 @@ class BinderHub(Application):
 
     auth_enabled = Bool(
         False,
-        help="If JupyterHub authentication enabled, don't create users during launch.",
+        help="""If JupyterHub authentication enabled, 
+        require user to login (don't create temporary users during launch) and 
+        start the new server for the logged in user.""",
         config=True)
 
     port = Integer(

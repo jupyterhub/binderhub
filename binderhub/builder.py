@@ -450,11 +450,15 @@ class BuildHandler(BaseHandler):
         for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
             if self.settings['auth_enabled']:
+                # get logged in user's name
                 user_model = self.hub_auth.get_user(self)
                 username = user_model['name']
-                server_name = 'server-{}'.format(launcher.username_from_repo(self.repo))
+                # user can launch multiple servers, so create a server name
+                server_name = launcher.username_from_repo(self.repo)
             else:
+                # create a name for temporary user
                 username = launcher.username_from_repo(self.repo)
+                # when no auth, 1 server per 1 temporary user, so server name can be empty
                 server_name = ''
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username, server_name=server_name)
