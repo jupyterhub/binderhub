@@ -3,6 +3,7 @@ Contains build of a docker image from a git repository.
 """
 
 import json
+import threading
 from urllib.parse import urlparse
 
 from kubernetes import client, watch
@@ -48,6 +49,8 @@ class Build:
         self.docker_host = docker_host
         self.node_selector = node_selector
         self.appendix = appendix
+
+        self.stop_event = threading.Event()
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -131,38 +134,55 @@ class Build:
         except client.rest.ApiException as e:
             if e.status == 409:
                 # Someone else created it!
+                app_log.info("Build %s already running", self.name)
                 pass
             else:
                 raise
+        else:
+            app_log.info("Started build %s", self.name)
 
-        w = watch.Watch()
-        try:
-            for f in w.stream(
-                    self.api.list_namespaced_pod,
-                    self.namespace,
-                    label_selector="name={}".format(self.name)):
-                if f['type'] == 'DELETED':
-                    self.progress('pod.phasechange', 'Deleted')
-                    return
-                self.pod = f['object']
-                self.progress('pod.phasechange', self.pod.status.phase)
-                if self.pod.status.phase == 'Succeeded':
-                    self.cleanup()
-                elif self.pod.status.phase == 'Failed':
-                    self.cleanup()
-        except Exception as e:
-            app_log.exception("Error in watch stream")
-            raise
-        finally:
-            w.stop()
+        app_log.info("Watching build pod %s", self.name)
+        while True:
+            w = watch.Watch()
+            try:
+                for f in w.stream(
+                        self.api.list_namespaced_pod,
+                        self.namespace,
+                        label_selector="name={}".format(self.name),
+                        timeout_seconds=30,
+                ):
+                    if f['type'] == 'DELETED':
+                        self.progress('pod.phasechange', 'Deleted')
+                        return
+                    if self.stop_event.is_set():
+                        app_log.info("Stopping watch of %s", self.name)
+                        return
+                    self.pod = f['object']
+                    self.progress('pod.phasechange', self.pod.status.phase)
+                    if self.pod.status.phase == 'Succeeded':
+                        self.cleanup()
+                    elif self.pod.status.phase == 'Failed':
+                        self.cleanup()
+            except Exception as e:
+                app_log.exception("Error in watch stream for %s", self.name)
+                raise
+            finally:
+                w.stop()
+            if self.stop_event.is_set():
+                app_log.info("Stopping watch of %s", self.name)
+                return
 
     def stream_logs(self):
-        """Stream a pod's log."""
+        """Stream a pod's logs"""
+        app_log.info("Watching logs of %s", self.name)
         for line in self.api.read_namespaced_pod_log(
                 self.name,
                 self.namespace,
                 follow=True,
                 _preload_content=False):
+            if self.stop_event.is_set():
+                app_log.info("Stopping logs of %s", self.name)
+                return
             # verify that the line is JSON
             line = line.decode('utf-8')
             try:
@@ -180,6 +200,8 @@ class Build:
                 })
 
             self.progress('log', line)
+        else:
+            app_log.info("Finished streaming logs of %s", self.name)
 
     def cleanup(self):
         """Delete a kubernetes pod."""
@@ -195,6 +217,10 @@ class Build:
             else:
                 raise
 
+    def stop(self):
+        """Stop watching a build"""
+        self.stop_event.set()
+
 class FakeBuild(Build):
     """
     Fake Building process to be able to work on the UI without a running Minikube.
@@ -207,6 +233,9 @@ class FakeBuild(Build):
         import time
         time.sleep(3)
         for phase in ('Pending', 'Running', 'Succeed', 'Building'):
+            if self.stop_event.is_set():
+                app_log.warning("Stopping logs of %s", self.name)
+                return
             self.progress('log',
                 json.dumps({
                     'phase': phase,
@@ -214,6 +243,9 @@ class FakeBuild(Build):
                 })
             )
         for i in range(5):
+            if self.stop_event.is_set():
+                app_log.warning("Stopping logs of %s", self.name)
+                return
             time.sleep(1)
             self.progress('log',
                 json.dumps({

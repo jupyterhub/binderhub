@@ -40,6 +40,7 @@ class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
     # emit keepalives every 25 seconds to avoid idle connections being closed
     KEEPALIVE_INTERVAL = 25
+    build = None
 
     async def emit(self, data):
         if type(data) is not str:
@@ -57,6 +58,9 @@ class BuildHandler(BaseHandler):
     def on_finish(self):
         """Stop keepalive when finish has been called"""
         self._keepalive = False
+        if self.build:
+            # if we have a build, tell it to stop watching
+            self.build.stop()
 
     async def keep_alive(self):
         """Constantly emit keepalive events
@@ -294,7 +298,7 @@ class BuildHandler(BaseHandler):
             repo_url=repo,
         )
 
-        build = BuildClass(
+        self.build = build = BuildClass(
             q=q,
             api=kube,
             name=build_name,
