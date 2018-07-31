@@ -74,6 +74,9 @@ class Launcher(LoggingConfigurable):
                 # 599 due to connection issues such as Hub restarting
                 if e.code >= 500:
                     self.log.error("Error accessing Hub API (%s): (%s)", request_url, e)
+                    if i == self.retries:
+                        # last api request failed, raise the exception
+                        raise
                     await gen.sleep(retry_delay)
                     # exponential backoff for consecutive failures
                     retry_delay *= 2
