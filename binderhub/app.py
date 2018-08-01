@@ -18,6 +18,7 @@ import tornado.log
 import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
+from jupyterhub.services.auth import HubOAuthCallbackHandler
 
 from .base import Custom404
 from .builder import BuildHandler
@@ -101,6 +102,11 @@ class BinderHub(Application):
         help="""If JupyterHub authentication enabled, 
         require user to login (don't create temporary users during launch) and 
         start the new server for the logged in user.""",
+        config=True)
+
+    use_oauth = Bool(
+        False,
+        help="""If oauth is used, use `HubOAuth` as hub authentication class.""",
         config=True)
 
     port = Integer(
@@ -487,7 +493,10 @@ class BinderHub(Application):
             'template_variables': self.template_variables,
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
+            'use_oauth': self.use_oauth,
         })
+        if self.auth_enabled and self.use_oauth:
+            self.tornado_settings['cookie_secret'] = os.urandom(32)
 
         handlers = [
             (r'/metrics', MetricsHandler),
@@ -521,6 +530,11 @@ class BinderHub(Application):
                                  tornado.web.StaticFileHandler,
                                  {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)
+        if self.auth_enabled and self.use_oauth:
+            oauth_redirect_uri = os.getenv('JUPYTERHUB_OAUTH_CALLBACK_URL') or \
+                                 url_path_join(self.base_url, 'oauth_callback')
+            oauth_redirect_uri = urlparse(oauth_redirect_uri).path
+            handlers.insert(-1, (oauth_redirect_uri, HubOAuthCallbackHandler))
         self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 
     def stop(self):

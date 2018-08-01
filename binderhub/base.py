@@ -2,7 +2,7 @@
 
 from http.client import responses
 from tornado import web
-from jupyterhub.services.auth import HubAuthenticated, HubOAuthenticated
+from jupyterhub.services.auth import HubAuthenticated, HubOAuth
 import functools
 from urllib.parse import urlencode
 
@@ -35,6 +35,11 @@ def authenticated(method):
 
 class BaseHandler(HubAuthenticated, web.RequestHandler):
     """HubAuthenticated by default allows all successfully identified users (see allow_all property)."""
+
+    def initialize(self):
+        super().initialize()
+        if self.settings['use_oauth'] is True:
+            self.hub_auth_class = HubOAuth
 
     @property
     def template_namespace(self):

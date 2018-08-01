@@ -51,6 +51,7 @@ if google_analytics_domain:
 c.BinderHub.base_url = get_config('binder.base-url')
 
 c.BinderHub.auth_enabled = get_config('binder.auth-enabled', False)
+c.BinderHub.use_oauth = get_config('binder.use-oauth', False)
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(

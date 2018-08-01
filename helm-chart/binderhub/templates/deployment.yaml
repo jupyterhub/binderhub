@@ -95,10 +95,15 @@ spec:
           value: {{ .Values.baseUrl | quote }}
         - name: JUPYTERHUB_BASE_URL
           value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
+        {{- if and .Values.jupyterhub.hub.services.binder.oauth_client_id }}
+        # oauth is used
         - name: JUPYTERHUB_CLIENT_ID
-          value: "TODO"
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
+        {{- if and .Values.jupyterhub.hub.services.binder.oauth_redirect_uri }}
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
-          value: "TODO"
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
+        {{- end }}
+        {{- end }}
         {{- end }}
         {{ if .Values.github.clientId -}}
         - name: GITHUB_CLIENT_ID

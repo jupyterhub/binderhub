@@ -146,6 +146,9 @@ jupyterhub:
       binder:
         # NOTE set 'url' when authentication is enabled.
         # because cookie 'jupyterhub-services', which is used for authentication, is available under '/services/'.
+        # NOTE set oauth_client_id for oauth
+        # oauth_redirect_uri is '/base_url/oauth_callback' by default
+        # apiToken is used as the client_secret for oauth requests
         admin: true
         apiToken:
   auth:
