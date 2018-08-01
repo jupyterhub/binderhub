@@ -23,9 +23,6 @@ Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
    If you would like to help with adding instructions for other cloud
    providers, `please contact us <https://github.com/jupyterhub/binderhub/issues>`_!
 
-.. include:: k8s.txt
-   :start-after: Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
-   :end-before: .. _microsoft-azure:
 
 Install Helm
 ------------
