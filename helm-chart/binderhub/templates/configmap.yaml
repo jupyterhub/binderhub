@@ -29,6 +29,7 @@ data:
   {{ if .Values.build.appendix -}}
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
+  binder.log-tail-lines: {{ .Values.build.logTailLines | quote }}
 
   binder.retries.count: {{ .Values.retries.count | quote }}
   binder.retries.delay: {{ .Values.retries.delay | quote }}

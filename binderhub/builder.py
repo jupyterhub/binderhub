@@ -10,7 +10,6 @@ import time
 import escapism
 
 import docker
-from kubernetes import client
 from tornado.concurrent import chain_future, Future
 from tornado import gen, web
 from tornado.queues import Queue
@@ -21,6 +20,7 @@ from prometheus_client import Histogram, Gauge
 
 from .base import BaseHandler
 from .build import Build, FakeBuild
+
 BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
 BUILD_TIME = Histogram(
     'binderhub_build_time_seconds',
@@ -38,10 +38,12 @@ LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently
 
 class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
+
     # emit keepalives every 25 seconds to avoid idle connections being closed
     KEEPALIVE_INTERVAL = 25
 
     async def emit(self, data):
+        """Emit an eventstream event"""
         if type(data) is not str:
             serialized_data = json.dumps(data)
         else:
@@ -308,6 +310,7 @@ class BuildHandler(BaseHandler):
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,
+            log_tail_lines=self.settings['log_tail_lines'],
         )
 
         with BUILDS_INPROGRESS.track_inprogress():

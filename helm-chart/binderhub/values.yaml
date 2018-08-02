@@ -24,6 +24,7 @@ build:
   repo2dockerImage: jupyter/repo2docker:687788f
   nodeSelector: {}
   appendix:
+  logTailLines: 100
 
 perRepoQuota: 100
 

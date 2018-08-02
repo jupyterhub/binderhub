@@ -34,6 +34,7 @@ c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
 
 c.BinderHub.builder_image_spec = get_config('binder.repo2docker-image')
 c.BinderHub.build_node_selector = get_config('binder.build-node-selector', {})
+c.BinderHub.log_tail_lines = get_config('binder.log-tail-lines', 100)
 
 if os.path.exists('/etc/binderhub/config/binder.appendix'):
     with open('/etc/binderhub/config/binder.appendix') as f:
