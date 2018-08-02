@@ -6,10 +6,9 @@ dependencies:
 - traitlets>=4.1
 - tornado>=4.1
 - sphinx>=1.4, !=1.5.4
-- pip
 - pip:
   - recommonmark==0.4.0
   - docker
   - kubernetes==3.*
   - prometheus_client
-  - sphinx-copybutton
+  - sphinx_copybutton
