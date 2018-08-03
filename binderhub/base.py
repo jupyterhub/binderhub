@@ -38,7 +38,7 @@ class BaseHandler(HubAuthenticated, web.RequestHandler):
 
     def initialize(self):
         super().initialize()
-        if self.settings['use_oauth'] is True:
+        if self.settings['auth_enabled'] and self.settings['use_oauth']:
             self.hub_auth_class = HubOAuth
 
     @property

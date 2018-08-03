@@ -109,7 +109,7 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username, server_name=''):
+    async def launch(self, image, username, server_name='', repo=''):
         """Launch a server for a given image
 
         - creates the user on the Hub
@@ -137,7 +137,7 @@ class Launcher(LoggingConfigurable):
                 raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
         # data to be passed into spawner's user_options during launch
         # and also to be returned to user when launch is successful
-        data = {'image': image}
+        data = {'image': image, 'repo': repo}
         if self.create_user:
             # if auth is enabled, user can reach this notebook via login.
             data['token'] = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
@@ -148,9 +148,8 @@ class Launcher(LoggingConfigurable):
         # start server
         app_log.info("Starting server%s for user %s with image %s", _server_name, username, image)
         try:
-            url = 'users/{}/servers/{}'.format(username, server_name)
             resp = await self.api_request(
-                url,
+                'users/{}/servers/{}'.format(username, server_name),
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
             )

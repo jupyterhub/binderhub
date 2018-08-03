@@ -462,7 +462,8 @@ class BuildHandler(BaseHandler):
                 # when no auth, 1 server per 1 temporary user, so server name can be empty
                 server_name = ''
             try:
-                server_info = await launcher.launch(image=self.image_name, username=username, server_name=server_name)
+                server_info = await launcher.launch(image=self.image_name, username=username,
+                                                    server_name=server_name, repo=self.repo)
                 LAUNCH_TIME.labels(
                     status='success', retries=i, **self.metric_labels
                 ).observe(time.perf_counter() - launch_starttime)
