@@ -233,18 +233,6 @@ class BinderHub(Application):
         config=True
     )
 
-    # TODO: Factor this out!
-    github_auth_token = Unicode(
-        None,
-        allow_none=True,
-        help="""
-        GitHub OAuth token to use for talking to the GitHub API.
-
-        Might get throttled otherwise!
-        """,
-        config=True
-    )
-
     debug = Bool(
         False,
         help="""
@@ -468,7 +456,6 @@ class BinderHub(Application):
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
-            "github_auth_token": self.github_auth_token,
             "debug": self.debug,
             'launcher': self.launcher,
             'appendix': self.appendix,
