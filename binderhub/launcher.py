@@ -84,7 +84,7 @@ class Launcher(LoggingConfigurable):
                     raise
 
     def username_from_repo(self, repo):
-        """Generate a username for a git repo url
+        """Generate a username or server name for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
@@ -112,11 +112,13 @@ class Launcher(LoggingConfigurable):
     async def launch(self, image, username, server_name='', repo=''):
         """Launch a server for a given image
 
-        - creates the user on the Hub
-        - spawns a server for that user
-        - generates a token
+        - creates a temporary user on the Hub if authentication is not enabled
+        - spawns a server for temporary/authenticated user
+        - generates a token if temporary user
         - returns a dict containing:
           - `url`: the URL of the server
+          - `image`: image spec
+          - `repo`: the url of the repo
           - `token`: the token for the server
         """
         # TODO: validate the image argument?
