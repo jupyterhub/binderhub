@@ -454,8 +454,11 @@ class BuildHandler(BaseHandler):
                 # get logged in user's name
                 user_model = self.hub_auth.get_user(self)
                 username = user_model['name']
-                # user can launch multiple servers, so create a server name
-                server_name = launcher.username_from_repo(self.repo)
+                if self.settings['use_named_servers']:
+                    # user can launch multiple servers, so create a unique server name
+                    server_name = launcher.username_from_repo(self.repo)
+                else:
+                    server_name = ''
             else:
                 # create a name for temporary user
                 username = launcher.username_from_repo(self.repo)

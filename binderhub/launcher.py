@@ -83,6 +83,14 @@ class Launcher(LoggingConfigurable):
                 else:
                     raise
 
+    async def get_user_data(self, username):
+        resp = await self.api_request(
+            'users/%s' % username,
+            method='GET',
+        )
+        body = json.loads(resp.body.decode('utf-8'))
+        return body
+
     def username_from_repo(self, repo):
         """Generate a username or server name for a git repo url
 
@@ -137,6 +145,13 @@ class Launcher(LoggingConfigurable):
                     username, e, body,
                 )
                 raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
+        elif server_name == '':
+            # authentication is enabled but not named servers
+            # check if user have a running server ('')
+            user_data = await self.get_user_data(username)
+            if server_name in user_data['servers']:
+                raise web.HTTPError(500, "User %s already has a running server." % username)
+
         # data to be passed into spawner's user_options during launch
         # and also to be returned to user when launch is successful
         data = {'image': image, 'repo': repo}
@@ -160,15 +175,10 @@ class Launcher(LoggingConfigurable):
                 # We wait for it!
                 # NOTE: This ends up being about ten minutes
                 for i in range(64):
-                    resp = await self.api_request(
-                        'users/%s' % username,
-                        method='GET',
-                    )
-
-                    body = json.loads(resp.body.decode('utf-8'))
-                    if body['servers'][server_name]['ready']:
+                    user_data = await self.get_user_data(username)
+                    if user_data['servers'][server_name]['ready']:
                         break
-                    if not body['servers'][server_name]['pending']:
+                    if not user_data['servers'][server_name]['pending']:
                         raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start

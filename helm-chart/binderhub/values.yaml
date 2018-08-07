@@ -135,11 +135,8 @@ jupyterhub:
               self.image_spec = self.user_options['image']
               return super().start()
 
-        # NOTE use modified BinderSpawner when authentication is enabled
+        # NOTE use a modified BinderSpawner when authentication is enabled
         c.JupyterHub.spawner_class = BinderSpawner
-        # NOTE set True when authentication is enabled
-        c.JupyterHub.allow_named_servers = False
-
     extraConfigMap:
       cors: *cors
     services:

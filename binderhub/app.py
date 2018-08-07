@@ -109,6 +109,11 @@ class BinderHub(Application):
         help="""If oauth is used, use `HubOAuth` as hub authentication class.""",
         config=True)
 
+    use_named_servers = Bool(
+        False,
+        help="Use named servers when authentication is enabled.",
+        config=True)
+
     port = Integer(
         8585,
         help="""
@@ -481,6 +486,7 @@ class BinderHub(Application):
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_oauth': self.use_oauth,
+            'use_named_servers': self.use_named_servers,
         })
         if self.auth_enabled and self.use_oauth:
             self.tornado_settings['cookie_secret'] = os.urandom(32)

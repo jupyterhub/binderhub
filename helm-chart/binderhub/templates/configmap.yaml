@@ -43,6 +43,7 @@ data:
   {{- if and .Values.jupyterhub.hub.services.binder.oauth_client_id }}
   binder.use-oauth: "true"
   {{- end }}
+  binder.use-named-servers: {{ .Values.jupyterhub.hub.allowNamedServers | quote }}
   {{- end }}
 
   {{ if .Values.github.hostname -}}

@@ -52,6 +52,7 @@ c.BinderHub.base_url = get_config('binder.base-url')
 
 c.BinderHub.auth_enabled = get_config('binder.auth-enabled', False)
 c.BinderHub.use_oauth = get_config('binder.use-oauth', False)
+c.BinderHub.use_named_servers = get_config('binder.use-named-servers', False)
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
