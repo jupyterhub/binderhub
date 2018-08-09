@@ -26,7 +26,7 @@
 
 {% block preview %}
 {# we can only produce an nbviewer URL for github right now #}
-{% set prefix, repo_ref = provider_spec.split('/', 1) %}
+{% set prefix, org_repo_ref = provider_spec.split('/', 1) %}
 {% if prefix == "gh" %}
 <div class="preview container">
 <p class="preview-text text-center">
@@ -35,10 +35,10 @@ Here's a non-interactive preview on
 while we start a server for you.
 Your binder will open automatically when it is ready.
 </p>
-{% set repo, ref = repo_ref.rsplit('/', 1) %}
+{% set org, repo, ref = org_repo_ref.split('/', 2) %}
 <div id="nbviewer-preview">
   <iframe
-    src="https://nbviewer.jupyter.org/github/{{repo}}/{{'blob' if filepath else 'tree'}}/{{ref}}/{% if filepath %}{{ filepath }}{% endif %}"
+    src="https://nbviewer.jupyter.org/github/{{org}}/{{repo}}/{{'blob' if filepath else 'tree'}}/{{ref}}/{% if filepath %}{{ filepath }}{% endif %}"
   ></iframe>
 </div>
 </div>
