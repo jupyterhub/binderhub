@@ -31,6 +31,11 @@ from .utils import ByteSpecification, url_path_join
 
 class BinderHub(Application):
     """An Application for starting a builder."""
+
+    @default('log_level')
+    def _log_level(self):
+        return logging.INFO
+
     aliases = {
         'log-level': 'Application.log_level',
         'f': 'BinderHub.config_file',
