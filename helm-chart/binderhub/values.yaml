@@ -135,7 +135,6 @@ jupyterhub:
               self.image_spec = self.user_options['image']
               return super().start()
 
-        # NOTE use a modified BinderSpawner when authentication is enabled
         c.JupyterHub.spawner_class = BinderSpawner
     extraConfigMap:
       cors: *cors
@@ -154,8 +153,6 @@ jupyterhub:
       # disable login (users created exclusively via API)
       className: "nullauthenticator.NullAuthenticator"
   singleuser:
-    # NOTE set cmd as jupyterhub-singleuser when authentication is enabled
-    # nullauthenticator doesn't work with jhub-singleuser and jhub installation is required in single user image
     # start jupyter notebook
     cmd: jupyter-notebook
     events: false

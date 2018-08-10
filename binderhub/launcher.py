@@ -122,7 +122,7 @@ class Launcher(LoggingConfigurable):
 
         - creates a temporary user on the Hub if authentication is not enabled
         - spawns a server for temporary/authenticated user
-        - generates a token if temporary user
+        - generates a token
         - returns a dict containing:
           - `url`: the URL of the server
           - `image`: image spec
@@ -154,10 +154,9 @@ class Launcher(LoggingConfigurable):
 
         # data to be passed into spawner's user_options during launch
         # and also to be returned to user when launch is successful
-        data = {'image': image, 'repo': repo}
-        if self.create_user:
-            # if auth is enabled, user can reach this notebook via login.
-            data['token'] = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
+        data = {'image': image,
+                'repo': repo,
+                'token': base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')}
 
         # server name to be used in logs
         _server_name = " {}".format(server_name) if server_name else ''
