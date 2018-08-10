@@ -12,3 +12,4 @@ dependencies:
   - kubernetes==3.*
   - prometheus_client
   - sphinx_copybutton
+  - escapism
