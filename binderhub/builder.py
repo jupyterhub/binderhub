@@ -462,7 +462,6 @@ class BuildHandler(BaseHandler):
             else:
                 # create a name for temporary user
                 username = launcher.username_from_repo(self.repo)
-                # when no auth, 1 server per 1 temporary user, so server name can be empty
                 server_name = ''
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username,

@@ -73,7 +73,7 @@ class Launcher(LoggingConfigurable):
                 # e.g. 502,504 due to ingress issues or Hub relocating,
                 # 599 due to connection issues such as Hub restarting
                 if e.code >= 500:
-                    self.log.error("Error accessing Hub API (%s): (%s)", request_url, e)
+                    self.log.error("Error accessing Hub API (using %s): %s", request_url, e)
                     if i == self.retries:
                         # last api request failed, raise the exception
                         raise

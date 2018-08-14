@@ -13,6 +13,7 @@ retries:
   count: 4
   delay: 4
 
+# NOTE set baseUrl to '<jupyterhub_base_url>/services/binder/' when auth is enabled.
 baseUrl: /
 nodeSelector: {}
 
