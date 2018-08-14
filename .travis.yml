@@ -23,7 +23,7 @@ install:
 script:
 - export BINDER_TEST_NAMESPACE=binder-test-$TEST
 - travis_wait ./ci/test-$TEST
-- cd doc && make html
+- pushd doc && make html && popd
 after_failure:
 - |
   # get pod logs
@@ -33,6 +33,9 @@ after_failure:
     kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
   done
 after_success:
+# make sure we are back at the top of the checkout directory no matter
+# what previous commands might have done or not
+- cd $TRAVIS_BUILD_DIR
 - codecov
 - |
   # publish helm chart
