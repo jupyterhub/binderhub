@@ -155,11 +155,9 @@ class Build:
                     if f['type'] == 'DELETED':
                         self.progress('pod.phasechange', 'Deleted')
                         return
-                    if self.stop_event.is_set():
-                        app_log.info("Stopping watch of %s", self.name)
-                        return
                     self.pod = f['object']
-                    self.progress('pod.phasechange', self.pod.status.phase)
+                    if not self.stop_event.is_set():
+                        self.progress('pod.phasechange', self.pod.status.phase)
                     if self.pod.status.phase == 'Succeeded':
                         self.cleanup()
                     elif self.pod.status.phase == 'Failed':
