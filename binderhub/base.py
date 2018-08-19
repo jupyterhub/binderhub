@@ -13,6 +13,7 @@ class BaseHandler(web.RequestHandler):
         headers = self.settings.get('headers', {})
         for header, value in headers.items():
             self.set_header(header, value)
+        self.set_header("access-control-allow-headers", "cache-control")
 
     def get_provider(self, provider_prefix, spec):
         """Construct a provider object"""
