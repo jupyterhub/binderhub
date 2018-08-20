@@ -8,6 +8,12 @@ on GitHub if you don't have a token.
 
 ## Installation
 
+Before you begin, the following utilities are necessary for installation:
+```bash
+python3, python3-pip, npm, curl, socat, docker
+```
+Please ensure that they are properly installed before proceeding with the installation.
+
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to run Kubernetes locally.
 
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
