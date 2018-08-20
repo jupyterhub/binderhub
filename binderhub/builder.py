@@ -11,14 +11,14 @@ import escapism
 
 import docker
 from tornado.concurrent import chain_future, Future
-from tornado import gen, web
+from tornado.web import Finish, authenticated
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from prometheus_client import Histogram, Gauge
 
-from .base import BaseHandler, authenticated
+from .base import BaseHandler
 from .build import Build, FakeBuild
 
 BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
@@ -55,7 +55,7 @@ class BuildHandler(BaseHandler):
         except StreamClosedError:
             app_log.warning("Stream closed while handling %s", self.request.uri)
             # raise Finish to halt the handler
-            raise web.Finish()
+            raise Finish()
 
     def on_finish(self):
         """Stop keepalive when finish has been called"""

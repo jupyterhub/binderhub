@@ -150,7 +150,7 @@ class Launcher(LoggingConfigurable):
             # check if user have a running server ('')
             user_data = await self.get_user_data(username)
             if server_name in user_data['servers']:
-                raise web.HTTPError(500, "User %s already has a running server." % username)
+                raise web.HTTPError(409, "User %s already has a running server." % username)
 
         # data to be passed into spawner's user_options during launch
         # and also to be returned to user when launch is successful

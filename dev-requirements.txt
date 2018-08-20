@@ -6,5 +6,5 @@ pytest-cov
 pytest-tornado
 requests
 ruamel.yaml>=0.15
-https://github.com/jupyterhub/chartpress/archive/271c75e.tar.gz
-jupyterhub==0.9.2
+https://github.com/jupyterhub/chartpress/archive/2f26733f6ebf9e2b76bd9cfa3b8a8439daa0b16c.tar.gz
+jupyterhub

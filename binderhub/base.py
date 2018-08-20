@@ -3,34 +3,6 @@
 from http.client import responses
 from tornado import web
 from jupyterhub.services.auth import HubAuthenticated, HubOAuth
-import functools
-from urllib.parse import urlencode
-
-
-def authenticated(method):
-    """Copied from tornado.web.authenticated and `auth_enabled` condition is added.
-    If authentication in not enabled, this decorator doesn't do anything.
-    """
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        # get_current_user() will be called automatically the first time self.current_user is accessed
-        if self.settings['auth_enabled'] and not self.current_user:
-            if self.request.method in ("GET", "HEAD"):
-                url = self.get_login_url()
-                if "?" not in url:
-                    # if urlparse.urlsplit(url).scheme:
-                    #     # if login url is absolute, make next absolute too
-                    #     next_url = self.request.full_url()
-                    # else:
-                    #     next_url = self.request.uri
-                    # always have relative url
-                    next_url = self.request.uri
-                    url += "?" + urlencode(dict(next=next_url))
-                self.redirect(url)
-                return
-            raise web.HTTPError(403)
-        return method(self, *args, **kwargs)
-    return wrapper
 
 
 class BaseHandler(HubAuthenticated, web.RequestHandler):
@@ -39,7 +11,12 @@ class BaseHandler(HubAuthenticated, web.RequestHandler):
     def initialize(self):
         super().initialize()
         if self.settings['auth_enabled'] and self.settings['use_oauth']:
-            self.hub_auth_class = HubOAuth
+            self.hub_auth = HubOAuth()
+
+    def get_current_user(self):
+        if not self.settings['auth_enabled']:
+            return 'anonymous'
+        return super().get_current_user()
 
     @property
     def template_namespace(self):

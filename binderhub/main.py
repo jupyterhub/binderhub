@@ -1,11 +1,11 @@
 """
 Main handler classes for requests
 """
-from tornado import web
+from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
 from tornado.log import app_log
 
-from .base import BaseHandler, authenticated
+from .base import BaseHandler
 
 
 class MainHandler(BaseHandler):
@@ -35,7 +35,7 @@ class ParameterizedMainHandler(BaseHandler):
         spec = self.request.path[idx + len(prefix) + 1:]
         try:
             self.get_provider(provider_prefix, spec=spec)
-        except web.HTTPError:
+        except HTTPError:
             raise
         except Exception as e:
             app_log.error(
@@ -44,7 +44,7 @@ class ParameterizedMainHandler(BaseHandler):
             )
             # FIXME: 400 assumes it's the user's fault (?)
             # maybe we should catch a special InvalidSpecError here
-            raise web.HTTPError(400, str(e))
+            raise HTTPError(400, str(e))
 
         self.render_template(
             "loading.html",
