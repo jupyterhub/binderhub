@@ -289,7 +289,7 @@ class BuildHandler(BaseHandler):
         else:
             push_secret = None
 
-        BuildClass = FakeBuild if self.settings.get('fake_build', None) else Build
+        BuildClass = FakeBuild if self.settings.get('fake_build') else Build
         binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
             proto=self.request.protocol,
             host=self.request.host,
@@ -322,7 +322,7 @@ class BuildHandler(BaseHandler):
         with BUILDS_INPROGRESS.track_inprogress():
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
-            """----- Build starts here -----"""
+            # Start building
             submit_future = pool.submit(build.submit)
             # TODO: hook up actual error handling when this fails
             IOLoop.current().add_callback(lambda : submit_future)
@@ -368,7 +368,7 @@ class BuildHandler(BaseHandler):
                     # We expect logs to be already JSON structured anyway
                     event = progress['payload']
                     payload = json.loads(event)
-                    if payload.get('phase', None) == 'failure':
+                    if payload.get('phase') == 'failure':
                         failed = True
                         BUILD_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - build_starttime)
 
