@@ -11,6 +11,7 @@ import escapism
 
 import docker
 from tornado.concurrent import chain_future, Future
+from tornado import gen
 from tornado.web import Finish, authenticated
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
