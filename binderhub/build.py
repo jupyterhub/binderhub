@@ -167,9 +167,10 @@ class Build:
                 raise
             finally:
                 w.stop()
-            if self.stop_event.is_set():
-                app_log.info("Stopping watch of %s", self.name)
-                return
+            # TODO: watch/cleanup build pod existence in a dedicated thread
+            # if self.stop_event.is_set():
+            #     app_log.info("Stopping watch of %s", self.name)
+            #     return
 
     def stream_logs(self):
         """Stream a pod's logs"""
