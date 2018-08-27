@@ -27,12 +27,9 @@ class ParameterizedMainHandler(BaseHandler):
 
     @authenticated
     def get(self, provider_prefix, _unescaped_spec):
-        # re-extract spec from request.path
-        # get the original, raw spec, without tornado's unquoting
-        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
         prefix = '/v2/' + provider_prefix
-        idx = self.request.path.index(prefix)
-        spec = self.request.path[idx + len(prefix) + 1:]
+        spec = self.get_spec_from_request(prefix)
+        spec = spec.rstrip("/")
         try:
             self.get_provider(provider_prefix, spec=spec)
         except HTTPError:
@@ -46,12 +43,23 @@ class ParameterizedMainHandler(BaseHandler):
             # maybe we should catch a special InvalidSpecError here
             raise HTTPError(400, str(e))
 
+        provider_spec = f'{provider_prefix}/{spec}'
+        prefix, org_repo_ref = provider_spec.split('/', 1)
+        nbviewer_ul = None
+        if prefix == "gh":
+            # we can only produce an nbviewer URL for github right now
+            nbviewer_ul = 'https://nbviewer.jupyter.org/github'
+            org, repo, ref = org_repo_ref.split('/', 2)
+            # NOTE: tornado escapes query arguments too - notebooks%2Findex.ipynb becomes notebooks/index.ipynb
+            filepath = self.get_argument('filepath', '').lstrip('/')
+            blob_or_tree = 'blob' if filepath else 'tree'
+            nbviewer_ul = f'{nbviewer_ul}/{org}/{repo}/{blob_or_tree}/{ref}/{filepath}'
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
-            provider_spec='{}/{}'.format(provider_prefix, spec),
-            filepath=self.get_argument('filepath', None),
-            urlpath=self.get_argument('urlpath', None),
+            provider_spec=provider_spec,
+            nbviewer_ul=nbviewer_ul,
+            # urlpath=self.get_argument('urlpath', None),
             submit=True,
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],

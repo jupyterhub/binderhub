@@ -91,18 +91,18 @@ class Launcher(LoggingConfigurable):
         body = json.loads(resp.body.decode('utf-8'))
         return body
 
-    def username_from_repo(self, repo):
+    def username_from_repo(self, repo_url):
         """Generate a username or server name for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
         """
         # start with url path
-        if '://' not in repo and _ssh_repo_pat.match(repo):
+        if '://' not in repo_url and _ssh_repo_pat.match(repo_url):
             # ssh url
-            path = repo.split(':', 1)[1]
+            path = repo_url.split(':', 1)[1]
         else:
-            path = urlparse(repo).path
+            path = urlparse(repo_url).path
 
         prefix = path.strip('/').replace('/', '-').lower()
 
@@ -117,7 +117,7 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username, server_name='', repo=''):
+    async def launch(self, image, username, server_name='', repo_url=''):
         """Launch a server for a given image
 
         - creates a temporary user on the Hub if authentication is not enabled
@@ -126,7 +126,7 @@ class Launcher(LoggingConfigurable):
         - returns a dict containing:
           - `url`: the URL of the server
           - `image`: image spec
-          - `repo`: the url of the repo
+          - `repo_url`: the url of the repo
           - `token`: the token for the server
         """
         # TODO: validate the image argument?
@@ -153,9 +153,9 @@ class Launcher(LoggingConfigurable):
                 raise web.HTTPError(409, "User %s already has a running server." % username)
 
         # data to be passed into spawner's user_options during launch
-        # and also to be returned to user when launch is successful
+        # and also to be returned into 'ready' state
         data = {'image': image,
-                'repo': repo,
+                'repo_url': repo_url,
                 'token': base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')}
 
         # server name to be used in logs
