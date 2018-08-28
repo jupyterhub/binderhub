@@ -193,7 +193,7 @@ function getBuildFormValues() {
 }
 
 function updateUrlDiv(formValues) {
-  if (formValues === undefined) {
+  if (typeof formValues === "undefined") {
       formValues = getBuildFormValues();
   }
   var url = v2url(
@@ -367,11 +367,11 @@ function indexMain() {
     updatePathText();
     updateRepoText();
 
-    $('#repository').on('keyup paste change', updateUrlDiv);
+    $('#repository').on('keyup paste change', function(event) {updateUrlDiv();});
 
-    $('#ref').on('keyup paste change', updateUrlDiv);
+    $('#ref').on('keyup paste change', function(event) {updateUrlDiv();});
 
-    $('#filepath').on('keyup paste change', updateUrlDiv);
+    $('#filepath').on('keyup paste change', function(event) {updateUrlDiv();});
 
     $('#toggle-badge-snippet').on('click', function() {
         var badgeSnippets = $('#badge-snippets');
