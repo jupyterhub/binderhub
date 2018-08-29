@@ -12,7 +12,7 @@ Before you begin, there are a few utilities that need to be installed:
 ```bash
 sudo apt install python3 python3-pip npm curl
 ```
-You will need docker installed from https://docs.docker.com/install/ to run jupyterjub.
+You will need docker installed from https://docs.docker.com/install/ to run JupyterHub.
 If you a on linux, you may additionally need to install socat for port forwarding:
 
 ```bash
