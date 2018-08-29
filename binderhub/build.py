@@ -109,6 +109,9 @@ class Build:
                     "name": self.name,
                     "component": "binderhub-build",
                 },
+                annotations={
+                    "binder-repo": self.git_url,
+                },
             ),
             spec=client.V1PodSpec(
                 containers=[
