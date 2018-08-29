@@ -1,6 +1,7 @@
 """
 The binderhub application
 """
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
@@ -15,11 +16,13 @@ from tornado.httpserver import HTTPServer
 import tornado.ioloop
 import tornado.options
 import tornado.log
+from tornado.log import app_log
 import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
 
 from .base import Custom404
+from .build import Build
 from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
@@ -329,6 +332,20 @@ class BinderHub(Application):
         This executor is not used for long-running tasks (e.g. builds).
         """,
     )
+    build_cleanup_interval = Integer(
+        60,
+        config=True,
+        help="""Interval (in seconds) for how often stopped build pods will be deleted."""
+    )
+    build_max_age = Integer(
+        3600 * 4,
+        config=True,
+        help="""Maximum age of builds
+
+        Builds that are still running longer than this
+        will be killed.
+        """
+    )
 
     # FIXME: Come up with a better name for it?
     builder_required = Bool(
@@ -415,7 +432,7 @@ class BinderHub(Application):
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
-            self.tornado_settings["kubernetes_client"] = kubernetes.client.CoreV1Api()
+            self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes.client.CoreV1Api()
 
 
         # times 2 for log + build threads
@@ -519,6 +536,28 @@ class BinderHub(Application):
         self.http_server.stop()
         self.build_pool.shutdown()
 
+    async def watch_build_pods(self):
+        """Watch build pods
+
+        Every build_cleanup_interval:
+        - delete stopped build pods
+        - delete running build pods older than build_max_age
+        """
+        while True:
+            try:
+                await asyncio.wrap_future(
+                    self.executor.submit(
+                        lambda: Build.cleanup_builds(
+                            self.kube_client,
+                            self.build_namespace,
+                            self.build_max_age,
+                        )
+                    )
+                )
+            except Exception:
+                app_log.exception("Failed to cleanup build pods")
+            await asyncio.sleep(self.build_cleanup_interval)
+
     def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
         self.http_server = HTTPServer(
@@ -526,6 +565,8 @@ class BinderHub(Application):
             xheaders=True,
         )
         self.http_server.listen(self.port)
+        if self.builder_required:
+            asyncio.ensure_future(self.watch_build_pods())
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 
