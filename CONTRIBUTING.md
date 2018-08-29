@@ -8,6 +8,23 @@ on GitHub if you don't have a token.
 
 ## Installation
 
+Before you begin, there are a few utilities that need to be installed:
+```bash
+sudo apt install python3 python3-pip npm curl
+```
+You will need docker installed from https://docs.docker.com/install/ to run JupyterHub.
+If you a on linux, you may additionally need to install socat for port forwarding:
+
+```bash
+sudo apt install socat
+```
+
+1. Clone the binderhub repository to your local computer and ```cd``` into it.
+   ```bash
+   git clone https://github.com/jupyterhub/binderhub
+   cd binderhub
+   ```
+
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to run Kubernetes locally.
 
    For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases may be
@@ -15,7 +32,7 @@ on GitHub if you don't have a token.
 
    To start your cluster on minikube, run the command: `minikube start`, this starts a local kubernetes cluster using VM. This command assumes that you have already installed one of the VM drivers: virtualbox/xhyve/KVM2.
 
-2. Install helm to manage installing and running binderhub on your cluster,
+1. Install helm to manage installing and running binderhub on your cluster,
 
    ```bash
    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
@@ -24,52 +41,52 @@ on GitHub if you don't have a token.
    [Alternative methods](https://docs.helm.sh/using_helm/#installing-the-helm-client) for helm installation
    exist if you prefer installing without using the script.
 
-3. Initialize helm in minikube. This command initializes the local CLI and installs Tiller on your kubernetes cluster in one step:
+1. Initialize helm in minikube. This command initializes the local CLI and installs Tiller on your kubernetes cluster in one step:
 
    ```bash
    helm init
    ```
-4. Add the JupyterHub helm charts repo:
+1. Add the JupyterHub helm charts repo:
 
    ```bash
    helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
    helm repo update
    ```
 
-5. Install binderhub and its development requirements:
+1. Install binderhub and its development requirements:
 
     ```bash
     python3 -m pip install -e . -r dev-requirements.txt
     ```
 
-  This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, the requirements file will install what the user needs to build the Docker image.
+    This list of packages is necessary to create an environment that will generate the Docker image using the Git repository. Regardless of what is in the setup.py file, the requirements file will install what the user needs to build the Docker image.
 
-6. Install JupyterHub in minikube with helm
+1. Install JupyterHub in minikube with helm
 
    ```bash
    ./testing/minikube/install-hub
    ```
 
-7. Before starting the local dev/test deployment run:
+1. Before starting the local dev/test deployment run:
 
    ```bash
    eval $(minikube docker-env)
    ```
 
-  This command sets up docker to use the same docker daemon as your minikube cluster does. This means images you build are directly available to the cluster.
-  Note: when you no longer wish to use the minikube host, you can undo this change by running:
+    This command sets up docker to use the same docker daemon as your minikube cluster does. This means images you build are directly available to the cluster.
+    Note: when you no longer wish to use the minikube host, you can undo this change by running:
 
    ```bash
    eval $(minikube docker-env -u)
    ```
 
-8. Start binderhub with the testing config file:
+1. Start binderhub with the testing config file:
 
     ```bash
     python3 -m binderhub -f testing/minikube/binderhub_config.py
     ```
 
-9. Visit [http://localhost:8585](http://localhost:8585)
+1. Visit [http://localhost:8585](http://localhost:8585)
 
 All features should work, including building and launching.
 
@@ -119,13 +136,13 @@ there is a simpler method!
    python3 -m pip install -e .
    ```
 
-2. Run it!
+1. Run it!
 
    ```bash
    python3 -m binderhub -f testing/localonly/binderhub_config.py
    ```
 
-3. You can now access it locally at http://localhost:8585
+1. You can now access it locally at http://localhost:8585
 
 Note that building and launching will not work, but the
 `testing/localonly/binderhub_config.py` setup a fake building process which
