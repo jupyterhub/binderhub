@@ -71,6 +71,12 @@ class RepoProvider(LoggingConfigurable):
 
     unresolved_ref = Unicode()
 
+    git_credentials = Unicode(
+        "",
+        help="""
+        Credentials (if any) to pass to git when cloning.
+        """,
+    )
 
     def is_banned(self):
         """
@@ -317,6 +323,13 @@ class GitHubRepoProvider(RepoProvider):
             if value:
                 auth[key] = value
         return auth
+
+    @default('git_credentials')
+    def _default_git_credentials(self):
+        if self.access_token:
+            # Based on https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
+            return 'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
+        return ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

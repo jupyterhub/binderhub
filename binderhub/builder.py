@@ -315,6 +315,7 @@ class BuildHandler(BaseHandler):
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,
             log_tail_lines=self.settings['log_tail_lines'],
+            git_credential=provider.git_credentials
         )
 
         with BUILDS_INPROGRESS.track_inprogress():
