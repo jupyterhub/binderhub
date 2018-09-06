@@ -425,6 +425,7 @@ class BinderHub(Application):
         self.log = tornado.log.app_log
 
         self.init_pycurl()
+        self.log.info("Are you there god?")
 
         # initialize kubernetes config
         if self.builder_required:
