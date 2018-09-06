@@ -123,17 +123,17 @@ class Build:
 
             if delete:
                 deleted += 1
-            try:
-                kube.delete_namespaced_pod(
-                    name=build.metadata.name,
-                    namespace=namespace,
-                    body=client.V1DeleteOptions(grace_period_seconds=0))
-            except client.rest.ApiException as e:
-                if e.status == 404:
-                    # Is ok, someone else has already deleted it
-                    pass
-                else:
-                    raise
+                try:
+                    kube.delete_namespaced_pod(
+                        name=build.metadata.name,
+                        namespace=namespace,
+                        body=client.V1DeleteOptions(grace_period_seconds=0))
+                except client.rest.ApiException as e:
+                    if e.status == 404:
+                        # Is ok, someone else has already deleted it
+                        pass
+                    else:
+                        raise
 
         if deleted:
             app_log.info("Deleted %i/%i build pods", deleted, len(builds))
