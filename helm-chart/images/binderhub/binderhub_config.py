@@ -29,6 +29,14 @@ if get_config('binder.use-registry'):
 c.BinderHub.docker_push_secret = get_config('binder.push-secret')
 c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
+cleanup_interval = get_config('binder.build-cleanup-interval', None)
+if cleanup_interval is not None:
+    c.BinderHub.build_cleanup_interval = cleanup_interval
+
+max_age = get_config('binder.build-max-age', None)
+if max_age is not None:
+    c.BinderHub.build_max_age = max_age
+
 c.BinderHub.use_registry = get_config('binder.use-registry', True)
 c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
 

@@ -30,6 +30,8 @@ data:
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
   binder.log-tail-lines: {{ .Values.build.logTailLines | quote }}
+  binder.build-max-age: {{ .Values.build.maxAge | quote }}
+  binder.build-cleanup-interval: {{ .Values.build.cleanupInterval | quote }}
 
   binder.retries.count: {{ .Values.retries.count | quote }}
   binder.retries.delay: {{ .Values.retries.delay | quote }}
