@@ -11,6 +11,10 @@ if ! which nsenter; then
   sudo mv nsenter /usr/local/bin/
 fi
 
+# Workaround for kube 1.10: https://github.com/kubernetes/kubernetes/issues/61058#issuecomment-372764783
+sudo mount --make-rshared /
+sudo mount --make-rshared /run
+
 # install kubectl, minikube
 # based on https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
 echo "installing kubectl"
