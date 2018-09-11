@@ -1,0 +1,9 @@
+hub:
+  services:
+    binder:
+      url: http://10.0.2.2:8585
+
+auth:
+  type: dummy
+  dummy:
+    password: 'dummy'

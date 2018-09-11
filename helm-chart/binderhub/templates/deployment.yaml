@@ -84,6 +84,27 @@ spec:
             secretKeyRef:
               name: binder-secret
               key: "binder.hub-token"
+        - name: JUPYTERHUB_URL
+          value: {{ .Values.hub.url | trimSuffix "/" | quote }}
+        - name: JUPYTERHUB_API_URL
+          value: "$(JUPYTERHUB_URL)/hub/api/"
+        {{- if and (eq .Values.jupyterhub.auth.type "custom") (eq .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
+        # auth is not enabled
+        {{- else }}
+        - name: JUPYTERHUB_SERVICE_PREFIX
+          value: {{ .Values.baseUrl | quote }}
+        - name: JUPYTERHUB_BASE_URL
+          value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
+        {{- if .Values.jupyterhub.hub.services.binder.oauth_client_id }}
+        # oauth is used
+        - name: JUPYTERHUB_CLIENT_ID
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
+        {{- if .Values.jupyterhub.hub.services.binder.oauth_redirect_uri }}
+        - name: JUPYTERHUB_OAUTH_CALLBACK_URL
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{ if .Values.github.clientId -}}
         - name: GITHUB_CLIENT_ID
           valueFrom:

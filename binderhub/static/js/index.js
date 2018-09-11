@@ -34,8 +34,8 @@ function update_favicon(path) {
     document.getElementsByTagName('head')[0].appendChild(link);
 }
 
-function Image(provider_spec) {
-    this.provider_spec = provider_spec;
+function Image(providerSpec) {
+    this.providerSpec = providerSpec;
     this.callbacks = {};
     this.state = null;
 }
@@ -66,7 +66,7 @@ Image.prototype.changeState = function(state, data) {
 };
 
 Image.prototype.fetch = function() {
-    var apiUrl = BASE_URL + 'build/' + this.provider_spec;
+    var apiUrl = BASE_URL + 'build/' + this.providerSpec;
     this.eventSource = new EventSource(apiUrl);
     var that = this;
     this.eventSource.onerror = function (err) {
@@ -90,36 +90,39 @@ Image.prototype.close = function() {
         this.eventSource.close();
     }
 };
-
-Image.prototype.launch = function(url, token, filepath, pathType) {
+Image.prototype.launch = function(url, token, path, pathType) {
     // redirect a user to a running server with a token
-    if (filepath) {
+    if (path) {
       // strip trailing /
       url = url.replace(/\/$/, '');
+      path = decodeURIComponent(path);
+      // be insensitive to leading '/'
+      path = path.replace(/^\//, '');
       if (pathType === 'file') {
         // /tree is safe because it allows redirect to files
         // need more logic here if we support things other than notebooks
-        url = url + '/tree/' + encodeURI(filepath);
+        // strip trailing '/' - it causes ERR_TOO_MANY_REDIRECTS in user server
+        path = path.replace(/\/$/, '');
+        url = url + '/tree/' + path;
       } else {
         // pathType === 'url'
-        // be insensitive to leading '/'
-        filepath = filepath.replace(/^\//, '');
-        url = url + '/' + filepath;
+        url = url + '/' + path;
       }
-
     }
-    var sep = (url.indexOf('?') == -1) ? '?' : '&';
-    url = url + sep + $.param({token: token});
+    if (token) {
+        var sep = (url.indexOf('?') == -1) ? '?' : '&';
+        url = url + sep + $.param({token: token});
+    }
     window.location.href = url;
 };
 
-function v2url(provider_prefix, repository, ref, path, pathType) {
-  // return a v2 url from a provider_prefix, repository, ref, and (file|url)path
+function v2url(providerPrefix, repository, ref, path, pathType) {
+  // return a v2 url from a providerPrefix, repository, ref, and (file|url)path
   if (repository.length === 0) {
     // no repo, no url
     return null;
   }
-  var url = window.location.origin + BASE_URL + 'v2/' + provider_prefix + '/' + repository + '/' + ref;
+  var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
   if (path && path.length > 0) {
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
   }
@@ -166,12 +169,10 @@ function updateRepoText() {
   $("label[for=ref]").text(tag_text);
 }
 
-
-function updateUrl() {
-  // update URLs and links (badges, etc.)
-  var provider_prefix = $('#provider_prefix').val().trim();
+function getBuildFormValues() {
+  var providerPrefix = $('#provider_prefix').val().trim();
   var repo = $('#repository').val().trim();
-  if (provider_prefix !== 'git') {
+  if (providerPrefix !== 'git') {
     repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
     repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
   }
@@ -179,27 +180,39 @@ function updateUrl() {
   repo = repo.replace(/(^\/)|(\/?$)/g, '');
   // git providers encode the URL of the git repository as the repo
   // argument.
-  if (repo.includes("://") || provider_prefix === 'gl') {
+  if (repo.includes("://") || providerPrefix === 'gl') {
     repo = encodeURIComponent(repo);
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  var filepath = $('#filepath').val().trim();
-  var url = v2url(provider_prefix, repo, ref, filepath, getPathType());
-  // update URL references
-  $("#badge-link").attr('href', url);
-  return url;
+  // trim trailing or leading '/' on ref
+  ref = ref.replace(/(^\/)|(\/?$)/g, '');
+  var path = $('#filepath').val().trim();
+  return {'providerPrefix': providerPrefix, 'repo': repo,
+          'ref': ref, 'path': path, 'pathType': getPathType()}
 }
 
-function updateUrlDiv() {
-  var url = updateUrl();
+function updateUrlDiv(formValues) {
+  if (typeof formValues === "undefined") {
+      formValues = getBuildFormValues();
+  }
+  var url = v2url(
+               formValues.providerPrefix,
+               formValues.repo,
+               formValues.ref,
+               formValues.path,
+               formValues.pathType
+            );
+
   if ((url||'').trim().length > 0){
+    // update URLs and links (badges, etc.)
+    $("#badge-link").attr('href', url);
     $('#basic-url-snippet').text(url);
     $('#markdown-badge-snippet').text(markdownBadge(url));
     $('#rst-badge-snippet').text(rstBadge(url));
   } else {
     ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item, ind){
-      var el = $(item)
+      var el = $(item);
       el.text(el.attr('data-default'));
     })
   }
@@ -214,22 +227,21 @@ function markdownBadge(url) {
   return '[![Binder](' + BADGE_URL + ')](' + url + ')'
 }
 
-
 function rstBadge(url) {
   // return rst badge snippet
   return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
-function build(spec, log, filepath, pathType) {
+function build(providerSpec, log, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
-  // split provider prefix off of spec
-  var repo = decodeURIComponent(spec.slice(spec.indexOf('/') + 1));
+  // split provider prefix off of providerSpec
+  var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository: " + repo);
+    $('div#loader-text p').text("Loading repository: " + spec);
     window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + repo + " is taking longer than usual to load, hang tight!")
+      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
     }, 120000);
   }
 
@@ -238,7 +250,7 @@ function build(spec, log, filepath, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  var image = new Image(spec);
+  var image = new Image(providerSpec);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
@@ -266,7 +278,7 @@ function build(spec, log, filepath, pathType) {
     $('#phase-failed').removeClass('hidden');
 
     $("#loader").addClass("paused");
-    $('div#loader-text p').html("Repository " + repo + " has failed to load!<br />See the logs for details.");
+    $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
     update_favicon("/favicon_fail.ico");
     // If we fail for any reason, we will show logs!
     log.show();
@@ -274,7 +286,7 @@ function build(spec, log, filepath, pathType) {
     // Show error on loading page
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
-      $('div#loader-text p').html('Error loading ' + repo + '!<br /> See logs below for details.');
+      $('div#loader-text p').html('Error loading ' + spec + '!<br /> See logs below for details.');
     }
     image.close();
   });
@@ -290,7 +302,8 @@ function build(spec, log, filepath, pathType) {
 
   image.onStateChange('ready', function(oldState, newState, data) {
     image.close();
-    image.launch(data.url, data.token, filepath, pathType);
+    // user server is ready, redirect to there
+    image.launch(data.url, data.token, path, pathType);
   });
 
   image.fetch();
@@ -354,11 +367,11 @@ function indexMain() {
     updatePathText();
     updateRepoText();
 
-    $('#repository').on('keyup paste change', updateUrlDiv);
+    $('#repository').on('keyup paste change', function(event) {updateUrlDiv();});
 
-    $('#ref').on('keyup paste change', updateUrlDiv);
+    $('#ref').on('keyup paste change', function(event) {updateUrlDiv();});
 
-    $('#filepath').on('keyup paste change', updateUrlDiv);
+    $('#filepath').on('keyup paste change', function(event) {updateUrlDiv();});
 
     $('#toggle-badge-snippet').on('click', function() {
         var badgeSnippets = $('#badge-snippets');
@@ -376,33 +389,19 @@ function indexMain() {
     });
 
     $('#build-form').submit(function() {
-        var repo = $('#repository').val().trim();
-        var ref =  $('#ref').val().trim() || 'master';
-        var provider_prefix =  $('#provider_prefix').val().trim();
-        if (provider_prefix !== 'git') {
-          repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
-          repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
-        }
-        // trim trailing or leading '/' on repo
-        repo = repo.replace(/(^\/)|(\/?$)/g, '');
-        // git providers encode the URL of the git repository as the
-        // repo argument.
-        if (repo.includes("://") || provider_prefix === 'gl') {
-          repo = encodeURIComponent(repo);
-        }
-        var url = updateUrl();
-        updateUrlDiv(url);
+        var formValues = getBuildFormValues();
+        updateUrlDiv(formValues);
         build(
-          provider_prefix + '/' + repo + '/' + ref,
+          formValues.providerPrefix + '/' + formValues.repo + '/' + formValues.ref,
           log,
-          $("#filepath").val().trim(),
-          getPathType()
+          formValues.path,
+          formValues.pathType
         );
         return false;
     });
 }
 
-function loadingMain(spec, ref) {
+function loadingMain(providerSpec) {
   var log = setUpLog();
   // retrieve filepath/urlpath from URL
   var params = new URL(location.href).searchParams;
@@ -416,10 +415,7 @@ function loadingMain(spec, ref) {
       pathType = 'file';
     }
   }
-  if (path) {
-    path = decodeURIComponent(path);
-  }
-  build(spec, log, path, pathType);
+  build(providerSpec, log, path, pathType);
   return false;
 }
 

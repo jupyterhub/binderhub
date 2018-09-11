@@ -11,7 +11,8 @@ import escapism
 
 import docker
 from tornado.concurrent import chain_future, Future
-from tornado import gen, web
+from tornado import gen
+from tornado.web import Finish, authenticated
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
@@ -55,7 +56,7 @@ class BuildHandler(BaseHandler):
         except StreamClosedError:
             app_log.warning("Stream closed while handling %s", self.request.uri)
             # raise Finish to halt the handler
-            raise web.Finish()
+            raise Finish()
 
     def on_finish(self):
         """Stop keepalive when finish has been called"""
@@ -101,6 +102,7 @@ class BuildHandler(BaseHandler):
         self.finish()
 
     def initialize(self):
+        super().initialize()
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 
@@ -166,6 +168,7 @@ class BuildHandler(BaseHandler):
             'message': message + '\n',
         })
 
+    @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
 
@@ -181,12 +184,8 @@ class BuildHandler(BaseHandler):
                 repo, ref, etc.)
 
         """
-        # re-extract spec from request.path
-        # get the original, raw spec, without tornado's unquoting
-        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
         prefix = '/build/' + provider_prefix
-        idx = self.request.path.index(prefix)
-        spec = self.request.path[idx + len(prefix) + 1:]
+        spec = self.get_spec_from_request(prefix)
 
         # set up for sending event streams
         self.set_header('content-type', 'text/event-stream')
@@ -220,12 +219,12 @@ class BuildHandler(BaseHandler):
             })
             return
 
-        repo = self.repo = provider.get_repo_url()
+        repo_url = self.repo_url = provider.get_repo_url()
 
         # labels to apply to build/launch metrics
         self.metric_labels = {
             'provider': provider.name,
-            'repo': repo,
+            'repo': repo_url,
         }
 
         try:
@@ -297,7 +296,7 @@ class BuildHandler(BaseHandler):
         )
         appendix = self.settings['appendix'].format(
             binder_url=binder_url,
-            repo_url=repo,
+            repo_url=repo_url,
         )
 
         self.build = build = BuildClass(
@@ -305,7 +304,7 @@ class BuildHandler(BaseHandler):
             api=kube,
             name=build_name,
             namespace=self.settings["build_namespace"],
-            git_url=repo,
+            git_url=repo_url,
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
@@ -428,8 +427,8 @@ class BuildHandler(BaseHandler):
         # That would be hard to do without in-memory state.
         if quota and matching_pods >= quota:
             app_log.error("%s has exceeded quota: %s/%s (%s total)",
-                self.repo, matching_pods, quota, total_pods)
-            await self.fail("Too many users running %s! Try again soon." % self.repo)
+                self.repo_url, matching_pods, quota, total_pods)
+            await self.fail("Too many users running %s! Try again soon." % self.repo_url)
             return
 
         if quota and matching_pods >= 0.5 * quota:
@@ -437,7 +436,7 @@ class BuildHandler(BaseHandler):
         else:
             log = app_log.info
         log("Launching pod for %s: %s other pods running this repo (%s total)",
-            self.repo, matching_pods, total_pods)
+            self.repo_url, matching_pods, total_pods)
 
         await self.emit({
             'phase': 'launching',
@@ -448,9 +447,22 @@ class BuildHandler(BaseHandler):
         retry_delay = launcher.retry_delay
         for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
-            username = launcher.username_from_repo(self.repo)
+            if self.settings['auth_enabled']:
+                # get logged in user's name
+                user_model = self.hub_auth.get_user(self)
+                username = user_model['name']
+                if self.settings['use_named_servers']:
+                    # user can launch multiple servers, so create a unique server name
+                    server_name = launcher.username_from_repo(self.repo_url)
+                else:
+                    server_name = ''
+            else:
+                # create a name for temporary user
+                username = launcher.username_from_repo(self.repo_url)
+                server_name = ''
             try:
-                server_info = await launcher.launch(image=self.image_name, username=username)
+                server_info = await launcher.launch(image=self.image_name, username=username,
+                                                    server_name=server_name, repo_url=self.repo_url)
                 LAUNCH_TIME.labels(
                     status='success', retries=i, **self.metric_labels
                 ).observe(time.perf_counter() - launch_starttime)

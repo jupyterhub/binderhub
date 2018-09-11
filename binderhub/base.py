@@ -2,9 +2,22 @@
 
 from http.client import responses
 from tornado import web
+from jupyterhub.services.auth import HubAuthenticated, HubOAuth
 
 
-class BaseHandler(web.RequestHandler):
+class BaseHandler(HubAuthenticated, web.RequestHandler):
+    """HubAuthenticated by default allows all successfully identified users (see allow_all property)."""
+
+    def initialize(self):
+        super().initialize()
+        if self.settings['auth_enabled'] and self.settings['use_oauth']:
+            self.hub_auth = HubOAuth()
+
+    def get_current_user(self):
+        if not self.settings['auth_enabled']:
+            return 'anonymous'
+        return super().get_current_user()
+
     @property
     def template_namespace(self):
         return dict(static_url=self.static_url, **self.settings.get('template_variables', {}))
@@ -14,6 +27,15 @@ class BaseHandler(web.RequestHandler):
         for header, value in headers.items():
             self.set_header(header, value)
         self.set_header("access-control-allow-headers", "cache-control")
+
+    def get_spec_from_request(self, prefix):
+        """Re-extract spec from request.path.
+        Get the original, raw spec, without tornado's unquoting.
+        This is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'.
+        """
+        idx = self.request.path.index(prefix)
+        spec = self.request.path[idx + len(prefix) + 1:]
+        return spec
 
     def get_provider(self, provider_prefix, spec):
         """Construct a provider object"""

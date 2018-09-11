@@ -20,6 +20,7 @@ from tornado.log import app_log
 import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
+from jupyterhub.services.auth import HubOAuthCallbackHandler
 
 from .base import Custom404
 from .build import Build
@@ -98,6 +99,23 @@ class BinderHub(Application):
         if not proposal.value.endswith('/'):
             proposal.value = proposal.value + '/'
         return proposal.value
+
+    auth_enabled = Bool(
+        False,
+        help="""If JupyterHub authentication enabled, 
+        require user to login (don't create temporary users during launch) and 
+        start the new server for the logged in user.""",
+        config=True)
+
+    use_oauth = Bool(
+        False,
+        help="""If oauth is used, use `HubOAuth` as hub authentication class.""",
+        config=True)
+
+    use_named_servers = Bool(
+        False,
+        help="Use named servers when authentication is enabled.",
+        config=True)
 
     port = Integer(
         8585,
@@ -223,18 +241,6 @@ class BinderHub(Application):
         config=True
     )
 
-    # TODO: Factor this out!
-    github_auth_token = Unicode(
-        None,
-        allow_none=True,
-        help="""
-        GitHub OAuth token to use for talking to the GitHub API.
-
-        Might get throttled otherwise!
-        """,
-        config=True
-    )
-
     debug = Bool(
         False,
         help="""
@@ -264,6 +270,7 @@ class BinderHub(Application):
         help="""API token for talking to the JupyterHub API""",
         config=True,
     )
+
     hub_url = Unicode(
         help="""
         The base URL of the JupyterHub instance where users will run.
@@ -465,15 +472,13 @@ class BinderHub(Application):
             parent=self,
             hub_url=self.hub_url,
             hub_api_token=self.hub_api_token,
+            create_user=not self.auth_enabled,
         )
 
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
-            "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_url': self.hub_url,
-            'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
             'appendix': self.appendix,
             "build_namespace": self.build_namespace,
@@ -496,7 +501,12 @@ class BinderHub(Application):
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
+            'auth_enabled': self.auth_enabled,
+            'use_oauth': self.use_oauth,
+            'use_named_servers': self.use_named_servers,
         })
+        if self.auth_enabled and self.use_oauth:
+            self.tornado_settings['cookie_secret'] = os.urandom(32)
 
         handlers = [
             (r'/metrics', MetricsHandler),
@@ -530,6 +540,11 @@ class BinderHub(Application):
                                  tornado.web.StaticFileHandler,
                                  {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)
+        if self.auth_enabled and self.use_oauth:
+            oauth_redirect_uri = os.getenv('JUPYTERHUB_OAUTH_CALLBACK_URL') or \
+                                 url_path_join(self.base_url, 'oauth_callback')
+            oauth_redirect_uri = urlparse(oauth_redirect_uri).path
+            handlers.insert(-1, (oauth_redirect_uri, HubOAuthCallbackHandler))
         self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
 
     def stop(self):

@@ -13,6 +13,7 @@ retries:
   count: 4
   delay: 4
 
+# NOTE set baseUrl to '<jupyterhub_base_url>/services/binder/' when auth is enabled.
 baseUrl: /
 nodeSelector: {}
 
@@ -85,6 +86,7 @@ hub:
 jupyterhub:
   cull:
     enabled: true
+    # NOTE set false when authentication is enabled
     users: true
   hub:
     rbac:
@@ -94,6 +96,7 @@ jupyterhub:
         import os
         import sys
         import yaml
+        from tornado import web
         def get_config_map(key, default=None):
             """
             Find a configmap item of a given name & return it
@@ -109,9 +112,6 @@ jupyterhub:
 
         # get cors config from config-map
         cors = get_config_map('custom.cors', {})
-
-        # disable login (users created exclusively via API)
-        c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
@@ -140,14 +140,22 @@ jupyterhub:
               return super().start()
 
         c.JupyterHub.spawner_class = BinderSpawner
-
     extraConfigMap:
       cors: *cors
     services:
       binder:
+        # NOTE set 'url' when authentication is enabled.
+        # because cookie 'jupyterhub-services', which is used for authentication, is available under '/services/'.
+        # NOTE set oauth_client_id for oauth
+        # oauth_redirect_uri is '/base_url/oauth_callback' by default
+        # apiToken is used as the client_secret for oauth requests
         admin: true
         apiToken:
-
+  auth:
+    type: custom
+    custom:
+      # disable login (users created exclusively via API)
+      className: "nullauthenticator.NullAuthenticator"
   singleuser:
     # start jupyter notebook
     cmd: jupyter-notebook

@@ -7,12 +7,13 @@ import pytest
 
 from .utils import async_requests
 
+
 @pytest.mark.parametrize(
     "old_url, new_url", [
-        ("/repo/minrk/ligo-binder", "/v2/gh/minrk/ligo-binder/master"),
-        ("/repo/minrk/ligo-binder/", "/v2/gh/minrk/ligo-binder/master"),
+        ("repo/minrk/ligo-binder", "/v2/gh/minrk/ligo-binder/master"),
+        ("repo/minrk/ligo-binder/", "/v2/gh/minrk/ligo-binder/master"),
         (
-            "/repo/minrk/ligo-binder/notebooks/index.ipynb",
+            "repo/minrk/ligo-binder/notebooks/index.ipynb",
             "/v2/gh/minrk/ligo-binder/master?urlpath=%2Fnotebooks%2Findex.ipynb",
         ),
     ]
@@ -73,10 +74,33 @@ def test_main_page(app):
         assert r.status_code == 200, f"{r.status_code} {url}"
 
 
+@pytest.mark.parametrize(
+    'provider_prefix,repo,ref,path,path_type,status_code',
+    [
+        ('gh', 'minrk/ligo-binder', 'master', '', '', 200),
+        ('gh', 'minrk%2Fligo-binder', 'master', '', '', 400),
+        ('gh', 'minrk/ligo-binder', 'master/', '', '', 200),
+
+        ('gh', 'minrk/ligo-binder', 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195', 'index.ipynb', 'file', 200),
+        ('gh', 'minrk/ligo-binder', 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195', '%2Fnotebooks%2Findex.ipynb', 'url', 200),
+
+        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master', 'notebooks', 'file', 200),
+        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master/', '%2Fnotebooks%2F', 'file', 200),
+        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master', '%2Fnotebooks%2F0-0-index.ipynb', 'file', 200),
+    ]
+)
 @pytest.mark.gen_test
-def test_loading_page(app):
-    sha = 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195'
-    r = yield async_requests.get(app.url + f'/v2/gh/minrk/ligo-binder/{sha}?filepath=index.ipynb')
-    assert r.status_code == 200
-    soup = BeautifulSoup(r.text, 'html5lib')
-    assert soup.find(id='log-container')
+def test_loading_page(app, provider_prefix, repo, ref, path, path_type, status_code):
+    # repo = f'{user}/{repo_name}'
+    spec = f'{repo}/{ref}'
+    provider_spec = f'{provider_prefix}/{spec}'
+    query = f'{path_type}path={path}' if path else ''
+    uri = f'v2/{provider_spec}?{query}'
+    r = yield async_requests.get(app.url + uri)
+    assert r.status_code == status_code, f"{r.status_code} {uri}"
+    if status_code == 200:
+        soup = BeautifulSoup(r.text, 'html5lib')
+        assert soup.find(id='log-container')
+        nbviewer_url = soup.find(id='nbviewer-preview').find('iframe').attrs['src']
+        r = yield async_requests.get(nbviewer_url)
+        assert r.status_code == 200, f"{r.status_code} {nbviewer_url}"
