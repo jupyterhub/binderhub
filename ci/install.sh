@@ -39,7 +39,7 @@ kubectl get nodes
 kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 
 echo "installing helm"
-curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.7.2-linux-amd64.tar.gz \
+curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.10.0-linux-amd64.tar.gz \
   | tar -xz -C bin --strip-components 1 linux-amd64/helm
 chmod +x bin/helm
 

@@ -157,11 +157,13 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-85ac189  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
    * ``--version`` refers to the version of the BinderHub **Helm Chart**.
+     Available versions can be found
+     `here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
    * ``name`` and ``namespace`` may be different, but we recommend using
      the same ``name`` and ``namespace`` to avoid confusion. We recommend
      something descriptive and short, such as ``binder``.

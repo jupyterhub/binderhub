@@ -26,6 +26,9 @@ build:
   nodeSelector: {}
   appendix:
   logTailLines: 100
+  # 14400 is 4 hours
+  maxAge: 14400
+  cleanupInterval: 120
 
 perRepoQuota: 100
 
