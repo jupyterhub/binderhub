@@ -16,14 +16,14 @@ subprocess.check_call(['npm', 'run', 'webpack'])
 setup(
     name='binderhub',
     version=version_ns['__version__'],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'kubernetes==4.*',
+        'kubernetes>=4.*',
         'escapism',
         'tornado',
         'traitlets',

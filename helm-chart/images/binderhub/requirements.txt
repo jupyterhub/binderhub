@@ -1,2 +1,3 @@
 pycurl==7.43.0.1
 tornado==5.0.*
+kubernetes==7.0.*
