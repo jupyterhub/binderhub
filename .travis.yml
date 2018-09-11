@@ -55,6 +55,7 @@ after_success:
 env:
   matrix:
   - TEST=main
+  - TEST=auth
   - TEST=helm
   global:
   - MINIKUBE_VERSION=0.24.1

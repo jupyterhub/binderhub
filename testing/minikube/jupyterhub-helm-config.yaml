@@ -13,13 +13,12 @@ hub:
     binder:
       admin: true
       apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
+  allowNamedServers: false
   extraConfig:
     binder: |
-      # disable login (users created exclusively via API)
-      c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
-
       # image & token are set via spawn options
       from kubespawner import KubeSpawner
+      from tornado import web
 
       class BinderSpawner(KubeSpawner):
         def get_args(self):
@@ -53,6 +52,11 @@ singleuser:
     type: none
   memory:
     guarantee: null
+auth:
+  type: custom
+  custom:
+    # disable login (users created exclusively via API)
+    className: "nullauthenticator.NullAuthenticator"
 
 prePuller:
   enabled: false

@@ -10,10 +10,10 @@ from .utils import async_requests
 
 @pytest.mark.parametrize(
     "old_url, new_url", [
-        ("/repo/minrk/ligo-binder", "/v2/gh/minrk/ligo-binder/master"),
-        ("/repo/minrk/ligo-binder/", "/v2/gh/minrk/ligo-binder/master"),
+        ("repo/minrk/ligo-binder", "/v2/gh/minrk/ligo-binder/master"),
+        ("repo/minrk/ligo-binder/", "/v2/gh/minrk/ligo-binder/master"),
         (
-            "/repo/minrk/ligo-binder/notebooks/index.ipynb",
+            "repo/minrk/ligo-binder/notebooks/index.ipynb",
             "/v2/gh/minrk/ligo-binder/master?urlpath=%2Fnotebooks%2Findex.ipynb",
         ),
     ]
@@ -95,7 +95,7 @@ def test_loading_page(app, provider_prefix, repo, ref, path, path_type, status_c
     spec = f'{repo}/{ref}'
     provider_spec = f'{provider_prefix}/{spec}'
     query = f'{path_type}path={path}' if path else ''
-    uri = f'/v2/{provider_spec}?{query}'
+    uri = f'v2/{provider_spec}?{query}'
     r = yield async_requests.get(app.url + uri)
     assert r.status_code == status_code, f"{r.status_code} {uri}"
     if status_code == 200:
