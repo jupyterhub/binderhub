@@ -1,6 +1,12 @@
 debug:
   enabled: false
 
+pdb:
+  enabled: true
+  minAvailable: 1
+
+replicas: 1
+
 resources:
   requests:
     cpu: 0.2
