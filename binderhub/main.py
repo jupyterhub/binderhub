@@ -1,7 +1,7 @@
 """
 Main handler classes for requests
 """
-from tornado import web
+from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
 from tornado.log import app_log
 
@@ -11,6 +11,7 @@ from .base import BaseHandler
 class MainHandler(BaseHandler):
     """Main handler for requests"""
 
+    @authenticated
     def get(self):
         self.render_template(
             "index.html",
@@ -24,13 +25,14 @@ class MainHandler(BaseHandler):
 class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
+    @authenticated
     def get(self, provider_prefix, _unescaped_spec):
         prefix = '/v2/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
         spec = spec.rstrip("/")
         try:
             self.get_provider(provider_prefix, spec=spec)
-        except web.HTTPError:
+        except HTTPError:
             raise
         except Exception as e:
             app_log.error(
@@ -39,7 +41,7 @@ class ParameterizedMainHandler(BaseHandler):
             )
             # FIXME: 400 assumes it's the user's fault (?)
             # maybe we should catch a special InvalidSpecError here
-            raise web.HTTPError(400, str(e))
+            raise HTTPError(400, str(e))
 
         provider_spec = f'{provider_prefix}/{spec}'
         nbviewer_url = None
@@ -66,6 +68,7 @@ class ParameterizedMainHandler(BaseHandler):
 class LegacyRedirectHandler(BaseHandler):
     """Redirect handler from legacy Binder"""
 
+    @authenticated
     def get(self, user, repo, urlpath=None):
         url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
         if urlpath is not None and urlpath.strip('/'):

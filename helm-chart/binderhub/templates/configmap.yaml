@@ -39,6 +39,16 @@ data:
   binder.hub-url: {{ .Values.hub.url | quote }}
   binder.base-url: {{ .Values.baseUrl | quote }}
 
+  {{- if and (eq .Values.jupyterhub.auth.type "custom") (eq .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
+  binder.auth-enabled: "false"
+  {{- else }}
+  binder.auth-enabled: "true"
+  {{- if and .Values.jupyterhub.hub.services.binder.oauth_client_id }}
+  binder.use-oauth: "true"
+  {{- end }}
+  binder.use-named-servers: {{ .Values.jupyterhub.hub.allowNamedServers | quote }}
+  {{- end }}
+
   {{ if .Values.github.hostname -}}
   github.hostname: {{ .Values.github.hostname | quote }}
   {{- end }}

@@ -50,7 +50,7 @@ if os.path.exists('/etc/binderhub/config/binder.appendix'):
     with open('/etc/binderhub/config/binder.appendix') as f:
         c.BinderHub.appendix = f.read()
 
-c.BinderHub.hub_url = get_config('binder.hub-url')
+c.BinderHub.hub_url = os.environ['JUPYTERHUB_URL'] + '/'
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
 c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)
@@ -59,6 +59,12 @@ if google_analytics_domain:
     c.BinderHub.google_analytics_domain = google_analytics_domain
 
 c.BinderHub.base_url = get_config('binder.base-url')
+
+auth_enabled = get_config('binder.auth-enabled', False)
+if auth_enabled is True:
+    c.BinderHub.auth_enabled = auth_enabled
+    c.BinderHub.use_oauth = get_config('binder.use-oauth', False)
+    c.BinderHub.use_named_servers = get_config('binder.use-named-servers', False)
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(

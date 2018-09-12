@@ -8,12 +8,13 @@ import re
 import string
 from urllib.parse import urlparse
 import uuid
+import os
 
 from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Integer, Unicode
+from traitlets import Integer, Unicode, Bool
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -31,6 +32,7 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    create_user = Bool(True, help="Create a new Hub user")
     retries = Integer(
         4,
         config=True,
@@ -54,7 +56,8 @@ class Launcher(LoggingConfigurable):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
-        request_url = self.hub_url + 'hub/api/' + url
+        hub_api_url = os.getenv('JUPYTERHUB_API_URL', '') or self.hub_url + 'hub/api/'
+        request_url = hub_api_url + url
         req = HTTPRequest(request_url, *args, **kwargs)
         retry_delay = self.retry_delay
         for i in range(1, self.retries + 1):
@@ -80,8 +83,16 @@ class Launcher(LoggingConfigurable):
                 else:
                     raise
 
+    async def get_user_data(self, username):
+        resp = await self.api_request(
+            'users/%s' % username,
+            method='GET',
+        )
+        body = json.loads(resp.body.decode('utf-8'))
+        return body
+
     def username_from_repo(self, repo_url):
-        """Generate a username for a git repo url
+        """Generate a username or server name for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
@@ -106,60 +117,67 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username):
+    async def launch(self, image, username, server_name='', repo_url=''):
         """Launch a server for a given image
 
-        - creates the user on the Hub
-        - spawns a server for that user
+        - creates a temporary user on the Hub if authentication is not enabled
+        - spawns a server for temporary/authenticated user
         - generates a token
         - returns a dict containing:
           - `url`: the URL of the server
+          - `image`: image spec
+          - `repo_url`: the url of the repo
           - `token`: the token for the server
         """
         # TODO: validate the image argument?
 
-        # create a new user
-        app_log.info("Creating user %s for image %s", username, image)
-        try:
-            await self.api_request('users/%s' % username, body=b'', method='POST')
-        except HTTPError as e:
-            if e.response:
-                body = e.response.body
-            else:
-                body = ''
-            app_log.error("Error creating user %s: %s\n%s",
-                username, e, body,
-            )
-            raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
+        if self.create_user:
+            # create a new user
+            app_log.info("Creating user %s for image %s", username, image)
+            try:
+                await self.api_request('users/%s' % username, body=b'', method='POST')
+            except HTTPError as e:
+                if e.response:
+                    body = e.response.body
+                else:
+                    body = ''
+                app_log.error("Error creating user %s: %s\n%s",
+                    username, e, body,
+                )
+                raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
+        elif server_name == '':
+            # authentication is enabled but not named servers
+            # check if user have a running server ('')
+            user_data = await self.get_user_data(username)
+            if server_name in user_data['servers']:
+                raise web.HTTPError(409, "User %s already has a running server." % username)
 
-        # generate a token
-        token = base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')
+        # data to be passed into spawner's user_options during launch
+        # and also to be returned into 'ready' state
+        data = {'image': image,
+                'repo_url': repo_url,
+                'token': base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')}
+
+        # server name to be used in logs
+        _server_name = " {}".format(server_name) if server_name else ''
 
         # start server
-        app_log.info("Starting server for user %s with image %s", username, image)
+        app_log.info("Starting server%s for user %s with image %s", _server_name, username, image)
         try:
             resp = await self.api_request(
-                'users/%s/server' % username,
+                'users/{}/servers/{}'.format(username, server_name),
                 method='POST',
-                body=json.dumps({
-                    'token': token,
-                    'image': image,
-                }).encode('utf8'),
+                body=json.dumps(data).encode('utf8'),
             )
             if resp.code == 202:
                 # Server hasn't actually started yet
                 # We wait for it!
                 # NOTE: This ends up being about ten minutes
                 for i in range(64):
-                    resp = await self.api_request(
-                        'users/%s' % username,
-                        method='GET',
-                    )
-
-                    body = json.loads(resp.body.decode('utf-8'))
-                    if body['server']:
+                    user_data = await self.get_user_data(username)
+                    if user_data['servers'][server_name]['ready']:
                         break
-                    if not body['pending']:
+                    if not user_data['servers'][server_name]['pending']:
                         raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
                     # FIXME: make this configurable
                     # FIXME: Measure how long it takes for servers to start
@@ -174,14 +192,9 @@ class Launcher(LoggingConfigurable):
             else:
                 body = ''
 
-            app_log.error("Error starting server for %s: %s\n%s",
-                username, e, body,
-            )
+            app_log.error("Error starting server{} for user {}: {}\n{}".
+                          format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        url = self.hub_url + 'user/%s/' % username
-
-        return {
-            'url': url,
-            'token': token,
-        }
+        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
+        return data
