@@ -40,11 +40,22 @@ class ParameterizedMainHandler(BaseHandler):
             # maybe we should catch a special InvalidSpecError here
             raise web.HTTPError(400, str(e))
 
+        provider_spec = f'{provider_prefix}/{spec}'
+        prefix, org_repo_ref = provider_spec.split('/', 1)
+        nbviewer_url = None
+        if prefix == "gh":
+            # we can only produce an nbviewer URL for github right now
+            nbviewer_url = 'https://nbviewer.jupyter.org/github'
+            org, repo, ref = org_repo_ref.split('/', 2)
+            # NOTE: tornado escapes query arguments too -> notebooks%2Findex.ipynb becomes notebooks/index.ipynb
+            filepath = self.get_argument('filepath', '')
+            blob_or_tree = 'blob' if filepath else 'tree'
+            nbviewer_url = f'{nbviewer_url}/{org}/{repo}/{blob_or_tree}/{ref}/{filepath}'
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
-            provider_spec='{}/{}'.format(provider_prefix, spec),
-            filepath=self.get_argument('filepath', None),
+            provider_spec=provider_spec,
+            nbviewer_url=nbviewer_url,
             urlpath=self.get_argument('urlpath', None),
             submit=True,
             google_analytics_code=self.settings['google_analytics_code'],
