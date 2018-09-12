@@ -25,12 +25,8 @@ class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
     def get(self, provider_prefix, _unescaped_spec):
-        # re-extract spec from request.path
-        # get the original, raw spec, without tornado's unquoting
-        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
         prefix = '/v2/' + provider_prefix
-        idx = self.request.path.index(prefix)
-        spec = self.request.path[idx + len(prefix) + 1:]
+        spec = self.get_spec_from_request(prefix)
         try:
             self.get_provider(provider_prefix, spec=spec)
         except web.HTTPError:
