@@ -11,6 +11,10 @@ if ! which nsenter; then
   sudo mv nsenter /usr/local/bin/
 fi
 
+# Workaround for kube 1.10: https://github.com/kubernetes/kubernetes/issues/61058#issuecomment-372764783
+sudo mount --make-rshared /
+sudo mount --make-rshared /run
+
 # install kubectl, minikube
 # based on https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
 echo "installing kubectl"
@@ -39,7 +43,7 @@ kubectl get nodes
 kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 
 echo "installing helm"
-curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v2.10.0-linux-amd64.tar.gz \
+curl -ssL https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz \
   | tar -xz -C bin --strip-components 1 linux-amd64/helm
 chmod +x bin/helm
 
