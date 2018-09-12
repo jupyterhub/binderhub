@@ -94,6 +94,7 @@ jupyterhub:
         import os
         import sys
         import yaml
+        from tornado import web
         def get_config_map(key, default=None):
             """
             Find a configmap item of a given name & return it
