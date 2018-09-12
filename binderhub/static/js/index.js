@@ -95,14 +95,16 @@ Image.prototype.launch = function(url, token, path, pathType) {
     if (path) {
       // strip trailing /
       url = url.replace(/\/$/, '');
+      path = decodeURIComponent(path);
+      // trim trailing and leading '/'
+      // trailing '/' causes ERR_TOO_MANY_REDIRECTS in user server
+      path = path.replace(/(^\/)|(\/?$)/g, '');
       if (pathType === 'file') {
         // /tree is safe because it allows redirect to files
         // need more logic here if we support things other than notebooks
-        url = url + '/tree/' + encodeURI(path);
+        url = url + '/tree/' + path;
       } else {
         // pathType === 'url'
-        // be insensitive to leading '/'
-        path = path.replace(/^\//, '');
         url = url + '/' + path;
       }
     }
@@ -407,9 +409,6 @@ function loadingMain(providerSpec) {
     if (path) {
       pathType = 'file';
     }
-  }
-  if (path) {
-    path = decodeURIComponent(path);
   }
   build(providerSpec, log, path, pathType);
   return false;

@@ -27,6 +27,7 @@ class ParameterizedMainHandler(BaseHandler):
     def get(self, provider_prefix, _unescaped_spec):
         prefix = '/v2/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
+        spec = spec.rstrip("/")
         try:
             self.get_provider(provider_prefix, spec=spec)
         except web.HTTPError:
@@ -48,7 +49,7 @@ class ParameterizedMainHandler(BaseHandler):
             nbviewer_url = 'https://nbviewer.jupyter.org/github'
             org, repo, ref = org_repo_ref.split('/', 2)
             # NOTE: tornado escapes query arguments too -> notebooks%2Findex.ipynb becomes notebooks/index.ipynb
-            filepath = self.get_argument('filepath', '')
+            filepath = self.get_argument('filepath', '').lstrip('/')
             blob_or_tree = 'blob' if filepath else 'tree'
             nbviewer_url = f'{nbviewer_url}/{org}/{repo}/{blob_or_tree}/{ref}/{filepath}'
         self.render_template(
@@ -56,7 +57,7 @@ class ParameterizedMainHandler(BaseHandler):
             base_url=self.settings['base_url'],
             provider_spec=provider_spec,
             nbviewer_url=nbviewer_url,
-            urlpath=self.get_argument('urlpath', None),
+            # urlpath=self.get_argument('urlpath', None),
             submit=True,
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
