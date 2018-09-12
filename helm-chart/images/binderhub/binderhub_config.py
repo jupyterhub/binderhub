@@ -2,6 +2,7 @@ import os
 import glob
 import yaml
 
+
 def get_config(key, default=None):
     """
     Find a config item of a given name & return it
@@ -16,6 +17,7 @@ def get_config(key, default=None):
             return data
     except FileNotFoundError:
         return default
+
 
 c.BinderHub.debug = get_config('binder.debug.enabled', False)
 
@@ -56,7 +58,7 @@ google_analytics_domain = get_config('binder.google-analytics-domain', None)
 if google_analytics_domain:
     c.BinderHub.google_analytics_domain = google_analytics_domain
 
-c.BinderHub.base_url = get_config('binder.base_url')
+c.BinderHub.base_url = get_config('binder.base-url')
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
