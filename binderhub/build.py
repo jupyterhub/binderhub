@@ -29,17 +29,17 @@ class Build:
     ``name``
         The ``name`` should be unique and immutable since it is used to
         sync to the pod. The ``name`` should be unique for a
-        ``(git_url, ref)`` tuple, and the same tuple should correspond
+        ``(repo_url, ref)`` tuple, and the same tuple should correspond
         to the same ``name``. This allows use of the locking provided by k8s
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, git_url, ref, builder_image,
+    def __init__(self, q, api, name, namespace, repo_url, ref, builder_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
                  appendix='', log_tail_lines=100):
         self.q = q
         self.api = api
-        self.git_url = git_url
+        self.repo_url = repo_url
         self.ref = ref
         self.name = name
         self.namespace = namespace
@@ -75,10 +75,10 @@ class Build:
             cmd.append('--build-memory-limit')
             cmd.append(str(self.memory_limit))
 
-        # git_url comes at the end, since otherwise our arguments
+        # repo_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
         # see https://github.com/jupyter/repo2docker/pull/128
-        cmd.append(self.git_url)
+        cmd.append(self.repo_url)
 
         return cmd
 
@@ -169,7 +169,7 @@ class Build:
                     "component": "binderhub-build",
                 },
                 annotations={
-                    "binder-repo": self.git_url,
+                    "binder-repo": self.repo_url,
                 },
             ),
             spec=client.V1PodSpec(
