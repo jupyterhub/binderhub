@@ -7,7 +7,7 @@ for testing binderhub
 Gets the jupyterhub chart version from the binderhub helm chart
 to ensure we are testing against a reasonable version.
 """
-
+import sys
 import os
 import pipes
 from subprocess import check_call, check_output
@@ -15,6 +15,8 @@ import time
 
 from kubernetes import client, config
 from ruamel import yaml
+
+auth_enabled = '--auth' in sys.argv
 
 namespace = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
 name = 'binder-test-hub'
@@ -48,6 +50,9 @@ args = [
     f'--namespace={namespace}',
     '-f', os.path.join(here, 'jupyterhub-helm-config.yaml'),
 ]
+if auth_enabled:
+    print('\nAuthentication is enabled')
+    args.extend(['-f', os.path.join(here, 'jupyterhub-helm-auth-config.yaml')])
 is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replace').split()
 if is_running:
     cmd = ['helm', 'upgrade', name]

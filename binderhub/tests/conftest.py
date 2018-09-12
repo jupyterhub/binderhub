@@ -118,6 +118,23 @@ def _binderhub_config():
     return cfg
 
 
+@pytest.fixture(scope='session')
+def _binderhub_auth_config():
+    cfg = _binderhub_config()
+    cfg.BinderHub.base_url = '/services/binder/'
+    cfg.BinderHub.auth_enabled = True
+    cfg.BinderHub.use_oauth = False
+    cfg.BinderHub.use_named_servers = False
+
+    os.environ['JUPYTERHUB_API_TOKEN'] = cfg.BinderHub.hub_api_token
+    os.environ['JUPYTERHUB_URL'] = cfg.BinderHub.hub_url
+    # os.environ['JUPYTERHUB_HOST'] = cfg.BinderHub.hub_url
+    os.environ['JUPYTERHUB_API_URL'] = os.environ['JUPYTERHUB_URL'] + '/hub/api/'
+    os.environ['JUPYTERHUB_SERVICE_PREFIX'] = cfg.BinderHub.base_url
+    os.environ['JUPYTERHUB_BASE_URL'] = '/'
+    return cfg
+
+
 class RemoteBinderHub(object):
     """Mock class for the app fixture when Binder is remote
 
@@ -175,7 +192,15 @@ def app(request, io_loop, _binderhub_config):
 
     request.addfinalizer(cleanup)
     # convenience for accessing binder in tests
-    bhub.url = 'http://127.0.0.1:%i' % bhub.port
+    bhub.url = f'http://127.0.0.1:{bhub.port}{bhub.base_url}'
+    return bhub
+
+
+@pytest.fixture
+def app_with_auth(request, io_loop, _binderhub_auth_config):
+    bhub = app(request, io_loop, _binderhub_auth_config)
+    service_path = os.environ['JUPYTERHUB_SERVICE_PREFIX'].lstrip('/')
+    bhub.service_url = f'{bhub.hub_url}{service_path}'
     return bhub
 
 

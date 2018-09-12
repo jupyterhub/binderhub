@@ -13,6 +13,7 @@ hub:
     binder:
       admin: true
       apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
+  allowNamedServers: false
   extraConfig:
     binder: |
       # image & token are set via spawn options
