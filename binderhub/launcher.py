@@ -25,6 +25,7 @@ SUFFIX_CHARS = string.ascii_lowercase + string.digits
 # Set length of suffix. Number of combinations = SUFFIX_CHARS**SUFFIX_LENGTH = 36**8 ~= 2**41
 SUFFIX_LENGTH = 8
 
+
 class Launcher(LoggingConfigurable):
     """Object for encapsulating launching an image for a user"""
 
@@ -75,18 +76,18 @@ class Launcher(LoggingConfigurable):
                 else:
                     raise
 
-    def username_from_repo(self, repo):
+    def username_from_repo(self, repo_url):
         """Generate a username for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
         """
         # start with url path
-        if '://' not in repo and _ssh_repo_pat.match(repo):
+        if '://' not in repo_url and _ssh_repo_pat.match(repo_url):
             # ssh url
-            path = repo.split(':', 1)[1]
+            path = repo_url.split(':', 1)[1]
         else:
-            path = urlparse(repo).path
+            path = urlparse(repo_url).path
 
         prefix = path.strip('/').replace('/', '-').lower()
 
