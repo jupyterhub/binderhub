@@ -10,7 +10,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  minAvailable: {{ .Values.pdb.minAvaialable }}
+  minAvailable: {{ .Values.pdb.minAvailable }}
   selector:
     matchLabels:
       app: binder
