@@ -46,11 +46,11 @@ class ParameterizedMainHandler(BaseHandler):
         if provider_prefix == "gh":
             # we can only produce an nbviewer URL for github right now
             nbviewer_url = 'https://nbviewer.jupyter.org/github'
-            org, repo, ref = spec.split('/', 2)
-            # NOTE: tornado escapes query arguments too -> notebooks%2Findex.ipynb becomes notebooks/index.ipynb
+            org, repo_name, ref = spec.split('/', 2)
+            # NOTE: tornado unquotes query arguments too -> notebooks%2Findex.ipynb becomes notebooks/index.ipynb
             filepath = self.get_argument('filepath', '').lstrip('/')
             blob_or_tree = 'blob' if filepath else 'tree'
-            nbviewer_url = f'{nbviewer_url}/{org}/{repo}/{blob_or_tree}/{ref}/{filepath}'
+            nbviewer_url = f'{nbviewer_url}/{org}/{repo_name}/{blob_or_tree}/{ref}/{filepath}'
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],

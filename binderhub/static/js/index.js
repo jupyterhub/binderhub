@@ -95,14 +95,13 @@ Image.prototype.launch = function(url, token, path, pathType) {
     if (path) {
       // strip trailing /
       url = url.replace(/\/$/, '');
-      path = decodeURIComponent(path);
       // trim trailing and leading '/'
       // trailing '/' causes ERR_TOO_MANY_REDIRECTS in user server
       path = path.replace(/(^\/)|(\/?$)/g, '');
       if (pathType === 'file') {
         // /tree is safe because it allows redirect to files
         // need more logic here if we support things other than notebooks
-        url = url + '/tree/' + path;
+        url = url + '/tree/' + encodeURIComponent(path);
       } else {
         // pathType === 'url'
         url = url + '/' + path;
@@ -121,6 +120,7 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
   }
   var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
   if (path && path.length > 0) {
+    // encode the path, it will be decoded in loadingMain
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
   }
   return url;
@@ -398,7 +398,9 @@ function indexMain() {
 
 function loadingMain(providerSpec) {
   var log = setUpLog();
-  // retrieve filepath/urlpath from URL
+  // retrieve (encoded) filepath/urlpath from URL
+  // URLSearchParams.get returns the decoded value,
+  // that is good because it is the real value and '/'s will be trimmed in `launch`
   var params = new URL(location.href).searchParams;
   var pathType, path;
   path = params.get('urlpath');

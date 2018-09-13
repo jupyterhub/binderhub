@@ -91,7 +91,7 @@ def test_main_page(app):
 )
 @pytest.mark.gen_test
 def test_loading_page(app, provider_prefix, repo, ref, path, path_type, status_code):
-    # repo = f'{user}/{repo_name}'
+    # repo = f'{org}/{repo_name}'
     spec = f'{repo}/{ref}'
     provider_spec = f'{provider_prefix}/{spec}'
     query = f'{path_type}path={path}' if path else ''
