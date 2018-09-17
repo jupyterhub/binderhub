@@ -101,7 +101,7 @@ Image.prototype.launch = function(url, token, path, pathType) {
       if (pathType === 'file') {
         // /tree is safe because it allows redirect to files
         // need more logic here if we support things other than notebooks
-        url = url + '/tree/' + encodeURIComponent(path);
+        url = url + '/tree/' + encodeURI(path);
       } else {
         // pathType === 'url'
         url = url + '/' + path;
