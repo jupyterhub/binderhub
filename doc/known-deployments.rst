@@ -27,9 +27,13 @@ computing resources via the `dask-kubernetes`_ package. Read more about the
 `Pangeo project here`_. Pangeo-Binder is deployed on Google Cloud Platform using
 Google Kubernetes Engine (GKE).
 
-* `Deployment repository <https://github.com/pangeo-data/pangeo-binder>`_
-* `BinderHub: links <http://binder.pangeo.io/>`_
-* `Pangeo-Binder documentation: <https://pangeo-binder.readthedocs.io/en/latest/>`_
+_`dask-kubernetes`: https://dask-kubernetes.readthedocs.io/en/latest/
+_`Pangeo project here`: https://pangeo.io/
 
-_dask-kubernetes: https://dask-kubernetes.readthedocs.io/en/latest/
-_Pangeo project here: https://pangeo.io/
+* `Deployment repository`__
+* `BinderHub / JupyterHub links`__
+* `Pangeo-Binder documentation`__
+
+__ https://github.com/pangeo-data/pangeo-binder
+__ http://binder.pangeo.io
+__ https://pangeo-binder.readthedocs.io/en/latest
