@@ -10,11 +10,11 @@ from .utils import async_requests
 
 @pytest.mark.parametrize(
     "old_url, new_url", [
-        ("/repo/minrk/ligo-binder", "/v2/gh/minrk/ligo-binder/master"),
-        ("/repo/minrk/ligo-binder/", "/v2/gh/minrk/ligo-binder/master"),
+        ("/repo/binderhub-ci-repos/requirements", "/v2/gh/binderhub-ci-repos/requirements/master"),
+        ("/repo/binderhub-ci-repos/requirements/", "/v2/gh/binderhub-ci-repos/requirements/master"),
         (
-            "/repo/minrk/ligo-binder/notebooks/index.ipynb",
-            "/v2/gh/minrk/ligo-binder/master?urlpath=%2Fnotebooks%2Findex.ipynb",
+            "/repo/binderhub-ci-repos/requirements/notebooks/index.ipynb",
+            "/v2/gh/binderhub-ci-repos/requirements/master?urlpath=%2Fnotebooks%2Findex.ipynb",
         ),
     ]
 )
@@ -77,16 +77,16 @@ def test_main_page(app):
 @pytest.mark.parametrize(
     'provider_prefix,repo,ref,path,path_type,status_code',
     [
-        ('gh', 'minrk/ligo-binder', 'master', '', '', 200),
-        ('gh', 'minrk%2Fligo-binder', 'master', '', '', 400),
-        ('gh', 'minrk/ligo-binder', 'master/', '', '', 200),
+        ('gh', 'binderhub-ci-repos/requirements', 'master', '', '', 200),
+        ('gh', 'binderhub-ci-repos%2Frequirements', 'master', '', '', 400),
+        ('gh', 'binderhub-ci-repos/requirements', 'master/', '', '', 200),
 
-        ('gh', 'minrk/ligo-binder', 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195', 'index.ipynb', 'file', 200),
-        ('gh', 'minrk/ligo-binder', 'b8259dac9eb4aa5f2d65d8881f2da94a4952a195', '%2Fnotebooks%2Findex.ipynb', 'url', 200),
+        ('gh', 'binderhub-ci-repos/requirements', '20c4fe55a9b2c5011d228545e821b1c7b1723652', 'index.ipynb', 'file', 200),
+        ('gh', 'binderhub-ci-repos/requirements', '20c4fe55a9b2c5011d228545e821b1c7b1723652', '%2Fnotebooks%2Findex.ipynb', 'url', 200),
 
-        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master', 'notebooks', 'file', 200),
-        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master/', '%2Fnotebooks%2F', 'file', 200),
-        ('gh', 'berndweiss/gesis-meta-analysis-2018', 'master', '%2Fnotebooks%2F0-0-index.ipynb', 'file', 200),
+        ('gh', 'binderhub-ci-repos/requirements', 'master', 'has%20space', 'file', 200),
+        ('gh', 'binderhub-ci-repos/requirements', 'master/', '%2Fhas%20space%2F', 'file', 200),
+        ('gh', 'binderhub-ci-repos/requirements', 'master', '%2Fhas%20space%2F%C3%BCnicode.ipynb', 'file', 200),
     ]
 )
 @pytest.mark.gen_test
