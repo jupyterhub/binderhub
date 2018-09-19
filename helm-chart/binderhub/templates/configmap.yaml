@@ -19,6 +19,10 @@ data:
   {{ if .Values.googleAnalyticsDomain -}}
   binder.google-analytics-domain: {{ .Values.googleAnalyticsDomain | quote }}
   {{- end }}
+  {{ if .Values.extraFooterScripts }}
+  binder.extra-footer-scripts: |
+{{ .Values.extraFooterScripts | indent 4 }}
+  {{- end }}
   binder.cors: {{ toJson .Values.cors | quote }}
   binder.per-repo-quota: {{ .Values.perRepoQuota | quote }}
   binder.registry.prefix: {{ .Values.registry.prefix | quote }}

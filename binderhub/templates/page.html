@@ -52,6 +52,10 @@
   }
   </script>
   {% endif %}
+  {% if extra_footer_scripts %}
+  <script>
+    {{ extra_footer_scripts }}
+  </script>
   {% endblock body %}
 </body>
 </html>
