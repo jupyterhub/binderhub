@@ -86,10 +86,13 @@ class BinderHub(Application):
         config=True
     )
 
-    extra_footer_scripts = Unicode(
-        '',
+    extra_footer_scripts = Dict(
+        {},
         help="""
         Extra bits of JavaScript that should be loaded in footer of each page.
+
+        Only the values are set up as scripts. Keys are used only
+        for sorting.
 
         Omit the <script> tag. This should be primarily used for
         analytics code.
