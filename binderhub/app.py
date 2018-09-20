@@ -86,6 +86,19 @@ class BinderHub(Application):
         config=True
     )
 
+    extra_footer_scripts = Dict(
+        {},
+        help="""
+        Extra bits of JavaScript that should be loaded in footer of each page.
+
+        Only the values are set up as scripts. Keys are used only
+        for sorting.
+
+        Omit the <script> tag. This should be primarily used for
+        analytics code.
+        """
+    )
+
     base_url = Unicode(
         '/',
         help="The base URL of the entire application",
@@ -474,6 +487,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
+            'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
