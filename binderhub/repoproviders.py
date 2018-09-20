@@ -328,7 +328,13 @@ class GitHubRepoProvider(RepoProvider):
     def _default_git_credentials(self):
         if self.access_token:
             # Based on https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-            return 'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
+            # If client_id is specified, assuming access_token is personal access token. Otherwise,
+            # assume oauth basic token.
+            if self.client_id:
+                return r'username={client_id}\npassword={token}'.format(
+                    client_id=self.client_id, token=self.access_token)
+            else:
+                return 'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
         return ""
 
     def __init__(self, *args, **kwargs):
