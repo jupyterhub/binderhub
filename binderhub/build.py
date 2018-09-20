@@ -32,7 +32,7 @@ class Build:
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, git_url, ref, git_credential, builder_image,
+    def __init__(self, q, api, name, namespace, git_url, ref, git_credentials, builder_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
                  appendix='', log_tail_lines=100):
         self.q = q
@@ -52,7 +52,7 @@ class Build:
         self.log_tail_lines = log_tail_lines
 
         self.stop_event = threading.Event()
-        self.git_credential = git_credential
+        self.git_credentials = git_credentials
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -104,8 +104,8 @@ class Build:
             ))
 
         env = []
-        if self.git_credential:
-            env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=provider.git_credential))
+        if self.git_credentials:
+            env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
 
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
