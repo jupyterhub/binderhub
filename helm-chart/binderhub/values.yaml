@@ -1,6 +1,12 @@
 debug:
   enabled: false
 
+pdb:
+  enabled: true
+  minAvailable: 1
+
+replicas: 1
+
 resources:
   requests:
     cpu: 0.2
@@ -21,10 +27,13 @@ image:
   tag: local
 
 build:
-  repo2dockerImage: jupyter/repo2docker:687788f
+  repo2dockerImage: jupyter/repo2docker:46f056a
   nodeSelector: {}
   appendix:
   logTailLines: 100
+  # 14400 is 4 hours
+  maxAge: 14400
+  cleanupInterval: 120
 
 perRepoQuota: 100
 
@@ -91,6 +100,7 @@ jupyterhub:
         import os
         import sys
         import yaml
+        from tornado import web
         def get_config_map(key, default=None):
             """
             Find a configmap item of a given name & return it
@@ -106,9 +116,6 @@ jupyterhub:
 
         # get cors config from config-map
         cors = get_config_map('custom.cors', {})
-
-        # disable login (users created exclusively via API)
-        c.JupyterHub.authenticator_class = 'nullauthenticator.NullAuthenticator'
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
@@ -137,14 +144,17 @@ jupyterhub:
               return super().start()
 
         c.JupyterHub.spawner_class = BinderSpawner
-
     extraConfigMap:
       cors: *cors
     services:
       binder:
         admin: true
         apiToken:
-
+  auth:
+    type: custom
+    custom:
+      # disable login (users created exclusively via API)
+      className: "nullauthenticator.NullAuthenticator"
   singleuser:
     # start jupyter notebook
     cmd: jupyter-notebook

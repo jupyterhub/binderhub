@@ -1,0 +1,20 @@
+{{- if .Values.pdb.enabled -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: binderhub
+  labels:
+    app: binder
+    name: binder
+    component: binder
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: binder
+      name: binder
+      component: binder
+      release: {{ .Release.Name }}
+{{- end }}

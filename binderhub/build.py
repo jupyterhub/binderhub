@@ -2,6 +2,8 @@
 Contains build of a docker image from a git repository.
 """
 
+from collections import defaultdict
+import datetime
 import json
 import threading
 from urllib.parse import urlparse
@@ -27,7 +29,7 @@ class Build:
     ``name``
         The ``name`` should be unique and immutable since it is used to
         sync to the pod. The ``name`` should be unique for a
-        ``(git_url, ref)`` tuple, and the same tuple should correspond
+        ``(repo_url, ref)`` tuple, and the same tuple should correspond
         to the same ``name``. This allows use of the locking provided by k8s
         API instead of having to invent our own locking code.
 
@@ -37,7 +39,7 @@ class Build:
                  appendix='', log_tail_lines=100):
         self.q = q
         self.api = api
-        self.git_url = git_url
+        self.repo_url = repo_url
         self.ref = ref
         self.name = name
         self.namespace = namespace
@@ -74,12 +76,69 @@ class Build:
             cmd.append('--build-memory-limit')
             cmd.append(str(self.memory_limit))
 
-        # git_url comes at the end, since otherwise our arguments
+        # repo_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
         # see https://github.com/jupyter/repo2docker/pull/128
-        cmd.append(self.git_url)
+        cmd.append(self.repo_url)
 
         return cmd
+
+    @classmethod
+    def cleanup_builds(cls, kube, namespace, max_age):
+        """Delete stopped build pods and build pods that have aged out"""
+        builds = kube.list_namespaced_pod(
+            namespace=namespace,
+            label_selector='component=binderhub-build',
+        ).items
+        phases = defaultdict(int)
+        app_log.debug("%i build pods", len(builds))
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        start_cutoff = now - datetime.timedelta(seconds=max_age)
+        deleted = 0
+        for build in builds:
+            phase = build.status.phase
+            phases[phase] += 1
+            annotations = build.metadata.annotations or {}
+            repo = annotations.get("binder-repo", "unknown")
+            delete = False
+            if build.status.phase in {'Failed', 'Succeeded', 'Evicted'}:
+                # log Deleting Failed build build-image-...
+                # print(build.metadata)
+                app_log.info(
+                    "Deleting %s build %s (repo=%s)",
+                    build.status.phase,
+                    build.metadata.name,
+                    repo,
+                )
+                delete = True
+            else:
+                # check age
+                started = build.status.start_time
+                if max_age and started and started < start_cutoff:
+                    app_log.info(
+                        "Deleting long-running build %s (repo=%s)",
+                        build.metadata.name,
+                        repo,
+                    )
+                    delete = True
+
+            if delete:
+                deleted += 1
+                try:
+                    kube.delete_namespaced_pod(
+                        name=build.metadata.name,
+                        namespace=namespace,
+                        body=client.V1DeleteOptions(grace_period_seconds=0))
+                except client.rest.ApiException as e:
+                    if e.status == 404:
+                        # Is ok, someone else has already deleted it
+                        pass
+                    else:
+                        raise
+
+        if deleted:
+            app_log.info("Deleted %i/%i build pods", deleted, len(builds))
+        app_log.debug("Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1))
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
@@ -113,6 +172,9 @@ class Build:
                 labels={
                     "name": self.name,
                     "component": "binderhub-build",
+                },
+                annotations={
+                    "binder-repo": self.repo_url,
                 },
             ),
             spec=client.V1PodSpec(
@@ -149,7 +211,7 @@ class Build:
             app_log.info("Started build %s", self.name)
 
         app_log.info("Watching build pod %s", self.name)
-        while True:
+        while not self.stop_event.is_set():
             w = watch.Watch()
             try:
                 for f in w.stream(
@@ -173,10 +235,9 @@ class Build:
                 raise
             finally:
                 w.stop()
-            # TODO: watch/cleanup build pod existence in a dedicated thread
-            # if self.stop_event.is_set():
-            #     app_log.info("Stopping watch of %s", self.name)
-            #     return
+            if self.stop_event.is_set():
+                app_log.info("Stopping watch of %s", self.name)
+                return
 
     def stream_logs(self):
         """Stream a pod's logs"""

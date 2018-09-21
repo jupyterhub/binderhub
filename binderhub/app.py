@@ -1,6 +1,7 @@
 """
 The binderhub application
 """
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
@@ -15,11 +16,13 @@ from tornado.httpserver import HTTPServer
 import tornado.ioloop
 import tornado.options
 import tornado.log
+from tornado.log import app_log
 import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
 
 from .base import Custom404
+from .build import Build
 from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
@@ -81,6 +84,19 @@ class BinderHub(Application):
         subdomains. This can be set to a more restrictive domain here for better privacy
         """,
         config=True
+    )
+
+    extra_footer_scripts = Dict(
+        {},
+        help="""
+        Extra bits of JavaScript that should be loaded in footer of each page.
+
+        Only the values are set up as scripts. Keys are used only
+        for sorting.
+
+        Omit the <script> tag. This should be primarily used for
+        analytics code.
+        """
     )
 
     base_url = Unicode(
@@ -220,18 +236,6 @@ class BinderHub(Application):
         config=True
     )
 
-    # TODO: Factor this out!
-    github_auth_token = Unicode(
-        None,
-        allow_none=True,
-        help="""
-        GitHub OAuth token to use for talking to the GitHub API.
-
-        Might get throttled otherwise!
-        """,
-        config=True
-    )
-
     debug = Bool(
         False,
         help="""
@@ -261,6 +265,7 @@ class BinderHub(Application):
         help="""API token for talking to the JupyterHub API""",
         config=True,
     )
+
     hub_url = Unicode(
         help="""
         The base URL of the JupyterHub instance where users will run.
@@ -328,6 +333,20 @@ class BinderHub(Application):
         care about high concurrency here, just not blocking the webserver.
         This executor is not used for long-running tasks (e.g. builds).
         """,
+    )
+    build_cleanup_interval = Integer(
+        60,
+        config=True,
+        help="""Interval (in seconds) for how often stopped build pods will be deleted."""
+    )
+    build_max_age = Integer(
+        3600 * 4,
+        config=True,
+        help="""Maximum age of builds
+
+        Builds that are still running longer than this
+        will be killed.
+        """
     )
 
     # FIXME: Come up with a better name for it?
@@ -415,7 +434,7 @@ class BinderHub(Application):
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
-            self.tornado_settings["kubernetes_client"] = kubernetes.client.CoreV1Api()
+            self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes.client.CoreV1Api()
 
 
         # times 2 for log + build threads
@@ -453,10 +472,7 @@ class BinderHub(Application):
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
-            "github_auth_token": self.github_auth_token,
             "debug": self.debug,
-            'hub_url': self.hub_url,
-            'hub_api_token': self.hub_api_token,
             'launcher': self.launcher,
             'appendix': self.appendix,
             "build_namespace": self.build_namespace,
@@ -471,6 +487,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
+            'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
@@ -519,6 +536,28 @@ class BinderHub(Application):
         self.http_server.stop()
         self.build_pool.shutdown()
 
+    async def watch_build_pods(self):
+        """Watch build pods
+
+        Every build_cleanup_interval:
+        - delete stopped build pods
+        - delete running build pods older than build_max_age
+        """
+        while True:
+            try:
+                await asyncio.wrap_future(
+                    self.executor.submit(
+                        lambda: Build.cleanup_builds(
+                            self.kube_client,
+                            self.build_namespace,
+                            self.build_max_age,
+                        )
+                    )
+                )
+            except Exception:
+                app_log.exception("Failed to cleanup build pods")
+            await asyncio.sleep(self.build_cleanup_interval)
+
     def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
         self.http_server = HTTPServer(
@@ -526,6 +565,8 @@ class BinderHub(Application):
             xheaders=True,
         )
         self.http_server.listen(self.port)
+        if self.builder_required:
+            asyncio.ensure_future(self.watch_build_pods())
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 

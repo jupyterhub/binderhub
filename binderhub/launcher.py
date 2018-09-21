@@ -25,6 +25,7 @@ SUFFIX_CHARS = string.ascii_lowercase + string.digits
 # Set length of suffix. Number of combinations = SUFFIX_CHARS**SUFFIX_LENGTH = 36**8 ~= 2**41
 SUFFIX_LENGTH = 8
 
+
 class Launcher(LoggingConfigurable):
     """Object for encapsulating launching an image for a user"""
 
@@ -53,7 +54,8 @@ class Launcher(LoggingConfigurable):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
-        req = HTTPRequest(self.hub_url + 'hub/api/' + url, *args, **kwargs)
+        request_url = self.hub_url + 'hub/api/' + url
+        req = HTTPRequest(request_url, *args, **kwargs)
         retry_delay = self.retry_delay
         for i in range(1, self.retries + 1):
             try:
@@ -68,25 +70,28 @@ class Launcher(LoggingConfigurable):
                 # e.g. 502,504 due to ingress issues or Hub relocating,
                 # 599 due to connection issues such as Hub restarting
                 if e.code >= 500:
-                    self.log.error("Error accessing Hub API (%s)", e)
+                    self.log.error("Error accessing Hub API (using %s): %s", request_url, e)
+                    if i == self.retries:
+                        # last api request failed, raise the exception
+                        raise
                     await gen.sleep(retry_delay)
                     # exponential backoff for consecutive failures
                     retry_delay *= 2
                 else:
                     raise
 
-    def username_from_repo(self, repo):
+    def username_from_repo(self, repo_url):
         """Generate a username for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
         """
         # start with url path
-        if '://' not in repo and _ssh_repo_pat.match(repo):
+        if '://' not in repo_url and _ssh_repo_pat.match(repo_url):
             # ssh url
-            path = repo.split(':', 1)[1]
+            path = repo_url.split(':', 1)[1]
         else:
-            path = urlparse(repo).path
+            path = urlparse(repo_url).path
 
         prefix = path.strip('/').replace('/', '-').lower()
 

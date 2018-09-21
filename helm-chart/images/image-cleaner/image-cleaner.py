@@ -19,13 +19,19 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO)
 
 
-def get_inodes_used_percent(path):
+def get_used_percent(path):
     """
-    Return used_inodes / total_inodes in device containing path
-    as a percentage (100 is full, 0 is empty)
+    Return disk usage as a percentage
+
+    (100 is full, 0 is empty)
+
+    Calculated by blocks or inodes,
+    which ever reports as the most full.
     """
     stat = os.statvfs(path)
-    return 100 * (1 - float(stat.f_favail) / float(stat.f_files))
+    inodes_avail = stat.f_favail / stat.f_files
+    blocks_avail = stat.f_bavail / stat.f_blocks
+    return 100 * (1 - min(blocks_avail, inodes_avail))
 
 
 def image_key(image):
@@ -85,18 +91,18 @@ def main():
 
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
     delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
-    inode_gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
-    inode_gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
+    gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
+    gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
-    logging.info(f'Pruning docker images when {path_to_check} has {inode_gc_high}% inodes used')
+    logging.info(f'Pruning docker images when {path_to_check} has {gc_high}% inodes or blocks used')
 
     while True:
-        inodes_used = get_inodes_used_percent(path_to_check)
-        logging.info(f'{inodes_used:.1f}% inodes used')
-        if inodes_used < inode_gc_high:
-            # Do nothing! We have enough inodes
+        used = get_used_percent(path_to_check)
+        logging.info(f'{used:.1f}% used')
+        if used < gc_high:
+            # Do nothing! We have enough space
             pass
         else:
             images = get_docker_images(client)
@@ -112,9 +118,13 @@ def main():
                 logging.info(f"Cordoning node {node}")
                 cordon(kube, node)
 
-            while images and get_inodes_used_percent(path_to_check) > inode_gc_low:
+            deleted = 0
+
+            while images and get_used_percent(path_to_check) > gc_low:
                 # Ensure the node is still cordoned
-                cordon(kube, node)
+                if node:
+                    logging.info(f"Cordoning node {node}")
+                    cordon(kube, node)
                 # Remove biggest image
                 image = images.pop(0)
                 if image.tags:
@@ -126,7 +136,7 @@ def main():
                 gb = image.attrs['Size'] / (2**30)
                 logging.info(f'Removing {name} (size={gb:.2f}GB)')
                 try:
-                    client.images.remove(image=image.id)
+                    client.images.remove(image=image.id, force=True)
                     logging.info(f'Removed {name}')
                     # Delay between deletions.
                     # A sleep here avoids monopolizing the Docker API with deletions.
@@ -144,6 +154,8 @@ def main():
                     logging.warning(f'Timeout removing {name}')
                     # Delay longer after a timeout, which indicates that Docker is overworked
                     time.sleep(max(delay, 30))
+                else:
+                    deleted += 1
 
             if node:
                 logging.info(f"Uncordoning node {node}")

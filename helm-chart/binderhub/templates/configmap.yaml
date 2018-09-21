@@ -19,6 +19,9 @@ data:
   {{ if .Values.googleAnalyticsDomain -}}
   binder.google-analytics-domain: {{ .Values.googleAnalyticsDomain | quote }}
   {{- end }}
+  {{ if .Values.extraFooterScripts }}
+  binder.extra-footer-scripts: {{ toJson .Values.extraFooterScripts | quote }}
+  {{- end }}
   binder.cors: {{ toJson .Values.cors | quote }}
   binder.per-repo-quota: {{ .Values.perRepoQuota | quote }}
   binder.registry.prefix: {{ .Values.registry.prefix | quote }}
@@ -30,12 +33,14 @@ data:
   binder.appendix: {{ .Values.build.appendix | quote }}
   {{- end }}
   binder.log-tail-lines: {{ .Values.build.logTailLines | quote }}
+  binder.build-max-age: {{ .Values.build.maxAge | quote }}
+  binder.build-cleanup-interval: {{ .Values.build.cleanupInterval | quote }}
 
   binder.retries.count: {{ .Values.retries.count | quote }}
   binder.retries.delay: {{ .Values.retries.delay | quote }}
 
   binder.hub-url: {{ .Values.hub.url | quote }}
-  binder.base_url: {{ .Values.baseUrl | quote }}
+  binder.base-url: {{ .Values.baseUrl | quote }}
 
   {{ if .Values.github.hostname -}}
   github.hostname: {{ .Values.github.hostname | quote }}

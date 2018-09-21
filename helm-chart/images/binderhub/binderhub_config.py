@@ -2,6 +2,7 @@ import os
 import glob
 import yaml
 
+
 def get_config(key, default=None):
     """
     Find a config item of a given name & return it
@@ -17,6 +18,7 @@ def get_config(key, default=None):
     except FileNotFoundError:
         return default
 
+
 c.BinderHub.debug = get_config('binder.debug.enabled', False)
 
 c.BinderHub.docker_image_prefix = get_config('binder.registry.prefix')
@@ -28,6 +30,14 @@ if get_config('binder.use-registry'):
 
 c.BinderHub.docker_push_secret = get_config('binder.push-secret')
 c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
+
+cleanup_interval = get_config('binder.build-cleanup-interval', None)
+if cleanup_interval is not None:
+    c.BinderHub.build_cleanup_interval = cleanup_interval
+
+max_age = get_config('binder.build-max-age', None)
+if max_age is not None:
+    c.BinderHub.build_max_age = max_age
 
 c.BinderHub.use_registry = get_config('binder.use-registry', True)
 c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
@@ -48,7 +58,9 @@ google_analytics_domain = get_config('binder.google-analytics-domain', None)
 if google_analytics_domain:
     c.BinderHub.google_analytics_domain = google_analytics_domain
 
-c.BinderHub.base_url = get_config('binder.base_url')
+c.BinderHub.extra_footer_scripts = get_config('binder.extra-footer-scripts', {})
+
+c.BinderHub.base_url = get_config('binder.base-url')
 
 if get_config('dind.enabled', False):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(

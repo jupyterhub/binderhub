@@ -157,11 +157,13 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=v0.1.0-85ac189  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 .. note::
 
    * ``--version`` refers to the version of the BinderHub **Helm Chart**.
+     Available versions can be found
+     `here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
    * ``name`` and ``namespace`` may be different, but we recommend using
      the same ``name`` and ``namespace`` to avoid confusion. We recommend
      something descriptive and short, such as ``binder``.
@@ -228,10 +230,12 @@ an API access token to raise your API limit to 5000 requests an hour.
 
 2. Store your new token somewhere secure (e.g. keychain, netrc, etc.)
 
-3. Before running your BinderHub server, run the following::
+3. Update ``secret.yaml`` by entering the following::
 
-       export GITHUB_ACCESS_TOKEN=<insert_token_value_here>
+    github:
+      accessToken: <insert_token_value_here>
 
+This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
 BinderHub will automatically use the token stored in this variable when making
 API requests to GitHub. See the `GitHub authentication documentation
 <https://developer.github.com/v3/guides/getting-started/#authentication>`_ for

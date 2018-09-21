@@ -181,12 +181,8 @@ class BuildHandler(BaseHandler):
                 repo, ref, etc.)
 
         """
-        # re-extract spec from request.path
-        # get the original, raw spec, without tornado's unquoting
-        # this is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'
         prefix = '/build/' + provider_prefix
-        idx = self.request.path.index(prefix)
-        spec = self.request.path[idx + len(prefix) + 1:]
+        spec = self.get_spec_from_request(prefix)
 
         # set up for sending event streams
         self.set_header('content-type', 'text/event-stream')
@@ -220,12 +216,12 @@ class BuildHandler(BaseHandler):
             })
             return
 
-        repo = self.repo = provider.get_repo_url()
+        repo_url = self.repo_url = provider.get_repo_url()
 
         # labels to apply to build/launch metrics
         self.metric_labels = {
             'provider': provider.name,
-            'repo': repo,
+            'repo': repo_url,
         }
 
         try:
@@ -297,7 +293,7 @@ class BuildHandler(BaseHandler):
         )
         appendix = self.settings['appendix'].format(
             binder_url=binder_url,
-            repo_url=repo,
+            repo_url=repo_url,
         )
 
         self.build = build = BuildClass(
@@ -305,7 +301,7 @@ class BuildHandler(BaseHandler):
             api=kube,
             name=build_name,
             namespace=self.settings["build_namespace"],
-            git_url=repo,
+            repo_url=repo_url,
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
@@ -429,8 +425,8 @@ class BuildHandler(BaseHandler):
         # That would be hard to do without in-memory state.
         if quota and matching_pods >= quota:
             app_log.error("%s has exceeded quota: %s/%s (%s total)",
-                self.repo, matching_pods, quota, total_pods)
-            await self.fail("Too many users running %s! Try again soon." % self.repo)
+                self.repo_url, matching_pods, quota, total_pods)
+            await self.fail("Too many users running %s! Try again soon." % self.repo_url)
             return
 
         if quota and matching_pods >= 0.5 * quota:
@@ -438,7 +434,7 @@ class BuildHandler(BaseHandler):
         else:
             log = app_log.info
         log("Launching pod for %s: %s other pods running this repo (%s total)",
-            self.repo, matching_pods, total_pods)
+            self.repo_url, matching_pods, total_pods)
 
         await self.emit({
             'phase': 'launching',
@@ -449,7 +445,7 @@ class BuildHandler(BaseHandler):
         retry_delay = launcher.retry_delay
         for i in range(launcher.retries):
             launch_starttime = time.perf_counter()
-            username = launcher.username_from_repo(self.repo)
+            username = launcher.username_from_repo(self.repo_url)
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username)
                 LAUNCH_TIME.labels(
