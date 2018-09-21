@@ -96,7 +96,8 @@ class BinderHub(Application):
 
         Omit the <script> tag. This should be primarily used for
         analytics code.
-        """
+        """,
+        config=True
     )
 
     base_url = Unicode(
