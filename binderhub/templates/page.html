@@ -55,7 +55,7 @@
   {% if extra_footer_scripts %}
   {% for script in extra_footer_scripts|dictsort %}
   <script>
-    {{ script }}
+    {{ script|safe }}
   </script>
   {% endfor %}
   {% endif %}
