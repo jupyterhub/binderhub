@@ -34,7 +34,7 @@ class Build:
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, git_url, ref, git_credentials, builder_image,
+    def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, builder_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
                  appendix='', log_tail_lines=100):
         self.q = q
