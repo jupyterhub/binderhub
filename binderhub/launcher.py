@@ -91,8 +91,8 @@ class Launcher(LoggingConfigurable):
         body = json.loads(resp.body.decode('utf-8'))
         return body
 
-    def username_from_repo(self, repo_url):
-        """Generate a username or server name for a git repo url
+    def unique_name_from_repo(self, repo_url):
+        """Generate a unique name for a git repo url
 
         e.g. minrk-binder-example-abc123
         from https://github.com/minrk/binder-example.git
@@ -145,7 +145,7 @@ class Launcher(LoggingConfigurable):
                     username, e, body,
                 )
                 raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
-        elif server_name == '':
+        elif server_name:
             # authentication is enabled but not named servers
             # check if user have a running server ('')
             user_data = await self.get_user_data(username)

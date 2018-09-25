@@ -453,12 +453,12 @@ class BuildHandler(BaseHandler):
                 username = user_model['name']
                 if self.settings['use_named_servers']:
                     # user can launch multiple servers, so create a unique server name
-                    server_name = launcher.username_from_repo(self.repo_url)
+                    server_name = launcher.unique_name_from_repo(self.repo_url)
                 else:
                     server_name = ''
             else:
                 # create a name for temporary user
-                username = launcher.username_from_repo(self.repo_url)
+                username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username,
