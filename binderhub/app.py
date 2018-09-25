@@ -107,11 +107,6 @@ class BinderHub(Application):
         start the new server for the logged in user.""",
         config=True)
 
-    use_oauth = Bool(
-        False,
-        help="""If oauth is used, use `HubOAuth` as hub authentication class instead of `HubAuth`.""",
-        config=True)
-
     use_named_servers = Bool(
         False,
         help="Use named servers when authentication is enabled.",
@@ -502,10 +497,9 @@ class BinderHub(Application):
             'template_variables': self.template_variables,
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
-            'use_oauth': self.use_oauth,
             'use_named_servers': self.use_named_servers,
         })
-        if self.use_oauth:
+        if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
 
         handlers = [
@@ -540,7 +534,7 @@ class BinderHub(Application):
                                  tornado.web.StaticFileHandler,
                                  {'path': self.extra_static_path}))
         handlers = self.add_url_prefix(self.base_url, handlers)
-        if self.use_oauth:
+        if self.auth_enabled:
             oauth_redirect_uri = os.getenv('JUPYTERHUB_OAUTH_CALLBACK_URL') or \
                                  url_path_join(self.base_url, 'oauth_callback')
             oauth_redirect_uri = urlparse(oauth_redirect_uri).path

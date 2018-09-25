@@ -63,7 +63,6 @@ c.BinderHub.base_url = get_config('binder.base-url')
 auth_enabled = get_config('binder.auth-enabled', False)
 if auth_enabled is True:
     c.BinderHub.auth_enabled = auth_enabled
-    c.BinderHub.use_oauth = get_config('binder.use-oauth', False)
     c.BinderHub.use_named_servers = get_config('binder.use-named-servers', False)
 
 if get_config('dind.enabled', False):

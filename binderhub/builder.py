@@ -102,7 +102,6 @@ class BuildHandler(BaseHandler):
         self.finish()
 
     def initialize(self):
-        super().initialize()
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 

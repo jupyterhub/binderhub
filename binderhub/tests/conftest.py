@@ -132,6 +132,7 @@ def _binderhub_auth_config():
     os.environ['JUPYTERHUB_API_URL'] = os.environ['JUPYTERHUB_URL'] + '/hub/api/'
     os.environ['JUPYTERHUB_SERVICE_PREFIX'] = cfg.BinderHub.base_url
     os.environ['JUPYTERHUB_BASE_URL'] = '/'
+    os.environ['JUPYTERHUB_CLIENT_ID'] = 'binder-oauth-client-test'
     return cfg
 
 

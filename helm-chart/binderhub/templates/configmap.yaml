@@ -43,11 +43,6 @@ data:
   binder.auth-enabled: "false"
   {{- else }}
   binder.auth-enabled: "true"
-  {{- if and .Values.jupyterhub.hub.services.binder.oauth_client_id }}
-  binder.use-oauth: "true"
-  {{- else }}
-  binder.use-oauth: "false"
-  {{- end }}
   binder.use-named-servers: {{ .Values.jupyterhub.hub.allowNamedServers | quote }}
   {{- end }}
 

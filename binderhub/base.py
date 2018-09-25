@@ -2,16 +2,11 @@
 
 from http.client import responses
 from tornado import web
-from jupyterhub.services.auth import HubAuthenticated, HubOAuth
+from jupyterhub.services.auth import HubOAuthenticated
 
 
-class BaseHandler(HubAuthenticated, web.RequestHandler):
+class BaseHandler(HubOAuthenticated, web.RequestHandler):
     """HubAuthenticated by default allows all successfully identified users (see allow_all property)."""
-
-    def initialize(self):
-        super().initialize()
-        if self.settings['use_oauth']:
-            self.hub_auth = HubOAuth()
 
     def get_current_user(self):
         if not self.settings['auth_enabled']:
