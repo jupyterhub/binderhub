@@ -1,9 +1,9 @@
 """Test authentication"""
 import pytest
-from urllib.parse import quote
 from .utils import async_requests
 
 
+@pytest.mark.parametrize('app', [True], indirect=['app'])
 @pytest.mark.parametrize(
     'path,authenticated',
     [
@@ -14,14 +14,16 @@ from .utils import async_requests
 )
 @pytest.mark.gen_test
 @pytest.mark.auth_test
-def test_auth(app_with_auth, path, authenticated):
-    url = f'{app_with_auth.service_url}{path}'
+def test_auth(app, path, authenticated):
+    service_path = app.base_url.lstrip('/')
+    service_url = f'{app.hub_url}{service_path}'
+    url = f'{service_url}{path}'
+    async_requests.set_session()
     r = yield async_requests.get(url)
-    assert r.status_code == 200
+    assert r.status_code == 200, f"{r.status_code} {url}"
     if authenticated:
-        next_url = f'{app_with_auth.base_url}{path}'
-        assert r.url == f'{app_with_auth.hub_url}hub/login?next={quote(next_url, safe="")}'
-
-        r = yield async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
-        assert r.status_code == 200
+        login_url = r.url
+        r = yield async_requests.post(login_url, data={'username': 'dummy', 'password': 'dummy'})
+        assert r.status_code == 200, f"{r.status_code} {login_url}"
     assert r.url == url
+    async_requests.delete_session()

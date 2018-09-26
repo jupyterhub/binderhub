@@ -23,6 +23,7 @@ from .utils import MockAsyncHTTPClient
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
+minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
 
 TEST_NAMESPACE = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
 KUBERNETES_AVAILABLE = False
@@ -118,24 +119,6 @@ def _binderhub_config():
     return cfg
 
 
-@pytest.fixture(scope='session')
-def _binderhub_auth_config():
-    cfg = _binderhub_config()
-    cfg.BinderHub.base_url = '/services/binder/'
-    cfg.BinderHub.auth_enabled = True
-    cfg.BinderHub.use_oauth = False
-    cfg.BinderHub.use_named_servers = False
-
-    os.environ['JUPYTERHUB_API_TOKEN'] = cfg.BinderHub.hub_api_token
-    os.environ['JUPYTERHUB_URL'] = cfg.BinderHub.hub_url
-    # os.environ['JUPYTERHUB_HOST'] = cfg.BinderHub.hub_url
-    os.environ['JUPYTERHUB_API_URL'] = os.environ['JUPYTERHUB_URL'] + '/hub/api/'
-    os.environ['JUPYTERHUB_SERVICE_PREFIX'] = cfg.BinderHub.base_url
-    os.environ['JUPYTERHUB_BASE_URL'] = '/'
-    os.environ['JUPYTERHUB_CLIENT_ID'] = 'binder-oauth-client-test'
-    return cfg
-
-
 class RemoteBinderHub(object):
     """Mock class for the app fixture when Binder is remote
 
@@ -180,6 +163,10 @@ def app(request, io_loop, _binderhub_config):
         return app
 
 
+    if hasattr(request, 'param') and request.param is True:
+        # load conf for auth test
+        cfg = PyFileConfigLoader(minikube_testing_auth_config).load_config()
+        _binderhub_config.merge(cfg)
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
@@ -193,15 +180,7 @@ def app(request, io_loop, _binderhub_config):
 
     request.addfinalizer(cleanup)
     # convenience for accessing binder in tests
-    bhub.url = f'http://127.0.0.1:{bhub.port}{bhub.base_url}'
-    return bhub
-
-
-@pytest.fixture
-def app_with_auth(request, io_loop, _binderhub_auth_config):
-    bhub = app(request, io_loop, _binderhub_auth_config)
-    service_path = os.environ['JUPYTERHUB_SERVICE_PREFIX'].lstrip('/')
-    bhub.service_url = f'{bhub.hub_url}{service_path}'
+    bhub.url = f'http://127.0.0.1:{bhub.port}{bhub.base_url}'.rstrip('/')
     return bhub
 
 

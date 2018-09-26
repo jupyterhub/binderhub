@@ -1,3 +1,5 @@
+cull:
+  users: false
 hub:
   services:
     binder:
