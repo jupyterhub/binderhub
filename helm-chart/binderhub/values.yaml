@@ -92,9 +92,9 @@ jupyterhub:
   cull:
     enabled: true
     users: true
+  rbac:
+    enabled: true
   hub:
-    rbac:
-      enabled: true
     extraConfig:
       binder: |
         import os
