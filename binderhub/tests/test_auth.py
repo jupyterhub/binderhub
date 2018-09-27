@@ -3,14 +3,14 @@ import pytest
 from .utils import async_requests
 
 
-@pytest.mark.parametrize('app', [True], indirect=['app'])
 @pytest.mark.parametrize(
-    'path,authenticated',
+    'app,path,authenticated',
     [
-        ('', True),  # main page
-        ('v2/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd', True),
-        ('metrics', False),
-    ]
+        (True, '', True),  # main page
+        (True, 'v2/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd', True),
+        (True, 'metrics', False),
+    ],
+    indirect=['app']  # send param True to app fixture, so that it loads authentication configuration
 )
 @pytest.mark.gen_test
 @pytest.mark.auth_test
