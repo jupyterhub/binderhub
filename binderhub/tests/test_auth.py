@@ -3,6 +3,15 @@ import pytest
 from .utils import async_requests
 
 
+@pytest.fixture
+def use_session():
+    # setup
+    async_requests.set_session()
+    yield "run the test function"
+    # teardown
+    async_requests.delete_session()
+
+
 @pytest.mark.parametrize(
     'app,path,authenticated',
     [
@@ -14,11 +23,10 @@ from .utils import async_requests
 )
 @pytest.mark.gen_test
 @pytest.mark.auth_test
-def test_auth(app, path, authenticated):
+def test_auth(app, path, authenticated, use_session):
     service_path = app.base_url.lstrip('/')
     service_url = f'{app.hub_url}{service_path}'
     url = f'{service_url}{path}'
-    async_requests.set_session()
     r = yield async_requests.get(url)
     assert r.status_code == 200, f"{r.status_code} {url}"
     if authenticated:
@@ -26,4 +34,3 @@ def test_auth(app, path, authenticated):
         r = yield async_requests.post(login_url, data={'username': 'dummy', 'password': 'dummy'})
         assert r.status_code == 200, f"{r.status_code} {login_url}"
     assert r.url == url
-    async_requests.delete_session()
