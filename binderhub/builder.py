@@ -104,6 +104,8 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             self.registry = self.settings['registry']
 
+        self.event_log = self.settings['event_log']
+
     def _generate_build_name(self, build_slug, ref, prefix='', limit=63, ref_length=6):
         """
         Generate a unique build name with a limited character length..
@@ -273,6 +275,11 @@ class BuildHandler(BaseHandler):
                 'message': 'Found built image, launching...\n'
             })
             await self.launch(kube)
+            self.event_log.emit_launch(
+                provider=provider.name,
+                spec=spec,
+                status='success'
+            )
             return
 
         # Prepare to build
@@ -374,6 +381,11 @@ class BuildHandler(BaseHandler):
             BUILD_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - build_starttime)
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
+            self.event_log.emit_launch(
+                provider=provider.name,
+                spec=spec,
+                status='success'
+            )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,

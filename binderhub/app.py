@@ -30,6 +30,7 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
+from .events import EventLog
 
 
 class BinderHub(Application):
@@ -470,6 +471,8 @@ class BinderHub(Application):
             hub_api_token=self.hub_api_token,
         )
 
+        self.event_log = EventLog(parent=self)
+
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -497,6 +500,7 @@ class BinderHub(Application):
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
+            'event_log': self.event_log
         })
 
         handlers = [
