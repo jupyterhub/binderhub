@@ -31,6 +31,7 @@ class EventLog(Configurable):
     Send structured events to a logging sink
     """
     handlers_maker = Callable(
+        None,
         config=True,
         allow_none=True,
         help="""
