@@ -30,11 +30,11 @@ class EventLog(Configurable):
     """
     Send structured events to a logging sink
     """
-    handler_maker = Callable(
+    handlers_maker = Callable(
         config=True,
         allow_none=True,
         help="""
-        Callable that returns a logging.Handler instance to send events to.
+        Callable that returns a list of logging.Handler instances to send events to.
 
         When set to None (the default), events are discarded.
         """
@@ -57,18 +57,20 @@ class EventLog(Configurable):
         self.log = logging.getLogger(__name__)
         # We don't want events to show up in the default logs
         self.log.propagate = False
+        self.log.setLevel(logging.INFO)
 
-        if self.handler_maker:
-            self.handler = self.handler_maker(self)
+        if self.handlers_maker:
+            self.handlers = self.handlers_maker(self)
             formatter = jsonlogger.JsonFormatter(json_serializer=_skip_message)
-            self.handler.setFormatter(formatter)
-            self.log.addHandler(self.handler)
+            for handler in self.handlers:
+                handler.setFormatter(formatter)
+                self.log.addHandler(handler)
 
     def _emit(self, schema, version, event):
         """
         Emit event with given schema / version in a capsule.
         """
-        if not self.handler:
+        if not self.handlers:
             # If we don't have a handler setup, ignore everything
             return
         capsule = {
