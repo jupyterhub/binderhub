@@ -280,6 +280,9 @@ class BinderHub(Application):
         help="""API token for talking to the JupyterHub API""",
         config=True,
     )
+    @default('hub_api_token')
+    def _default_hub_token(self):
+        return os.environ.get('JUPYTERHUB_API_TOKEN', '')
 
     hub_url = Unicode(
         help="""
