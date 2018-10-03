@@ -19,4 +19,5 @@ ADD helm-chart/images/binderhub/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir *.whl -r /tmp/requirements.txt
 
 CMD ["python3", "-m", "binderhub"]
+ENV PYTHONUNBUFFERED=1
 EXPOSE 8585
