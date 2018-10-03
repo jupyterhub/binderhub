@@ -9,12 +9,15 @@ resources:
 cors: &cors
   allowOrigin: '*'
 
-hub:
-  url: http://192.168.99.100:30902
-
 service:
   type: NodePort
   nodePort: 30901
+
+config:
+  BinderHub:
+    hub_url: http://192.168.99.100:30902
+    use_registry: false
+    log_level: 10
 
 jupyterhub:
   custom:

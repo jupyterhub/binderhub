@@ -19,7 +19,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
-      nodeSelector: {{ toJson .Values.build.nodeSelector }}
+      nodeSelector: {{ toJson .Values.config.BinderHub.build_node_selector  }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}

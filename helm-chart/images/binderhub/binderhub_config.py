@@ -1,99 +1,81 @@
+from collections import Mapping
 import os
-import glob
+from functools import lru_cache
+
 import yaml
 
-
-def get_config(key, default=None):
-    """
-    Find a config item of a given name & return it
-
-    Parses everything as YAML, so lists and dicts are available too
-    """
-    path = os.path.join('/etc/binderhub/config', key)
-    try:
-        with open(path) as f:
-            data = yaml.safe_load(f)
-            print(key, data)
-            return data
-    except FileNotFoundError:
-        return default
-
-
-c.BinderHub.debug = get_config('binder.debug.enabled', False)
-
-c.BinderHub.docker_image_prefix = get_config('binder.registry.prefix')
-if get_config('binder.use-registry'):
-    c.BinderHub.docker_registry_host = get_config('binder.registry.host')
-    if get_config('binder.registry.auth-host'):
-        c.BinderHub.docker_auth_host = get_config('binder.registry.auth-host')
-    c.BinderHub.docker_token_url = get_config('binder.registry.auth-token-url')
-
-c.BinderHub.docker_push_secret = get_config('binder.push-secret')
-c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
-
-cleanup_interval = get_config('binder.build-cleanup-interval', None)
-if cleanup_interval is not None:
-    c.BinderHub.build_cleanup_interval = cleanup_interval
-
-max_age = get_config('binder.build-max-age', None)
-if max_age is not None:
-    c.BinderHub.build_max_age = max_age
-
-c.BinderHub.use_registry = get_config('binder.use-registry', True)
-c.BinderHub.per_repo_quota = get_config('binder.per-repo-quota', 0)
-
-c.BinderHub.builder_image_spec = get_config('binder.repo2docker-image')
-c.BinderHub.build_node_selector = get_config('binder.build-node-selector', {})
-c.BinderHub.log_tail_lines = get_config('binder.log-tail-lines', 100)
-
-if os.path.exists('/etc/binderhub/config/binder.appendix'):
-    with open('/etc/binderhub/config/binder.appendix') as f:
-        c.BinderHub.appendix = f.read()
-
-c.BinderHub.hub_url = os.environ['JUPYTERHUB_URL'] + '/'
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
 
-c.BinderHub.google_analytics_code = get_config('binder.google-analytics-code', None)
-google_analytics_domain = get_config('binder.google-analytics-domain', None)
-if google_analytics_domain:
-    c.BinderHub.google_analytics_domain = google_analytics_domain
 
-c.BinderHub.extra_footer_scripts = get_config('binder.extra-footer-scripts', {})
+def _merge_dictionaries(a, b):
+    """Merge two dictionaries recursively.
 
-c.BinderHub.base_url = get_config('binder.base-url')
+    Simplified From https://stackoverflow.com/a/7205107
+    """
+    merged = a.copy()
+    for key in b:
+        if key in a:
+            if isinstance(a[key], Mapping) and isinstance(b[key], Mapping):
+                merged[key] = _merge_dictionaries(a[key], b[key])
+            else:
+                merged[key] = b[key]
+        else:
+            merged[key] = b[key]
+    return merged
 
-auth_enabled = get_config('binder.auth-enabled', False)
-if auth_enabled is True:
-    c.BinderHub.auth_enabled = auth_enabled
-    c.BinderHub.use_named_servers = get_config('binder.use-named-servers', False)
+# memoize so we only load config once
+@lru_cache()
+def _load_values():
+    """Load configuration from disk
 
-if get_config('dind.enabled', False):
+    Memoized to only load once
+    """
+    cfg = {}
+    for source in ('config', 'secret'):
+        path = f"/etc/binderhub/{source}/values.yaml"
+        if os.path.exists(path):
+            print(f"Loading {path}")
+            with open(path) as f:
+                values = yaml.safe_load(f)
+            cfg = _merge_dictionaries(cfg, values)
+        else:
+            print(f"No config at {path}")
+    return cfg
+
+def get_value(key, default=None):
+    """
+    Find an item in values.yaml of a given name & return it
+
+    get_value("a.b.c") returns values['a']['b']['c']
+    """
+    # start at the top
+    value = _load_values()
+    # resolve path in yaml
+    for level in key.split('.'):
+        if not isinstance(value, dict):
+            # a parent is a scalar or null,
+            # can't resolve full path
+            return default
+        if level not in value:
+            return default
+        else:
+            value = value[level]
+    return value
+
+# FIXME: remove debug
+import pprint
+pprint.pprint(_load_values())
+
+# load config from values.yaml
+for section, sub_cfg in get_value('config', {}).items():
+    c[section].update(sub_cfg)
+
+if get_value('dind.enabled', False) and get_value('dind.hostSocketDir'):
     c.BinderHub.build_docker_host = 'unix://{}/docker.sock'.format(
-        get_config('dind.host-socket-dir')
+        get_value('dind.hostSocketDir')
     )
 
-github_hostname = get_config('github.hostname')
-if github_hostname:
-    c.GitHubRepoProvider.hostname = github_hostname
-
-gitlab_hostname = get_config('gitlab.hostname')
-if gitlab_hostname:
-    c.GitHubRepoProvider.hostname = gitlab_hostname
-
-template_variables = get_config('template.variables')
-if template_variables:
-    c.BinderHub.template_variables = template_variables
-template_path = get_config('template.path')
-if template_path:
-    c.BinderHub.template_path = template_path
-    static_path = get_config('template.static.path')
-    if static_path:
-        c.BinderHub.extra_static_path = static_path
-    static_url_prefix = get_config('template.static.url-prefix')
-    if static_url_prefix:
-        c.BinderHub.extra_static_url_prefix = static_url_prefix
-
-cors = get_config('binder.cors', {})
+cors = get_value('cors', {})
 allow_origin = cors.get('allowOrigin')
 if allow_origin:
     c.BinderHub.tornado_settings.update({
@@ -102,13 +84,10 @@ if allow_origin:
         }
     })
 
-retries = get_config('binder.retries.count', None)
-if retries is not None:
-    c.Launcher.retries = retries
+if os.getenv('BUILD_NAMESPACE'):
+    c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
-retry_delay = get_config('binder.retries.delay', None)
-if retry_delay is not None:
-    c.Launcher.retry_delay = retry_delay
-
-for path in glob.glob('/etc/binderhub/config/extra-config.*.py'):
-    load_subconfig(path)
+# load extra config snippets
+for key, snippet in sorted((get_value('extraConfig') or {}).items()):
+    print("Loading extra config: {}".format(key))
+    exec(snippet)

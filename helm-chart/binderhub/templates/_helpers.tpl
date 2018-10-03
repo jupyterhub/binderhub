@@ -16,6 +16,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "imagePullSecret" }}
-{{- $authHost := default .Values.registry.host .Values.registry.authHost -}}
+{{- $cfg := .Values.config.BinderHub }}
+{{- $authHost := default $cfg.docker_host $cfg.docker_auth_host -}}
 {{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" $authHost (printf "%s:%s" .Values.registry.username .Values.registry.password | b64enc) | b64enc }}
 {{- end }}

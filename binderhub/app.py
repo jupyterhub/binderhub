@@ -185,7 +185,7 @@ class BinderHub(Application):
     )
 
     docker_push_secret = Unicode(
-        'docker-push-secret',
+        'binder-push-secret',
         allow_none=True,
         help="""
         A kubernetes secret object that provides credentials for pushing built images.

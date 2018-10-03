@@ -1,6 +1,3 @@
-debug:
-  enabled: false
-
 pdb:
   enabled: true
   minAvailable: 1
@@ -15,39 +12,11 @@ resources:
 rbac:
   enabled: true
 
-retries:
-  count: 4
-  delay: 4
-
-baseUrl: /
 nodeSelector: {}
 
 image:
   name: jupyterhub/k8s-binderhub
   tag: local
-
-build:
-  repo2dockerImage: jupyter/repo2docker:2ebc87b
-  nodeSelector: {}
-  appendix:
-  logTailLines: 100
-  # 14400 is 4 hours
-  maxAge: 14400
-  cleanupInterval: 120
-
-perRepoQuota: 100
-
-googleAnalyticsCode:
-googleAnalyticsDomain:
-
-registry:
-  enabled: false
-  prefix: binderhub-local/
-  host: https://gcr.io
-  authHost:
-  authTokenUrl: https://gcr.io/v2/token?service=gcr.io
-  username: _json_key
-  password:
 
 service:
   type: LoadBalancer
@@ -56,18 +25,8 @@ service:
     prometheus.io/scrape: 'true'
   nodePort:
 
-github:
-  hostname:
-  # either id + secret...
-  clientId:
-  clientSecret:
-  # ...or access_token
-  accessToken:
-
-gitlab:
-  hostname:
-  accessToken:
-  privateToken:
+config:
+  BinderHub: {}
 
 extraConfig: {}
 
@@ -84,9 +43,6 @@ extraConfig: {}
 
 cors: &cors
   allowOrigin:
-
-hub:
-  url:
 
 jupyterhub:
   cull:
@@ -143,7 +99,7 @@ jupyterhub:
     type: custom
     custom:
       # disable login (users created exclusively via API)
-      className: "nullauthenticator.NullAuthenticator"
+      className: nullauthenticator.NullAuthenticator
   singleuser:
     # start jupyter notebook
     cmd: jupyter-notebook
@@ -201,15 +157,6 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
-
-template:
-  variables: {}
-  path:
-  # to use extra static files in templates.
-  # they are looked up after binder base static files.
-  static:
-    path:
-    urlPrefix: extra_static/
 
 initContainers: []
 extraVolumes: []
