@@ -6,20 +6,37 @@ from traitlets.config import Configurable
 import logging
 from datetime import datetime
 from pythonjsonlogger import jsonlogger
-from traitlets import Instance
+from traitlets import TraitType
 import json
+import six
+
+
+class Callable(TraitType):
+    """
+    A trait which is callable.
+
+    Classes are callable, as are instances
+    with a __call__() method.
+    """
+    info_text = 'a callable'
+    def validate(self, obj, value):
+        if six.callable(value):
+            return value
+        else:
+            self.error(obj, value)
 
 
 class EventLog(Configurable):
     """
     Send structured events to a logging sink
     """
-    handler = Instance(
-        klass=logging.Handler,
+    handler_maker = Callable(
         config=True,
         allow_none=True,
         help="""
-        logging.Handler to send events to.
+        Callable that returns a logging.Handler instance to send events to.
+
+        When set to None (the default), events are discarded.
         """
     )
 
@@ -41,7 +58,8 @@ class EventLog(Configurable):
         # We don't want events to show up in the default logs
         self.log.propagate = False
 
-        if self.handler:
+        if self.handler_maker:
+            self.handler = self.handler_maker(self)
             formatter = jsonlogger.JsonFormatter(json_serializer=_skip_message)
             self.handler.setFormatter(formatter)
             self.log.addHandler(self.handler)
