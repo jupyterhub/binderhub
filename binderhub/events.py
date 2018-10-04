@@ -89,7 +89,7 @@ class EventLog(Configurable):
         This helps with validation too. Will eventually be
         deprecated in favor of schema validation in _emit.
         """
-        self._emit('binderhub.jupyter.io/launch', 1, {
+        self._emit('binderhub.jupyter.org/launch', 1, {
             'provider': provider,
             'spec': spec,
             'status': status

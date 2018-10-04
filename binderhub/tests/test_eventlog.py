@@ -23,7 +23,7 @@ def test_emit_launch():
         # Remove timestamp from capsule when checking equality, since it is gonna vary
         del event_capsule['timestamp']
         assert event_capsule == {
-            'schema': 'binderhub.jupyter.io/launch',
+            'schema': 'binderhub.jupyter.org/launch',
             'version': 1,
             'event': {'provider': 'GitHub', 'spec': 'test/test/master', 'status': 'success'}
         }
