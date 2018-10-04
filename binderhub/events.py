@@ -25,6 +25,16 @@ class Callable(TraitType):
         else:
             self.error(obj, value)
 
+def _skip_message(record, **kwargs):
+    """
+    Remove 'message' from log record.
+
+    It is always emitted with 'null', and we do not want it,
+    since we are always emitting events only
+    """
+    del record['message']
+    return json.dumps(record, **kwargs)
+
 
 class EventLog(Configurable):
     """
@@ -43,17 +53,6 @@ class EventLog(Configurable):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        def _skip_message(record, **kwargs):
-            """
-            Remove 'message' from log record.
-
-            It is always emitted with 'null', and we do not want it,
-            since we are always emitting events only
-            """
-            del record['message']
-            return json.dumps(record, **kwargs)
-
 
         self.log = logging.getLogger(__name__)
         # We don't want events to show up in the default logs
