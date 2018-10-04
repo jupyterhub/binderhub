@@ -70,7 +70,7 @@ class EventLog(Configurable):
         """
         Emit event with given schema / version in a capsule.
         """
-        if not self.handlers:
+        if not self.handlers_maker:
             # If we don't have a handler setup, ignore everything
             return
         capsule = {
