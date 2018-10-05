@@ -28,8 +28,8 @@ function add_binder_buttons() {
     if ($("#ipython_notebook").length && $("#ipython_notebook>a").length) {
         s.append(copy_button.replace(/{name}/g, 'session').replace('{url}', window.location.origin.concat($("#ipython_notebook>a").attr('href'))));
     }
-    // add buttons after span.flex-spacer
-    s.insertAfter($("#header-container>.flex-spacer"));
+    // add buttons at the end of header-container
+    $("#header-container").append(s);
 }
 
 add_binder_buttons();
