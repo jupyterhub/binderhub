@@ -74,7 +74,7 @@ class EventLog(Configurable):
             # If we don't have a handler setup, ignore everything
             return
         capsule = {
-            'timestamp': datetime.now().isoformat() + 'Z',
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
             # FIXME: Validate the schema!
             'schema': schema,
             'version': version
