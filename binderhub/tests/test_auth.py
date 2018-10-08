@@ -29,8 +29,10 @@ def test_auth(app, path, authenticated, use_session):
     url = f'{service_url}{path}'
     r = yield async_requests.get(url)
     assert r.status_code == 200, f"{r.status_code} {url}"
+    r2 = yield async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
     if authenticated:
-        login_url = r.url
-        r = yield async_requests.post(login_url, data={'username': 'dummy', 'password': 'dummy'})
-        assert r.status_code == 200, f"{r.status_code} {login_url}"
-    assert r.url == url
+        assert r2.status_code == 200, f"{r2.status_code} {r.url}"
+    else:
+        # not allowed
+        assert r2.status_code == 405, f"{r2.status_code} {r.url}"
+    assert r2.url == url
