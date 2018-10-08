@@ -3,7 +3,7 @@
 set -ex
 ./testing/minikube/install-hub --auth
 # DEBUG: give the hub a chance to wake up
-sleep 10
-export ASYNC_TEST_TIMEOUT=15
+sleep 30
+export ASYNC_TEST_TIMEOUT=30
 pytest --log-cli-level=10 -vsx --cov binderhub/tests/test_auth.py
 helm delete --purge binder-test-hub
