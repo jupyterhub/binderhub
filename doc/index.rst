@@ -60,4 +60,5 @@ Customization and more information
    customizing
    api
    known-deployments
+   eventlogging
    reference/ref-index.rst

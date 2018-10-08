@@ -30,5 +30,6 @@ setup(
         'docker',
         'jinja2',
         'prometheus_client',
+        'python-json-logger',
     ]
 )
