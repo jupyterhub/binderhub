@@ -31,6 +31,7 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
+from .events import EventLog
 
 
 class BinderHub(Application):
@@ -83,6 +84,20 @@ class BinderHub(Application):
 
         By default this is set to 'auto', which sets it up for current domain and all
         subdomains. This can be set to a more restrictive domain here for better privacy
+        """,
+        config=True
+    )
+
+    extra_footer_scripts = Dict(
+        {},
+        help="""
+        Extra bits of JavaScript that should be loaded in footer of each page.
+
+        Only the values are set up as scripts. Keys are used only
+        for sorting.
+
+        Omit the <script> tag. This should be primarily used for
+        analytics code.
         """,
         config=True
     )
@@ -292,7 +307,7 @@ class BinderHub(Application):
     )
 
     builder_image_spec = Unicode(
-        'jupyter/repo2docker:687788f',
+        'jupyter/repo2docker:2ebc87b',
         help="""
         The builder image to be used for doing builds
         """,
@@ -470,6 +485,8 @@ class BinderHub(Application):
             create_user=not self.auth_enabled,
         )
 
+        self.event_log = EventLog(parent=self)
+
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -488,6 +505,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
+            'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
@@ -498,6 +516,7 @@ class BinderHub(Application):
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_named_servers': self.use_named_servers,
+            'event_log': self.event_log
         })
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)

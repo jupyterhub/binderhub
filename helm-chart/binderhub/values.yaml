@@ -27,7 +27,7 @@ image:
   tag: local
 
 build:
-  repo2dockerImage: jupyter/repo2docker:687788f
+  repo2dockerImage: jupyter/repo2docker:2ebc87b
   nodeSelector: {}
   appendix:
   logTailLines: 100

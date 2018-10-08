@@ -18,6 +18,7 @@ install:
 - pip install -r dev-requirements.txt
 - npm install
 - npm run webpack
+- pip install .
 # sphinx requirements
 - pip install -r doc/doc-requirements.txt
 script:

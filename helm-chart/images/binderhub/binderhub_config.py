@@ -58,6 +58,8 @@ google_analytics_domain = get_config('binder.google-analytics-domain', None)
 if google_analytics_domain:
     c.BinderHub.google_analytics_domain = google_analytics_domain
 
+c.BinderHub.extra_footer_scripts = get_config('binder.extra-footer-scripts', {})
+
 c.BinderHub.base_url = get_config('binder.base-url')
 
 auth_enabled = get_config('binder.auth-enabled', False)

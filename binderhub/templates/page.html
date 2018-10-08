@@ -52,6 +52,13 @@
   }
   </script>
   {% endif %}
+  {% if extra_footer_scripts %}
+  {% for script in extra_footer_scripts|dictsort %}
+  <script>
+    {{ script[1]|safe }}
+  </script>
+  {% endfor %}
+  {% endif %}
   {% endblock body %}
 </body>
 </html>
