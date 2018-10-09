@@ -5,7 +5,6 @@ load_subconfig(os.path.join(here, 'binderhub_config.py'))
 c.BinderHub.base_url = '/services/binder/'
 c.BinderHub.auth_enabled = True
 c.BinderHub.use_named_servers = False
-c.BinderHub.builder_required = False
 
 # configuration for service authentication
 c.HubOAuth.api_token = c.BinderHub.hub_api_token
