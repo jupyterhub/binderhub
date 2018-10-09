@@ -5,5 +5,5 @@ set -ex
 # DEBUG: give the hub a chance to wake up
 sleep 30
 export ASYNC_TEST_TIMEOUT=30
-pytest --log-cli-level=10 -vsx binderhub/tests/test_auth.py --cov
+pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
 helm delete --purge binder-test-hub
