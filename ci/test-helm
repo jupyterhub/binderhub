@@ -13,10 +13,22 @@ if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
   echo -e "github:\n  accessToken: '$GITHUB_ACCESS_TOKEN'" >> helm-chart/travis-binder.yaml
 fi
 
+if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
+  openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
+  chmod 0400 travis
+  export GIT_SSH_COMMAND="ssh -i ${PWD}/travis"
+  docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
+  PUSH="--push --publish-chart"
+else
+  PUSH=""
+fi
+
 echo "building helm chart"
 cd helm-chart
-chartpress --commit-range ${TRAVIS_COMMIT_RANGE} --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
+chartpress --commit-range ${TRAVIS_COMMIT_RANGE} ${PUSH} --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
 cd ..
+# git diff will show us the result of the chartpress render.
+# This should only include the tags for chartpress images.
 git diff
 docker images | sort
 
