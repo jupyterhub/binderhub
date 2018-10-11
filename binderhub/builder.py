@@ -277,7 +277,8 @@ class BuildHandler(BaseHandler):
                 'imageName': image_name,
                 'message': 'Found built image, launching...\n'
             })
-            await self.launch(kube)
+            with LAUNCHES_INPROGRESS.track_inprogress():
+                await self.launch(kube)
             self.event_log.emit_launch(
                 provider=provider.name,
                 spec=spec,
