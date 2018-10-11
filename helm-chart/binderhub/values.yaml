@@ -92,6 +92,9 @@ jupyterhub:
   cull:
     enabled: true
     users: true
+  custom:
+    cors: *cors
+
   hub:
     rbac:
       enabled: true
@@ -101,21 +104,10 @@ jupyterhub:
         import sys
         import yaml
         from tornado import web
-        def get_config_map(key, default=None):
-            """
-            Find a configmap item of a given name & return it
 
-            Parses everything as YAML, so lists and dicts are available too
-            """
-            path = os.path.join('/etc/jupyterhub/config', key)
-            try:
-                with open(path) as f:
-                    return yaml.safe_load(f)
-            except FileNotFoundError:
-                return default
-
-        # get cors config from config-map
-        cors = get_config_map('custom.cors', {})
+        # get cors config from values.custom.cors
+        import z2jh
+        cors = z2jh.get_config('custom.cors', {})
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
@@ -144,8 +136,6 @@ jupyterhub:
               return super().start()
 
         c.JupyterHub.spawner_class = BinderSpawner
-    extraConfigMap:
-      cors: *cors
     services:
       binder:
         admin: true
