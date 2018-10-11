@@ -94,10 +94,9 @@ jupyterhub:
     users: true
   custom:
     cors: *cors
-
+  rbac:
+    enabled: true
   hub:
-    rbac:
-      enabled: true
     extraConfig:
       binder: |
         import os

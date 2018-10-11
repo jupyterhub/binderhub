@@ -23,6 +23,7 @@ from .utils import MockAsyncHTTPClient
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
+minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
 
 TEST_NAMESPACE = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
 KUBERNETES_AVAILABLE = False
@@ -162,6 +163,10 @@ def app(request, io_loop, _binderhub_config):
         return app
 
 
+    if hasattr(request, 'param') and request.param is True:
+        # load conf for auth test
+        cfg = PyFileConfigLoader(minikube_testing_auth_config).load_config()
+        _binderhub_config.merge(cfg)
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
@@ -175,7 +180,7 @@ def app(request, io_loop, _binderhub_config):
 
     request.addfinalizer(cleanup)
     # convenience for accessing binder in tests
-    bhub.url = 'http://127.0.0.1:%i' % bhub.port
+    bhub.url = f'http://127.0.0.1:{bhub.port}{bhub.base_url}'.rstrip('/')
     return bhub
 
 

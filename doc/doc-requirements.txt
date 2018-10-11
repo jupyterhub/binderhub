@@ -7,3 +7,4 @@ kubernetes
 escapism
 requests
 sphinx-copybutton
+jupyterhub

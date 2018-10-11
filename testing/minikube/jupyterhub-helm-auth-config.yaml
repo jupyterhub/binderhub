@@ -1,0 +1,12 @@
+cull:
+  users: false
+hub:
+  services:
+    binder:
+      url: http://<host_ip>:8585
+      oauth_client_id: "binder-oauth-client-test"
+
+auth:
+  type: dummy
+  dummy:
+    password: 'dummy'

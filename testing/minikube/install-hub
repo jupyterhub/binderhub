@@ -7,14 +7,17 @@ for testing binderhub
 Gets the jupyterhub chart version from the binderhub helm chart
 to ensure we are testing against a reasonable version.
 """
-
+import sys
 import os
 import pipes
 from subprocess import check_call, check_output
 import time
+import socket
 
 from kubernetes import client, config
 from ruamel import yaml
+
+auth_enabled = '--auth' in sys.argv
 
 namespace = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
 name = 'binder-test-hub'
@@ -48,6 +51,29 @@ args = [
     f'--namespace={namespace}',
     '-f', os.path.join(here, 'jupyterhub-helm-config.yaml'),
 ]
+if auth_enabled:
+    print('\nAuthentication is enabled')
+    auth_conf_file = os.path.join(here, 'jupyterhub-helm-auth-config.yaml')
+    args.extend(['-f', auth_conf_file])
+
+    # get host IP (https://stackoverflow.com/a/28950776/4361882)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    print('Host IP: {}'.format(IP))
+    # insert host IP
+    with open(auth_conf_file, 'r') as file:
+        filedata = file.read()
+    filedata = filedata.replace('<host_ip>', IP)
+    with open(auth_conf_file, 'w') as file:
+        file.write(filedata)
+
 is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replace').split()
 if is_running:
     cmd = ['helm', 'upgrade', name]

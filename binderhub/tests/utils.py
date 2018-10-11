@@ -90,11 +90,22 @@ class _AsyncRequests:
 
     A single thread is allocated to avoid blocking the IOLoop thread.
     """
+    _session = None
+
     def __init__(self):
         self.executor = ThreadPoolExecutor(1)
 
+    def set_session(self):
+        self._session = requests.Session()
+
+    def delete_session(self):
+        self._session = None
+
     def __getattr__(self, name):
-        requests_method = getattr(requests, name)
+        if self._session is not None:
+            requests_method = getattr(self._session, name)
+        else:
+            requests_method = getattr(requests, name)
         return lambda *args, **kwargs: self.executor.submit(requests_method, *args, **kwargs)
 
     def iter_lines(self, response):
