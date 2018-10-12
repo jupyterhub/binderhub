@@ -38,20 +38,7 @@ after_success:
 # what previous commands might have done or not
 - cd $TRAVIS_BUILD_DIR
 - codecov
-- |
-  # publish helm chart
-  if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TEST" == "helm" ]]; then
-    openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
-    chmod 0400 travis
-    export GIT_SSH_COMMAND="ssh -i ${PWD}/travis"
-    docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
-    cd helm-chart
-    chartpress --commit-range "${TRAVIS_COMMIT_RANGE}" --push --publish-chart
-    # git diff will show us the result of the chartpress render.
-    # This should only include the tags for chartpress images.
-    git diff
-    cd ..
-  fi
+
 
 env:
   matrix:
