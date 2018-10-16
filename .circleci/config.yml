@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  build_docs:
+    docker:
+      - image: circleci/python:3.6-stretch
+    steps:
+      # Get our data and merge with upstream
+      - run: sudo apt-get update
+      - checkout
+      # Python env
+      - run: echo "export PATH=~/.local/bin:$PATH" >> $BASH_ENV
+
+      - restore_cache:
+          keys:
+            - cache-pip
+      # Install packages needed for sphinx build
+      - run: pip install --user alabaster traitlets tornado sphinx recommonmark sphinx_copybutton escapism kubernetes prometheus_client jupyterhub docker python-json-logger
+      - save_cache:
+          key: cache-pip
+          paths:
+            - ~/.cache/pip
+
+      # Build the docs
+      - run:
+          name: Build docs to store
+          command: |
+            cd doc
+            make html
+
+      - store_artifacts:
+          path: doc/_build/html/
+          destination: html
+
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build_docs
+

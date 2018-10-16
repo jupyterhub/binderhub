@@ -13,3 +13,4 @@ dependencies:
   - prometheus_client
   - sphinx_copybutton
   - escapism
+  - jupyterhub

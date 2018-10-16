@@ -209,3 +209,8 @@ with open('./helm.txt', 'w') as ff:
         if ln.startswith('---'):
             lines[ii] = ln.replace('-', '~')
     ff.write('\n'.join(lines))
+
+# -- Add custom CSS ----------------------------------------------
+def setup(app):
+    app.add_stylesheet('https://gitcdn.link/repo/jupyterhub/binder/master/doc/_static/custom.css')
+
