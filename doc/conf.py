@@ -107,7 +107,9 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+import alabaster_jupyterhub
+html_theme = 'alabaster_jupyterhub'
+html_theme_path = [alabaster_jupyterhub.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

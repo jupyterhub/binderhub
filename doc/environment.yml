@@ -7,10 +7,4 @@ dependencies:
 - tornado>=4.1
 - sphinx>=1.4, !=1.5.4
 - pip:
-  - recommonmark==0.4.0
-  - docker
-  - kubernetes==3.*
-  - prometheus_client
-  - sphinx_copybutton
-  - escapism
-  - jupyterhub
+  - -r doc-requirements.txt
