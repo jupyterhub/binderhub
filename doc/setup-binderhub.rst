@@ -189,12 +189,13 @@ of the JupyterHub we just deployed.::
 Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
 JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
-  hub:
-    url: http://<IP in EXTERNAL-IP>
+  config:
+    BinderHub:
+      hub_url: http://<IP in EXTERNAL-IP>
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-85ac189  -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-...  -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
@@ -234,8 +235,9 @@ an API access token to raise your API limit to 5000 requests an hour.
 
 3. Update ``secret.yaml`` by entering the following::
 
-    github:
-      accessToken: <insert_token_value_here>
+    config:
+      GitHubRepoProvider:
+        access_token: <insert_token_value_here>
 
 This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
 BinderHub will automatically use the token stored in this variable when making
