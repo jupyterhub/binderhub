@@ -19,7 +19,13 @@ image:
   tag: local
 
 registry:
-  dockerConfigJson: ""
+  # full override
+  dockerConfigJson:
+  # gcr shortcut
+  gcrKey:
+  # docker.io username+password
+  username:
+  password:
 
 service:
   type: LoadBalancer

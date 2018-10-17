@@ -43,12 +43,12 @@ Create ``secret.yaml`` file
 Create a file called ``secret.yaml`` and add the following::
 
   jupyterhub:
-      hub:
-        services:
-          binder:
-            apiToken: "<output of FIRST `openssl rand -hex 32` command>"
-      proxy:
-        secretToken: "<output of SECOND `openssl rand -hex 32` command>"
+    hub:
+      services:
+        binder:
+          apiToken: "<output of FIRST `openssl rand -hex 32` command>"
+    proxy:
+      secretToken: "<output of SECOND `openssl rand -hex 32` command>"
 
 Next, we'll configure this file to connect with our registry.
 
@@ -63,8 +63,8 @@ need to insert. Note that the first line is not indented at all::
   registry:
     # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
     # it will look something like the following (with actual values instead of empty strings)
-    # paste the content after `password: |` below
-    password: |
+    # paste the content after `gcrKey: |` below
+    gcrKey: |
       {
       "type": "<REPLACE>",
       "project_id": "<REPLACE>",
@@ -81,9 +81,9 @@ need to insert. Note that the first line is not indented at all::
 
 .. tip::
 
-   * The content you put just after ``password: |`` must all line up at the same
+   * The content you put just after ``gcrKey: |`` must all line up at the same
      tab level.
-   * Don't forget the ``|`` after the ``password:`` label.
+   * Don't forget the ``|`` after the ``gcrKey:`` label.
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,9 +112,12 @@ If you are using ``gcr.io``
 To configure BinderHub to use ``gcr.io``, simply add the following to
 your ``config.yaml`` file::
 
-  registry:
-    prefix:  gcr.io/<google-project-id>/<prefix>
-    enabled: true
+  config:
+    BinderHub:
+      use_registry: true
+      docker_registry_host: https://gcr.io
+      docker_image_prefix: gcr.io/<google-project-id>/<prefix>-
+
 
 .. note::
 
@@ -132,16 +135,15 @@ by the same platform that runs BinderHub.
 
 Update ``config.yaml`` by entering the following::
 
-  registry:
-    enabled: true
-    prefix: <docker-id/organization-name>/<prefix>
-    host: https://registry.hub.docker.com
-    authHost: https://index.docker.io/v1
-    authTokenUrl: https://auth.docker.io/token?service=registry.docker.io
+  config:
+    BinderHub:
+      use_registry: true
+      docker_registry_host: https://registry.hub.docker.com
+      docker_image_prefix: <docker-id|organization-name>/<prefix>-
 
 .. note::
 
-   * **``<docker-id/organization-name>``** is where you want to store Docker images.
+   * **``<docker-id|organization-name>``** is where you want to store Docker images.
      This can be your Docker ID account or an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev`` or ``binder-prod``.

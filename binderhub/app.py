@@ -209,7 +209,7 @@ class BinderHub(Application):
     )
 
     docker_registry_host = Unicode(
-        "",
+        "https://registry.hub.docker.com",
         help="""
         Docker registry host.
         """,
@@ -225,15 +225,24 @@ class BinderHub(Application):
 
     @default('docker_auth_host')
     def _docker_auth_host_default(self):
+        if self.docker_registry_host.endswith(".docker.com"):
+            return "https://index.docker.io/v1"
         return self.docker_registry_host
 
     docker_token_url = Unicode(
-        "",
         help="""
         Url to request docker registry authentication token.
         """,
         config=True
     )
+    @default("docker_token_url")
+    def _default_token_url(self):
+        if self.docker_registry_host == "https://gcr.io":
+            return "https://gcr.io/v2/token?service=gcr.io"
+        elif self.docker_registry_host.endswith(".docker.com"):
+            return "https://auth.docker.io/token?service=registry.docker.io"
+        else:
+            return ""
 
     build_memory_limit = ByteSpecification(
         0,
