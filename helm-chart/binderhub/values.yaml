@@ -18,6 +18,9 @@ image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
+registry:
+  dockerConfigJson: ""
+
 service:
   type: LoadBalancer
   labels: {}
