@@ -7,9 +7,10 @@ which has thresholds that are not sufficiently configurable on GKE
 at this time.
 """
 
+from collections import defaultdict
+import logging
 import os
 import time
-import logging
 
 import docker
 import requests
@@ -48,6 +49,26 @@ def get_docker_images(client):
     Untagged images will come first
     """
     images = client.images.list(all=True)
+    # create dict by image id for O(1) lookup
+    by_id = {image.id: image for image in images}
+    # graph contains a set of all descendant (not just immediate)
+    # images for each image
+    graph = defaultdict(set)
+    for image in images:
+        while image.attrs['Parent']:
+            graph[image.attrs['Parent']].add(image)
+            image = by_id[image.attrs['Parent']]
+
+    def image_key(image):
+        """Sort images topologically and by size
+
+        - Prefer images with fewer descendants, so that we never try to delete
+          an image before its children (fails with 409)
+        - Prefer untagged images to tagged ones (delete build intermediates first)
+        - Sort topological peers by size
+        """
+        return (-len(graph[image.id]), not image.tags, image.attrs['Size'])
+
     images.sort(key=image_key, reverse=True)
     return images
 
@@ -94,10 +115,11 @@ def main():
     delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
     gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
-    client = docker.from_env(version='auto')
-    images = get_docker_images(client)
 
     logging.info(f'Pruning docker images when {path_to_check} has {gc_high}% inodes or blocks used')
+
+    client = docker.from_env(version='auto')
+    images = get_docker_images(client)
 
     while True:
         used = get_used_percent(path_to_check)
