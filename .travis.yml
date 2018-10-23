@@ -13,16 +13,16 @@ branches:
 before_install:
   - nvm install 8; nvm use 8
 install:
-- export PATH=$PWD/bin:$PATH
-- ./ci/install.sh
-- pip install -r dev-requirements.txt
-- npm install
-- npm run webpack
-- pip install .
+  - export PATH=$PWD/bin:$PATH
+  - ./ci/install.sh
+  - pip install -r dev-requirements.txt
+  - npm install
+  - npm run webpack
+  - pip install .
 
 script:
-- export BINDER_TEST_NAMESPACE=binder-test-$TEST
-- travis_wait ./ci/test-$TEST
+  - export BINDER_TEST_NAMESPACE=binder-test-$TEST
+  - travis_wait ./ci/test-$TEST
 
 after_failure:
   - |
