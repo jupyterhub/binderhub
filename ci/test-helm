@@ -26,7 +26,7 @@ fi
 echo "building helm chart"
 cd helm-chart
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-helm dependency update helm-chart/binderhub
+helm dependency update binderhub
 chartpress --commit-range ${TRAVIS_COMMIT_RANGE} ${PUSH} --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
 cd ..
 # git diff will show us the result of the chartpress render.
