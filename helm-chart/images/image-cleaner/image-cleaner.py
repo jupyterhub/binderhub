@@ -90,6 +90,7 @@ def main():
         kube.read_node(node)
 
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
+    interval = float(os.getenv('IMAGE_GC_INTERVAL', '300'))
     delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
     gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
@@ -108,6 +109,8 @@ def main():
             images = get_docker_images(client)
             if not images:
                 logging.info(f'No images to delete')
+                time.sleep(interval)
+                continue
             else:
                 logging.info(f'{len(images)} images available to prune')
 
@@ -166,7 +169,7 @@ def main():
             images_deleted = images_before - len(images)
             logging.info(f"Deleted {images_deleted} images in {int(duration)} seconds")
 
-        time.sleep(60)
+        time.sleep(interval)
 
 
 if __name__ == '__main__':
