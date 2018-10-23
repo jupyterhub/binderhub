@@ -6,4 +6,4 @@ dependencies:
 - traitlets>=4.1
 - tornado>=4.1
 - pip:
-  - -r doc-requirements.txt
+  -r doc-requirements.txt
