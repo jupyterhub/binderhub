@@ -19,12 +19,11 @@ install:
   - npm install
   - npm run webpack
   - pip install .
-  # sphinx requirements
-  - pip install -r doc/doc-requirements.txt
+
 script:
   - export BINDER_TEST_NAMESPACE=binder-test-$TEST
   - travis_wait ./ci/test-$TEST
-  - pushd doc && make html && popd
+
 after_failure:
   - |
     # get pod logs
