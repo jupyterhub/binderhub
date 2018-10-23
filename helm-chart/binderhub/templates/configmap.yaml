@@ -74,9 +74,9 @@ data:
   dind.host-socket-dir: {{ .Values.dind.hostSocketDir | quote }}
   {{ end }}
 
-  {{ if .Values.extraConfig }}
-  {{ range $key, $value := .Values.extraConfig -}}
+  {{ if .Values.extraConfig -}}
+  {{ range $key, $value := .Values.extraConfig }}
   extra-config.{{ $key }}.py: |
-{{ $value | indent 4 }}
+    {{- $value | nindent 4 }}
   {{- end }}
   {{- end }}
