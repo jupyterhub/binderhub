@@ -1,6 +1,5 @@
 name: binderhub
 type: sphinx
-conda:
-    file: doc/environment.yml
+requirements_file: doc/doc-requirements.txt
 python:
   version: 3
