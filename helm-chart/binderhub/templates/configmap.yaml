@@ -17,3 +17,4 @@ data:
 {{- end }}
   values.yaml: |
     {{- $values | toYaml | nindent 4 }}
+

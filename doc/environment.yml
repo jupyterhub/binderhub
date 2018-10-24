@@ -2,14 +2,8 @@ name: binderhub
 channels:
   - conda-forge
 dependencies:
-- python=3.6
-- traitlets>=4.1
-- tornado>=4.1
-- sphinx>=1.4, !=1.5.4
-- pip:
-  - recommonmark==0.4.0
-  - docker
-  - kubernetes==3.*
-  - prometheus_client
-  - sphinx_copybutton
-  - escapism
+  - python=3.6
+  - traitlets>=4.1
+  - tornado>=4.1
+  - pip:
+      - -r doc-requirements.txt

@@ -145,9 +145,9 @@ class Launcher(LoggingConfigurable):
                     username, e, body,
                 )
                 raise web.HTTPError(500, "Failed to create temporary user for %s" % image)
-        elif server_name:
+        elif server_name == '':
             # authentication is enabled but not named servers
-            # check if user have a running server ('')
+            # check if user has a running server ('')
             user_data = await self.get_user_data(username)
             if server_name in user_data['servers']:
                 raise web.HTTPError(409, "User %s already has a running server." % username)

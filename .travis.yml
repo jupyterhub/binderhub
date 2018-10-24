@@ -1,55 +1,54 @@
 language: python
 python:
-- 3.6
+  - 3.6
 git:
   depth: false
 services:
-- docker
+  - docker
 sudo: required
 branches:
   only:
-  - master
+    - master
 
 before_install:
-- nvm install 8; nvm use 8
+  - nvm install 8; nvm use 8
 install:
-- export PATH=$PWD/bin:$PATH
-- ./ci/install.sh
-- pip install -r dev-requirements.txt
-- npm install
-- npm run webpack
-- pip install .
-# sphinx requirements
-- pip install -r doc/doc-requirements.txt
-script:
-- export BINDER_TEST_NAMESPACE=binder-test-$TEST
-- travis_wait ./ci/test-$TEST
-- pushd doc && make html && popd
-after_failure:
-- |
-  # get pod logs
-  kubectl get pod --all-namespaces
-  for pod in $(kubectl get pod --no-headers --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
-    echo $pod
-    kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
-  done
-after_success:
-# make sure we are back at the top of the checkout directory no matter
-# what previous commands might have done or not
-- cd $TRAVIS_BUILD_DIR
-- codecov
+  - export PATH=$PWD/bin:$PATH
+  - ./ci/install.sh
+  - pip install -r dev-requirements.txt
+  - npm install
+  - npm run webpack
+  - pip install .
 
+script:
+  - export BINDER_TEST_NAMESPACE=binder-test-$TEST
+  - travis_wait ./ci/test-$TEST
+
+after_failure:
+  - |
+    # get pod logs
+    kubectl get pod --all-namespaces
+    for pod in $(kubectl get pod --no-headers --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
+      echo $pod
+      kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
+    done
+after_success:
+  # make sure we are back at the top of the checkout directory no matter
+  # what previous commands might have done or not
+  - cd $TRAVIS_BUILD_DIR
+  - codecov
 
 env:
   matrix:
-  - TEST=main
-  - TEST=auth
-  - TEST=helm
+    - TEST=main
+    - TEST=auth
+    - TEST=helm
   global:
-  - MINIKUBE_VERSION=0.28.2
-  - KUBE_VERSION=1.10.0
-  - HELM_VERSION=2.10.0
-  - CHANGE_MINIKUBE_NONE_USER=true
-  - secure: BuO4oUz5YZvWhH919Tk8h3McM60NybLImIwB+0C4cmcDC/Z4uS1Jh8R8UbD3vIkJyjPgd+WuoaYGzzgJfCiS5i5TZZfi5yI0URu67fc044vaS7zSegZWsuN40mP4QNYTb+VdYniav8pqqyPyUpKNbOQ+/YJ+BWrC/ncqSL+P+UR6PE9T3TQ4XDuB45z0B2hhfDWBMpP6KtGae7YOWstIPi8ufiS76jjRzE4ziLqsOSwJRGhRbjJXqdcZeH2d54jUJSzCEGMSo5lxrFL27YOJ6Vuzr0V208AiQe60CyxtAzyiamVoE9U8pYOnv9KRDMeROSdz2HJkGetedNgCHpf0mNUWLZzQ6udzXtKeG2pxKeLDYKSm8Y3GGGa87nWRaWS1dYwCTHLe1r6Jwt6QwuBqqIa0oOMujStTEgbUOLLw5e80kSWqTxb52XnDi5SgOMGNzcylAYJLHFCL5U9ShAyZWGRAy0p7tFycXy44/k7RiqXr6Xur7NuB9bzXkmsDa7qS1t2DXoUA8FlpxfvqaSqVuFSrN16JHQeBOZGEYondQ2NPvi2vNT68Us4saWUxBf8oxF5pctbJYDDOxWpYFq/pza2+Elset9dv5KjCb61qtotLpo4PER4zgvde5/5HRa1CAOJlVfZB1Au3+b1NoVWNnPcwlb2UGut1+bcaDWyPf20=
-  - secure: uqQrm6T6oGloQIHs1tLtQm3iIZFUtv1lNgtT+oCfYw3MC1CJ5AkKRaClAcVlFVOoCAE1GeCbnkob0i+LkwE+FQ1uw0fH9QyGx0PiEBrT3ilOXtkHvLXzcB/8PqPnIRR+vQnqigX2wsfiy0po99gBeaKiQjfybZ8UVp03M7+peQ4Y/Dxoj0G0nYZPsCo4F5plfdalJQX+ZVi1QlkglTotVxvb8QjrxXUrJ3OgXyVgW5fmkrRY6rWlb7RkSPlxmOhOZ7KM0BghMvox2VAD2jTatW/IEjqqaek8VqyKe1Dhw8wRUwQIwAH0VV1tUslHGcPcpbosGTPsfH7pTSUIa6ZRWd2dymMCpp7NwmFPm38QOZS/psiYNFPM6FvQnyqmtiUiU9MfcwMNJxiAUyTSslficd1Lt/aTTgBJQnK9Zd+/J6uuSc1aMGSgVNaM6eXxyNITXqz067zn8apCJm6UUEVM5FFs5SdfNXycJeV7qBwT8oe2+lvC4YzB2bHVGlnynK4IBPZsSFiBxPTBhcHVZp2FIMoC7cm/2dKW0gKPMho2Glhb7Zxn0mFej7XrT+IllD4yCjYSuSG2hpNMgE0+pc/89F2eLtey+oRAH0p4+K8DXsVCHsb7rSq+i7WDtFhFR0DBRWPG8B//CyLSbr4UoKumShbXYCI1dpSYzATmVyphQc8=
-  - secure: ugOe1mIyit6BmzuTLtzVM7+edswAES1TfAnGST0EkYv341z0NnqRGdRJYtH1q1rRoZ6ciSnjHdVe8zmentxDwRJSi50888ro8EG7NnvAjG31cdwEgm7Vdv4sEbt7Dp8gYxKb5kWtt9w4IxPdMocpWPeNBmjctX+7QWwvIJZstWDjOtt8BhDufiTTHeiZR3FTNy5ykJXnFXn/WMsZoxI/a3GAgSzV4wKu0OzZYYk3GY20inJKUwxwWgyNbzQXecWlup6REd+YYrq0h4hJESyrtTQwHsijssCuy+mH8fxPpPZuF2WtHAqej0zGVKyUU/xmpCgdIHbjsheIyEE1leYn+USuoWqiHf0gjx2sYvBJP4HizJNPgj67UUNcUfGXzjegy6cDZE8iXW5clDRDkmWgx53VFlVgWV0TgdxtmOFK3IpQVOoaWc4q0e4T+/38rmUiBFnbbEep2q1wwjZojYhyaIrsEG9jOhtLW2rTADc5fdXURYqfPpubM1SCTseT43T86sRfOH3x8o9MSDnVejZ317oPfoZyqrL/FwpW45M68v/RAfvb6mY/5vM7Jw+70trgz4RhLQS55nuqnZ7NwK8ooX27YnvVnx3YisADz1Cf/A/bNixj8pVkJ7TTw/TnR/gTzat2wfsgPTWRtC8hhOyLSFnZh3J5OyeHQQMmdPspilE=
+    - ASYNC_TEST_TIMEOUT=15
+    - MINIKUBE_VERSION=0.28.2
+    - KUBE_VERSION=1.10.0
+    - HELM_VERSION=2.10.0
+    - CHANGE_MINIKUBE_NONE_USER=true
+    - secure: BuO4oUz5YZvWhH919Tk8h3McM60NybLImIwB+0C4cmcDC/Z4uS1Jh8R8UbD3vIkJyjPgd+WuoaYGzzgJfCiS5i5TZZfi5yI0URu67fc044vaS7zSegZWsuN40mP4QNYTb+VdYniav8pqqyPyUpKNbOQ+/YJ+BWrC/ncqSL+P+UR6PE9T3TQ4XDuB45z0B2hhfDWBMpP6KtGae7YOWstIPi8ufiS76jjRzE4ziLqsOSwJRGhRbjJXqdcZeH2d54jUJSzCEGMSo5lxrFL27YOJ6Vuzr0V208AiQe60CyxtAzyiamVoE9U8pYOnv9KRDMeROSdz2HJkGetedNgCHpf0mNUWLZzQ6udzXtKeG2pxKeLDYKSm8Y3GGGa87nWRaWS1dYwCTHLe1r6Jwt6QwuBqqIa0oOMujStTEgbUOLLw5e80kSWqTxb52XnDi5SgOMGNzcylAYJLHFCL5U9ShAyZWGRAy0p7tFycXy44/k7RiqXr6Xur7NuB9bzXkmsDa7qS1t2DXoUA8FlpxfvqaSqVuFSrN16JHQeBOZGEYondQ2NPvi2vNT68Us4saWUxBf8oxF5pctbJYDDOxWpYFq/pza2+Elset9dv5KjCb61qtotLpo4PER4zgvde5/5HRa1CAOJlVfZB1Au3+b1NoVWNnPcwlb2UGut1+bcaDWyPf20=
+    - secure: uqQrm6T6oGloQIHs1tLtQm3iIZFUtv1lNgtT+oCfYw3MC1CJ5AkKRaClAcVlFVOoCAE1GeCbnkob0i+LkwE+FQ1uw0fH9QyGx0PiEBrT3ilOXtkHvLXzcB/8PqPnIRR+vQnqigX2wsfiy0po99gBeaKiQjfybZ8UVp03M7+peQ4Y/Dxoj0G0nYZPsCo4F5plfdalJQX+ZVi1QlkglTotVxvb8QjrxXUrJ3OgXyVgW5fmkrRY6rWlb7RkSPlxmOhOZ7KM0BghMvox2VAD2jTatW/IEjqqaek8VqyKe1Dhw8wRUwQIwAH0VV1tUslHGcPcpbosGTPsfH7pTSUIa6ZRWd2dymMCpp7NwmFPm38QOZS/psiYNFPM6FvQnyqmtiUiU9MfcwMNJxiAUyTSslficd1Lt/aTTgBJQnK9Zd+/J6uuSc1aMGSgVNaM6eXxyNITXqz067zn8apCJm6UUEVM5FFs5SdfNXycJeV7qBwT8oe2+lvC4YzB2bHVGlnynK4IBPZsSFiBxPTBhcHVZp2FIMoC7cm/2dKW0gKPMho2Glhb7Zxn0mFej7XrT+IllD4yCjYSuSG2hpNMgE0+pc/89F2eLtey+oRAH0p4+K8DXsVCHsb7rSq+i7WDtFhFR0DBRWPG8B//CyLSbr4UoKumShbXYCI1dpSYzATmVyphQc8=
+    - secure: ugOe1mIyit6BmzuTLtzVM7+edswAES1TfAnGST0EkYv341z0NnqRGdRJYtH1q1rRoZ6ciSnjHdVe8zmentxDwRJSi50888ro8EG7NnvAjG31cdwEgm7Vdv4sEbt7Dp8gYxKb5kWtt9w4IxPdMocpWPeNBmjctX+7QWwvIJZstWDjOtt8BhDufiTTHeiZR3FTNy5ykJXnFXn/WMsZoxI/a3GAgSzV4wKu0OzZYYk3GY20inJKUwxwWgyNbzQXecWlup6REd+YYrq0h4hJESyrtTQwHsijssCuy+mH8fxPpPZuF2WtHAqej0zGVKyUU/xmpCgdIHbjsheIyEE1leYn+USuoWqiHf0gjx2sYvBJP4HizJNPgj67UUNcUfGXzjegy6cDZE8iXW5clDRDkmWgx53VFlVgWV0TgdxtmOFK3IpQVOoaWc4q0e4T+/38rmUiBFnbbEep2q1wwjZojYhyaIrsEG9jOhtLW2rTADc5fdXURYqfPpubM1SCTseT43T86sRfOH3x8o9MSDnVejZ317oPfoZyqrL/FwpW45M68v/RAfvb6mY/5vM7Jw+70trgz4RhLQS55nuqnZ7NwK8ooX27YnvVnx3YisADz1Cf/A/bNixj8pVkJ7TTw/TnR/gTzat2wfsgPTWRtC8hhOyLSFnZh3J5OyeHQQMmdPspilE=
