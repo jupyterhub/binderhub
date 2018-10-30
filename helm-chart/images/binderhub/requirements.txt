@@ -3,4 +3,4 @@ tornado==5.0.*
 kubernetes==7.0.*
 jupyterhub==0.9.4
 # Logging sinks to send eventlogging events to
-google-cloud-logging==1.8.*
+git+https://github.com/googleapis/google-cloud-python@d72f443#subdirectory=logging
