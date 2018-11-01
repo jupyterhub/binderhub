@@ -3,6 +3,7 @@ The binderhub application
 """
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import json
 import logging
 import os
 import re
@@ -215,6 +216,16 @@ class BinderHub(Application):
         """,
         config=True
     )
+    @default('docker_registry_host')
+    def _default_docker_registry_host(self):
+        auth_host = self.docker_auth_host
+        url = urlparse(auth_host)
+        if ('.' + url.hostname).endswith(('.docker.io', '.docker.com')):
+            return 'https://registry.hub.docker.com'
+        elif url.hostname == 'gcr.io':
+            return 'https://gcr.io'
+        # default to the same as the auth host, if not defined
+        return "{}://{}".format(url.scheme, url.netloc)
 
     docker_auth_host = Unicode(
         help="""
@@ -225,9 +236,15 @@ class BinderHub(Application):
 
     @default('docker_auth_host')
     def _docker_auth_host_default(self):
-        if self.docker_registry_host.endswith(".docker.com"):
-            return "https://index.docker.io/v1"
-        return self.docker_registry_host
+        docker_config_path = os.path.expanduser('~/.docker/config.json')
+        default = "https://index.docker.io/v1"
+        if not os.path.exists(docker_config_path):
+            return default
+        with open(docker_config_path) as f:
+            cfg = json.load(f)
+        auths = cfg.get("auths", {})
+        # by default: return the first host in our docker config file
+        return next(iter(auths.keys()), default)
 
     docker_token_url = Unicode(
         help="""
