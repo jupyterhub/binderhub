@@ -62,10 +62,6 @@ def get_value(key, default=None):
             value = value[level]
     return value
 
-# FIXME: remove debug
-import pprint
-pprint.pprint(_load_values())
-
 # load config from values.yaml
 for section, sub_cfg in get_value('config', {}).items():
     c[section].update(sub_cfg)
