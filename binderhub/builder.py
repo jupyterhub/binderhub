@@ -22,6 +22,9 @@ from prometheus_client import Counter, Histogram, Gauge
 from .base import BaseHandler
 from .build import Build, FakeBuild
 
+# Separate buckets for builds and launches.
+# Builds and launches have very different characteristic times,
+# and there is a cost to having too many buckets in prometheus.
 BUILD_BUCKETS = [60, 120, 300, 600, 1800, 3600, 7200, float("inf")]
 LAUNCH_BUCKETS = [2, 5, 10, 20, 30, 60, 120, 300, 600, float("inf")]
 BUILD_TIME = Histogram(
