@@ -209,58 +209,6 @@ class BinderHub(Application):
         config=True
     )
 
-    docker_registry_host = Unicode(
-        "https://registry.hub.docker.com",
-        help="""
-        Docker registry host.
-        """,
-        config=True
-    )
-    @default('docker_registry_host')
-    def _default_docker_registry_host(self):
-        auth_host = self.docker_auth_host
-        url = urlparse(auth_host)
-        if ('.' + url.hostname).endswith(('.docker.io', '.docker.com')):
-            return 'https://registry.hub.docker.com'
-        elif url.hostname == 'gcr.io':
-            return 'https://gcr.io'
-        # default to the same as the auth host, if not defined
-        return "{}://{}".format(url.scheme, url.netloc)
-
-    docker_auth_host = Unicode(
-        help="""
-        Docker authentication host.
-        """,
-        config=True
-    )
-
-    @default('docker_auth_host')
-    def _docker_auth_host_default(self):
-        docker_config_path = os.path.expanduser('~/.docker/config.json')
-        default = "https://index.docker.io/v1"
-        if not os.path.exists(docker_config_path):
-            return default
-        with open(docker_config_path) as f:
-            cfg = json.load(f)
-        auths = cfg.get("auths", {})
-        # by default: return the first host in our docker config file
-        return next(iter(auths.keys()), default)
-
-    docker_token_url = Unicode(
-        help="""
-        Url to request docker registry authentication token.
-        """,
-        config=True
-    )
-    @default("docker_token_url")
-    def _default_token_url(self):
-        if self.docker_registry_host == "https://gcr.io":
-            return "https://gcr.io/v2/token?service=gcr.io"
-        elif self.docker_registry_host.endswith(".docker.com"):
-            return "https://auth.docker.io/token?service=registry.docker.io"
-        else:
-            return ""
-
     build_memory_limit = ByteSpecification(
         0,
         help="""
@@ -501,9 +449,7 @@ class BinderHub(Application):
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
         if self.use_registry and self.builder_required:
-            registry = DockerRegistry(self.docker_auth_host,
-                                      self.docker_token_url,
-                                      self.docker_registry_host)
+            registry = DockerRegistry(parent=self)
         else:
             registry = None
 
