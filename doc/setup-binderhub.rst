@@ -61,10 +61,10 @@ our ``gcr.io`` registry account. Below we show the structure of the YAML you
 need to insert. Note that the first line is not indented at all::
 
   registry:
-    authHost: https://gcr.io
+    host: https://gcr.io
     # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
     # it will look something like the following (with actual values instead of empty strings)
-    # paste the content after `gcrKey: |` below
+    # paste the content after `password: |` below
     password: |
       {
       "type": "<REPLACE>",
@@ -151,14 +151,14 @@ Authenticating with a Docker registry is slightly more complicated.
 BinderHub knows how to talk to gcr.io and DockerHub,
 but if you are using another registry, you will have to provide more information, in the form of three different urls:
 
-- auth host
+- auth host (added to ``docker/config.json`` from ``registry.host``)
 - registry host (if different from auth host)
 - token url
 
-First, setup the docker configuration::
+First, setup the docker configuration with the host used for authentication::
 
     registry:
-      authHost: "https://myregistry.io"
+      host: "https://myregistry.io"
       username: xxx
       password: yyy
 
@@ -174,7 +174,11 @@ Second, you will need to instruct BinderHub about two additional URLs::
 
 The two URLs will come from your registry.
 ``registry_host`` only needs to be specified if it is different
-from the ``authHost`` that you specified above.
+from the ``registry.host`` that you specified above.
+
+The ``registry.host`` is the host used in docker ``config.json``,
+whereas ``DockerRegistry.registry_host`` is the URL
+These are typically the same, but can differ.
 
 
 Install BinderHub
