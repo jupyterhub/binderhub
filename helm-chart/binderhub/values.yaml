@@ -19,10 +19,8 @@ image:
   tag: local
 
 registry:
-  # full override
-  dockerConfigJson:
-  # gcr shortcut
-  gcrKey:
+  # docker config.json hot for auth
+  host:
   # docker.io username+password
   username:
   password:

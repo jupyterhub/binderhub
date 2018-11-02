@@ -61,10 +61,11 @@ our ``gcr.io`` registry account. Below we show the structure of the YAML you
 need to insert. Note that the first line is not indented at all::
 
   registry:
+    authHost: https://gcr.io
     # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
     # it will look something like the following (with actual values instead of empty strings)
     # paste the content after `gcrKey: |` below
-    gcrKey: |
+    password: |
       {
       "type": "<REPLACE>",
       "project_id": "<REPLACE>",
@@ -81,9 +82,9 @@ need to insert. Note that the first line is not indented at all::
 
 .. tip::
 
-   * The content you put just after ``gcrKey: |`` must all line up at the same
+   * The content you put just after ``password: |`` must all line up at the same
      tab level.
-   * Don't forget the ``|`` after the ``gcrKey:`` label.
+   * Don't forget the ``|`` after the ``password:`` label.
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +116,6 @@ your ``config.yaml`` file::
   config:
     BinderHub:
       use_registry: true
-      docker_registry_host: https://gcr.io
       docker_image_prefix: gcr.io/<google-project-id>/<prefix>-
 
 
@@ -125,20 +125,16 @@ your ``config.yaml`` file::
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-`` (ending with a `-` is useful).
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Using Docker Hub is slightly more involved as the registry is not being run
-by the same platform that runs BinderHub.
 
 Update ``config.yaml`` by entering the following::
 
   config:
     BinderHub:
       use_registry: true
-      docker_registry_host: https://registry.hub.docker.com
       docker_image_prefix: <docker-id|organization-name>/<prefix>-
 
 .. note::
@@ -147,6 +143,39 @@ Update ``config.yaml`` by entering the following::
      This can be your Docker ID account or an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+
+If you are using a custom registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Authenticating with a Docker registry is slightly more complicated.
+BinderHub knows how to talk to gcr.io and DockerHub,
+but if you are using another registry, you will have to provide more information, in the form of three different urls:
+
+- auth host
+- registry host (if different from auth host)
+- token url
+
+First, setup the docker configuration::
+
+    registry:
+      authHost: "https://myregistry.io"
+      username: xxx
+      password: yyy
+
+Second, you will need to instruct BinderHub about two additional URLs::
+
+    config:
+      BinderHub:
+        use_registry: true
+        docker_image_prefix: "your-registry.io/<prefix>-"
+      DockerRegistry:
+        token_url: "https://myregistry.io/v2/token?service="
+        registry_host: "https://registry.myregistry.io"
+
+The two URLs will come from your registry.
+``registry_host`` only needs to be specified if it is different
+from the ``authHost`` that you specified above.
+
 
 Install BinderHub
 -----------------
