@@ -504,8 +504,10 @@ class BuildHandler(BaseHandler):
                     status = 'failure'
                 else:
                     status = 'retry'
+                # don't count retries in failure/retry
+                # retry count is only interesting in success
                 LAUNCH_TIME.labels(
-                    status=status, retries=i,
+                    status=status, retries=-1,
                 ).observe(time.perf_counter() - launch_starttime)
                 if status == 'failure':
                     # don't count retries per repo
