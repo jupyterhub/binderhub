@@ -17,22 +17,38 @@ from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from prometheus_client import Histogram, Gauge
+from prometheus_client import Counter, Histogram, Gauge
 
 from .base import BaseHandler
 from .build import Build, FakeBuild
 
-BUCKETS = [2, 5, 10, 15, 20, 25, 30, 60, 120, 240, 480, 960, 1920, float("inf")]
+# Separate buckets for builds and launches.
+# Builds and launches have very different characteristic times,
+# and there is a cost to having too many buckets in prometheus.
+BUILD_BUCKETS = [60, 120, 300, 600, 1800, 3600, 7200, float("inf")]
+LAUNCH_BUCKETS = [2, 5, 10, 20, 30, 60, 120, 300, 600, float("inf")]
 BUILD_TIME = Histogram(
     'binderhub_build_time_seconds',
     'Histogram of build times',
-    ['status', 'provider', 'repo'],
-    buckets=BUCKETS)
+    ['status'],
+    buckets=BUILD_BUCKETS,
+)
 LAUNCH_TIME = Histogram(
     'binderhub_launch_time_seconds',
     'Histogram of launch times',
-    ['status', 'provider', 'repo', 'retries'],
-    buckets=BUCKETS)
+    ['status', 'retries'],
+    buckets=LAUNCH_BUCKETS,
+)
+BUILD_COUNT = Counter(
+    'binderhub_build_count',
+    'Counter of builds by repo',
+    ['status', 'provider', 'repo'],
+)
+LAUNCH_COUNT = Counter(
+    'binderhub_launch_count',
+    'Counter of launches by repo',
+    ['status', 'provider', 'repo'],
+)
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
@@ -224,7 +240,7 @@ class BuildHandler(BaseHandler):
         repo_url = self.repo_url = provider.get_repo_url()
 
         # labels to apply to build/launch metrics
-        self.metric_labels = {
+        self.repo_metric_labels = {
             'provider': provider.name,
             'repo': repo_url,
         }
@@ -376,13 +392,15 @@ class BuildHandler(BaseHandler):
                     payload = json.loads(event)
                     if payload.get('phase') == 'failure':
                         failed = True
-                        BUILD_TIME.labels(status='failure', **self.metric_labels).observe(time.perf_counter() - build_starttime)
+                        BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
+                        BUILD_COUNT.labels(status='failure', **self.repo_metric_labels).inc()
 
                 await self.emit(event)
 
         # Launch after building an image
         if not failed:
-            BUILD_TIME.labels(status='success', **self.metric_labels).observe(time.perf_counter() - build_starttime)
+            BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
+            BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
             self.event_log.emit_launch(
@@ -478,16 +496,27 @@ class BuildHandler(BaseHandler):
                 server_info = await launcher.launch(image=self.image_name, username=username,
                                                     server_name=server_name, repo_url=self.repo_url)
                 LAUNCH_TIME.labels(
-                    status='success', retries=i, **self.metric_labels
+                    status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)
+                LAUNCH_COUNT.labels(
+                    status='success', **self.repo_metric_labels,
+                ).inc()
+
             except Exception as e:
                 if i + 1 == launcher.retries:
                     status = 'failure'
                 else:
                     status = 'retry'
+                # don't count retries in failure/retry
+                # retry count is only interesting in success
                 LAUNCH_TIME.labels(
-                    status=status, retries=i, **self.metric_labels
+                    status=status, retries=-1,
                 ).observe(time.perf_counter() - launch_starttime)
+                if status == 'failure':
+                    # don't count retries per repo
+                    LAUNCH_COUNT.labels(
+                        status=status, **self.repo_metric_labels,
+                    ).inc()
 
                 if i + 1 == launcher.retries:
                     # last attempt failed, let it raise
