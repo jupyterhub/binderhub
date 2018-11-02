@@ -1,5 +1,6 @@
 """Testing utilities"""
 import io
+from urllib.parse import urlparse
 
 from tornado import gen
 from tornado.httputil import HTTPHeaders
@@ -39,6 +40,9 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 
     def _record_response(self, url_key, response):
         """Record a response in self.records"""
+        if urlparse(url_key).hostname in ('127.0.0.1', 'localhost'):
+            # don't record localhost requests
+            return
         self.records[url_key] = {
             'code': response.code,
             'headers': dict(response.headers),
