@@ -316,7 +316,7 @@ class BuildHandler(BaseHandler):
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
-            builder_image=self.settings['builder_image_spec'],
+            build_image=self.settings['build_image'],
             memory_limit=self.settings['build_memory_limit'],
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],
