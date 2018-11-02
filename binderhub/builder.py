@@ -240,7 +240,7 @@ class BuildHandler(BaseHandler):
         repo_url = self.repo_url = provider.get_repo_url()
 
         # labels to apply to build/launch metrics
-        self.repo_labels = {
+        self.repo_metric_labels = {
             'provider': provider.name,
             'repo': repo_url,
         }
@@ -393,14 +393,14 @@ class BuildHandler(BaseHandler):
                     if payload.get('phase') == 'failure':
                         failed = True
                         BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
-                        BUILD_COUNT.labels(status='failure', **self.repo_labels).inc()
+                        BUILD_COUNT.labels(status='failure', **self.repo_metric_labels).inc()
 
                 await self.emit(event)
 
         # Launch after building an image
         if not failed:
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
-            BUILD_COUNT.labels(status='success', **self.repo_labels).inc()
+            BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
             self.event_log.emit_launch(
@@ -499,7 +499,7 @@ class BuildHandler(BaseHandler):
                     status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)
                 LAUNCH_COUNT.labels(
-                    status='success', **self.repo_labels,
+                    status='success', **self.repo_metric_labels,
                 ).inc()
 
             except Exception as e:
@@ -515,7 +515,7 @@ class BuildHandler(BaseHandler):
                 if status == 'failure':
                     # don't count retries per repo
                     LAUNCH_COUNT.labels(
-                        status=status, **self.repo_labels,
+                        status=status, **self.repo_metric_labels,
                     ).inc()
 
                 if i + 1 == launcher.retries:
