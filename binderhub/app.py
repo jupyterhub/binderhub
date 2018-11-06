@@ -34,6 +34,9 @@ from .utils import ByteSpecification, url_path_join
 from .events import EventLog
 
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
 class BinderHub(Application):
     """An Application for starting a builder."""
 
@@ -396,7 +399,7 @@ class BinderHub(Application):
 
     @default('template_path')
     def _template_path_default(self):
-        return os.path.join(os.path.dirname(__file__), 'templates')
+        return os.path.join(HERE, 'templates')
 
     extra_static_path = Unicode(
         help='Path to search for extra static files.',
@@ -510,7 +513,7 @@ class BinderHub(Application):
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
-            "static_path": os.path.join(os.path.dirname(__file__), "static"),
+            "static_path": os.path.join(HERE, "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
