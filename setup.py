@@ -11,7 +11,7 @@ with open(os.path.join(here, 'binderhub', '_version.py')) as f:
 
 with open(os.path.join(here, 'requirements.txt')) as f:
     requirements = [
-        l.strip() in f.readlines()
+        l.strip() for l in f.readlines()
         if not l.strip().startswith('#')
     ]
 
