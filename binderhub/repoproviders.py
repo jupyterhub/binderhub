@@ -4,6 +4,8 @@ Classes for Repo providers
 Subclass the base class, ``RepoProvider``, to support different version
 control services and providers.
 
+Note: When adding a new repo provider, add it to the allowed values for
+      repo providers in event-schemas/launch.json.
 """
 from datetime import timedelta
 import json

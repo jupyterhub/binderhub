@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
 import re
+import json
+from glob import glob
 from urllib.parse import urlparse
 
 import kubernetes.client
@@ -489,6 +491,10 @@ class BinderHub(Application):
         )
 
         self.event_log = EventLog(parent=self)
+
+        for schema_file in glob(os.path.join(HERE, 'event-schemas','*.json')):
+            with open(schema_file) as f:
+                self.event_log.register_schema(json.load(f))
 
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
