@@ -9,6 +9,12 @@ here = os.path.dirname(__file__)
 with open(os.path.join(here, 'binderhub', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
 
+with open(os.path.join(here, 'requirements.txt')) as f:
+    requirements = [
+        l.strip() in f.readlines()
+        if not l.strip().startswith('#')
+    ]
+
 # Build our js and css files before packaging
 subprocess.check_call(['npm', 'install'])
 subprocess.check_call(['npm', 'run', 'webpack'])
@@ -22,14 +28,5 @@ setup(
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        'kubernetes>=4.*',
-        'escapism',
-        'tornado',
-        'traitlets',
-        'docker',
-        'jinja2',
-        'prometheus_client',
-        'python-json-logger',
-    ]
+    install_requires=requirements,
 )

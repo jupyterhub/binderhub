@@ -1,0 +1,8 @@
+kubernetes>=4.*
+escapism
+tornado
+traitlets
+docker
+jinja2
+prometheus_client
+python-json-logger
