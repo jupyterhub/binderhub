@@ -4,21 +4,14 @@ jobs:
     docker:
       - image: circleci/python:3.6-stretch
     steps:
-      # Get our data and merge with upstream
-      - run: sudo apt-get update
       - checkout
-      # Python env
-      - run: echo "export PATH=~/.local/bin:$PATH" >> $BASH_ENV
 
-      - restore_cache:
-          keys:
-            - cache-pip
-      # Install packages needed for sphinx build
-      - run: pip install --user -r doc/doc-requirements.txt
-      - save_cache:
-          key: cache-pip
-          paths:
-            - ~/.cache/pip
+      # Install documentation requirements
+      - run:
+          name: Install doc dependencies
+          command: |
+            sudo pip install -r requirements.txt
+            sudo pip install -r doc/doc-requirements.txt
 
       # Build the docs
       - run:
@@ -28,13 +21,11 @@ jobs:
             make html
 
       - store_artifacts:
-          path: doc/_build/html/
+          path: doc/build/html/
           destination: html
-
 
 workflows:
   version: 2
   default:
     jobs:
       - build_docs
-
