@@ -1,13 +1,5 @@
+# documentation specific extra packages
 sphinx>=1.7
-traitlets>=4.1
 recommonmark==0.4.0
-prometheus_client
-docker
-kubernetes==3.*
-escapism
-requests
 sphinx-copybutton
-jupyterhub
-tornado>=4.1
-python-json-logger
 alabaster_jupyterhub
