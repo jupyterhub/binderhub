@@ -1,1 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="92" height="20"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="a"><rect width="92" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#a)"><path fill="#555" d="M0 0h47v20H0z"/><path fill="#E66581" d="M47 0h45v20H47z"/><path fill="url(#b)" d="M0 0h92v20H0z"/></g><g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110"><text x="245" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="370">launch</text><text x="245" y="140" transform="scale(.1)" textLength="370">launch</text><text x="685" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="350">binder</text><text x="685" y="140" transform="scale(.1)" textLength="350">binder</text></g> </svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 102.3 20" style="enable-background:new 0 0 102.3 20;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_2_);}
+	.st1{fill:#555555;}
+	.st2{fill:#E66581;}
+	.st3{fill:url(#SVGID_3_);}
+	.st4{enable-background:new    ;}
+	.st5{fill:none;}
+	.st6{fill:#010101;}
+	.st7{font-family:'Verdana';}
+	.st8{font-size:11px;}
+	.st9{fill:#FFFFFF;}
+	.st10{fill:none;stroke:#F5A252;stroke-width:1.6;stroke-miterlimit:10;}
+	.st11{fill:none;stroke:#579ACA;stroke-width:1.6;stroke-miterlimit:10;}
+	.st12{fill:none;stroke:#E66581;stroke-width:1.6;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		<defs>
+			<path id="SVGID_1_" d="M3.3,0H99c1.8,0,3.3,1.3,3.3,3v14c0,1.7-1.5,3-3.3,3H3.3C1.5,20,0,18.7,0,17V3C0,1.3,1.5,0,3.3,0z"/>
+		</defs>
+		<clipPath id="SVGID_2_">
+			<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+		</clipPath>
+		<g class="st0">
+			<path class="st1" d="M0,0h22.6v20H0V0z"/>
+			<path class="st2" d="M22.5,0h79.8v20H22.5V0z"/>
+			
+				<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="-150.781" y1="6.1" x2="-150.781" y2="7.1" gradientTransform="matrix(92 0 0 20 13923 -122)">
+				<stop  offset="0" style="stop-color:#BBBBBB;stop-opacity:0.1"/>
+				<stop  offset="1" style="stop-color:#000000;stop-opacity:0.1"/>
+			</linearGradient>
+			<path class="st3" d="M0,0h102.3v20H0V0z"/>
+		</g>
+	</g>
+</g>
+<g>
+	<g class="st4">
+		<rect x="25.3" y="4.9" class="st5" width="37" height="12.8"/>
+		<text transform="matrix(1 0 0 1 25.2483 14.4191)" class="st6 st7 st8">launc</text>
+		<text transform="matrix(1 0 0 1 55.2483 14.4191)" class="st6 st7 st8">h</text>
+	</g>
+	<rect x="25.3" y="3.9" class="st5" width="37" height="12.8"/>
+	<text transform="matrix(1 0 0 1 25.2483 13.4191)" class="st9 st7 st8">launc</text>
+	<text transform="matrix(1 0 0 1 55.2483 13.4191)" class="st9 st7 st8">h</text>
+	<g class="st4">
+		<rect x="64.8" y="4.9" class="st5" width="35" height="12.8"/>
+		<text transform="matrix(1 0 0 1 64.8178 14.4191)" class="st6 st7 st8">binder</text>
+	</g>
+	<rect x="64.8" y="3.9" class="st5" width="35" height="12.8"/>
+	<text transform="matrix(1 0 0 1 64.8178 13.4191)" class="st9 st7 st8">binder</text>
+</g>
+<g>
+	<circle class="st10" cx="12.7" cy="6.7" r="3.4"/>
+	<circle class="st11" cx="12.7" cy="13.3" r="3.4"/>
+	<circle class="st12" cx="9.4" cy="10" r="3.4"/>
+	<path class="st11" d="M10,11.3c0.3-0.4,0.6-0.7,1-0.9c1.6-0.9,3.7-0.4,4.6,1.2"/>
+	<path class="st10" d="M9.8,8.4c-1-1.6-0.4-3.7,1.2-4.6s3.7-0.4,4.6,1.2"/>
+</g>
+</svg>
