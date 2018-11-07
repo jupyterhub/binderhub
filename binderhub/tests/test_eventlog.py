@@ -5,6 +5,7 @@ import logging
 from binderhub.events import EventLog
 import pytest
 import jsonschema
+import os
 
 
 def test_register_invalid():
@@ -98,3 +99,19 @@ def test_emit_event_badschema():
                 'something': 'blah',
                 'status': 'not-in-enum'
             })
+
+
+def test_provider_completeness(app):
+    """
+    Test we add an entry in the launch schema for all providers
+    """
+    repo_providers = {
+        rp.name.default_value for rp in app.repo_providers.values()
+    }
+
+    launch_schema_path = os.path.join(os.path.dirname(__file__), '..', 'event-schemas', 'launch.json')
+
+    with open(launch_schema_path) as f:
+        launch_schema = json.load(f)
+
+    assert repo_providers == set(launch_schema['properties']['provider']['enum'])
