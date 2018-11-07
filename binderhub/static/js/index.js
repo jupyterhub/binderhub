@@ -215,7 +215,7 @@ function updateUrls(formValues) {
 }
 
 
-var BADGE_URL = window.location.origin + BASE_URL + 'badge.svg';
+var BADGE_URL = window.location.origin + BASE_URL + 'badge_logo.svg';
 
 
 function markdownBadge(url) {
