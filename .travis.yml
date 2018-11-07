@@ -22,7 +22,7 @@ install:
 
 script:
   - export BINDER_TEST_NAMESPACE=binder-test-$TEST
-  - travis_wait ./ci/test-$TEST
+  - ./ci/test-$TEST
 
 after_failure:
   - |
