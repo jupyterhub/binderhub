@@ -15,7 +15,7 @@ config:
   ClassName:
     trait_name: value
 
-e.g. to set config on BinderHub, e.g., use:
+e.g. to set config on BinderHub, use:
 
 config:
   BinderHub:
@@ -27,6 +27,8 @@ config:
   GitHubRepoProvider:
     access_token: "..."
 
+where ``BinderHub.use_registry`` and ``GitHubRepoProvider.access_token``
+are traits to be configured.
 
 ----------------------------------
 Specific unsupported config found:
@@ -80,19 +82,20 @@ registry.authHost is removed.
 Use:
 
   registry:
-    host: {{ .Values.registry.authHost }}
+    url: {{ .Values.registry.authHost }}
 
-to set auth host.
+to set the registry url.
 
-{{- if ne .Values.registry.host .Values.registry.authHost }}
+{{- if and .Values.registry.host (ne .Values.registry.host .Values.registry.authHost) }}
 
-If registry url and auth host differ, use:
+If registry url and auth url differ, use:
 
 registry:
-  host: {{ .Values.registry.authHost }}
+  url: {{ .Values.registry.authHost }}
 config:
   DockerRegistry:
-    registry_host: {{ .Values.registry.host }}
+    url: {{ .Values.registry.host }}
+    config_url: {{ .Values.registry.authHost }}
 
 {{- end }}
 {{- end }}
@@ -138,7 +141,7 @@ config:
 {{- end }}
 
 
-{{- if (or .Values.hub .Values.build .Values.github .Values.gitlab .Values.perRepoQuota .Values.registry.authHost .Values.registry.tokenUrl .Values.registry.prefix (ne (typeOf .Values.registry.enabled) "<nil>")) }}
+{{- if (or .Values.hub .Values.build .Values.github .Values.gitlab .Values.perRepoQuota  .Values.registry.host .Values.registry.authHost .Values.registry.tokenUrl .Values.registry.prefix (ne (typeOf .Values.registry.enabled) "<nil>")) }}
 {{- fail (include "removedConfig" .) }}
 {{- end }}
 

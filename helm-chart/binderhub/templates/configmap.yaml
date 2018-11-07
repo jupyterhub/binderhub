@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: binder-config
 data:
-{{- /* only pick relevant subset of values. Including too much here can trigger unnecessary binderhub pod restarts */}}
+{{- /* Important: only pick relevant subset of values. Including too much here can trigger unnecessary binderhub pod restarts */}}
 {{- $values := pick .Values "dind" "config" "extraConfig" }}
 {{- /* make a copy to avoid modifying the original */ -}}
 {{- $_ := set $values "config" (merge dict .Values.config) }}

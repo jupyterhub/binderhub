@@ -61,7 +61,7 @@ our ``gcr.io`` registry account. Below we show the structure of the YAML you
 need to insert. Note that the first line is not indented at all::
 
   registry:
-    host: https://gcr.io
+    url: https://gcr.io
     # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
     # it will look something like the following (with actual values instead of empty strings)
     # paste the content after `password: |` below
@@ -142,27 +142,30 @@ Update ``config.yaml`` by entering the following::
    * **``<docker-id|organization-name>``** is where you want to store Docker images.
      This can be your Docker ID account or an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+     (ending with a `-` is useful).
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Authenticating with a Docker registry is slightly more complicated.
 BinderHub knows how to talk to gcr.io and DockerHub,
-but if you are using another registry, you will have to provide more information, in the form of three different urls:
+but if you are using another registry, you will have to provide more information, in the form of two different urls:
 
-- auth host (added to ``docker/config.json`` from ``registry.host``)
-- registry host (if different from auth host)
-- token url
+- registry url (added to ``docker/config.json``)
+- token url for authenticating access to the registry
 
 First, setup the docker configuration with the host used for authentication::
 
     registry:
-      host: "https://myregistry.io"
+      url: "https://myregistry.io"
       username: xxx
       password: yyy
 
-Second, you will need to instruct BinderHub about two additional URLs::
+This creates a docker config.json used to check for images in the registry
+and push builds to it.
+
+Second, you will need to instruct BinderHub about the token URL::
 
     config:
       BinderHub:
@@ -170,15 +173,32 @@ Second, you will need to instruct BinderHub about two additional URLs::
         image_prefix: "your-registry.io/<prefix>-"
       DockerRegistry:
         token_url: "https://myregistry.io/v2/token?service="
-        registry_host: "https://registry.myregistry.io"
 
-The two URLs will come from your registry.
-``registry_host`` only needs to be specified if it is different
-from the ``registry.host`` that you specified above.
+.. note::
 
-The ``registry.host`` is the host used in docker ``config.json``,
-whereas ``DockerRegistry.registry_host`` is the URL
-These are typically the same, but can differ.
+    There is one additional URL to set in the unlikely event that docker config.json
+    must use a different URL to refer to a registry than the registry's actual url.
+    If this is the case, ``registry.url`` at the top-level
+    must match ``DockerRegistry.auth_config_url``::
+
+        registry:
+          url: "https://"
+
+    It's not clear that this can ever be the case for custom registries,
+    however it is the case for DockerHub::
+
+        registry:
+          url: "https://index.docker.io/v1"
+        config:
+          DockerRegistry:
+            url: "https://registry.hub.docker.com" # the actual v2 registry url
+            auth_config_url: "https://index.docker.io/v1" # must match above!
+            token_url: "https://auth.docker.io/token?service=registry.docker.io"
+
+    however, BinderHub is aware of DockerHub's peculiarities
+    and can handle these without any additional configuration
+    beyond `registry.url`.
+
 
 
 Install BinderHub
@@ -193,6 +213,8 @@ Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
     helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+
+where ``...`` is the commit hash of the binderhub chart version you wish to deploy.
 
 .. note::
 

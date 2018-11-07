@@ -11,65 +11,101 @@ from tornado.httputil import url_concat
 from traitlets.config import LoggingConfigurable
 from traitlets import Dict, Unicode, default
 
+DEFAULT_DOCKER_REGISTRY_URL = "https://registry.hub.docker.com"
+DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"
+
 
 class DockerRegistry(LoggingConfigurable):
-    registry_host = Unicode(
-        "https://registry.hub.docker.com",
+    url = Unicode(
+        DEFAULT_DOCKER_REGISTRY_URL,
         help="""
-        Docker registry host.
+        Docker registry url.
 
-        Default: same as auth_host,
-        no need to set this if using docker hub or registry host
-        is the same as the auth host.
-        """,
-        config=True,
-    )
-    @default('registry_host')
-    def _default_registry_host(self):
-        auth_host = self.auth_host
-        url = urlparse(auth_host)
-        # special-case docker, where these are different
-        if ('.' + url.hostname).endswith(('.docker.io', '.docker.com')):
-            return 'https://registry.hub.docker.com'
-        # default to the same as the auth host, if not defined
-        return "{}://{}".format(url.scheme, url.netloc)
+        Default: retrieved from docker config.json
 
-    auth_host = Unicode(
-        help="""
-        Docker authentication host.
-
-        Default: first entry in docker config.json if found,
-        otherwise the default docker auth host.
-
-        No need to set this if docker config contains
-        the right auth host.
+        Only set this if:
+        - not using docker hub, and
+        - more than one registry is configured in docker config.json
         """,
         config=True,
     )
 
-    @default('auth_host')
-    def _auth_host_default(self):
-        config_path = os.path.expanduser('~/.docker/config.json')
-        default = "https://index.docker.io/v1"
+    @default("url")
+    def _default_url(self):
         cfg = self._docker_config
         auths = cfg.get("auths", {})
-        # by default: return the first host in our docker config file
-        return next(iter(auths.keys()), default)
+        if not auths:
+            return DEFAULT_DOCKER_REGISTRY_URL
+
+        # default to first entry in docker config.json auths
+        auth_config_url = next(iter(auths.keys()))
+        if "://" not in auth_config_url:
+            # auth key can be just a hostname,
+            # which assumes https
+            auth_config_url = "https://" + auth_config_url
+
+        if auth_config_url.rstrip("/") == DEFAULT_DOCKER_AUTH_URL:
+            # default docker config key is the v1 registry,
+            # but we will talk to the v2 api
+            return DEFAULT_DOCKER_REGISTRY_URL
+
+        return auth_config_url
+
+    auth_config_url = Unicode(
+        DEFAULT_DOCKER_AUTH_URL,
+        help="""
+        Docker auth configuration url.
+
+        Used to lookup auth data in docker config.json.
+
+        Not used if url, username, and password are set.
+
+        Default: same as url
+
+        Only set if:
+        - Not using Docker Hub
+        - registry url is not the auth key in docker config.json
+        """,
+        config=True,
+    )
+
+    @default("auth_config_url")
+    def _auth_config_url_default(self):
+        url = urlparse(self.url)
+        cfg = self._docker_config
+        auths = cfg.get("auths", {})
+        # check for our url in docker config.json
+        # there can be some variation, so try a few things.
+
+        # in ~all cases, the registry url will appear in config.json
+        if self.url in auths:
+            # this will
+            return self.url
+        # ...but the config key is allowed to lack https://, so check just hostname
+        if url.hostname in auths:
+            return url.hostname
+        # default docker special-case, where auth and registry urls are different
+        if ("." + url.hostname).endswith((".docker.io", ".docker.com")):
+            return DEFAULT_DOCKER_AUTH_URL
+
+        # url not found, leave the most likely default
+        return self.url
 
     docker_config_path = Unicode(
         os.path.join(
-            os.environ.get('DOCKER_CONFIG', os.path.expanduser('~/.docker')),
-            'config.json',
+            os.environ.get("DOCKER_CONFIG", os.path.expanduser("~/.docker")),
+            "config.json",
         ),
         help=""""
         path to docker config.json
 
-        Default: ~/.docker/config.json
+        Default: ~/.docker/config.json (respects $DOCKER_CONFIG if set)
         """,
         config=True,
     )
     _docker_config = Dict()
-    @default('_docker_config')
+
+    @default("_docker_config")
     def _load_docker_config(self):
         if not os.path.exists(self.docker_config_path):
             self.log.warning("No docker config at %s", self.docker_config_path)
@@ -86,75 +122,86 @@ class DockerRegistry(LoggingConfigurable):
         """,
         config=True,
     )
+
     @default("token_url")
     def _default_token_url(self):
-        if self.registry_host == "https://gcr.io":
-            return "https://gcr.io/v2/token?service=gcr.io"
-        elif self.registry_host.endswith(".docker.com"):
+        url = urlparse(self.url)
+        if ("." + url.hostname).endswith(".gcr.io"):
+            return "https://{0}/v2/token?service={0}".format(url.hostname)
+        elif self.url.endswith(".docker.com"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
+            # is gcr.io's token url common? If so, it might be worth defaulting
+            # to https://registry.host/v2/token?service=registry.host
             return ""
 
     username = Unicode(
         help="""
         Username for authenticating with docker registry
 
-        Default: retrieved from docker config.
+        Default: retrieved from docker config.json.
         """,
         config=True,
     )
-    @default('username')
+
+    @default("username")
     def _default_username(self):
         b64_auth = None
-        if self.auth_host in self._docker_config.get('auths', {}):
-            b64_auth = self._docker_config['auths'][self.auth_host].get('auth')
+        if self.auth_config_url in self._docker_config.get("auths", {}):
+            b64_auth = self._docker_config["auths"][self.auth_config_url].get("auth")
 
         if not b64_auth:
-            self.log.warning("No username for docker registry at %s", self.auth_host)
-            return ''
+            self.log.warning(
+                "No username for docker registry at %s", self.auth_config_url
+            )
+            return ""
 
-        return base64.b64decode(
-            b64_auth.encode('utf-8')
-        ).decode('utf-8').split(':', 1)[0]
+        return (
+            base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[0]
+        )
 
     password = Unicode(
         help="""
         Password for authenticating with docker registry
 
-        Default: retrieved from docker config.
+        Default: retrieved from docker config.json.
         """,
         config=True,
     )
-    @default('password')
+
+    @default("password")
     def _default_password(self):
         b64_auth = None
-        if self.auth_host in self._docker_config.get('auths', {}):
-            b64_auth = self._docker_config['auths'][self.auth_host].get('auth')
+        if self.auth_config_url in self._docker_config.get("auths", {}):
+            b64_auth = self._docker_config["auths"][self.auth_config_url].get("auth")
 
         if not b64_auth:
-            self.log.warning("No password for docker registry at %s", self.auth_host)
-            return ''
+            self.log.warning(
+                "No password for docker registry at %s", self.auth_config_url
+            )
+            return ""
 
-        return base64.b64decode(
-            b64_auth.encode('utf-8')
-        ).decode('utf-8').split(':', 1)[1]
+        return (
+            base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
+        )
 
     @gen.coroutine
     def get_image_manifest(self, image, tag):
         client = httpclient.AsyncHTTPClient()
         # first, get a token to perform the manifest request
+        if not self.token_url:
+            raise ValueError("No token URL for authenticating with {}".format(self.url))
         auth_req = httpclient.HTTPRequest(
-            url_concat(self.token_url,
-                       {'scope': 'repository:{}:pull'.format(image)}),
+            url_concat(self.token_url, {"scope": "repository:{}:pull".format(image)}),
             auth_username=self.username,
             auth_password=self.password,
         )
         auth_resp = yield client.fetch(auth_req)
-        token = json.loads(auth_resp.body.decode('utf-8', 'replace'))['token']
+        token = json.loads(auth_resp.body.decode("utf-8", "replace"))["token"]
 
         req = httpclient.HTTPRequest(
-            '{}/v2/{}/manifests/{}'.format(self.registry_host, image, tag),
-            headers={'Authorization': 'Bearer {}'.format(token)},
+            "{}/v2/{}/manifests/{}".format(self.url, image, tag),
+            headers={"Authorization": "Bearer {}".format(token)},
         )
         try:
             resp = yield client.fetch(req)
@@ -165,4 +212,4 @@ class DockerRegistry(LoggingConfigurable):
             else:
                 raise
         else:
-            return json.loads(resp.body.decode('utf-8'))
+            return json.loads(resp.body.decode("utf-8"))

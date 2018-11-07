@@ -18,8 +18,10 @@ image:
   name: jupyterhub/k8s-binderhub
   tag: local
 
+# registry here is only used to create docker config.json
 registry:
-  # key in 'auths' in docker config.json
+  # key in 'auths' in docker config.json,
+  # ~always the registry url
   url:
   # registry username+password
   username:

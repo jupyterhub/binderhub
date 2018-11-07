@@ -12,8 +12,8 @@ from binderhub.registry import DockerRegistry
 
 def test_registry_defaults(tmpdir):
     registry = DockerRegistry(docker_config_path=str(tmpdir.join("doesntexist.json")))
-    assert registry.registry_host == "https://registry.hub.docker.com"
-    assert registry.auth_host == "https://index.docker.io/v1"
+    assert registry.url == "https://registry.hub.docker.com"
+    assert registry.auth_config_url == "https://index.docker.io/v1"
     assert (
         registry.token_url == "https://auth.docker.io/token?service=registry.docker.io"
     )
@@ -37,6 +37,7 @@ def test_registry_username_password(tmpdir):
     registry = DockerRegistry(docker_config_path=str(config_json))
     assert registry.username == "user"
     assert registry.password == "pass"
+    assert registry.url == "https://registry.hub.docker.com"
 
 
 def test_registry_gcr_defaults(tmpdir):
@@ -53,8 +54,8 @@ def test_registry_gcr_defaults(tmpdir):
             f,
         )
     registry = DockerRegistry(docker_config_path=str(config_json))
-    assert registry.registry_host == "https://gcr.io"
-    assert registry.auth_host == "https://gcr.io"
+    assert registry.url == "https://gcr.io"
+    assert registry.auth_config_url == "https://gcr.io"
     assert registry.token_url == "https://gcr.io/v2/token?service=gcr.io"
     assert registry.username == "_json_key"
     assert registry.password == "{...}"
@@ -138,10 +139,10 @@ async def test_get_image_manifest(tmpdir, request):
             f,
         )
     registry = DockerRegistry(
-        docker_config_path=str(config_json), token_url=url + "/token", auth_host=url
+        docker_config_path=str(config_json), token_url=url + "/token", url=url
     )
-    assert registry.registry_host == url
-    assert registry.auth_host == url
+    assert registry.url == url
+    assert registry.auth_config_url == url
     assert registry.token_url == url + "/token"
     assert registry.username == username
     assert registry.password == password
