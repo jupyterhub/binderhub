@@ -19,9 +19,9 @@ image:
   tag: local
 
 registry:
-  # docker config.json hot for auth
-  host:
-  # docker.io username+password
+  # key in 'auths' in docker config.json
+  url:
+  # registry username+password
   username:
   password:
 

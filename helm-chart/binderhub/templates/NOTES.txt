@@ -114,7 +114,7 @@ registry.prefix is removed. Use:
 
 config:
   BinderHub:
-    docker_image_prefix: {{.Values.registry.prefix }}
+    image_prefix: {{.Values.registry.prefix }}
 
 {{- end }}
 

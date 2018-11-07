@@ -185,7 +185,7 @@ class BinderHub(Application):
         config=True,
     )
 
-    docker_push_secret = Unicode(
+    push_secret = Unicode(
         'binder-push-secret',
         allow_none=True,
         help="""
@@ -194,12 +194,12 @@ class BinderHub(Application):
         config=True
     )
 
-    docker_image_prefix = Unicode(
+    image_prefix = Unicode(
         "",
         help="""
         Prefix for all built docker images.
 
-        If you are pushing to gcr.io, you would have this be:
+        If you are pushing to gcr.io, this would start with:
             gcr.io/<your-project-name>/
 
         Set according to whatever registry you are pushing to.
@@ -278,7 +278,7 @@ class BinderHub(Application):
         help="""
         Kubernetes namespace to spawn build pods in.
 
-        Note that the docker_push_secret must refer to a secret in this namespace.
+        Note that the push_secret must refer to a secret in this namespace.
         """,
         config=True
     )
@@ -286,7 +286,7 @@ class BinderHub(Application):
     build_image = Unicode(
         'jupyter/repo2docker:2ebc87b',
         help="""
-        The builder image to be used for doing builds
+        The repo2docker image to be used for doing builds
         """,
         config=True
     )
@@ -463,8 +463,8 @@ class BinderHub(Application):
         self.event_log = EventLog(parent=self)
 
         self.tornado_settings.update({
-            "docker_push_secret": self.docker_push_secret,
-            "docker_image_prefix": self.docker_image_prefix,
+            "push_secret": self.push_secret,
+            "image_prefix": self.image_prefix,
             "debug": self.debug,
             'launcher': self.launcher,
             'appendix': self.appendix,

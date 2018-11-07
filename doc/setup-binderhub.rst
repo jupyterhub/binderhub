@@ -116,7 +116,7 @@ your ``config.yaml`` file::
   config:
     BinderHub:
       use_registry: true
-      docker_image_prefix: gcr.io/<google-project-id>/<prefix>-
+      image_prefix: gcr.io/<google-project-id>/<prefix>-
 
 
 .. note::
@@ -135,7 +135,7 @@ Update ``config.yaml`` by entering the following::
   config:
     BinderHub:
       use_registry: true
-      docker_image_prefix: <docker-id|organization-name>/<prefix>-
+      image_prefix: <docker-id|organization-name>/<prefix>-
 
 .. note::
 
@@ -167,7 +167,7 @@ Second, you will need to instruct BinderHub about two additional URLs::
     config:
       BinderHub:
         use_registry: true
-        docker_image_prefix: "your-registry.io/<prefix>-"
+        image_prefix: "your-registry.io/<prefix>-"
       DockerRegistry:
         token_url: "https://myregistry.io/v2/token?service="
         registry_host: "https://registry.myregistry.io"
