@@ -295,11 +295,11 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit_launch(
-                provider=provider.name,
-                spec=spec,
-                status='success'
-            )
+            self.event_log.emit('binderhub.jupyter.org/launch', 1, {
+                'provider': provider.name,
+                'spec': spec,
+                'status': 'success'
+            })
             return
 
         # Prepare to build
@@ -403,11 +403,11 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit_launch(
-                provider=provider.name,
-                spec=spec,
-                status='success'
-            )
+            self.event_log.emit('binderhub.jupyter.org/launch', 1, {
+                'provider': provider.name,
+                'spec': spec,
+                'status': 'success'
+            })
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
