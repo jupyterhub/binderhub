@@ -15,6 +15,9 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         if not l.strip().startswith('#')
     ]
 
+with open('README.rst', encoding="utf8") as f:
+    readme = f.read()
+
 # Build our js and css files before packaging
 subprocess.check_call(['npm', 'install'])
 subprocess.check_call(['npm', 'run', 'webpack'])
@@ -26,6 +29,18 @@ setup(
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',
     license='BSD',
+    url='https://binderhub.readthedocs.io/en/latest/',
+    project_urls={
+        'Documentation': 'https://binderhub.readthedocs.io/en/latest/',
+        'Funding': 'https://jupyter.org/about',
+        'Source': 'https://github.com/jupyterhub/binderhub/',
+        'Tracker': 'https://github.com/jupyterhub/binderhub/issues',
+    },
+    # this should be a whitespace separated string of keywords, not a list
+    keywords="reproducible science environments docker kubernetes",
+    description="Turn a Git repo into a collection of interactive notebooks",
+    long_description=readme,
+    long_description_content_type='text/x-rst',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
