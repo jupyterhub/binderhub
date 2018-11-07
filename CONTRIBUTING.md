@@ -168,3 +168,20 @@ the `requirements.yaml` file:
 Sometimes JupyterHub introduces breaking changes to its helm chart (such as the
 structure of particular fields). Make sure that none of these changes have been
 introduced, particularly when bumping major versions of JupyterHub.
+
+
+## Releasing
+
+Checklist for creating BinderHub releases. For PyPI packaging read https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi
+
+* remove the `dev` suffix in `binderhub/_version.py`
+* update/close the `CHANGES.rst` for this release
+* add a new section at the top of the change log for future releases
+* `pip install twine`
+* `python setup.py sdist`
+* `python setup.py bdist_wheel`
+* `twine check dist/*` to check the README parses on PyPI
+* edit `$HOME/.pypirc` to use the binder team account
+* `twine upload dist/*`
+* create a new release on https://github.com/jupyterhub/binderhub/releases
+* bump the version in `_version.py` from `0.n.y` to `0.(n+1).0dev`
