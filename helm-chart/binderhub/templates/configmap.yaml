@@ -4,7 +4,7 @@ metadata:
   name: binder-config
 data:
 {{- /* Important: only pick relevant subset of values. Including too much here can trigger unnecessary binderhub pod restarts */}}
-{{- $values := pick .Values "dind" "config" "extraConfig" }}
+{{- $values := pick .Values "config" "cors" "dind" "extraConfig" }}
 {{- /* make a copy to avoid modifying the original */ -}}
 {{- $_ := set $values "config" (merge dict .Values.config) }}
 {{- $_ := set $values.config "BinderHub" (merge dict .Values.config.BinderHub) }}
