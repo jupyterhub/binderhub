@@ -4,4 +4,4 @@ kubernetes==7.0.*
 jupyterhub==0.9.4
 jsonschema==2.6.0
 # Logging sinks to send eventlogging events to
-git+https://github.com/googleapis/google-cloud-python@d72f443#subdirectory=logging
+google-cloud-logging==1.8.*
