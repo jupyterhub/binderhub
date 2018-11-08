@@ -18,7 +18,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
-      nodeSelector: {{ toJson .Values.build.nodeSelector }}
+      nodeSelector: {{ (default (dict) .Values.config.BinderHub.build_node_selector) | toJson  }}
       {{ if .Values.dind.initContainers -}}
       initContainers:
 {{ toYaml .Values.dind.initContainers | indent 10 }}
