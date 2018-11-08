@@ -1,3 +1,151 @@
+{{- define "removedConfig" }}
+
+It looks like you still have some unsupported configuration!
+
+The binderhub chart has removed special-handling
+of many simple configurables in the BinderHub source code.
+Instead, the Python traits configuration is exposed directly.
+
+See https://binderhub.readthedocs.io/en/latest/reference/ref-index.html
+for what can be configured.
+
+In general, it works like:
+
+config:
+  ClassName:
+    trait_name: value
+
+e.g. to set config on BinderHub, use:
+
+config:
+  BinderHub:
+    use_registry: false
+
+or on GitHubRepoProvider:
+
+config:
+  GitHubRepoProvider:
+    access_token: "..."
+
+where ``BinderHub.use_registry`` and ``GitHubRepoProvider.access_token``
+are traits to be configured.
+
+----------------------------------
+Specific unsupported config found:
+
+
+{{- if .Values.hub }}
+
+Special handling of hub.url is removed. Set config.BinderHub.hub_url instead:
+
+config:
+  BinderHub:
+    hub_url: {{ .Values.hub.url }}
+{{- end }}
+
+{{- if .Values.github }}
+
+Top-level github configuration is removed.
+Use:
+
+config:
+  GitHubRepoProvider:
+    access_token: {{ .Values.github.accessToken }}
+    client_id: {{ .Values.github.clientId }}
+    client_secret: {{ .Values.github.clientSecret }}
+{{- end }}
+
+{{- if .Values.gitlab }}
+
+Top-level gitlab configuration is removed.
+Use:
+
+config:
+  GitLabRepoProvider:
+    access_token: {{ .Values.gitlab.accessToken }}
+    private_token: {{ .Values.gitlab.privateToken }}
+{{- end }}
+
+{{- if ne (typeOf .Values.registry.enabled) "<nil>" }}
+
+registry.enabled is removed. Use:
+
+config:
+  BinderHub:
+    use_registry: {{ .Values.registry.enabled }}
+{{- end }}
+
+{{- if .Values.registry.authHost }}
+
+registry.authHost is removed.
+
+Use:
+
+  registry:
+    url: {{ .Values.registry.authHost }}
+
+to set the registry url.
+
+{{- if and .Values.registry.host (ne .Values.registry.host .Values.registry.authHost) }}
+
+If registry url and auth url differ, use:
+
+registry:
+  url: {{ .Values.registry.authHost }}
+config:
+  DockerRegistry:
+    url: {{ .Values.registry.host }}
+    config_url: {{ .Values.registry.authHost }}
+
+{{- end }}
+{{- end }}
+
+{{- if .Values.registry.tokenUrl }}
+
+special-handling of .registry.tokenUrl is removed.
+Use:
+
+config:
+  DockerRegistry:
+    token_url: {{ .Values.registry.tokenUrl }}
+
+{{- end }}
+
+{{- if .Values.registry.prefix }}
+
+registry.prefix is removed. Use:
+
+config:
+  BinderHub:
+    image_prefix: {{.Values.registry.prefix }}
+
+{{- end }}
+
+{{- if or .Values.build .Values.perRepoQuota }}
+
+build is removed. Use:
+
+config:
+  BinderHub:
+    appendix: {{ .Values.build.appendix }}
+    build_cleanup_interval: {{ .Values.build.cleanupInterval }}
+    build_image: {{ .Values.build.repo2dockerImage }}
+    build_max_age: {{ .Values.build.maxAge }}
+    build_namespace: {{ .Values.build.namespace }}
+    build_node_selector: {{ .Values.build.nodeSelector }}
+    log_tail_lines: {{ .Values.build.logTailLines }}
+    per_repo_quota: {{ .Values.perRepoQuota }}
+{{- end }}
+
+{{- /* end removedConfig */ -}}
+{{- end }}
+
+
+{{- if (or .Values.hub .Values.build .Values.github .Values.gitlab .Values.perRepoQuota  .Values.registry.host .Values.registry.authHost .Values.registry.tokenUrl .Values.registry.prefix (ne (typeOf .Values.registry.enabled) "<nil>")) }}
+{{- fail (include "removedConfig" .) }}
+{{- end }}
+
+
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.hostname }}
   http://{{- .Values.ingress.hostname }}

@@ -43,12 +43,12 @@ Create ``secret.yaml`` file
 Create a file called ``secret.yaml`` and add the following::
 
   jupyterhub:
-      hub:
-        services:
-          binder:
-            apiToken: "<output of FIRST `openssl rand -hex 32` command>"
-      proxy:
-        secretToken: "<output of SECOND `openssl rand -hex 32` command>"
+    hub:
+      services:
+        binder:
+          apiToken: "<output of FIRST `openssl rand -hex 32` command>"
+    proxy:
+      secretToken: "<output of SECOND `openssl rand -hex 32` command>"
 
 Next, we'll configure this file to connect with our registry.
 
@@ -61,6 +61,7 @@ our ``gcr.io`` registry account. Below we show the structure of the YAML you
 need to insert. Note that the first line is not indented at all::
 
   registry:
+    url: https://gcr.io
     # below is the content of the JSON file downloaded earlier for the container registry from Service Accounts
     # it will look something like the following (with actual values instead of empty strings)
     # paste the content after `password: |` below
@@ -112,9 +113,11 @@ If you are using ``gcr.io``
 To configure BinderHub to use ``gcr.io``, simply add the following to
 your ``config.yaml`` file::
 
-  registry:
-    prefix:  gcr.io/<google-project-id>/<prefix>
-    enabled: true
+  config:
+    BinderHub:
+      use_registry: true
+      image_prefix: gcr.io/<google-project-id>/<prefix>-
+
 
 .. note::
 
@@ -122,29 +125,81 @@ your ``config.yaml`` file::
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-`` (ending with a `-` is useful).
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using Docker Hub is slightly more involved as the registry is not being run
-by the same platform that runs BinderHub.
-
 Update ``config.yaml`` by entering the following::
 
-  registry:
-    enabled: true
-    prefix: <docker-id/organization-name>/<prefix>
-    host: https://registry.hub.docker.com
-    authHost: https://index.docker.io/v1
-    authTokenUrl: https://auth.docker.io/token?service=registry.docker.io
+  config:
+    BinderHub:
+      use_registry: true
+      image_prefix: <docker-id|organization-name>/<prefix>-
 
 .. note::
 
-   * **``<docker-id/organization-name>``** is where you want to store Docker images.
+   * **``<docker-id|organization-name>``** is where you want to store Docker images.
      This can be your Docker ID account or an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev`` or ``binder-prod``.
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+     (ending with a `-` is useful).
+
+If you are using a custom registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Authenticating with a Docker registry is slightly more complicated.
+BinderHub knows how to talk to gcr.io and DockerHub,
+but if you are using another registry, you will have to provide more information, in the form of two different urls:
+
+- registry url (added to ``docker/config.json``)
+- token url for authenticating access to the registry
+
+First, setup the docker configuration with the host used for authentication::
+
+    registry:
+      url: "https://myregistry.io"
+      username: xxx
+      password: yyy
+
+This creates a docker config.json used to check for images in the registry
+and push builds to it.
+
+Second, you will need to instruct BinderHub about the token URL::
+
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: "your-registry.io/<prefix>-"
+      DockerRegistry:
+        token_url: "https://myregistry.io/v2/token?service="
+
+.. note::
+
+    There is one additional URL to set in the unlikely event that docker config.json
+    must use a different URL to refer to a registry than the registry's actual url.
+    If this is the case, ``registry.url`` at the top-level
+    must match ``DockerRegistry.auth_config_url``::
+
+        registry:
+          url: "https://"
+
+    It's not clear that this can ever be the case for custom registries,
+    however it is the case for DockerHub::
+
+        registry:
+          url: "https://index.docker.io/v1"
+        config:
+          DockerRegistry:
+            url: "https://registry.hub.docker.com" # the actual v2 registry url
+            auth_config_url: "https://index.docker.io/v1" # must match above!
+            token_url: "https://auth.docker.io/token?service=registry.docker.io"
+
+    however, BinderHub is aware of DockerHub's peculiarities
+    and can handle these without any additional configuration
+    beyond `registry.url`.
+
+
 
 Install BinderHub
 -----------------
@@ -158,6 +213,8 @@ Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
     helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+
+where ``...`` is the commit hash of the binderhub chart version you wish to deploy.
 
 .. note::
 
@@ -187,12 +244,13 @@ of the JupyterHub we just deployed.::
 Copy the IP address under ``EXTERNAL-IP``. This is the IP of your
 JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
-  hub:
-    url: http://<IP in EXTERNAL-IP>
+  config:
+    BinderHub:
+      hub_url: http://<IP in EXTERNAL-IP>
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-85ac189  -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-...  -f secret.yaml -f config.yaml
 
 Try out your BinderHub Deployment
 ---------------------------------
@@ -232,8 +290,9 @@ an API access token to raise your API limit to 5000 requests an hour.
 
 3. Update ``secret.yaml`` by entering the following::
 
-    github:
-      accessToken: <insert_token_value_here>
+    config:
+      GitHubRepoProvider:
+        access_token: <insert_token_value_here>
 
 This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
 BinderHub will automatically use the token stored in this variable when making

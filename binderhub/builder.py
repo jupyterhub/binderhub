@@ -256,7 +256,7 @@ class BuildHandler(BaseHandler):
 
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
-        image_prefix = self.settings['docker_image_prefix']
+        image_prefix = self.settings['image_prefix']
 
         # Enforces max 255 characters before image
         safe_build_slug = self._safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
@@ -306,7 +306,7 @@ class BuildHandler(BaseHandler):
         q = Queue()
 
         if self.settings['use_registry']:
-            push_secret = self.settings['docker_push_secret']
+            push_secret = self.settings['push_secret']
         else:
             push_secret = None
 
@@ -332,7 +332,7 @@ class BuildHandler(BaseHandler):
             ref=ref,
             image_name=image_name,
             push_secret=push_secret,
-            builder_image=self.settings['builder_image_spec'],
+            build_image=self.settings['build_image'],
             memory_limit=self.settings['build_memory_limit'],
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],

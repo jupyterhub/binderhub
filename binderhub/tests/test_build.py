@@ -61,7 +61,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     build = Build(
         mock.MagicMock(), api=mock.MagicMock(), name='test_build',
         namespace='build_namespace', repo_url=mock.MagicMock(), ref=mock.MagicMock(),
-        git_credentials=git_credentials, builder_image=mock.MagicMock(),
+        git_credentials=git_credentials, build_image=mock.MagicMock(),
         image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
         memory_limit=mock.MagicMock(), docker_host='http://mydockerregistry.local',
         node_selector=mock.MagicMock())

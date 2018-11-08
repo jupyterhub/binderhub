@@ -41,10 +41,13 @@ spec:
       - name: config
         configMap:
           name: binder-config
-      {{ if .Values.registry.enabled -}}
-      - name: docker-secret
+      - name: secret-config
         secret:
           secretName: binder-secret
+      {{ if .Values.config.BinderHub.use_registry -}}
+      - name: docker-secret
+        secret:
+          secretName: binder-push-secret
       {{ else -}}
       - name: docker-socket
         hostPath:
@@ -59,7 +62,9 @@ spec:
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
-          {{ if .Values.registry.enabled -}}
+          - mountPath: /etc/binderhub/secret/
+            name: secret-config
+          {{ if .Values.config.BinderHub.use_registry -}}
           - mountPath: /root/.docker
             name: docker-secret
             readOnly: true
@@ -83,10 +88,6 @@ spec:
             secretKeyRef:
               name: binder-secret
               key: "binder.hub-token"
-        - name: JUPYTERHUB_URL
-          value: {{ .Values.hub.url | trimSuffix "/" | quote }}
-        - name: JUPYTERHUB_API_URL
-          value: "$(JUPYTERHUB_URL)/hub/api/"
         {{- if or (ne .Values.jupyterhub.auth.type "custom") (ne .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
         # auth is enabled
         - name: JUPYTERHUB_SERVICE_PREFIX
@@ -99,41 +100,6 @@ spec:
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
         {{- end }}
-        {{- end }}
-        {{ if .Values.github.clientId -}}
-        - name: GITHUB_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: binder-secret
-              key: "github.client-id"
-        {{- end }}
-        {{ if .Values.github.clientSecret -}}
-        - name: GITHUB_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: binder-secret
-              key: "github.client-secret"
-        {{- end }}
-        {{ if .Values.github.accessToken -}}
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: binder-secret
-              key: "github.access-token"
-        {{- end }}
-        {{ if .Values.gitlab.accessToken -}}
-        - name: GITLAB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: binder-secret
-              key: "gitlab.access-token"
-        {{- end }}
-        {{ if .Values.gitlab.privateToken -}}
-        - name: GITLAB_PRIVATE_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: binder-secret
-              key: "gitlab.private-token"
         {{- end }}
         ports:
           - containerPort: 8585

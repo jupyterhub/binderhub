@@ -3,6 +3,7 @@ The binderhub application
 """
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import json
 import logging
 import os
 import re
@@ -189,8 +190,8 @@ class BinderHub(Application):
         config=True,
     )
 
-    docker_push_secret = Unicode(
-        'docker-push-secret',
+    push_secret = Unicode(
+        'binder-push-secret',
         allow_none=True,
         help="""
         A kubernetes secret object that provides credentials for pushing built images.
@@ -198,44 +199,17 @@ class BinderHub(Application):
         config=True
     )
 
-    docker_image_prefix = Unicode(
+    image_prefix = Unicode(
         "",
         help="""
         Prefix for all built docker images.
 
-        If you are pushing to gcr.io, you would have this be:
+        If you are pushing to gcr.io, this would start with:
             gcr.io/<your-project-name>/
 
         Set according to whatever registry you are pushing to.
 
         Defaults to "", which is probably not what you want :)
-        """,
-        config=True
-    )
-
-    docker_registry_host = Unicode(
-        "",
-        help="""
-        Docker registry host.
-        """,
-        config=True
-    )
-
-    docker_auth_host = Unicode(
-        help="""
-        Docker authentication host.
-        """,
-        config=True
-    )
-
-    @default('docker_auth_host')
-    def _docker_auth_host_default(self):
-        return self.docker_registry_host
-
-    docker_token_url = Unicode(
-        "",
-        help="""
-        Url to request docker registry authentication token.
         """,
         config=True
     )
@@ -285,6 +259,9 @@ class BinderHub(Application):
         help="""API token for talking to the JupyterHub API""",
         config=True,
     )
+    @default('hub_api_token')
+    def _default_hub_token(self):
+        return os.environ.get('JUPYTERHUB_API_TOKEN', '')
 
     hub_url = Unicode(
         help="""
@@ -306,15 +283,15 @@ class BinderHub(Application):
         help="""
         Kubernetes namespace to spawn build pods in.
 
-        Note that the docker_push_secret must refer to a secret in this namespace.
+        Note that the push_secret must refer to a secret in this namespace.
         """,
         config=True
     )
 
-    builder_image_spec = Unicode(
+    build_image = Unicode(
         'jupyter/repo2docker:2ebc87b',
         help="""
-        The builder image to be used for doing builds
+        The repo2docker image to be used for doing builds
         """,
         config=True
     )
@@ -477,9 +454,7 @@ class BinderHub(Application):
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
         if self.use_registry and self.builder_required:
-            registry = DockerRegistry(self.docker_auth_host,
-                                      self.docker_token_url,
-                                      self.docker_registry_host)
+            registry = DockerRegistry(parent=self)
         else:
             registry = None
 
@@ -497,13 +472,13 @@ class BinderHub(Application):
                 self.event_log.register_schema(json.load(f))
 
         self.tornado_settings.update({
-            "docker_push_secret": self.docker_push_secret,
-            "docker_image_prefix": self.docker_image_prefix,
+            "push_secret": self.push_secret,
+            "image_prefix": self.image_prefix,
             "debug": self.debug,
             'launcher': self.launcher,
             'appendix': self.appendix,
             "build_namespace": self.build_namespace,
-            "builder_image_spec": self.builder_image_spec,
+            "build_image": self.build_image,
             'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,

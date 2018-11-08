@@ -34,7 +34,7 @@ class Build:
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, builder_image,
+    def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
                  appendix='', log_tail_lines=100):
         self.q = q
@@ -45,7 +45,7 @@ class Build:
         self.namespace = namespace
         self.image_name = image_name
         self.push_secret = push_secret
-        self.builder_image = builder_image
+        self.build_image = build_image
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.docker_host = docker_host
@@ -180,7 +180,7 @@ class Build:
             spec=client.V1PodSpec(
                 containers=[
                     client.V1Container(
-                        image=self.builder_image,
+                        image=self.build_image,
                         name="builder",
                         args=self.get_cmd(),
                         image_pull_policy='Always',

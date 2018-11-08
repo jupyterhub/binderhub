@@ -8,9 +8,18 @@ set -ex
 export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
 export BINDER_TEST_URL=http://$IP:30901
 export HUB_URL=http://$IP:30902
-echo -e "hub:\n  url: $HUB_URL" > helm-chart/travis-binder.yaml
+
+cat <<EOF > helm-chart/travis-binder.yaml
+config:
+  BinderHub:
+    hub_url: http://$IP:30902
+EOF
+
 if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
-  echo -e "github:\n  accessToken: '$GITHUB_ACCESS_TOKEN'" >> helm-chart/travis-binder.yaml
+  cat <<EOF >> helm-chart/travis-binder.yaml
+  GitHubRepoProvider:
+    access_token: '$GITHUB_ACCESS_TOKEN'
+EOF
 fi
 
 if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
