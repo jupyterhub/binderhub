@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
 import re
+import json
+from glob import glob
 from urllib.parse import urlparse
 
 import kubernetes.client
@@ -32,6 +34,9 @@ from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvid
 from .metrics import MetricsHandler
 from .utils import ByteSpecification, url_path_join
 from .events import EventLog
+
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 class BinderHub(Application):
@@ -396,7 +401,7 @@ class BinderHub(Application):
 
     @default('template_path')
     def _template_path_default(self):
-        return os.path.join(os.path.dirname(__file__), 'templates')
+        return os.path.join(HERE, 'templates')
 
     extra_static_path = Unicode(
         help='Path to search for extra static files.',
@@ -487,6 +492,10 @@ class BinderHub(Application):
 
         self.event_log = EventLog(parent=self)
 
+        for schema_file in glob(os.path.join(HERE, 'event-schemas','*.json')):
+            with open(schema_file) as f:
+                self.event_log.register_schema(json.load(f))
+
         self.tornado_settings.update({
             "docker_push_secret": self.docker_push_secret,
             "docker_image_prefix": self.docker_image_prefix,
@@ -510,7 +519,7 @@ class BinderHub(Application):
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
-            "static_path": os.path.join(os.path.dirname(__file__), "static"),
+            "static_path": os.path.join(HERE, "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
