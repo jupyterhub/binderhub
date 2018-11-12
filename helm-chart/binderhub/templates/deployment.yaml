@@ -88,10 +88,9 @@ spec:
             secretKeyRef:
               name: binder-secret
               key: "binder.hub-token"
-        {{- if or (ne .Values.jupyterhub.auth.type "custom") (ne .Values.jupyterhub.auth.custom.className "nullauthenticator.NullAuthenticator") }}
-        # auth is enabled
-        - name: JUPYTERHUB_SERVICE_PREFIX
-          value: {{ .Values.baseUrl | quote }}
+        {{- if .Values.config.BinderHub.auth_enabled }}
+        - name: JUPYTERHUB_API_URL
+          value: {{ (print (.Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
         - name: JUPYTERHUB_BASE_URL
           value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
         - name: JUPYTERHUB_CLIENT_ID

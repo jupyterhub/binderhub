@@ -83,6 +83,9 @@ if allow_origin:
 if os.getenv('BUILD_NAMESPACE'):
     c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
+if c.BinderHub.auth_enabled and 'base_url' in c.BinderHub:
+    c.HubOAuth.base_url = c.BinderHub.base_url
+
 # load extra config snippets
 for key, snippet in sorted((get_value('extraConfig') or {}).items()):
     print("Loading extra config: {}".format(key))
