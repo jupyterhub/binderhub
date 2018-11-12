@@ -154,15 +154,15 @@ h4 {
     margin-bottom:40px;
 }
 
-.bluedropdown{
-    background-color:#579ACA;
+.dropdownmenu{
+    background-color:#DDDDDD;
     border-radius: 3px 3px 0px 0px;
     height:35px;
     width: 100%;
 }
 
-.bluedropdown label{
-    color:white;
+.dropdownmenu label{
+    color:black;
     padding: 6px 12px;
     margin:0px;
     width: 95%;
