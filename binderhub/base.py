@@ -4,6 +4,8 @@ from http.client import responses
 from tornado import web
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
+from ._version import __version__ as binder_version
+
 
 class BaseHandler(HubOAuthenticated, web.RequestHandler):
     """HubAuthenticated by default allows all successfully identified users (see allow_all property)."""
@@ -87,3 +89,18 @@ class Custom404(BaseHandler):
 
     def prepare(self):
         raise web.HTTPError(404)
+
+
+class AboutHandler(BaseHandler):
+    """Serve the about page"""
+    async def get(self):
+        self.render_template(
+            "about.html",
+            base_url=self.settings['base_url'],
+            submit=False,
+            binder_version=binder_version,
+            message=self.settings['about_message'],
+            google_analytics_code=self.settings['google_analytics_code'],
+            google_analytics_domain=self.settings['google_analytics_domain'],
+            extra_footer_scripts=self.settings['extra_footer_scripts'],
+        )
