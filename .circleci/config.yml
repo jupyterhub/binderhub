@@ -21,7 +21,7 @@ jobs:
             make html
 
       - store_artifacts:
-          path: doc/build/html/
+          path: doc/_build/html/
           destination: html
 
 workflows:
