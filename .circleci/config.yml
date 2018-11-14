@@ -6,11 +6,11 @@ jobs:
     steps:
       - checkout
 
-      # Install documentation requirements
+      # Install documentation requirements in the same way that ReadTheDocs
+      # does to check our dependencies are all specified
       - run:
           name: Install doc dependencies
           command: |
-            sudo pip install -r requirements.txt
             sudo pip install -r doc/doc-requirements.txt
 
       # Build the docs
