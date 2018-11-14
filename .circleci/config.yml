@@ -6,6 +6,12 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: Install NPM
+          command: |
+            curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+
       # Install documentation requirements in the same way that ReadTheDocs
       # does to check our dependencies are all specified
       - run:
