@@ -25,7 +25,7 @@ from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, defaul
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 
-from .base import Custom404
+from .base import AboutHandler, Custom404
 from .build import Build
 from .builder import BuildHandler
 from .launcher import Launcher
@@ -94,6 +94,17 @@ class BinderHub(Application):
         config=True
     )
 
+    about_message = Unicode(
+        '',
+        help="""
+        Additional message to display on the about page.
+
+        Will be directly inserted into the about page's source so you can use
+        raw HTML.
+        """,
+        config=True
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -123,8 +134,8 @@ class BinderHub(Application):
 
     auth_enabled = Bool(
         False,
-        help="""If JupyterHub authentication enabled, 
-        require user to login (don't create temporary users during launch) and 
+        help="""If JupyterHub authentication enabled,
+        require user to login (don't create temporary users during launch) and
         start the new server for the logged in user.""",
         config=True)
 
@@ -489,6 +500,7 @@ class BinderHub(Application):
             'traitlets_config': self.config,
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
+            'about_message': self.about_message,
             'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
@@ -533,6 +545,7 @@ class BinderHub(Application):
             (r'/(favicon\_building\.ico)',
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
+            (r'/about', AboutHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
