@@ -23,6 +23,9 @@ spec:
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
+      {{- if .Values.jupyterhub.scheduling.podPriority.enabled }}
+      priorityClassName: {{ .Release.Name }}-default-priority
+      {{- end }}
       containers:
       {{- range $i, $kind := tuple "host" "dind" }}
       {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}

@@ -33,6 +33,9 @@ spec:
       initContainers:
 {{ toYaml .Values.initContainers | indent 6 }}
       {{- end }}
+      {{- if .Values.jupyterhub.scheduling.podPriority.enabled }}
+      priorityClassName: {{ .Release.Name }}-default-priority
+      {{- end }}
       nodeSelector: {{ toJson .Values.nodeSelector }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: binderhub

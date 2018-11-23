@@ -23,6 +23,9 @@ spec:
       initContainers:
 {{ toYaml .Values.dind.initContainers | indent 10 }}
       {{- end }}
+      {{- if .Values.jupyterhub.scheduling.podPriority.enabled }}
+      priorityClassName: {{ .Release.Name }}-default-priority
+      {{- end }}
       containers:
       - name: dind
         image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
