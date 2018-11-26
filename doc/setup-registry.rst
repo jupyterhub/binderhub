@@ -25,7 +25,7 @@ service account that has authorization to push to Google Container Registry:
 4. Click **Create service account**
 5. Give your account a descriptive name such as "binderhub-builder"
 6. Click ``Role -> Storage -> Storage Admin`` menu option
-7. Check **Furnish new private key**
+7. Click **Create Key**
 8. Leave key type as default of **JSON**
 9. Click **Create**
 
