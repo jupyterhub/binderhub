@@ -156,6 +156,9 @@ imageCleaner:
 
 ingress:
   enabled: false
+  https:
+    enabled: false
+    type: kube-lego
   hosts:
     - chart-example.local
   annotations: {}
