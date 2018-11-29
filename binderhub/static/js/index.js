@@ -275,7 +275,7 @@ function build(providerSpec, log, path, pathType) {
 
     $("#loader").addClass("paused");
     $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
-    update_favicon("/favicon_fail.ico");
+    update_favicon(BASE_URL + "favicon_fail.ico");
     // If we fail for any reason, we will show logs!
     log.show();
 
@@ -293,7 +293,7 @@ function build(providerSpec, log, path, pathType) {
       $('#phase-launching').removeClass('hidden');
     }
     $('#phase-launching').removeClass('hidden');
-    update_favicon("/favicon_success.ico");
+    update_favicon(BASE_URL + "favicon_success.ico");
   });
 
   image.onStateChange('ready', function(oldState, newState, data) {
