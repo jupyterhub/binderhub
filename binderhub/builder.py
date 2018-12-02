@@ -2,6 +2,7 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
+import asyncio
 import hashlib
 from http.client import responses
 import json
@@ -345,10 +346,7 @@ class BuildHandler(BaseHandler):
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
             # Start building
-            submit_future = pool.submit(build.submit)
-            # TODO: hook up actual error handling when this fails
-            IOLoop.current().add_callback(lambda : submit_future)
-
+            submit_future = asyncio.ensure_future(build.submit())
             log_future = None
 
             # initial waiting event
@@ -378,7 +376,8 @@ class BuildHandler(BaseHandler):
                     elif progress['payload'] == 'Running':
                         # start capturing build logs once the pod is running
                         if log_future is None:
-                            log_future = pool.submit(build.stream_logs)
+                            # FIXME: Start this off but do not block
+                            log_future = asyncio.ensure_future(build.stream_logs())
                         continue
                     elif progress['payload'] == 'Succeeded':
                         # Do nothing, is ok!
@@ -433,17 +432,10 @@ class BuildHandler(BaseHandler):
         total_pods = 0
 
         # TODO: run a watch to keep this up to date in the background
-        pool = self.settings['executor']
-        f = pool.submit(kube.list_namespaced_pod,
+        pods = await kube.list_namespaced_pod(
             self.settings["build_namespace"],
             label_selector='app=jupyterhub,component=singleuser-server',
         )
-        # concurrent.futures.Future isn't awaitable
-        # wrap in tornado Future
-        # tornado 5 will have `.run_in_executor`
-        tf = Future()
-        chain_future(f, tf)
-        pods = await tf
         for pod in pods.items:
             total_pods += 1
             for container in pod.spec.containers:

@@ -11,8 +11,8 @@ import json
 from glob import glob
 from urllib.parse import urlparse
 
-import kubernetes.client
-import kubernetes.config
+import kubernetes_asyncio.client
+import kubernetes_asyncio.config
 from jinja2 import Environment, FileSystemLoader, PrefixLoader, ChoiceLoader
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpserver import HTTPServer
@@ -436,14 +436,6 @@ class BinderHub(Application):
 
         self.init_pycurl()
 
-        # initialize kubernetes config
-        if self.builder_required:
-            try:
-                kubernetes.config.load_incluster_config()
-            except kubernetes.config.ConfigException:
-                kubernetes.config.load_kube_config()
-            self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes.client.CoreV1Api()
-
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
@@ -559,7 +551,7 @@ class BinderHub(Application):
                                  url_path_join(self.base_url, 'oauth_callback')
             oauth_redirect_uri = urlparse(oauth_redirect_uri).path
             handlers.insert(-1, (oauth_redirect_uri, HubOAuthCallbackHandler))
-        self.tornado_app = tornado.web.Application(handlers, **self.tornado_settings)
+        self.handlers = handlers
 
     def stop(self):
         self.http_server.stop()
@@ -574,30 +566,38 @@ class BinderHub(Application):
         """
         while True:
             try:
-                await asyncio.wrap_future(
-                    self.executor.submit(
-                        lambda: Build.cleanup_builds(
-                            self.kube_client,
-                            self.build_namespace,
-                            self.build_max_age,
-                        )
+                await Build.cleanup_builds(
+                        self.kube_client,
+                        self.build_namespace,
+                        self.build_max_age,
                     )
-                )
             except Exception:
                 app_log.exception("Failed to cleanup build pods")
             await asyncio.sleep(self.build_cleanup_interval)
 
     def start(self, run_loop=True):
         self.log.info("BinderHub starting on port %i", self.port)
-        self.http_server = HTTPServer(
-            self.tornado_app,
-            xheaders=True,
-        )
-        self.http_server.listen(self.port)
-        if self.builder_required:
+        def _set_k8s_client(future):
+            self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes_asyncio.client.CoreV1Api()
             asyncio.ensure_future(self.watch_build_pods())
+            self.tornado_app = tornado.web.Application(self.handlers, **self.tornado_settings)
+            self.http_server = HTTPServer(
+                self.tornado_app,
+                xheaders=True,
+            )
+            self.http_server.listen(self.port)
+        if self.builder_required:
+            try:
+                asyncio.ensure_future(kubernetes_asyncio.config.load_incluster_config()).add_done_callback(
+                    _set_k8s_client
+                )
+            except kubernetes_asyncio.config.ConfigException:
+                asyncio.ensure_future(kubernetes_asyncio.config.load_kube_config()).add_done_callback(
+                    _set_k8s_client
+                )
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
+            # FIXME: Retreive exceptions & wait for future to complete before moving on
 
 
 main = BinderHub.launch_instance

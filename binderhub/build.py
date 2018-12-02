@@ -8,7 +8,7 @@ import json
 import threading
 from urllib.parse import urlparse
 
-from kubernetes import client, watch
+from kubernetes_asyncio import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
@@ -84,12 +84,12 @@ class Build:
         return cmd
 
     @classmethod
-    def cleanup_builds(cls, kube, namespace, max_age):
+    async def cleanup_builds(cls, kube, namespace, max_age):
         """Delete stopped build pods and build pods that have aged out"""
-        builds = kube.list_namespaced_pod(
+        builds = (await kube.list_namespaced_pod(
             namespace=namespace,
             label_selector='component=binderhub-build',
-        ).items
+        )).items
         phases = defaultdict(int)
         app_log.debug("%i build pods", len(builds))
         now = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -103,7 +103,6 @@ class Build:
             delete = False
             if build.status.phase in {'Failed', 'Succeeded', 'Evicted'}:
                 # log Deleting Failed build build-image-...
-                # print(build.metadata)
                 app_log.info(
                     "Deleting %s build %s (repo=%s)",
                     build.status.phase,
@@ -125,7 +124,7 @@ class Build:
             if delete:
                 deleted += 1
                 try:
-                    kube.delete_namespaced_pod(
+                    await kube.delete_namespaced_pod(
                         name=build.metadata.name,
                         namespace=namespace,
                         body=client.V1DeleteOptions(grace_period_seconds=0))
@@ -144,7 +143,7 @@ class Build:
         """Put the current action item into the queue for execution."""
         self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
-    def submit(self):
+    async def submit(self):
         """Submit a image spec to openshift's s2i and wait for completion """
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
@@ -199,7 +198,7 @@ class Build:
         )
 
         try:
-            ret = self.api.create_namespaced_pod(self.namespace, self.pod)
+            ret = await self.api.create_namespaced_pod(self.namespace, self.pod)
         except client.rest.ApiException as e:
             if e.status == 409:
                 # Someone else created it!
@@ -214,7 +213,7 @@ class Build:
         while not self.stop_event.is_set():
             w = watch.Watch()
             try:
-                for f in w.stream(
+                async for f in w.stream(
                         self.api.list_namespaced_pod,
                         self.namespace,
                         label_selector="name={}".format(self.name),
@@ -227,9 +226,9 @@ class Build:
                     if not self.stop_event.is_set():
                         self.progress('pod.phasechange', self.pod.status.phase)
                     if self.pod.status.phase == 'Succeeded':
-                        self.cleanup()
+                        await self.cleanup()
                     elif self.pod.status.phase == 'Failed':
-                        self.cleanup()
+                        await self.cleanup()
             except Exception as e:
                 app_log.exception("Error in watch stream for %s", self.name)
                 raise
@@ -239,15 +238,20 @@ class Build:
                 app_log.info("Stopping watch of %s", self.name)
                 return
 
-    def stream_logs(self):
+    async def stream_logs(self):
         """Stream a pod's logs"""
         app_log.info("Watching logs of %s", self.name)
-        for line in self.api.read_namespaced_pod_log(
-                self.name,
-                self.namespace,
-                follow=True,
-                tail_lines=self.log_tail_lines,
-                _preload_content=False):
+        log_read = await self.api.read_namespaced_pod_log(
+            self.name,
+            self.namespace,
+            follow=True,
+            tail_lines=self.log_tail_lines,
+            _preload_content=False)
+
+        while True:
+            line = await log_read.content.readline()
+            if not line:
+                break
             if self.stop_event.is_set():
                 app_log.info("Stopping logs of %s", self.name)
                 return
@@ -271,10 +275,10 @@ class Build:
         else:
             app_log.info("Finished streaming logs of %s", self.name)
 
-    def cleanup(self):
+    async def cleanup(self):
         """Delete a kubernetes pod."""
         try:
-            self.api.delete_namespaced_pod(
+            await self.api.delete_namespaced_pod(
                 name=self.name,
                 namespace=self.namespace,
                 body=client.V1DeleteOptions(grace_period_seconds=0))
