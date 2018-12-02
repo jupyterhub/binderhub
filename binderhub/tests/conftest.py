@@ -8,8 +8,8 @@ import time
 from urllib.parse import urlparse
 from unittest import mock
 
-import kubernetes.client
-import kubernetes.config
+import kubernetes_asyncio.client
+import kubernetes_asyncio.config
 import pytest
 import requests
 from tornado import ioloop
@@ -184,30 +184,32 @@ def app(request, io_loop, _binderhub_config):
     return bhub
 
 
-def cleanup_pods(namespace, labels):
-    """Cleanup pods in a namespace that match the given labels"""
-    kube = kubernetes.client.CoreV1Api()
 
-    def get_pods():
+async def cleanup_pods(namespace, labels):
+    """Cleanup pods in a namespace that match the given labels"""
+    kube = kubernetes_asyncio.client.CoreV1Api()
+
+    async def get_pods():
         """Return  list of pods matching given labels"""
+        pods = (await kube.list_namespaced_pod(namespace)).items
         return [
-            pod for pod in kube.list_namespaced_pod(namespace).items
+            pod for pod in pods
             if all(
                 pod.metadata.labels.get(key) == value
                 for key, value in labels.items()
             )
         ]
 
-    all_pods = pods = get_pods()
+    all_pods = pods = await get_pods()
     for pod in pods:
         print(f"deleting pod {pod.metadata.name}")
         try:
-            kube.delete_namespaced_pod(
+            await kube.delete_namespaced_pod(
                 pod.metadata.name,
                 namespace,
-                kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
+                kubernetes_asyncio.client.V1DeleteOptions(grace_period_seconds=0),
             )
-        except kubernetes.client.rest.ApiException as e:
+        except kubernetes_async.client.rest.ApiException as e:
             # ignore 404, 409: already gone
             if e.status not in (404, 409):
                 raise
@@ -215,14 +217,14 @@ def cleanup_pods(namespace, labels):
     while pods:
         print(f"Waiting for {len(pods)} pods to exit")
         time.sleep(1)
-        pods = get_pods()
+        pods = await get_pods()
     if all_pods:
         pod_names = ','.join([pod.metadata.name for pod in all_pods])
         print(f"Deleted {len(all_pods)} pods: {pod_names}")
 
 
 @pytest.fixture(scope='session')
-def cleanup_binder_pods(request):
+async def cleanup_binder_pods(request):
     """Cleanup running binders.
 
     Fires at beginning and end of session
@@ -231,10 +233,10 @@ def cleanup_binder_pods(request):
         # kubernetes not available, nothing to do
         return
 
-    def cleanup():
-        return cleanup_pods(TEST_NAMESPACE,
+    async def cleanup():
+        return await cleanup_pods(TEST_NAMESPACE,
                             {'component': 'singleuser-server'})
-    cleanup()
+    await cleanup()
     request.addfinalizer(cleanup)
 
 
@@ -246,24 +248,24 @@ def needs_launch(app, cleanup_binder_pods):
 
 
 @pytest.fixture(scope='session')
-def cleanup_build_pods(request):
+async def cleanup_build_pods(request):
     if not KUBERNETES_AVAILABLE:
         # kubernetes not available, nothing to do
         return
-    kube = kubernetes.client.CoreV1Api()
+    kube = kubernetes_async.client.CoreV1Api()
     try:
-        kube.create_namespace(
-            kubernetes.client.V1Namespace(metadata={'name': TEST_NAMESPACE})
+        await kube.create_namespace(
+            kubernetes_async.client.V1Namespace(metadata={'name': TEST_NAMESPACE})
         )
-    except kubernetes.client.rest.ApiException as e:
+    except kubernetes_async.client.rest.ApiException as e:
         # ignore 409: already exists
         if e.status != 409:
             raise
 
-    def cleanup():
-        return cleanup_pods(TEST_NAMESPACE,
+    async def cleanup():
+        return await cleanup_pods(TEST_NAMESPACE,
                             {'component': 'binderhub-build'})
-    cleanup()
+    await cleanup()
     request.addfinalizer(cleanup)
 
 

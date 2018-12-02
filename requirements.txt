@@ -1,4 +1,4 @@
-kubernetes>=4.*
+kubernetes_asyncio>=4.*
 escapism
 tornado
 traitlets
