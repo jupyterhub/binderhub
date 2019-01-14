@@ -29,12 +29,7 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     r = await async_requests.get(build_url, stream=True)
     r.raise_for_status()
     events = []
-    for f in async_requests.iter_lines(r):
-        # await line Future
-        try:
-            line = await f
-        except StopIteration:
-            break
+    async for line in async_requests.iter_lines(r):
         line = line.decode('utf8', 'replace')
         if line.startswith('data:'):
             event = json.loads(line.split(':', 1)[1])

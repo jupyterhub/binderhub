@@ -116,11 +116,21 @@ class _AsyncRequests:
     def _submit(self, f, *args, **kwargs):
         return asyncio.wrap_future(self.executor.submit(f, *args, **kwargs))
 
-    def iter_lines(self, response):
+    async def iter_lines(self, response):
         """Asynchronously iterate through the lines of a response"""
         it = response.iter_lines()
+        def _next():
+            try:
+                return next(it)
+            except StopIteration:
+                # asyncio Future cannot have StopIteration as a result
+                return
         while True:
-            yield self._submit(lambda : next(it))
+            line = await self._submit(_next)
+            if line is None:
+                break
+            else:
+                yield line
 
 
 # async_requests.get = requests.get returning a Future, etc.
