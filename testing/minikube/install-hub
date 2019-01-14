@@ -66,11 +66,19 @@ if auth_enabled:
         IP = '127.0.0.1'
     finally:
         s.close()
+    import subprocess
+
+    try:
+        minikube_ip = subprocess.check_output(['minikube', 'ip']).decode('utf-8').strip()
+    except (subprocess.SubprocessError, FileNotFoundError):
+        minikube_ip = '192.168.1.100'
     print('Host IP: {}'.format(IP))
+    print('minikube IP: {}'.format(minikube_ip))
     # insert host IP
     with open(auth_conf_file, 'r') as file:
         filedata = file.read()
     filedata = filedata.replace('<host_ip>', IP)
+    filedata = filedata.replace('<minikube_ip>', minikube_ip)
     with open(auth_conf_file, 'w') as file:
         file.write(filedata)
 
