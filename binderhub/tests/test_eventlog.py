@@ -101,7 +101,7 @@ def test_emit_event_badschema():
             })
 
 
-def test_provider_completeness(app):
+async def test_provider_completeness(app):
     """
     Test we add an entry in the launch schema for all providers
     """

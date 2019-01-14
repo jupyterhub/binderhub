@@ -21,15 +21,14 @@ def use_session():
     ],
     indirect=['app']  # send param True to app fixture, so that it loads authentication configuration
 )
-@pytest.mark.gen_test
 @pytest.mark.auth_test
-def test_auth(app, path, authenticated, use_session):
+async def test_auth(app, path, authenticated, use_session):
     service_path = app.base_url.lstrip('/')
     service_url = f'{app.hub_url}{service_path}'
     url = f'{service_url}{path}'
-    r = yield async_requests.get(url)
+    r = await async_requests.get(url)
     assert r.status_code == 200, f"{r.status_code} {url}"
-    r2 = yield async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
+    r2 = await async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
     if authenticated:
         assert r2.status_code == 200, f"{r2.status_code} {r.url}"
     else:

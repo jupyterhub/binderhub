@@ -18,9 +18,8 @@ from .utils import async_requests
         ),
     ]
 )
-@pytest.mark.gen_test
-def test_legacy_redirect(app, old_url, new_url):
-    r = yield async_requests.get(app.url + old_url, allow_redirects=False)
+async def test_legacy_redirect(app, old_url, new_url):
+    r = await async_requests.get(app.url + old_url, allow_redirects=False)
     assert r.status_code == 302
     assert r.headers['location'] == new_url
 
@@ -50,18 +49,17 @@ def _resolve_url(page_url, url):
     return f"{parsed.scheme}://{parsed.netloc}{path}{url}"
 
 
-@pytest.mark.gen_test
 @pytest.mark.remote
-def test_main_page(app):
+async def test_main_page(app):
     """Check the main page and any links on it"""
-    r = yield async_requests.get(app.url)
+    r = await async_requests.get(app.url)
     assert r.status_code == 200
     soup = BeautifulSoup(r.text, 'html5lib')
 
     # check src links (style, images)
     for el in soup.find_all(src=True):
         url = _resolve_url(app.url, el['src'])
-        r = yield async_requests.get(url)
+        r = await async_requests.get(url)
         assert r.status_code == 200, f"{r.status_code} {url}"
 
     # check hrefs
@@ -70,7 +68,7 @@ def test_main_page(app):
         if href.startswith('#'):
             continue
         url = _resolve_url(app.url, href)
-        r = yield async_requests.get(url)
+        r = await async_requests.get(url)
         assert r.status_code == 200, f"{r.status_code} {url}"
 
 
@@ -89,18 +87,17 @@ def test_main_page(app):
         ('gh', 'binderhub-ci-repos/requirements', 'master', '%2Fhas%20space%2F%C3%BCnicode.ipynb', 'file', 200),
     ]
 )
-@pytest.mark.gen_test
-def test_loading_page(app, provider_prefix, repo, ref, path, path_type, status_code):
+async def test_loading_page(app, provider_prefix, repo, ref, path, path_type, status_code):
     # repo = f'{org}/{repo_name}'
     spec = f'{repo}/{ref}'
     provider_spec = f'{provider_prefix}/{spec}'
     query = f'{path_type}path={path}' if path else ''
     uri = f'/v2/{provider_spec}?{query}'
-    r = yield async_requests.get(app.url + uri)
+    r = await async_requests.get(app.url + uri)
     assert r.status_code == status_code, f"{r.status_code} {uri}"
     if status_code == 200:
         soup = BeautifulSoup(r.text, 'html5lib')
         assert soup.find(id='log-container')
         nbviewer_url = soup.find(id='nbviewer-preview').find('iframe').attrs['src']
-        r = yield async_requests.get(nbviewer_url)
+        r = await async_requests.get(nbviewer_url)
         assert r.status_code == 200, f"{r.status_code} {nbviewer_url}"
