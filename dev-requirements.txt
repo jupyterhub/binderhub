@@ -1,7 +1,7 @@
 beautifulsoup4
 codecov
 html5lib
-pytest
+pytest>=3.5
 pytest-cov
 pytest-tornado
 requests
