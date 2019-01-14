@@ -14,8 +14,9 @@ before_install:
   - nvm install 8; nvm use 8
 install:
   - export PATH=$PWD/bin:$PATH
+  - pip install --upgrade pip setuptools
   - ./ci/install.sh
-  - pip install -r dev-requirements.txt
+  - pip install --upgrade -r dev-requirements.txt
   - npm install
   - npm run webpack
   - pip install .
