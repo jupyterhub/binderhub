@@ -19,6 +19,7 @@ install:
   - npm install
   - npm run webpack
   - pip install .
+  - pip freeze
 
 script:
   - export BINDER_TEST_NAMESPACE=binder-test-$TEST
