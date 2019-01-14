@@ -95,10 +95,8 @@ spec:
           value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
         - name: JUPYTERHUB_CLIENT_ID
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
-        {{- if .Values.jupyterhub.hub.services.binder.oauth_redirect_uri }}
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
-        {{- end }}
         {{- end }}
         ports:
           - containerPort: 8585
