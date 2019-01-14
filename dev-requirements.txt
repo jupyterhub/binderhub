@@ -1,8 +1,8 @@
 beautifulsoup4
 codecov
 html5lib
-pytest>=3.5
-pytest-cov
+pytest
+pytest-cov<2.6.0
 pytest-tornado
 requests
 ruamel.yaml>=0.15
