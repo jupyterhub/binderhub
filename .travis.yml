@@ -19,7 +19,7 @@ install:
   - pip install --upgrade -r dev-requirements.txt
   - npm install
   - npm run webpack
-  - pip install .
+  - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
 
 script:
   - export BINDER_TEST_NAMESPACE=binder-test-$TEST
