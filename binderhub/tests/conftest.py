@@ -2,6 +2,7 @@
 
 from binascii import b2a_hex
 from collections import defaultdict
+import inspect
 import json
 import os
 import time
@@ -12,8 +13,8 @@ import kubernetes.client
 import kubernetes.config
 import pytest
 import requests
-from tornado import ioloop
 from tornado.httpclient import AsyncHTTPClient
+from tornado.platform.asyncio import AsyncIOMainLoop
 from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
@@ -62,6 +63,13 @@ def load_mock_responses(host):
     MockAsyncHTTPClient.mocks.update(records)
 
 
+def pytest_collection_modifyitems(items):
+    """add asyncio marker to all async tests"""
+    for item in items:
+        if inspect.iscoroutinefunction(item.obj):
+            item.add_marker('asyncio')
+
+
 @pytest.fixture(autouse=True, scope="session")
 def mock_asynchttpclient(request):
     """mock AsyncHTTPClient for recording responses"""
@@ -71,10 +79,11 @@ def mock_asynchttpclient(request):
 
 
 @pytest.fixture
-def io_loop(request):
-    """Fix tornado-5 compatibility in pytest_tornado io_loop"""
-    io_loop = ioloop.IOLoop()
+def io_loop(event_loop, request):
+    """Same as pytest-tornado.io_loop, but runs with pytest-asyncio"""
+    io_loop = AsyncIOMainLoop()
     io_loop.make_current()
+    assert io_loop.asyncio_loop is event_loop
 
     def _close():
         io_loop.clear_current()

@@ -12,7 +12,7 @@ from binderhub.build import Build
 from .utils import async_requests
 
 
-@pytest.mark.gen_test(timeout=900)
+@pytest.mark.asyncio(timeout=900)
 @pytest.mark.parametrize("slug", [
     "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
     "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
@@ -21,20 +21,15 @@ from .utils import async_requests
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
 @pytest.mark.remote
-def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
+async def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
     # can't use mark.github_api since only some tests here use GitHub
     if slug.startswith('gh/') and "not github_api" in pytestconfig.getoption('markexpr'):
         pytest.skip("Skipping GitHub API test")
     build_url = f"{app.url}/build/{slug}"
-    r = yield async_requests.get(build_url, stream=True)
+    r = await async_requests.get(build_url, stream=True)
     r.raise_for_status()
     events = []
-    for f in async_requests.iter_lines(r):
-        # await line Future
-        try:
-            line = yield f
-        except StopIteration:
-            break
+    async for line in async_requests.iter_lines(r):
         line = line.decode('utf8', 'replace')
         if line.startswith('data:'):
             event = json.loads(line.split(':', 1)[1])
@@ -48,7 +43,7 @@ def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig)
     assert 'url' in final
     assert 'token' in final
     print(final['url'])
-    r = yield async_requests.get(url_concat(final['url'], {'token': final['token']}))
+    r = await async_requests.get(url_concat(final['url'], {'token': final['token']}))
     r.raise_for_status()
     assert r.url.startswith(final['url'])
 

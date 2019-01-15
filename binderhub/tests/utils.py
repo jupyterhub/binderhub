@@ -85,6 +85,7 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 # async-request utility from jupyterhub.tests.utils v0.8.1
 # used under BSD license
 
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import requests
 
@@ -110,13 +111,26 @@ class _AsyncRequests:
             requests_method = getattr(self._session, name)
         else:
             requests_method = getattr(requests, name)
-        return lambda *args, **kwargs: self.executor.submit(requests_method, *args, **kwargs)
+        return lambda *args, **kwargs: self._submit(requests_method, *args, **kwargs)
 
-    def iter_lines(self, response):
+    def _submit(self, f, *args, **kwargs):
+        return asyncio.wrap_future(self.executor.submit(f, *args, **kwargs))
+
+    async def iter_lines(self, response):
         """Asynchronously iterate through the lines of a response"""
         it = response.iter_lines()
+        def _next():
+            try:
+                return next(it)
+            except StopIteration:
+                # asyncio Future cannot have StopIteration as a result
+                return
         while True:
-            yield self.executor.submit(lambda : next(it))
+            line = await self._submit(_next)
+            if line is None:
+                break
+            else:
+                yield line
 
 
 # async_requests.get = requests.get returning a Future, etc.

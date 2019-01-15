@@ -105,7 +105,6 @@ class MockManifestHandler(RequestHandler):
         self.write(json.dumps({"image": image, "tag": tag}))
 
 
-@pytest.mark.gen_test
 async def test_get_image_manifest(tmpdir, request):
     username = "asdf"
     password = "asdf;ouyag"
