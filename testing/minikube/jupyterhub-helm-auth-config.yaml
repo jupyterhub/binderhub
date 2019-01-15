@@ -3,8 +3,7 @@ cull:
 hub:
   services:
     binder:
-      url: http://<host_ip>:8585
-      oauth_redirect_uri: "http://<minikube_ip>:30123/services/binder/oauth_callback"
+      oauth_redirect_uri: "http://127.0.0.1:8585/oauth_callback"
       oauth_client_id: "binder-oauth-client-test"
 
 auth:
