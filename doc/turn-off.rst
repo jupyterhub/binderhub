@@ -10,7 +10,7 @@ Contracting the size of your cluster
 ------------------------------------
 
 If you would like to shrink the size of your cluster, refer to the
-`Expanding and contracting the size of your cluster <https://zero-to-jupyterhub.readthedocs.io/en/latest/extending-jupyterhub.html#expanding-and-contracting-the-size-of-your-cluster>`_
+`Expanding and contracting the size of your cluster <https://zero-to-jupyterhub.readthedocs.io/en/latest/user-resources.html#expanding-and-contracting-the-size-of-your-cluster>`_
 section of the `Zero to JupyterHub`_ documentation. Resizing the cluster to
 zero nodes could be used if you wish to temporarily reduce the cluster (and
 save costs) without deleting the cluster.

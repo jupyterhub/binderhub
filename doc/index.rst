@@ -11,7 +11,7 @@ Getting started
 
 The primary goal of BinderHub is creating custom computing environments that
 can be used by many remote users. BinderHub enables an end user to easily
-specify a desired computing environment from a GitHub repo. BinderHub then
+specify a desired computing environment from a Git repo. BinderHub then
 serves the custom computing environment at a URL which users can access
 remotely.
 
