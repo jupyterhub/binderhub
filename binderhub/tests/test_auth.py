@@ -15,17 +15,15 @@ def use_session():
 @pytest.mark.parametrize(
     'app,path,authenticated',
     [
-        (True, '', True),  # main page
-        (True, 'v2/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd', True),
-        (True, 'metrics', False),
+        (True, '/', True),  # main page
+        (True, '/v2/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd', True),
+        (True, '/metrics', False),
     ],
     indirect=['app']  # send param True to app fixture, so that it loads authentication configuration
 )
 @pytest.mark.auth_test
 async def test_auth(app, path, authenticated, use_session):
-    service_path = app.base_url.lstrip('/')
-    service_url = f'{app.hub_url}{service_path}'
-    url = f'{service_url}{path}'
+    url = f'{app.url}{path}'
     r = await async_requests.get(url)
     assert r.status_code == 200, f"{r.status_code} {url}"
     r2 = await async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
