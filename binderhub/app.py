@@ -397,7 +397,7 @@ class BinderHub(Application):
     )
 
     extra_static_url_prefix = Unicode(
-        'extra_static/',
+        '/extra_static/',
         help='Url prefix to serve extra static files.',
         config=True,
     )
@@ -549,11 +549,11 @@ class BinderHub(Application):
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
+        handlers = self.add_url_prefix(self.base_url, handlers)
         if self.extra_static_path:
-            handlers.insert(-1, (re.escape(self.extra_static_url_prefix) + r"(.*)",
+            handlers.insert(-1, (re.escape(url_path_join(self.base_url, self.extra_static_url_prefix)) + r"(.*)",
                                  tornado.web.StaticFileHandler,
                                  {'path': self.extra_static_path}))
-        handlers = self.add_url_prefix(self.base_url, handlers)
         if self.auth_enabled:
             oauth_redirect_uri = os.getenv('JUPYTERHUB_OAUTH_CALLBACK_URL') or \
                                  url_path_join(self.base_url, 'oauth_callback')
