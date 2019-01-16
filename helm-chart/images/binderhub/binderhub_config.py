@@ -1,7 +1,7 @@
 from collections import Mapping
 import os
 from functools import lru_cache
-
+from urllib.parse import urlparse
 import yaml
 
 c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
@@ -83,8 +83,11 @@ if allow_origin:
 if os.getenv('BUILD_NAMESPACE'):
     c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
-if c.BinderHub.auth_enabled and 'base_url' in c.BinderHub:
-    c.HubOAuth.base_url = c.BinderHub.base_url
+if c.BinderHub.auth_enabled:
+    hub_url = urlparse(c.BinderHub.hub_url)
+    c.HubOAuth.hub_host = '{}://{}'.format(hub_url.scheme, hub_url.netloc)
+    if 'base_url' in c.BinderHub:
+        c.HubOAuth.base_url = c.BinderHub.base_url
 
 # load extra config snippets
 for key, snippet in sorted((get_value('extraConfig') or {}).items()):
