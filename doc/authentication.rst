@@ -42,15 +42,15 @@ you need to add the following into ``config.yaml``:
       auth: {}
 
 .. note::
-    For `jupyterhub.auth` you should use config of your authenticator.
+    For ``jupyterhub.auth`` you should use config of your authenticator.
     For more information you can check
     `the Authentication guide
     <https://zero-to-jupyterhub.readthedocs.io/en/stable/authentication.html>`_.
 
 .. warning::
-    `jupyterhub-singleuser` requires `JupyterHub` to be installed in user server images.
-    Therefore ensure that you use at least `jupyter/repo2docker:ccce3fe` image
-    to build user images. Because `repo2docker` installs `JupyterHub` by default after that.
+    ``jupyterhub-singleuser`` requires ``JupyterHub`` to be installed in user server images.
+    Therefore ensure that you use at least ``jupyter/repo2docker:ccce3fe`` image
+    to build user images. Because ``repo2docker`` installs ``JupyterHub`` by default after that.
 
 Authentication with named servers
 ---------------------------------
