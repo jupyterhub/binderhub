@@ -103,3 +103,9 @@ spec:
         ports:
           - containerPort: 8585
             name: binder
+        livenessProbe:
+          httpGet:
+            path: /about
+            port: binder
+          initialDelaySeconds: 10
+          periodSeconds: 5
