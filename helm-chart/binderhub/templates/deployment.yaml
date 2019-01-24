@@ -103,7 +103,7 @@ spec:
             name: binder
         livenessProbe:
           httpGet:
-            path: /about
+            path: {{ default "/" .Values.config.BinderHub.base_url }}about
             port: binder
           initialDelaySeconds: 10
           periodSeconds: 5
