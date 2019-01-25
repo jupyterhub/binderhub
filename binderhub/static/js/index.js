@@ -16,7 +16,7 @@ import 'xterm/lib/xterm.css';
 import 'bootstrap';
 import 'event-source-polyfill';
 
-import BinderImage from './js/image';
+import BinderImage from './src/image';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
