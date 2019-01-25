@@ -65,10 +65,22 @@ BinderImage.prototype.onStateChange = function(state, cb) {
   }
 };
 
-/**
- *
- * state  {string}
- */
+BinderImage.prototype.validateStateTransition = function(oldState, newState) {
+  if (oldState === "start") {
+    return (
+      newState === "waiting" || newState === "built" || newState === "failed"
+    );
+  } else if (oldState === "waiting") {
+    return newState === "building" || newState === "failed";
+  } else if (oldState === "building") {
+    return newState === "pushing" || newState === "failed";
+  } else if (oldState === "pushing") {
+    return newState === "built" || newState === "failed";
+  } else {
+    return false;
+  }
+};
+
 BinderImage.prototype.changeState = function(state, data) {
   var that = this;
   [state, "*"].map(function(key) {
@@ -80,8 +92,7 @@ BinderImage.prototype.changeState = function(state, data) {
     }
   });
 
-  // FIXME: Make sure this this is a valid state transition!
-  if (state) {
+  if (state && this.validateStateTransition(this.state, state)) {
     this.state = state;
   }
 };
