@@ -18,7 +18,7 @@ import 'event-source-polyfill';
 
 import BinderImage from './src/image';
 import { markdownBadge, rstBadge } from './src/badge';
-import { updatePathText } from './src/path';
+import { getPathType, updatePathText } from './src/path';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';

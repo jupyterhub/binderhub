@@ -12,11 +12,9 @@ export function updatePathText() {
   } else {
     text = "URL to open (optional)";
   }
-  const filePathElement = document.getElementById(filepath);
+  const filePathElement = document.getElementById("filepath");
   filePathElement.setAttribute("placeholder", text);
 
-  const filePathElementLabel = document.getElementsByTagName(
-    "label[for=filepath]"
-  )[0];
+  const filePathElementLabel = document.querySelector("label[for=filepath]");
   filePathElementLabel.innerText = text;
 }
