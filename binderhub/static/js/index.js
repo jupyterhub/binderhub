@@ -18,6 +18,7 @@ import 'event-source-polyfill';
 
 import BinderImage from './src/image';
 import { markdownBadge, rstBadge } from './src/badge';
+import { updatePathText } from './src/path';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
@@ -50,24 +51,6 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
   }
   return url;
 }
-
-function getPathType() {
-  // return path type. 'file' or 'url'
-  return $("#url-or-file-selected").text().trim().toLowerCase();
-}
-
-function updatePathText() {
-  var pathType = getPathType();
-  var text;
-  if (pathType === "file") {
-    text = "Path to a notebook file (optional)";
-  } else {
-    text = "URL to open (optional)";
-  }
-  $("#filepath").attr('placeholder', text);
-  $("label[for=filepath]").text(text);
-}
-
 
 function updateRepoText() {
   var text;
