@@ -17,6 +17,8 @@ import 'bootstrap';
 import 'event-source-polyfill';
 
 import BinderImage from './src/image';
+import { markdownBadge, rstBadge } from './src/badge';
+import { getPathType, updatePathText } from './src/path';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
@@ -49,24 +51,6 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
   }
   return url;
 }
-
-function getPathType() {
-  // return path type. 'file' or 'url'
-  return $("#url-or-file-selected").text().trim().toLowerCase();
-}
-
-function updatePathText() {
-  var pathType = getPathType();
-  var text;
-  if (pathType === "file") {
-    text = "Path to a notebook file (optional)";
-  } else {
-    text = "URL to open (optional)";
-  }
-  $("#filepath").attr('placeholder', text);
-  $("label[for=filepath]").text(text);
-}
-
 
 function updateRepoText() {
   var text;
@@ -135,20 +119,6 @@ function updateUrls(formValues) {
       el.text(el.attr('data-default'));
     })
   }
-}
-
-
-var BADGE_URL = window.location.origin + BASE_URL + 'badge_logo.svg';
-
-
-function markdownBadge(url) {
-  // return markdown badge snippet
-  return '[![Binder](' + BADGE_URL + ')](' + url + ')'
-}
-
-function rstBadge(url) {
-  // return rst badge snippet
-  return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
 function build(providerSpec, log, path, pathType) {
