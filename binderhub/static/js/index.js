@@ -241,7 +241,9 @@ function indexMain() {
     // setup badge dropdown and default values.
     updateUrls();
 
-    $("#provider_prefix_sel li").click(function(){
+    $("#provider_prefix_sel li").click(function(event){
+      event.preventDefault();
+
       $("#provider_prefix-selected").text($(this).text());
       $("#provider_prefix").val($(this).attr("value"));
       updateRepoText();
@@ -249,6 +251,8 @@ function indexMain() {
     });
 
     $("#url-or-file-btn").find("a").click(function (evt) {
+      evt.preventDefault();
+
       $("#url-or-file-selected").text($(this).text());
       updatePathText();
       updateUrls();
