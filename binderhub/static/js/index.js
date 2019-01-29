@@ -17,6 +17,7 @@ import 'bootstrap';
 import 'event-source-polyfill';
 
 import BinderImage from './src/image';
+import { markdownBadge, rstBadge } from './src/badge';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
@@ -135,20 +136,6 @@ function updateUrls(formValues) {
       el.text(el.attr('data-default'));
     })
   }
-}
-
-
-var BADGE_URL = window.location.origin + BASE_URL + 'badge_logo.svg';
-
-
-function markdownBadge(url) {
-  // return markdown badge snippet
-  return '[![Binder](' + BADGE_URL + ')](' + url + ')'
-}
-
-function rstBadge(url) {
-  // return rst badge snippet
-  return '.. image:: ' + BADGE_URL + ' :target: ' + url
 }
 
 function build(providerSpec, log, path, pathType) {
