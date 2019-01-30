@@ -9,6 +9,22 @@
    :target: https://binderhub.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://img.shields.io/badge/dynamic/json.svg?label=latest&url=https://jupyterhub.github.io/helm-chart/info.json&query=$.binderhub.latest&colorB=orange
+   :target: https://jupyterhub.github.io/helm-chart/
+   :alt: Latest chart development release
+
+.. image:: https://img.shields.io/badge/issue_tracking-github-blue.svg
+   :target: https://github.com/jupyterhub/binderhub/issues
+   :alt: GitHub
+
+.. image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
+   :target: https://discourse.jupyter.org/c/binder/binderhub
+   :alt: Discourse
+
+.. image:: https://img.shields.io/badge/social_chat-gitter-blue.svg
+   :target: https://gitter.im/jupyterhub/binder
+   :alt: Gitter
+
 What is BinderHub?
 ------------------
 
