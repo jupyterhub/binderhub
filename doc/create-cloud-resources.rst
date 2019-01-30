@@ -13,7 +13,7 @@ various components correctly. The following instructions will assist you
 in doing so.
 
 .. note::
-   
+
    BinderHub uses a JupyterHub running on Kubernetes for much of its functionality.
    For information on setting up and customizing your JupyterHub, we recommend reading
    the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html#customization-guide>`_.
@@ -29,6 +29,9 @@ Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
    If you would like to help with adding instructions for other cloud
    providers, `please contact us <https://github.com/jupyterhub/binderhub/issues>`_!
 
+First, install Kubernetes by following the
+`instructions in the Zero to JupyterHub guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/google/step-zero-gcp.html>`_.
+When you're done, move on to the next section.
 
 Install Helm
 ------------
