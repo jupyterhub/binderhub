@@ -301,3 +301,42 @@ API requests to GitHub. See the `GitHub authentication documentation
 more information about API limits.
 
 For next steps, see :doc:`debug` and :doc:`turn-off`.
+
+.. _private-repos:
+
+Accessing private repositories
+------------------------------
+
+By default, BinderHub doesn't have access to private repositories
+(repositories that require credentials to clone).
+Since users never enter credentials into BinderHub,
+BinderHub *itself* must be given permission to clone any private repositories
+you want BinderHub to be able to build.
+
+.. warning::
+
+  Since cloning is done 'as binderhub'
+  this means that any user can build any private repository that BinderHub has access to.
+  They may be private from the wider world,
+  but they are not private from other users with access to the same
+  BinderHub.
+
+Granting permission follows the the same steps above in :ref:`api-limit` to create
+a GitHub access token and configure BinderHub to use it.
+Previously, the token only needed minimal read-only permissions (the default).
+In order to access private repositories,
+the token must have **full read/write permissions on all your repos** [#permission]_.
+
+.. figure:: _static/images/private-repo-token.png
+
+  Creating a token with the full `repo` scope needed
+  in order to clone private repos.
+
+You can set these permissions when you create the token,
+or change them after the fact by editing the token's permissions at any
+time at `the token administration page <https://github.com/settings/tokens>`_.
+
+
+.. [#permission] Hopefully in the future,
+   GitHub will allow more granular permissions for private repos.
+
