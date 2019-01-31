@@ -31,7 +31,7 @@ you need to add the following into ``config.yaml``:
               def start(self):
                   if 'image' in self.user_options:
                     # binder service sets the image spec via user options
-                    self.image_spec = self.user_options['image']
+                    self.image = self.user_options['image']
                   return super().start()
             c.JupyterHub.spawner_class = BinderSpawner
 
