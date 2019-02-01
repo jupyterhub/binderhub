@@ -21,9 +21,12 @@ you need to add the following into ``config.yaml``:
       hub:
         services:
           binder:
-            oauth_redirect_uri: "<binderhub_url>/oauth_callback"
+            oauth_redirect_uri: "http://<binderhub_url>/oauth_callback"
             oauth_client_id: "binder-oauth-client-test"
         extraConfig:
+          hub_extra: |
+            c.JupyterHub.redirect_to_server = False
+
           binder: |
             from kubespawner import KubeSpawner
 
@@ -41,6 +44,17 @@ you need to add the following into ``config.yaml``:
 
       auth: {}
 
+If the configuration above was entered correctly, once you upgrade your
+BinderHub Helm Chart with ``helm upgrade...``, users that arrive at your
+BinderHub URL will be directed to a login page. Once they enter their
+credentials, they'll be taken to the typical BinderHub landing page.
+
+.. note::
+
+   If users *don't* go to a BinderHub landing page after they log-in,
+   then the configuration above is probably incorrect. Double-check that
+   the BinderHub configuration (and the JupyterHub authentication configuration)
+   look good.
 .. note::
     For ``jupyterhub.auth`` you should use config of your authenticator.
     For more information you can check
