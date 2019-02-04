@@ -63,6 +63,7 @@ in the community have done.
    
    debug
    customizing
+   authentication
    known-deployments
 
 BinderHub Developer and Architecture Documentation
