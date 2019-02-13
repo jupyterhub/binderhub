@@ -336,7 +336,7 @@ class GitHubRepoProvider(RepoProvider):
                 return r'username={client_id}\npassword={token}'.format(
                     client_id=self.client_id, token=self.access_token)
             else:
-                return 'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
+                return r'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
         return ""
 
     def __init__(self, *args, **kwargs):

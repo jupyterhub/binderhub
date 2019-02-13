@@ -49,10 +49,9 @@ After a user clicks a Binder link, the following chain of events happens:
 A diagram of the BinderHub architecture
 ---------------------------------------
 
-Here is a high-level overview of the components that make up BinderHub.
 
 .. This image was generated at the following URL: https://docs.google.com/presentation/d/1t5W4Rnez6xBRz4YxCxWYAx8t4KRfUosbCjS4Z1or7rM/edit#slide=id.g25dbc82125_0_53
 
-.. raw:: html
+.. figure:: _static/images/architecture.png
 
-   <img src="_static/images/architecture.png" />
+  Here is a high-level overview of the components that make up BinderHub.
