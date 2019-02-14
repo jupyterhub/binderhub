@@ -6,7 +6,7 @@ BinderHub
    :alt: Join the chat at https://gitter.im/jupyterhub/binder
    :target: https://gitter.im/jupyterhub/binder
 
-.. image:: image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
+.. image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
    :alt: Join our community Discourse page at https://discourse.jupyter.org
    :target: https://discourse.jupyter.org/c/binder/binderhub
 
