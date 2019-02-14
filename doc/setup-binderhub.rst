@@ -97,7 +97,7 @@ Update ``secret.yaml`` by entering the following::
 
 .. note::
 
-   * **``<docker-id>``** and **``<password>``** are your credentials to login to Docker Hub.
+   * ``<docker-id>`` and ``<password>`` are your credentials to login to Docker Hub.
      If you use an organization to store your Docker images, this account must be a member of it.
 
 
@@ -121,11 +121,14 @@ your ``config.yaml`` file::
 
 .. note::
 
-   * **``<google-project-id>``** can be found in the JSON file that you
+   * ``<google-project-id>`` can be found in the JSON file that you
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
-   * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-`` (ending with a `-` is useful).
+   * ``<prefix>`` can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+     (ending with a `-` is useful).
+   * Note that in both cases, you should remove the ``<`` and ``>`` symbols,
+     they are simply placeholders in the code above.
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,9 +142,9 @@ Update ``config.yaml`` by entering the following::
 
 .. note::
 
-   * **``<docker-id|organization-name>``** is where you want to store Docker images.
+   * ``<docker-id|organization-name>`` is where you want to store Docker images.
      This can be your Docker ID account or an organization that your account belongs to.
-   * **``<prefix>``** can be any string, and will be prepended to image names. We
+   * ``<prefix>`` can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
 
@@ -339,4 +342,3 @@ time at `the token administration page <https://github.com/settings/tokens>`_.
 
 .. [#permission] Hopefully in the future,
    GitHub will allow more granular permissions for private repos.
-
