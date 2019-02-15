@@ -12,7 +12,7 @@
 */
 import { Terminal } from 'xterm';
 import { fit } from 'xterm/lib/addons/fit/fit';
-Terminal.applyAddon(fit);
+//Terminal.applyAddon(fit);
 
 import Clipboard from 'clipboard';
 import 'xterm/lib/xterm.css';
@@ -143,7 +143,7 @@ function build(providerSpec, log, path, pathType) {
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
       log.write(data.message);
-      log.fit();
+      fit(log); //log.fit();
     } else {
       console.log(data);
     }
@@ -199,17 +199,16 @@ function build(providerSpec, log, path, pathType) {
 }
 
 function setUpLog() {
-  Terminal.applyAddon(fit);
   var log = new Terminal({
     convertEol: true,
     disableStdin: true
   });
 
   log.open(document.getElementById('log'));
-  log.fit();
+  fit(log); //log.fit();
 
   $(window).resize(function() {
-    log.fit();
+    fit(log); //log.fit();
   });
 
   var $panelBody = $("div.panel-body");
@@ -226,8 +225,10 @@ function setUpLog() {
   log.toggle = function () {
     if ($panelBody.hasClass('hidden')) {
       log.show();
+      fit(log);
     } else {
       log.hide();
+      fit(log);
     }
   };
 
