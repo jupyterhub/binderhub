@@ -19,8 +19,12 @@ with open('README.rst', encoding="utf8") as f:
     readme = f.read()
 
 # Build our js and css files before packaging
-subprocess.check_call(['npm', 'install'])
-subprocess.check_call(['npm', 'run', 'webpack'])
+if os.name == "nt":
+    subprocess.check_call(['npm.cmd', 'install'])
+    subprocess.check_call(['npm.cmd', 'run', 'webpack'])
+else:
+    subprocess.check_call(['npm', 'install'])
+    subprocess.check_call(['npm', 'run', 'webpack'])
 
 setup(
     name='binderhub',
