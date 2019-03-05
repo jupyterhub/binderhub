@@ -480,6 +480,8 @@ class GistRepoProvider(GitHubRepoProvider):
     If master or no ref is specified the latest revision will be used.
     """
 
+    name = Unicode('Gist')
+
     allow_secret_gist = Bool(
         default_value=False,
         config=True,
