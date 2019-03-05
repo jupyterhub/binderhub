@@ -472,7 +472,7 @@ class GistRepoProvider(GitHubRepoProvider):
 
     Users must provide a spec that matches the following form (similar to github)
 
-    <username>/<gist-id>[/<ref>]
+    [https://gist.github.com/]<username>/<gist-id>[/<ref>]
 
     The ref is optional, valid values are
         - a full sha1 of a ref in the history
