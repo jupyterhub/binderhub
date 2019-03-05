@@ -497,7 +497,7 @@ class GistRepoProvider(GitHubRepoProvider):
             self.unresolved_ref = ''
 
     def get_repo_url(self):
-        return f'https://gist.github.com/{self.gist_id}.git'
+        return f'https://gist.github.com/{self.user}/{self.gist_id}.git'
 
     @gen.coroutine
     def get_resolved_ref(self):
