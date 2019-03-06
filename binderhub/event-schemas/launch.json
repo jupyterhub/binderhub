@@ -8,6 +8,7 @@
         "provider": {
             "enum": [
                 "GitHub",
+                "Gist",
                 "GitLab",
                 "Git"
             ],
