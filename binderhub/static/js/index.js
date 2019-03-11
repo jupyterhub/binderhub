@@ -76,6 +76,7 @@ function updateRepoText() {
 
 function getBuildFormValues() {
   var providerPrefix = $('#provider_prefix').val().trim();
+  var userOptions = $('#user_options').val().trim();
   var repo = $('#repository').val().trim();
   if (providerPrefix !== 'git') {
     repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
@@ -92,7 +93,8 @@ function getBuildFormValues() {
   var ref = $('#ref').val().trim() || 'master';
   var path = $('#filepath').val().trim();
   return {'providerPrefix': providerPrefix, 'repo': repo,
-          'ref': ref, 'path': path, 'pathType': getPathType()}
+          'ref': ref, 'path': path, 'pathType': getPathType(),
+          'userOptions': userOptions}
 }
 
 function updateUrls(formValues) {
@@ -121,7 +123,7 @@ function updateUrls(formValues) {
   }
 }
 
-function build(providerSpec, log, path, pathType) {
+function build(providerSpec, log, path, pathType, userOptions) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
@@ -139,7 +141,7 @@ function build(providerSpec, log, path, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  var image = new BinderImage(providerSpec);
+  var image = new BinderImage();
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
@@ -195,7 +197,8 @@ function build(providerSpec, log, path, pathType) {
     image.launch(data.url, data.token, path, pathType);
   });
 
-  image.fetch();
+  var apiUrl = BASE_URL + "build/" + providerSpec + userOptions;
+  image.fetch(apiUrl);
   return image;
 }
 
@@ -288,7 +291,8 @@ function indexMain() {
           formValues.providerPrefix + '/' + formValues.repo + '/' + formValues.ref,
           log,
           formValues.path,
-          formValues.pathType
+          formValues.pathType,
+          formValues.userOptions
         );
         return false;
     });
@@ -310,7 +314,8 @@ function loadingMain(providerSpec) {
       pathType = 'file';
     }
   }
-  build(providerSpec, log, path, pathType);
+  var userOptions = window.location.search;
+  build(providerSpec, log, path, pathType, userOptions);
   return false;
 }
 

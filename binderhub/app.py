@@ -21,7 +21,7 @@ import tornado.options
 import tornado.log
 from tornado.log import app_log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default, Set
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 
@@ -402,6 +402,16 @@ class BinderHub(Application):
         config=True,
     )
 
+    query_parameter_names = Set(
+        trait=Unicode(),
+        default_value=set(),
+        help="""
+        List of allowed names. Before launch, BinderHub checks if they exist in the query and 
+        pass found ones with their value to spawner's user_options.
+        """,
+        config=True
+    )
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -512,7 +522,8 @@ class BinderHub(Application):
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_named_servers': self.use_named_servers,
-            'event_log': self.event_log
+            'event_log': self.event_log,
+            'query_parameter_names': self.query_parameter_names
         })
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)

@@ -117,16 +117,14 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username, server_name='', repo_url=''):
+    async def launch(self, image, username, server_name='', repo_url='', user_options=None):
         """Launch a server for a given image
 
         - creates a temporary user on the Hub if authentication is not enabled
-        - spawns a server for temporary/authenticated user
+        - spawns a server for temporary/authenticated user with user options
         - generates a token
         - returns a dict containing:
           - `url`: the URL of the server
-          - `image`: image spec
-          - `repo_url`: the url of the repo
           - `token`: the token for the server
         """
         # TODO: validate the image argument?
@@ -153,10 +151,13 @@ class Launcher(LoggingConfigurable):
                 raise web.HTTPError(409, "User %s already has a running server." % username)
 
         # data to be passed into spawner's user_options during launch
-        # and also to be returned into 'ready' state
-        data = {'image': image,
-                'repo_url': repo_url,
-                'token': base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')}
+        _user_options = {'image': image,
+                         'repo_url': repo_url,
+                         'token': base64.urlsafe_b64encode(uuid.uuid4().bytes).decode('ascii').rstrip('=\n')}
+        if user_options is None:
+            user_options = _user_options
+        else:
+            user_options.update(_user_options)
 
         # server name to be used in logs
         _server_name = " {}".format(server_name) if server_name else ''
@@ -167,7 +168,7 @@ class Launcher(LoggingConfigurable):
             resp = await self.api_request(
                 'users/{}/servers/{}'.format(username, server_name),
                 method='POST',
-                body=json.dumps(data).encode('utf8'),
+                body=json.dumps(user_options).encode('utf8'),
             )
             if resp.code == 202:
                 # Server hasn't actually started yet
@@ -196,5 +197,7 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
+        # data to be returned into 'ready' state
+        data = {'url': self.hub_url + 'user/%s/%s' % (username, server_name),
+                'token': user_options['token']}
         return data

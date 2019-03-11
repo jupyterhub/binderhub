@@ -470,6 +470,13 @@ class BuildHandler(BaseHandler):
         log("Launching pod for %s: %s other pods running this repo (%s total)",
             self.repo_url, matching_pods, total_pods)
 
+        # get query parameters
+        user_options = {}
+        for name in self.settings['query_parameter_names']:
+            value = self.get_query_argument(name, None)
+            if value is not None:
+                user_options[name] = value
+
         await self.emit({
             'phase': 'launching',
             'message': 'Launching server...\n',
@@ -494,7 +501,8 @@ class BuildHandler(BaseHandler):
                 server_name = ''
             try:
                 server_info = await launcher.launch(image=self.image_name, username=username,
-                                                    server_name=server_name, repo_url=self.repo_url)
+                                                    server_name=server_name, repo_url=self.repo_url,
+                                                    user_options=user_options)
                 LAUNCH_TIME.labels(
                     status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)

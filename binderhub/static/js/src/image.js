@@ -1,13 +1,9 @@
-var BASE_URL = $("#base-url").data().url;
-
-export default function BinderImage(providerSpec) {
-  this.providerSpec = providerSpec;
+export default function BinderImage() {
   this.callbacks = {};
   this.state = null;
 }
 
-BinderImage.prototype.fetch = function() {
-  var apiUrl = BASE_URL + "build/" + this.providerSpec;
+BinderImage.prototype.fetch = function(apiUrl) {
   this.eventSource = new EventSource(apiUrl);
   var that = this;
   this.eventSource.onerror = function(err) {
