@@ -215,9 +215,9 @@ that you've just created. Do this by running the following command::
     helm install jupyterhub/binderhub --version=0.2.0-3b53fce  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
 This command will install the Helm chart released on March 3rd, 2019 as
-identified by the commit hash (the random string after `0.2.0-`). If you wish to
-install a different release, you only need to provide the commit hash for your
-desired release. A list of Chart versions and their commit hashes is available
+identified by the commit hash (the random string after `0.2.0-`), which is
+provided as a working example. You should provide the commit hash for the most
+recent release, which can be found
 `here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
 
 .. note::
