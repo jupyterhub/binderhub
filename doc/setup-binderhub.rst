@@ -255,6 +255,7 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 Next, upgrade the helm chart to deploy this change::
 
   helm upgrade <name-from-above> jupyterhub/binderhub --version=0.2.0-3b53fce  -f secret.yaml -f config.yaml
+
 For the first deployment of your BinderHub, the commit hash parsed to the
 `--version` argument should be the same as in step 3.4. However, when it comes
 to updating your BinderHub, you can parse the commit hash of a newer chart
