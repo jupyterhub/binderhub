@@ -472,10 +472,19 @@ class BuildHandler(BaseHandler):
 
         # get query parameters
         user_options = {}
+        options_message = []
         for name in self.settings['query_parameter_names']:
             value = self.get_query_argument(name, None)
             if value is not None:
                 user_options[name] = value
+                m = f"Passing option {name} with value {value} to spawner"
+                app_log.info(m)
+                options_message.append(m)
+        if options_message:
+            await self.emit({
+                'phase': 'launching',
+                'message': '\n'.join(options_message)+'\n',
+            })
 
         await self.emit({
             'phase': 'launching',
