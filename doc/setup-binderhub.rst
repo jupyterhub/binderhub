@@ -215,9 +215,13 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=0.2.0-3b53fce  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
-where ``...`` is the commit hash of the binderhub chart version you wish to deploy.
+This command will install the Helm chart released on March 3rd, 2019 as
+identified by the commit hash (the random string after `0.2.0-`), which is
+provided as a working example. You should provide the commit hash for the most
+recent release, which can be found
+`here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
 
 .. note::
 
@@ -253,7 +257,12 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-...  -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=0.2.0-3b53fce  -f secret.yaml -f config.yaml
+
+For the first deployment of your BinderHub, the commit hash parsed to the
+`--version` argument should be the same as in step 3.4. However, when it comes
+to updating your BinderHub, you can parse the commit hash of a newer chart
+version.
 
 Try out your BinderHub Deployment
 ---------------------------------
