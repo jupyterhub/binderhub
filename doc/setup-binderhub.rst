@@ -97,7 +97,7 @@ Update ``secret.yaml`` by entering the following::
 
 .. note::
 
-   * **``<docker-id>``** and **``<password>``** are your credentials to login to Docker Hub.
+   * ``<docker-id>`` and ``<password>`` are your credentials to login to Docker Hub.
      If you use an organization to store your Docker images, this account must be a member of it.
 
 
@@ -121,11 +121,14 @@ your ``config.yaml`` file::
 
 .. note::
 
-   * **``<google-project-id>``** can be found in the JSON file that you
+   * ``<google-project-id>`` can be found in the JSON file that you
      pasted above. It is the text that is in the ``project_id`` field. This is
      the project *ID*, which may be different from the project *name*.
-   * **``<prefix>``** can be any string, and will be prepended to image names. We
-     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-`` (ending with a `-` is useful).
+   * ``<prefix>`` can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+     (ending with a `-` is useful).
+   * Note that in both cases, you should remove the ``<`` and ``>`` symbols,
+     they are simply placeholders in the code above.
 
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,9 +215,13 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install jupyterhub/binderhub --version=0.1.0-...  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
+    helm install jupyterhub/binderhub --version=0.2.0-3b53fce  --name=<choose-name> --namespace=<choose-namespace> -f secret.yaml -f config.yaml
 
-where ``...`` is the commit hash of the binderhub chart version you wish to deploy.
+This command will install the Helm chart released on March 3rd, 2019 as
+identified by the commit hash (the random string after `0.2.0-`), which is
+provided as a working example. You should provide the commit hash for the most
+recent release, which can be found
+`here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
 
 .. note::
 
@@ -250,7 +257,12 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <name-from-above> jupyterhub/binderhub --version=v0.1.0-...  -f secret.yaml -f config.yaml
+  helm upgrade <name-from-above> jupyterhub/binderhub --version=0.2.0-3b53fce  -f secret.yaml -f config.yaml
+
+For the first deployment of your BinderHub, the commit hash parsed to the
+`--version` argument should be the same as in step 3.4. However, when it comes
+to updating your BinderHub, you can parse the commit hash of a newer chart
+version.
 
 Try out your BinderHub Deployment
 ---------------------------------
@@ -301,3 +313,41 @@ API requests to GitHub. See the `GitHub authentication documentation
 more information about API limits.
 
 For next steps, see :doc:`debug` and :doc:`turn-off`.
+
+.. _private-repos:
+
+Accessing private repositories
+------------------------------
+
+By default, BinderHub doesn't have access to private repositories
+(repositories that require credentials to clone).
+Since users never enter credentials into BinderHub,
+BinderHub *itself* must be given permission to clone any private repositories
+you want BinderHub to be able to build.
+
+.. warning::
+
+  Since cloning is done 'as binderhub'
+  this means that any user can build any private repository that BinderHub has access to.
+  They may be private from the wider world,
+  but they are not private from other users with access to the same
+  BinderHub.
+
+Granting permission follows the the same steps above in :ref:`api-limit` to create
+a GitHub access token and configure BinderHub to use it.
+Previously, the token only needed minimal read-only permissions (the default).
+In order to access private repositories,
+the token must have **full read/write permissions on all your repos** [#permission]_.
+
+.. figure:: _static/images/private-repo-token.png
+
+  Creating a token with the full `repo` scope needed
+  in order to clone private repos.
+
+You can set these permissions when you create the token,
+or change them after the fact by editing the token's permissions at any
+time at `the token administration page <https://github.com/settings/tokens>`_.
+
+
+.. [#permission] Hopefully in the future,
+   GitHub will allow more granular permissions for private repos.

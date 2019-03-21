@@ -107,3 +107,4 @@ spec:
             port: binder
           initialDelaySeconds: 10
           periodSeconds: 5
+          timeoutSeconds: 10

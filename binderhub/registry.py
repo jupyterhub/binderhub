@@ -197,8 +197,13 @@ class DockerRegistry(LoggingConfigurable):
             auth_password=self.password,
         )
         auth_resp = yield client.fetch(auth_req)
-        token = json.loads(auth_resp.body.decode("utf-8", "replace"))["token"]
-
+        response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
+    
+        if "token" in response_body.keys():
+            token = response_body["token"]
+        elif "access_token" in response_body.keys(): 
+            token = response_body["access_token"]
+        
         req = httpclient.HTTPRequest(
             "{}/v2/{}/manifests/{}".format(self.url, image, tag),
             headers={"Authorization": "Bearer {}".format(token)},
