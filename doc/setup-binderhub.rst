@@ -135,12 +135,12 @@ Update ``config.yaml`` by entering the following::
   config:
     BinderHub:
       use_registry: true
-      image_prefix: <docker-id|organization-name>/<prefix>-
+      image_prefix: <docker-id OR organization-name>/<prefix>-
 
 .. note::
 
-   * **``<docker-id|organization-name>``** is where you want to store Docker images.
-     This can be your Docker ID account or an organization that your account belongs to.
+   * **``<docker-id OR organization-name>``** is where you want to store Docker images.
+     This can be your Docker ID account **or** an organization that your account belongs to.
    * **``<prefix>``** can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
