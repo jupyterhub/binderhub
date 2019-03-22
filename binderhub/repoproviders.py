@@ -472,13 +472,15 @@ class GistRepoProvider(GitHubRepoProvider):
 
     Users must provide a spec that matches the following form (similar to github)
 
-    <username>/<gist-id>[/<ref>]
+    [https://gist.github.com/]<username>/<gist-id>[/<ref>]
 
     The ref is optional, valid values are
         - a full sha1 of a ref in the history
         - master
     If master or no ref is specified the latest revision will be used.
     """
+
+    name = Unicode('Gist')
 
     allow_secret_gist = Bool(
         default_value=False,
@@ -497,7 +499,7 @@ class GistRepoProvider(GitHubRepoProvider):
             self.unresolved_ref = ''
 
     def get_repo_url(self):
-        return f'https://gist.github.com/{self.gist_id}.git'
+        return f'https://gist.github.com/{self.user}/{self.gist_id}.git'
 
     @gen.coroutine
     def get_resolved_ref(self):

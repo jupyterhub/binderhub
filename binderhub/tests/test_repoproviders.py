@@ -146,7 +146,7 @@ def test_gist_ref():
     slug = provider.get_build_slug()
     assert slug == '8a658f7f63b13768d1e75fa2464f5092'
     full_url = provider.get_repo_url()
-    assert full_url == 'https://gist.github.com/8a658f7f63b13768d1e75fa2464f5092.git'
+    assert full_url == 'https://gist.github.com/mariusvniekerk/8a658f7f63b13768d1e75fa2464f5092.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
 

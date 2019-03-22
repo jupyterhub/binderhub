@@ -41,3 +41,16 @@ with the lifetime length of the notebook.
 
 `Wikimedia's EventLogging Guidelines <https://www.mediawiki.org/wiki/Extension:EventLogging/Guide#Posing_a_question>`_
 contain a lot of useful info on how to approach adding more events.
+
+BinderHub Events
+================
+
+Launch event
+------------
+
+This event is emitted whenever a new repo is launched.
+
+Schemas:
+
+- `version 1 <https://github.com/jupyterhub/binderhub/blob/ba15091b0940174c1001aefd2c89b96daa8005cb/binderhub/event-schemas/launch.json>`_
+- `version 2 <https://github.com/jupyterhub/binderhub/blob/master/binderhub/event-schemas/launch.json>`_

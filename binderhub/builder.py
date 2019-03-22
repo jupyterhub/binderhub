@@ -295,7 +295,7 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit('binderhub.jupyter.org/launch', 1, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 2, {
                 'provider': provider.name,
                 'spec': spec,
                 'status': 'success'
@@ -403,7 +403,7 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit('binderhub.jupyter.org/launch', 1, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 2, {
                 'provider': provider.name,
                 'spec': spec,
                 'status': 'success'

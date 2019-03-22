@@ -62,7 +62,8 @@ function updateRepoText() {
     text = "GitLab.com repository or URL";
   }
   else if (provider === "gist") {
-    text = "Gist ID (username/gistId)";
+    text = "Gist ID (username/gistId) or URL";
+    tag_text = "Git commit SHA";
   }
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
@@ -78,6 +79,7 @@ function getBuildFormValues() {
   var providerPrefix = $('#provider_prefix').val().trim();
   var repo = $('#repository').val().trim();
   if (providerPrefix !== 'git') {
+    repo = repo.replace(/^(https?:\/\/)?gist.github.com\//, '');
     repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
     repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
   }

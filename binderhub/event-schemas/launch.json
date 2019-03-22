@@ -1,6 +1,6 @@
 {
     "$id": "binderhub.jupyter.org/launch",
-    "version": 1,
+    "version": 2,
     "title": "BinderHub Launch Events",
     "description": "BinderHub emits this event whenever a new repo is launched",
     "type": "object",
@@ -8,6 +8,7 @@
         "provider": {
             "enum": [
                 "GitHub",
+                "Gist",
                 "GitLab",
                 "Git"
             ],
