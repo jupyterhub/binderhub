@@ -188,26 +188,32 @@ class DockerRegistry(LoggingConfigurable):
     @gen.coroutine
     def get_image_manifest(self, image, tag):
         client = httpclient.AsyncHTTPClient()
+        url = "{}/v2/{}/manifests/{}".format(self.url, image, tag)
         # first, get a token to perform the manifest request
-        if not self.token_url:
-            raise ValueError("No token URL for authenticating with {}".format(self.url))
-        auth_req = httpclient.HTTPRequest(
-            url_concat(self.token_url, {"scope": "repository:{}:pull".format(image)}),
-            auth_username=self.username,
-            auth_password=self.password,
-        )
-        auth_resp = yield client.fetch(auth_req)
-        response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
-    
-        if "token" in response_body.keys():
-            token = response_body["token"]
-        elif "access_token" in response_body.keys(): 
-            token = response_body["access_token"]
-        
-        req = httpclient.HTTPRequest(
-            "{}/v2/{}/manifests/{}".format(self.url, image, tag),
-            headers={"Authorization": "Bearer {}".format(token)},
-        )
+        if self.token_url:
+            auth_req = httpclient.HTTPRequest(
+                url_concat(self.token_url, {"scope": "repository:{}:pull".format(image)}),
+                auth_username=self.username,
+                auth_password=self.password,
+            )
+            auth_resp = yield client.fetch(auth_req)
+            response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
+
+            if "token" in response_body.keys():
+                token = response_body["token"]
+            elif "access_token" in response_body.keys():
+                token = response_body["access_token"]
+
+            req = httpclient.HTTPRequest(url,
+                headers={"Authorization": "Bearer {}".format(token)},
+            )
+        else:
+            # Use basic HTTP auth (htpasswd)
+            req = httpclient.HTTPRequest(url,
+                auth_username=self.username,
+                auth_password=self.password,
+            )
+
         try:
             resp = yield client.fetch(req)
         except httpclient.HTTPError as e:

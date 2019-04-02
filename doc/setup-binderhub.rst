@@ -177,6 +177,10 @@ Second, you will need to instruct BinderHub about the token URL::
       DockerRegistry:
         token_url: "https://myregistry.io/v2/token?service="
 
+If you setup your own local registry using
+`native basic HTTP authentication <https://docs.docker.com/registry/deploying/#native-basic-auth>`__
+(htpasswd), you can set ``token_url`` to ``None``.
+
 .. note::
 
     There is one additional URL to set in the unlikely event that docker config.json
