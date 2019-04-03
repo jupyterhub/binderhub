@@ -64,10 +64,6 @@ class Launcher(LoggingConfigurable):
             try:
                 return await AsyncHTTPClient().fetch(req)
             except HTTPError as e:
-                # swallow 409 errors on retry only (not first attempt)
-                if i > 1 and e.code == 409 and e.response:
-                    self.log.warning("Treating 409 conflict on retry as success")
-                    return e.response
                 # retry requests that fail with error codes greater than 500
                 # because they are likely intermittent issues in the cluster
                 # e.g. 502,504 due to ingress issues or Hub relocating,
@@ -189,12 +185,17 @@ class Launcher(LoggingConfigurable):
         except HTTPError as e:
             if e.response:
                 body = e.response.body
+                message = json.loads(body.decode('utf-8')).get('message', '')
             else:
                 body = ''
+                message = ''
 
-            app_log.error("Error starting server{} for user {}: {}\n{}".
-                          format(_server_name, username, e, body))
-            raise web.HTTPError(500, "Failed to launch image %s" % image)
+            if e.code == 409:
+                raise web.HTTPError(409, message)
+            else:
+                app_log.error("Error starting server{} for user {}: {}\n{}".
+                              format(_server_name, username, e, body))
+                raise web.HTTPError(500, "Failed to launch image %s" % image)
 
         data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
         return data

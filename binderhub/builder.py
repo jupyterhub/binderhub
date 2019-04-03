@@ -12,7 +12,7 @@ import escapism
 import docker
 from tornado.concurrent import chain_future, Future
 from tornado import gen
-from tornado.web import Finish, authenticated
+from tornado.web import Finish, authenticated, HTTPError
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
@@ -518,8 +518,8 @@ class BuildHandler(BaseHandler):
                         status=status, **self.repo_metric_labels,
                     ).inc()
 
-                if i + 1 == launcher.retries:
-                    # last attempt failed, let it raise
+                if i + 1 == launcher.retries or (isinstance(e, HTTPError) and e.status_code == 409):
+                    # last attempt failed or 409 client error, let it raise
                     raise
 
                 # not the last attempt, try again
