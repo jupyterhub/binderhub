@@ -81,5 +81,5 @@ mark="remote"
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
   mark="$mark and not github_api"
 fi
-pytest -vsx -m "$mark"
+pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
 helm delete --purge binder-test
