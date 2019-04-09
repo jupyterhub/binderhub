@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import re
-import json
 from glob import glob
 from urllib.parse import urlparse
 
@@ -25,7 +24,7 @@ from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, defaul
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 
-from .base import AboutHandler, Custom404
+from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
 from .launcher import Launcher
@@ -33,6 +32,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
 from .metrics import MetricsHandler
+
 from .utils import ByteSpecification, url_path_join
 from .events import EventLog
 
@@ -519,6 +519,7 @@ class BinderHub(Application):
 
         handlers = [
             (r'/metrics', MetricsHandler),
+            (r'/versions', VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
             (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),

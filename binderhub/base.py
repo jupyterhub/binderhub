@@ -1,5 +1,7 @@
 """Base classes for request handlers"""
 
+import json
+
 from http.client import responses
 from tornado import web
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
@@ -104,3 +106,15 @@ class AboutHandler(BaseHandler):
             google_analytics_domain=self.settings['google_analytics_domain'],
             extra_footer_scripts=self.settings['extra_footer_scripts'],
         )
+
+
+class VersionHandler(BaseHandler):
+    """Serve information about versions running"""
+    async def get(self):
+        self.set_header("Content-type", "application/json")
+        self.write(json.dumps(
+            {
+                "builder": self.settings['build_image'],
+                "binderhub": binder_version,
+                }
+        ))
