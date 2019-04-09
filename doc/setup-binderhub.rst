@@ -337,6 +337,9 @@ you want BinderHub to be able to build.
   but they are not private from other users with access to the same
   BinderHub.
 
+GitHub
+~~~~~~
+
 Granting permission follows the the same steps above in :ref:`api-limit` to create
 a GitHub access token and configure BinderHub to use it.
 Previously, the token only needed minimal read-only permissions (the default).
@@ -355,3 +358,19 @@ time at `the token administration page <https://github.com/settings/tokens>`_.
 
 .. [#permission] Hopefully in the future,
    GitHub will allow more granular permissions for private repos.
+
+GitLab
+~~~~~~
+
+To access private GitLab, create an api token for your binderhub user under
+"User Settings" > "Access tokens". It at least needs the scopes "api" and
+"read_repository".
+
+.. figure:: _static/images/private-gitlab-repo-token.png
+
+Then update ``secret.yaml`` with the following::
+
+    config:
+      GitLabRepoProvider:
+        access_token: <insert_token_value_here>
+        git_credentials: "username=<gitlab_username>\npassword=<insert_token_value_here>"
