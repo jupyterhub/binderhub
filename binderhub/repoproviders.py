@@ -217,6 +217,12 @@ class GitLabRepoProvider(RepoProvider):
                 auth[key] = value
         return auth
 
+    @default('git_credentials')
+    def _default_git_credentials(self):
+        if self.private_token:
+            return r'username=binderhub\npassword={token}'.format(token=self.private_token)
+        return ""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         quoted_namespace, unresolved_ref = self.spec.split('/', 1)
