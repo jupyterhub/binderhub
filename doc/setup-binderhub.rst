@@ -362,8 +362,8 @@ time at `the token administration page <https://github.com/settings/tokens>`_.
 GitLab
 ~~~~~~
 
-To access private GitLab, create an api token for your binderhub user under
-"User Settings" > "Access tokens". It at least needs the scopes "api" and
+To access private GitLab repos, create an API token for your binderhub user
+under "User Settings" > "Access tokens". It at least needs the scopes "api" and
 "read_repository".
 
 .. figure:: _static/images/private-gitlab-repo-token.png
@@ -372,5 +372,8 @@ Then update ``secret.yaml`` with the following::
 
     config:
       GitLabRepoProvider:
-        access_token: <insert_token_value_here>
-        git_credentials: "username=<gitlab_username>\npassword=<insert_token_value_here>"
+        private_token: <insert_token_value_here>
+
+This token will be used for accessing the GitLab API, and is also used as the
+git password when cloning repos. With this token, no username is required to
+clone a repo.
