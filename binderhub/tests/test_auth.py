@@ -1,5 +1,9 @@
 """Test authentication"""
+
+from urllib.parse import urlparse
+
 import pytest
+
 from .utils import async_requests
 
 
@@ -26,10 +30,17 @@ async def test_auth(app, path, authenticated, use_session):
     url = f'{app.url}{path}'
     r = await async_requests.get(url)
     assert r.status_code == 200, f"{r.status_code} {url}"
+    if not authenticated:
+        # not authenticated, we should get the page and be done
+        assert r.url == url
+        return
+
+    # submit login form
+    assert "/hub/login" in urlparse(r.url).path
     r2 = await async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
-    if authenticated:
-        assert r2.status_code == 200, f"{r2.status_code} {r.url}"
-    else:
-        # not allowed
-        assert r2.status_code == 405, f"{r2.status_code} {r.url}"
+    # submit oauth2 confirmation, if prompted (new in jupyterhub 1.0)
+    if "/oauth2/authorize" in urlparse(r2.url).path:
+        r2 = await async_requests.post(r2.url, headers={'Referer': r2.url})
+    assert r2.status_code == 200, f"{r2.status_code} {r.url}"
+    # verify that we landed at the destination after auth
     assert r2.url == url
