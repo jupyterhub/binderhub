@@ -5,7 +5,19 @@
 
 set -ex
 
-export IP=$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+# Is there a standard interface name?
+for iface in eth0 ens4 enp0s3; do
+    IP=$(ifconfig $iface | grep 'inet addr' | cut -d: -f2 | awk '{print $1}');
+    if [ -n "$IP" ]; then
+        echo "IP: $IP"
+        break
+    fi
+done
+if [ -z "$IP" ]; then
+    echo "Failed to get IP, current interfaces:"
+    ifconfig -a
+    exit 2
+fi
 export BINDER_TEST_URL=http://$IP:30901
 export HUB_URL=http://$IP:30902
 
