@@ -131,9 +131,18 @@ def _binderhub_config():
 class RemoteBinderHub(object):
     """Mock class for the app fixture when Binder is remote
 
-    Only has a URL for the binder location.
+    Has a URL for the binder location and a configured BinnderHub instance
+    so tests can look at the configuration of the hub.
+
+    Note: this only gives back the default configuration. It could be that the
+    remote hub is configured differently than what you see here. In our CI
+    setup this will do the right thing though.
     """
     url = None
+    _configured_bhub = None
+
+    def __getattr__(self, name):
+        return getattr(self._configured_bhub, name)
 
 
 @pytest.fixture
@@ -169,8 +178,8 @@ def app(request, io_loop, _binderhub_config):
         if not success:
             raise last_error
         app.url = BINDER_URL
+        app._configured_bhub = BinderHub(config=_binderhub_config)
         return app
-
 
     if hasattr(request, 'param') and request.param is True:
         # load conf for auth test
