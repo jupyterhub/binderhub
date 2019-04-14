@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import pytest
 
+from binderhub import __version__ as binder_version
+
 from .utils import async_requests
 
 
@@ -70,6 +72,15 @@ async def test_main_page(app):
         url = _resolve_url(app.url, href)
         r = await async_requests.get(url)
         assert r.status_code == 200, f"{r.status_code} {url}"
+
+
+@pytest.mark.remote
+async def test_about_handler(app):
+    # Check that the about page loads
+    r = await async_requests.get(app.url + "/about")
+    assert r.status_code == 200
+    assert "This website is powered by" in r.text
+    assert binder_version in r.text
 
 
 @pytest.mark.parametrize(
