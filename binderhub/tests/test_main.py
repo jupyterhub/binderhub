@@ -83,6 +83,17 @@ async def test_about_handler(app):
     assert binder_version in r.text
 
 
+@pytest.mark.remote
+async def test_versions_handler(app):
+    # Check that the about page loads
+    r = await async_requests.get(app.url + "/versions")
+    assert r.status_code == 200
+
+    data = r.json()
+    assert data['builder'] == app.build_image
+    assert data['binderhub'] == binder_version
+
+
 @pytest.mark.parametrize(
     'provider_prefix,repo,ref,path,path_type,status_code',
     [
