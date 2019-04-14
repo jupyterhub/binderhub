@@ -3,11 +3,10 @@ import os
 from setuptools import setup, find_packages
 import subprocess
 
-# get the version
-version_ns = {}
+import versioneer
+
+
 here = os.path.dirname(__file__)
-with open(os.path.join(here, 'binderhub', '_version.py')) as f:
-    exec(f.read(), {}, version_ns)
 
 with open(os.path.join(here, 'requirements.txt')) as f:
     requirements = [
@@ -15,7 +14,7 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         if not l.strip().startswith('#')
     ]
 
-with open('README.rst', encoding="utf8") as f:
+with open(os.path.join(here, 'README.rst'), encoding="utf8") as f:
     readme = f.read()
 
 # Build our js and css files before packaging
@@ -28,7 +27,8 @@ else:
 
 setup(
     name='binderhub',
-    version=version_ns['__version__'],
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     python_requires='>=3.6',
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',

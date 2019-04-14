@@ -6,7 +6,7 @@ from http.client import responses
 from tornado import web
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
-from ._version import __version__ as binder_version
+from . import __version__ as binder_version
 
 
 class BaseHandler(HubOAuthenticated, web.RequestHandler):
