@@ -102,8 +102,17 @@ day to day development procedures.
 
 ### Day to day development tasks
 
-To execute our test suite you need a running minikube cluster. It does not
-need to have anything installed on it:
+After having setup minikube and helm once, these are the tasks you need for
+every day development.
+
+* Start and stop minikube with `minikube start` and `minikube stop`.
+* Install JupyterHub in minikube with helm `./testing/minikube/install-hub`
+* Setup docker to use the same docker daemon as your minikube cluster `eval $(minikube docker-env)`
+* Start BinderHub `python3 -m binderhub -f testing/minikube/binderhub_config.py`
+* Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
+
+To execute most of our test suite you need a running minikube cluster.
+It does not need to have anything installed on it though:
 
 ```bash
 minikube start
