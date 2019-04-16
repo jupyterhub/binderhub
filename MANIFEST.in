@@ -4,3 +4,5 @@ recursive-include binderhub/event-schemas *
 graft testing
 graft doc
 include LICENSE
+include versioneer.py
+include binderhub/_version.py
