@@ -11,8 +11,9 @@ the [user interface](#user-innterface-changes), or the
 
 ## Documentation changes
 
-Work on the documentation requires the least amount of setup.  You will need
-to have a modern version of [Python](https://www.python.org/).
+Work on the documentation requires the least amount of setup. You will need
+to have a modern version of [Python](https://www.python.org/). The documentation
+uses the [reStructuredText markup language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
 1. Clone the BinderHub repository to your local computer and ```cd``` into it.
    ```bash
@@ -138,6 +139,9 @@ themselves on your minikube cluster.
 
 To run the full BinderHub it needs to have access to a kubernetes cluster
 with a JupyterHub installed on it. This is what we will setup in this section.
+All the steps are given as command-line commands for Ubuntu systems. They are
+used as a common denominator that can be translated into the correct commands
+on your local system.
 
 Before you begin, there are a few utilities that need to be installed:
 ```bash
@@ -158,9 +162,6 @@ sudo apt install socat
 
 1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
    to run Kubernetes locally.
-
-   For MacOS, you may find installing from https://github.com/kubernetes/minikube/releases
-   may be more stable than using Homebrew.
 
    To start your minikube cluster , run the command: `minikube start`. This
    starts a local kubernetes cluster inside a virtual machine. This command
