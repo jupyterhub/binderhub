@@ -183,7 +183,6 @@ class Build:
                         image=self.build_image,
                         name="builder",
                         args=self.get_cmd(),
-                        image_pull_policy='IfNotPresent',
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
                             limits={'memory': self.memory_limit},
