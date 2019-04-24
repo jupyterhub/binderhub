@@ -126,7 +126,6 @@ html_sidebars = {
     '**': [
         'about.html',
         'navigation.html',
-        'relations.html',
         'sourcelink.html',
         'searchbox.html'
     ]
