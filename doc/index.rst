@@ -10,9 +10,6 @@ BinderHub
    :alt: Join our community Discourse page at https://discourse.jupyter.org
    :target: https://discourse.jupyter.org/c/binder/binderhub
 
-.. note::
-
-   BinderHub is under active development and subject to breaking changes.
 
 Getting started
 ===============
