@@ -306,9 +306,10 @@ an API access token to raise your API limit to 5000 requests an hour.
 
 3. Update ``secret.yaml`` by entering the following::
 
-    config:
-      GitHubRepoProvider:
-        access_token: <insert_token_value_here>
+    jupyterhub:
+      config:
+        GitHubRepoProvider:
+          access_token: <insert_token_value_here>
 
 This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
 BinderHub will automatically use the token stored in this variable when making
