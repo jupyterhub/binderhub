@@ -11,4 +11,6 @@ Changing the helm chart
 If you make changes to your Helm Chart (e.g., while debugging), you should
 run an upgrade on your Kubernetes deployment like so::
 
-     helm upgrade binder jupyterhub/binderhub --version=v0.1.0-397eb59 -f secret.yaml -f config.yaml
+     helm upgrade binder jupyterhub/binderhub --version=<commit-hash> -f secret.yaml -f config.yaml
+
+where ``<commit-hash>`` can be found `here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`_.
