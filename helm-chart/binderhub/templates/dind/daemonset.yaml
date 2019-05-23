@@ -9,6 +9,15 @@ spec:
   selector:
     matchLabels:
       name:  {{ .Release.Name }}-dind
+  tolerations:
+    - effect: NoSchedule
+      key: hub.jupyter.org/dedicated
+      operator: Equal
+      value: user
+    - effect: NoSchedule
+      key: hub.jupyter.org_dedicated
+      operator: Equal
+      value: user
   template:
     metadata:
       labels:
