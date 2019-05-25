@@ -8,27 +8,31 @@ There's one API endpoint, which is:
 
 ::
 
-    /build/<provider>/<spec>
+    /build/<provider_prefix>/<spec>
 
 Even though it says **build** it is actually performs **launch**.
 
-Provider
---------
+**provider_prefix** identifies the provider.
+**spec** is defines the source of the computing environment to be built and 
+served using the given provider.
+See :ref:`providers-section` for supported inputs.
 
-Provider is a supported provider, and **spec** is the specification for
-the given provider.
+.. _providers-section:
 
-Currently supported providers and their specs are:
+Providers
+---------
 
-+------------+-----------+-------------------------------------------------------------+----------------------------+
-| Provider   | prefix    | spec                                                        | notes                      |
-+============+===========+=============================================================+============================+
-| GitHub     | ``gh``    | ``<user>/<repo>/<commit-sha-or-tag-or-branch>``             |                            |
-+------------+-----------+-------------------------------------------------------------+----------------------------+
-| Git        | ``git``   | ``<url-escaped-url>/<commit-sha>``                          | arbitrary HTTP git repos   |
-+------------+-----------+-------------------------------------------------------------+----------------------------+
-| GitLab     | ``gl``    | ``<url-escaped-namespace>/<commit-sha-or-tag-or-branch>``   |                            |
-+------------+-----------+-------------------------------------------------------------+----------------------------+
+Currently supported providers and their prefixes and specs are:
+
++------------+--------------------+-------------------------------------------------------------+----------------------------+
+| Provider   | provider_prefix    | spec                                                        | notes                      |
++============+====================+=============================================================+============================+
+| GitHub     | ``gh``             | ``<user>/<repo>/<commit-sha-or-tag-or-branch>``             |                            |
++------------+--------------------+-------------------------------------------------------------+----------------------------+
+| Git        | ``git``            | ``<url-escaped-url>/<commit-sha>``                          | arbitrary HTTP git repos   |
++------------+--------------------+-------------------------------------------------------------+----------------------------+
+| GitLab     | ``gl``             | ``<url-escaped-namespace>/<commit-sha-or-tag-or-branch>``   |                            |
++------------+--------------------+-------------------------------------------------------------+----------------------------+
 
 Next, construct an appropriate URL and send a request.
 
@@ -125,7 +129,7 @@ Launching
 
 When the repo has been built, and we're in the process of waiting for
 the hub to launch. This could end up succeeding and emitting a 'ready'
-event or failing and emitting a 'failure' event.
+event or failing and emitting a 'failed' event.
 
 ::
 
@@ -137,7 +141,7 @@ Ready
 When your notebook is ready! You get a endpoint URL and a token used to
 access it. You can access the notebook / API by using the token in one
 of the ways the `notebook accepts security
-tokens <http://jupyter-notebook.readthedocs.io/en/stable/security.html>`__
+tokens <http://jupyter-notebook.readthedocs.io/en/stable/security.html>`__.
 
 ::
 
