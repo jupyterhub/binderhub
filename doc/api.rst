@@ -10,10 +10,10 @@ There's one API endpoint, which is:
 
     /build/<provider_prefix>/<spec>
 
-Even though it says **build** it is actually performs **launch**.
+Even though it says **build** it actually performs **launch**.
 
 **provider_prefix** identifies the provider.
-**spec** is defines the source of the computing environment to be built and 
+**spec** defines the source of the computing environment to be built and 
 served using the given provider.
 See :ref:`providers-section` for supported inputs.
 
@@ -22,7 +22,7 @@ See :ref:`providers-section` for supported inputs.
 Providers
 ---------
 
-Currently supported providers and their prefixes and specs are:
+Currently supported providers, their prefixes and specs are:
 
 +------------+--------------------+-------------------------------------------------------------+----------------------------+
 | Provider   | provider_prefix    | spec                                                        | notes                      |
