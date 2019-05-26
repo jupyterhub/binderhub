@@ -32,6 +32,8 @@ Currently supported providers, their prefixes and specs are:
 | Git        | ``git``            | ``<url-escaped-url>/<commit-sha>``                          | arbitrary HTTP git repos   |
 +------------+--------------------+-------------------------------------------------------------+----------------------------+
 | GitLab     | ``gl``             | ``<url-escaped-namespace>/<commit-sha-or-tag-or-branch>``   |                            |
++------------+--------------------+-------------------------------------------------------------+----------------------------+ 
+| Gist       | ``gist``           | ``<github-username>/<gist-id><commit-sha-or-tag>``          |                            |
 +------------+--------------------+-------------------------------------------------------------+----------------------------+
 
 Next, construct an appropriate URL and send a request.
