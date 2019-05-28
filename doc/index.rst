@@ -83,4 +83,5 @@ A more detailed overview of the BinderHub design, architecture, and functionalit
    overview
    eventlogging
    api
+   age-checker
    reference/ref-index.rst
