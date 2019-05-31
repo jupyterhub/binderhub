@@ -130,10 +130,10 @@ function build(providerSpec, log, path, pathType) {
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository (can take 30s or more to load): " + spec);
+    $('div#loader-text p').text("Starting repository: " + spec);
     window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
-    }, 120000);
+      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to start, hang tight!")
+    }, 17000);
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
