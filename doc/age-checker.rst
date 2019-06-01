@@ -51,6 +51,37 @@ provides a quick interface to check how up-to-date each of them is.
    <div class="version_text" id="repo2dockerversiontext">repo2docker version: <span class="empty">Fill in the box then click "check age"</span></div>
 
    <script>
+   // commit data
+   var response_data = {};
+   var bhub_resp = $.get("https://api.github.com/repos/jupyterhub/binderhub/commits", (data) => {
+     response_data['bhub_json'] = data;
+     console.log("got binderhub commit data");
+   });
+   var r2d_resp = $.getJSON("https://api.github.com/repos/jupyter/repo2docker/commits", (data) => {
+     response_data['r2d_json'] = data;
+     console.log("got repo2docker commit data");
+   });
+   
+   function findCommitFromSHA(commits, sha) {
+    for (ii=0; ii < commits.length; ii++) {
+      var this_commit = commits[ii]
+      var this_sha = this_commit['sha'];
+      search = this_sha.indexOf(sha.substr(1));  // A hack because there seems to be a bug w/ the SHA
+      if (search != -1) {
+          var chosen_commit = this_commit
+          return chosen_commit
+      } 
+    }
+   };
+
+   function findCommitAge(commit) {
+      return Date.parse(commit['commit']['author']['date']);
+   };
+
+   function milliToDays(milli) {
+      return milli / 1000 / 60 / 60 / 24;
+   }
+
    function checkAge() {
        // Variables
        var repo2docker_div = document.querySelectorAll('div#repo2dockerversiontext span')[0];
@@ -68,11 +99,29 @@ provides a quick interface to check how up-to-date each of them is.
        resp.done((versions, status) => {
             console.log(status);
 
+            // Load the commit data
+            var bhub_commits = response_data['bhub_json'];
+            var r2d_commits = response_data['r2d_json'];
+            var r2d_latest_date = findCommitAge(r2d_commits[0]);
+            var bhub_latest_date = findCommitAge(bhub_commits[0]);
+
             // Versions will be a JSON response
             bhub_version = versions['binderhub'];
             r2d_version = versions['builder'];
             console.log(versions)
+            
+            // Find the commit for this version and parse its age
+            bhub_commit_part = bhub_version.split('.')[3]
+            r2d_commit_part = r2d_version.split(':')[1]
+            var r2d_this_commit = findCommitFromSHA(r2d_commits, r2d_commit_part);
+            var bhub_this_commit = findCommitFromSHA(bhub_commits, bhub_commit_part);
+            var r2d_this_commit_age = findCommitAge(r2d_this_commit);
+            var bhub_this_commit_age = findCommitAge(bhub_this_commit);
 
+            // Convert age to days from milliseconds
+            var bhub_age = parseInt(milliToDays(bhub_latest_date - bhub_this_commit_age));
+            var r2d_age = parseInt(milliToDays(r2d_latest_date - r2d_this_commit_age));
+            
             // Update the rST
             repo2docker_div.setAttribute('class', 'success')
             binderhub_div.setAttribute('class', 'success')
