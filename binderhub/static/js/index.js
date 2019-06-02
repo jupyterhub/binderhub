@@ -29,6 +29,7 @@ import '../index.css';
 import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
+var BADGE_BASE_URL = $('#badge-base-url').data().url;
 
 function update_favicon(path) {
     var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
@@ -44,7 +45,12 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
     // no repo, no url
     return null;
   }
-  var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  if (BADGE_BASE_URL) {
+    var url = BADGE_BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  }
+  else {
+    var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  }
   if (path && path.length > 0) {
     // encode the path, it will be decoded in loadingMain
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
