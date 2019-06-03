@@ -58,6 +58,7 @@ class ParameterizedMainHandler(BaseHandler):
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
+            badge_base_url=self.settings['badge_base_url'],
             provider_spec=provider_spec,
             nbviewer_url=nbviewer_url,
             # urlpath=self.get_argument('urlpath', None),
