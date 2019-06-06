@@ -16,8 +16,8 @@ GESIS - Leibniz-Institute for the Social Sciences
 
 Deployed on bare-metal using ``kubeadm``.
 
-* `Deployment repository <https://github.com/gesiscss/orc>`_
-* `BinderHub / JupyterHub links <https://notebooks.gesis.org/>`_
+* `Deployment repository <https://github.com/gesiscss/orc>`__
+* `BinderHub / JupyterHub links <https://notebooks.gesis.org/>`__
 
 Pangeo - A community platform for big data geoscience
 -----------------------------------------------------
@@ -37,3 +37,15 @@ _`Pangeo project here`: https://pangeo.io/
 __ https://github.com/pangeo-data/pangeo-binder
 __ http://binder.pangeo.io
 __ https://pangeo-binder.readthedocs.io/en/latest
+
+
+OVH - A public BinderHub
+------------------------
+
+Deployed on `OVH <https://ovh.com>`_'s Kubernetes platform. This hub was the
+first hub to join the Binder Federation, a global network of general purpose,
+public BinderHubs.
+
+
+* `Deployment repository <https://github.com/jupyterhub/mybinder.org-deploy>`__
+* `BinderHub link <https://och.mybinder.org/>`__
