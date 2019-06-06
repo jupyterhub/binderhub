@@ -1,0 +1,12 @@
+- url_binderhub: https://gke.mybinder.org
+  url_info: https://gke.mybinder.org/about
+  funded_by: Google Cloud Platform
+  run_by: The Binder Team
+  logo: https://binderhub.readthedocs.io/en/latest/_static/logo.png
+  
+- url_binderhub: https://ovh.mybinder.org
+  url_info: https://ovh.mybinder.org/about
+  funded_by: OVH
+  run_by: The OVH Team
+  logo: https://www.ovh.com/fr/images/logos/logo-ovh-twitter.jpg
+  

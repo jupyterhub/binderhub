@@ -4,6 +4,9 @@ recommonmark==0.4.0
 sphinx-copybutton
 alabaster_jupyterhub
 traitlets
+pandas
+ruamel.yaml
+
 # install BinderHub from source but because `pip install` is executed in the
 # root directory (not this directory) of this repository we write '.' here
 # not '..' as you might expect when thinking relative to this file.

@@ -70,6 +70,7 @@ in the community have done.
    customizing
    authentication
    known-deployments
+   federation/federation
 
 BinderHub Developer and Architecture Documentation
 ==================================================

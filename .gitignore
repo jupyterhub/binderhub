@@ -111,3 +111,5 @@ helm.txt
 travis
 helm-chart/travis-binder.yaml
 
+# Federation data page
+doc/federation/data-federation.txt
