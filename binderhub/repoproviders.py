@@ -123,6 +123,27 @@ class FakeProvider(RepoProvider):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
 
 
+class ZenodoProvider(RepoProvider):
+    """Provide contents of a Zenodo record
+
+    Users must provide a spec consisting of the Zenodo DOI.
+    """
+    name = Unicode("Zenodo")
+
+    async def get_resolved_ref(self):
+        r = await AsyncHTTPClient().fetch("https://doi.org/{}".format(self.spec))
+        self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
+        return self.record_id
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "zenodo-{}".format(self.record_id)
+
+
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 
@@ -421,7 +442,6 @@ class GitHubRepoProvider(RepoProvider):
             remaining=remaining, limit=rate_limit, delta=delta,
         ))
         return resp
-
 
     @gen.coroutine
     def get_resolved_ref(self):

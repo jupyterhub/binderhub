@@ -62,6 +62,9 @@ function updateRepoText() {
   var text;
   var provider = $("#provider_prefix").val();
   var tag_text = "Git branch, tag, or commit";
+  // first enable branch/ref field, some providers later disable it
+  $("#ref").prop("disabled", false);
+  $("label[for=ref]").prop("disabled", false);
   if (provider === "gh") {
     text = "GitHub repository name or URL";
   } else if (provider === "gl") {
@@ -74,6 +77,11 @@ function updateRepoText() {
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
     tag_text = "Git commit SHA";
+  }
+  else if (provider === "zn") {
+    text = "Zenodo DOI (10.5281/zenodo.3242074)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
@@ -98,6 +106,9 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
+  if (providerPrefix === 'zn') {
+    ref = "";
+  }
   var path = $('#filepath').val().trim();
   return {'providerPrefix': providerPrefix, 'repo': repo,
           'ref': ref, 'path': path, 'pathType': getPathType()}
