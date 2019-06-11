@@ -130,8 +130,10 @@ class ZenodoProvider(RepoProvider):
     """
     name = Unicode("Zenodo")
 
-    async def get_resolved_ref(self):
-        r = await AsyncHTTPClient().fetch("https://doi.org/{}".format(self.spec))
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        r = yield client.fetch("https://doi.org/{}".format(self.spec))
         self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
         return self.record_id
 

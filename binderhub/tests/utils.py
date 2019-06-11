@@ -49,7 +49,8 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
             'body': response.body.decode('utf8'),
         }
 
-    async def fetch(self, req_or_url, *args, **kwargs):
+    @gen.coroutine
+    def fetch(self, req_or_url, *args, **kwargs):
         """Mocked HTTP fetch
 
         If the request URL is in self.mocks, build a response from the cached response.
@@ -69,11 +70,10 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 
         error = None
         try:
-            response = await gen.maybe_future(fetch(request))
+            response = yield gen.maybe_future(fetch(request))
         except HTTPError as e:
             error = e
             response = e.response
-
         self._record_response(url_key, response)
         # return or raise the original result
         if error:
