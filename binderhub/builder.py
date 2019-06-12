@@ -295,10 +295,11 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit('binderhub.jupyter.org/launch', 2, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
                 'provider': provider.name,
                 'spec': spec,
-                'status': 'success'
+                'status': 'success',
+                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
             return
 
@@ -403,10 +404,11 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube)
-            self.event_log.emit('binderhub.jupyter.org/launch', 2, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
                 'provider': provider.name,
                 'spec': spec,
-                'status': 'success'
+                'status': 'success',
+                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
 
         # Don't close the eventstream immediately.

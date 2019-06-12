@@ -413,6 +413,12 @@ class BinderHub(Application):
         config=True,
     )
 
+    normalized_origin = Unicode(
+        '',
+        config=True,
+        help='Origin to use when emitting events. Defaults to hostname of request when empty'
+    )
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -524,7 +530,8 @@ class BinderHub(Application):
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_named_servers': self.use_named_servers,
-            'event_log': self.event_log
+            'event_log': self.event_log,
+            'normalized_origin': self.normalized_origin
         })
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
