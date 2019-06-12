@@ -299,7 +299,7 @@ class BuildHandler(BaseHandler):
                 'provider': provider.name,
                 'spec': spec,
                 'status': 'success',
-                'origin': self.request.host
+                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
             return
 
@@ -408,7 +408,7 @@ class BuildHandler(BaseHandler):
                 'provider': provider.name,
                 'spec': spec,
                 'status': 'success',
-                'origin': self.request.host
+                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
 
         # Don't close the eventstream immediately.
