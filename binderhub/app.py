@@ -334,7 +334,7 @@ class BinderHub(Application):
             'gist': GistRepoProvider,
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,
-            'zn': ZenodoProvider,
+            'zenodo': ZenodoProvider,
         },
         config=True,
         help="""

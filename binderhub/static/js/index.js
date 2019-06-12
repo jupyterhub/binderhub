@@ -78,7 +78,7 @@ function updateRepoText() {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
     tag_text = "Git commit SHA";
   }
-  else if (provider === "zn") {
+  else if (provider === "zenodo") {
     text = "Zenodo DOI (10.5281/zenodo.3242074)";
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
@@ -106,7 +106,7 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zn') {
+  if (providerPrefix === 'zenodo') {
     ref = "";
   }
   var path = $('#filepath').val().trim();

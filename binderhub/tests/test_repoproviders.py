@@ -37,13 +37,13 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_ref == unresolved_ref
 
 
-def test_zenodo():
+async def test_zenodo():
     spec = '10.5281/zenodo.3242074'
 
     provider = ZenodoProvider(spec=spec)
 
     # have to resolve the ref first
-    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    ref = await provider.get_resolved_ref()
     assert ref == '3242074'
 
     slug = provider.get_build_slug()

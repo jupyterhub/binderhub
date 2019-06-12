@@ -4,10 +4,12 @@ from urllib.parse import urlparse
 
 from tornado import gen
 from tornado.httputil import HTTPHeaders
-from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest, HTTPResponse
+from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
+
+from tornado.curl_httpclient import CurlAsyncHTTPClient
 
 
-class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
+class MockAsyncHTTPClient(CurlAsyncHTTPClient):
     mocks = {}
     records = {}
 
@@ -49,8 +51,7 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
             'body': response.body.decode('utf8'),
         }
 
-    @gen.coroutine
-    def fetch(self, req_or_url, *args, **kwargs):
+    async def fetch(self, req_or_url, *args, **kwargs):
         """Mocked HTTP fetch
 
         If the request URL is in self.mocks, build a response from the cached response.
@@ -70,10 +71,11 @@ class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
 
         error = None
         try:
-            response = yield gen.maybe_future(fetch(request))
+            response = await gen.maybe_future(fetch(request))
         except HTTPError as e:
             error = e
             response = e.response
+
         self._record_response(url_key, response)
         # return or raise the original result
         if error:
