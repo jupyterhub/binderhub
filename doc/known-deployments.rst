@@ -48,4 +48,4 @@ public BinderHubs.
 
 
 * `Deployment repository <https://github.com/jupyterhub/mybinder.org-deploy>`__
-* `BinderHub link <https://och.mybinder.org/>`__
+* `BinderHub link <https://ovh.mybinder.org/>`__
