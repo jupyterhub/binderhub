@@ -124,6 +124,30 @@ You can save this to a bash variable like so::
 
    ACR_ID=$(az acr show --name <ACR_NAME> --query "id" -o tsv)
 
+8. Create a Service Principal with the AcrPush role assignment::
+
+   az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scope <ACR_ID>
+
+where:
+
+* `<SP_NAME>` is a recognisable name for your Service Principal, for example `binderhub-sp`.
+* `<ACR_ID>` is the AppID we retrieved in step 7.
+  You can replace this with `${ACR_ID}` if you saved it to a bash variable.
+
+.. important::
+
+   Note down the AppID and password that are output by this step.
+   These are the login credentials BinderHub will use to access the registry.
+
+   **The password will not be recoverable after this step, so make sure you keep it safe!**
+
+   If you'd like to save this info to bash variables, you can replace step 8 with the following commands::
+
+     PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
+     CLIENT_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
+
+See the next step to see how to properly configure your BinderHub to use Azure Container Registry.
+
 Next step
 ---------
 
