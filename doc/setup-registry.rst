@@ -60,6 +60,13 @@ This is useful if different Binder instances want to use same registry to store 
 See the next section for how to properly configure your BinderHub to use
 Docker Hub.
 
+.. _user-acr:
+
+Set up Azure Container Registry
+-------------------------------
+
+
+
 Next step
 ---------
 
