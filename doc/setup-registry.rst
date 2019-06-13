@@ -65,6 +65,10 @@ Docker Hub.
 Set up Azure Container Registry
 -------------------------------
 
+To use Azure Container Registry (ACR), you'll need to provide BinderHub
+with proper credentials so it can push images.
+You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ that has the `AcrPush <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpush>`_ role:
+
 
 
 Next step
