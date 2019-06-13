@@ -66,7 +66,7 @@ Set up Azure Container Registry
 -------------------------------
 
 To use Azure Container Registry (ACR), you'll need to provide BinderHub with proper credentials so it can push images.
-You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ that has the `AcrPush <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpush>`_ role:
+You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ that has the `AcrPush <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpush>`_ role.
 
 1. Login to your Azure account::
 
@@ -80,7 +80,7 @@ You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us
 
    You can see which subscriptions you have available by running::
 
-     az account list --refresh --output table
+       az account list --refresh --output table
 
 3. If you **do not** have a Resource Group, then create one::
 
@@ -143,10 +143,10 @@ where:
 
    If you'd like to save this info to bash variables, you can replace step 8 with the following commands::
 
-     PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
-     CLIENT_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
+       PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
+       CLIENT_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
 
-See the next step to see how to properly configure your BinderHub to use Azure Container Registry.
+See the next section for how to properly configure your BinderHub to use Azure Container Registry.
 
 Next step
 ---------
