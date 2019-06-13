@@ -175,19 +175,9 @@ If you want your BinderHub to push and pull images from an Azure Container Regis
       DockerRegistry:
         token_url: "https://<ACR_NAME>.azurecr.io/oauth2/token?service=<ACR_NAME>.azurecr.io"
 
-    jupyterhub:
-      hub:
-        imagePullSecret:
-          enabled: true
-          registry: <ACR_NAME>.azurecr.io
-          username: <SERVICE_PRINCIPAL_ID>
-          password: <SERVICE_PRINCIPAL_PASSWORD>
-
 where:
 
 * `<ACR_NAME>` is the name you gave to your ACR,
-* `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment,
-* `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal,
 * `<project-name>` is an arbitrary name that is required due to BinderHub's hard dependency on the `gcr.io` image structure above.
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
