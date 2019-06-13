@@ -65,8 +65,7 @@ Docker Hub.
 Set up Azure Container Registry
 -------------------------------
 
-To use Azure Container Registry (ACR), you'll need to provide BinderHub
-with proper credentials so it can push images.
+To use Azure Container Registry (ACR), you'll need to provide BinderHub with proper credentials so it can push images.
 You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ that has the `AcrPush <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpush>`_ role:
 
 1. Login to your Azure account::
@@ -89,6 +88,41 @@ You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us
 
 where `<RESOURCE_GROUP_LOCATION>` refers to a data centre **region**.
 See a list of regions `here <https://azure.microsoft.com/en-us/global-infrastructure/locations/>`_.
+
+If you already have a Resource Group you'd like to use, then you can skip this step.
+
+4. Create the ACR::
+
+   az acr create --name <ACR_NAME> --resource-group <RESOURCE_GROUP_NAME> --sku Basic --output table
+
+where:
+
+* `<ACR_NAME>` must be between 5-50 alphanumeric characters and is unique to Azure.
+  If you're not sure your chosen name is available, you can run `az acr check-name --name <ACR_NAME> --output table`
+* `--sku` is the pricing and capacity tier for the registry.
+  See `this page <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus>`_ for more details.
+
+5. Login in the ACR::
+
+   az acr login --name <ACR_NAME>
+
+6. Note down the login server name of the ACR::
+
+   az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv
+
+This is important for the configuration files we'll construct when setting up the BinderHub.
+You can save this to a bash variable like so::
+
+   ACR_LOGIN=$(az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv)
+
+7. Note down the AppID of the ACR::
+
+   az acr show --name <ACR_NAME> --query "id" -o tsv
+
+We need this in order to assign the AcrPush role which will allow BinderHub to push images to the registry.
+You can save this to a bash variable like so::
+
+   ACR_ID=$(az acr show --name <ACR_NAME> --query "id" -o tsv)
 
 Next step
 ---------
