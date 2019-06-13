@@ -188,7 +188,7 @@ where:
 * `<ACR_NAME>` is the name you gave to your ACR,
 * `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment,
 * `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal,
-* `<project-name>` is an arbitrary name that is required due to BinderHub's hard dependency on the `gcr.io` image structure above.
+* `<project-name>` is an arbitrary name that is required due to BinderHub assuming that the image_prefix contains an extra level for the project name.
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
 
@@ -252,7 +252,7 @@ If you setup your own local registry using
 
 .. important::
 
-    BinderHub has a hard dependency on the `gcr.io` image name structure: `gcr.io/<project-id>/<prefix>-name:tag`.
+    BinderHub assumes that the image_prefix contains an extra level for the project name such that: `gcr.io/<project-id>/<prefix>-name:tag`.
     Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
     See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for more details.
 
