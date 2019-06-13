@@ -134,8 +134,8 @@ where:
 
    If you'd like to save this info to bash variables, you can replace step 8 with the following commands::
 
-       PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
-       CLIENT_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
+       SERVICE_PRINCIPAL_PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
+       SERVICE_PRINCIPAL_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
 
 See the next section for how to properly configure your BinderHub to use Azure Container Registry.
 
