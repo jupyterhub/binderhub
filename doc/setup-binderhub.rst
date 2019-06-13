@@ -100,6 +100,21 @@ Update ``secret.yaml`` by entering the following::
    * ``<docker-id>`` and ``<password>`` are your credentials to login to Docker Hub.
      If you use an organization to store your Docker images, this account must be a member of it.
 
+If you are using Azure Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update `secret.yaml` to include the following::
+
+    registry:
+      url: https://<ACR_NAME>.azurecr.io
+      username: <SERVICE_PRINCIPAL_ID>
+      password: <SERVICE_PRINCIPAL_PASSWORD>
+
+where:
+
+* `<ACR_NAME>` is the name you gave to your Azure Container Registry.
+* `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment.
+* `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal.
 
 Create ``config.yaml``
 ----------------------
