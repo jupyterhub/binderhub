@@ -70,11 +70,11 @@ You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us
 
 1. Login to your Azure account::
 
-   az login
+       az login
 
 2. Select your chosen subscription::
 
-   az account set -s <SUBSCRIPTION>
+       az account set -s <SUBSCRIPTION>
 
 .. note::
 
@@ -84,7 +84,7 @@ You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us
 
 3. If you **do not** have a Resource Group, then create one::
 
-   az group create --name <RESOURCE_GROUP_NAME> --location <RESOURCE_GROUP_LOCATION> --output table
+       az group create --name <RESOURCE_GROUP_NAME> --location <RESOURCE_GROUP_LOCATION> --output table
 
 where `<RESOURCE_GROUP_LOCATION>` refers to a data centre **region**.
 See a list of regions `here <https://azure.microsoft.com/en-us/global-infrastructure/locations/>`_.
@@ -93,7 +93,7 @@ If you already have a Resource Group you'd like to use, then you can skip this s
 
 4. Create the ACR::
 
-   az acr create --name <ACR_NAME> --resource-group <RESOURCE_GROUP_NAME> --sku Basic --output table
+       az acr create --name <ACR_NAME> --resource-group <RESOURCE_GROUP_NAME> --sku Basic --output table
 
 where:
 
@@ -104,29 +104,29 @@ where:
 
 5. Login in the ACR::
 
-   az acr login --name <ACR_NAME>
+       az acr login --name <ACR_NAME>
 
 6. Note down the login server name of the ACR::
 
-   az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv
+       az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv
 
 This is important for the configuration files we'll construct when setting up the BinderHub.
 You can save this to a bash variable like so::
 
-   ACR_LOGIN=$(az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv)
+    ACR_LOGIN=$(az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv)
 
 7. Note down the AppID of the ACR::
 
-   az acr show --name <ACR_NAME> --query "id" -o tsv
+       az acr show --name <ACR_NAME> --query "id" -o tsv
 
 We need this in order to assign the AcrPush role which will allow BinderHub to push images to the registry.
 You can save this to a bash variable like so::
 
-   ACR_ID=$(az acr show --name <ACR_NAME> --query "id" -o tsv)
+    ACR_ID=$(az acr show --name <ACR_NAME> --query "id" -o tsv)
 
 8. Create a Service Principal with the AcrPush role assignment::
 
-   az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scope <ACR_ID>
+       az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scope <ACR_ID>
 
 where:
 
