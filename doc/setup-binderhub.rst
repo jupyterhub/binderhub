@@ -250,7 +250,13 @@ If you setup your own local registry using
     and can handle these without any additional configuration
     beyond `registry.url`.
 
+.. important::
 
+    BinderHub has a hard dependency on the `gcr.io` image name structure: `gcr.io/<project-id>/<prefix>-name:tag`.
+    Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
+
+    `<some-project-name>` can be completely arbitrary and/or made-up.
+    Without this, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
 
 Install BinderHub
 -----------------
