@@ -53,4 +53,5 @@ This event is emitted whenever a new repo is launched.
 Schemas:
 
 - `version 1 <https://github.com/jupyterhub/binderhub/blob/ba15091b0940174c1001aefd2c89b96daa8005cb/binderhub/event-schemas/launch.json>`_
-- `version 2 <https://github.com/jupyterhub/binderhub/blob/master/binderhub/event-schemas/launch.json>`_
+- `version 2 <https://github.com/jupyterhub/binderhub/blob/5cc0f496cac98d6c9b7d645e6fb236fd1e5277f4/binderhub/event-schemas/launch.json>`_
+- `version 3 <https://github.com/jupyterhub/binderhub/blob/master/binderhub/event-schemas/launch.json>`_
