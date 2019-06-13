@@ -254,6 +254,7 @@ If you setup your own local registry using
 
     BinderHub has a hard dependency on the `gcr.io` image name structure: `gcr.io/<project-id>/<prefix>-name:tag`.
     Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
+    See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for more details.
 
     `<some-project-name>` can be completely arbitrary and/or made-up.
     Without this, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
