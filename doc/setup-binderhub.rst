@@ -148,6 +148,35 @@ Update ``config.yaml`` by entering the following::
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
 
+If you are using Azure Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want your BinderHub to push and pull images from an Azure Container Registry (ACR), then your `config.yaml` file will look as follows::
+
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: <ACR_NAME>.azurecr.io/<project-name>/<prefix>-
+      DockerRegistry:
+        token_url: "https://<ACR_NAME>.azurecr.io/oauth2/token?service=<ACR_NAME>.azurecr.io"
+
+    jupyterhub:
+      hub:
+        imagePullSecret:
+          enabled: true
+          registry: <ACR_NAME>.azurecr.io
+          username: <SERVICE_PRINCIPAL_ID>
+          password: <SERVICE_PRINCIPAL_PASSWORD>
+
+where:
+
+* `<ACR_NAME>` is the name you gave to your ACR.
+* `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment.
+* `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal.
+* `<project-name>` is an arbitrary name that is required due to BinderHub's hard dependency on the `gcr.io` image structure above.
+  See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
+  If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
+
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
