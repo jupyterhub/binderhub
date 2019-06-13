@@ -10,7 +10,8 @@
                 "GitHub",
                 "Gist",
                 "GitLab",
-                "Git"
+                "Git",
+                "Zenodo"
             ],
             "description": "Provider for the repository being launched"
         },

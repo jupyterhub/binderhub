@@ -4,10 +4,12 @@ from urllib.parse import urlparse
 
 from tornado import gen
 from tornado.httputil import HTTPHeaders
-from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest, HTTPResponse
+from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
+
+from tornado.curl_httpclient import CurlAsyncHTTPClient
 
 
-class MockAsyncHTTPClient(AsyncHTTPClient.configurable_default()):
+class MockAsyncHTTPClient(CurlAsyncHTTPClient):
     mocks = {}
     records = {}
 

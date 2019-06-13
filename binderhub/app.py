@@ -30,7 +30,9 @@ from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
+from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
+                            GitLabRepoProvider, GistRepoProvider,
+                            ZenodoProvider)
 from .metrics import MetricsHandler
 
 from .utils import ByteSpecification, url_path_join
@@ -332,6 +334,7 @@ class BinderHub(Application):
             'gist': GistRepoProvider,
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,
+            'zenodo': ZenodoProvider,
         },
         config=True,
         help="""
