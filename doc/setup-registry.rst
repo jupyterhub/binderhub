@@ -106,16 +106,7 @@ where:
 
        az acr login --name <ACR_NAME>
 
-6. Note down the login server name of the ACR::
-
-       az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv
-
-This is important for the configuration files we'll construct when setting up the BinderHub.
-You can save this to a bash variable like so::
-
-    ACR_LOGIN=$(az acr list --resource-group <RESOURCE_GROUP_NAME> --query "[].{acrLoginServer:loginServer}" -o tsv)
-
-7. Note down the AppID of the ACR::
+6. Note down the AppID of the ACR::
 
        az acr show --name <ACR_NAME> --query "id" -o tsv
 
@@ -124,14 +115,14 @@ You can save this to a bash variable like so::
 
     ACR_ID=$(az acr show --name <ACR_NAME> --query "id" -o tsv)
 
-8. Create a Service Principal with the AcrPush role assignment::
+7. Create a Service Principal with the AcrPush role assignment::
 
        az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scope <ACR_ID>
 
 where:
 
 * `<SP_NAME>` is a recognisable name for your Service Principal, for example `binderhub-sp`.
-* `<ACR_ID>` is the AppID we retrieved in step 7.
+* `<ACR_ID>` is the AppID we retrieved in step 6 above.
   You can replace this with `${ACR_ID}` if you saved it to a bash variable.
 
 .. important::
