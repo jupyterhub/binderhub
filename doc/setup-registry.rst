@@ -98,7 +98,7 @@ If you already have a Resource Group you'd like to use, then you can skip this s
 where:
 
 * `<ACR_NAME>` must be between 5-50 alphanumeric characters and is unique to Azure.
-  If you're not sure your chosen name is available, you can run `az acr check-name --name <ACR_NAME> --output table`
+  If you're not sure your chosen name is available, you can run `az acr check-name --name <ACR_NAME> --output table`.
 * `--sku` is the pricing and capacity tier for the registry.
   See `this page <https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus>`_ for more details.
 
@@ -121,7 +121,7 @@ You can save this to a bash variable like so::
 
 where:
 
-* `<SP_NAME>` is a recognisable name for your Service Principal, for example `binderhub-sp`.
+* `<SP_NAME>` is a recognisable name for your Service Principal, for example `binderhub-sp`,
 * `<ACR_ID>` is the AppID we retrieved in step 6 above.
   You can replace this with `${ACR_ID}` if you saved it to a bash variable.
 
