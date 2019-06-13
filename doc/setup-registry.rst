@@ -69,7 +69,26 @@ To use Azure Container Registry (ACR), you'll need to provide BinderHub
 with proper credentials so it can push images.
 You can do so by creating a `Service Principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ that has the `AcrPush <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpush>`_ role:
 
+1. Login to your Azure account::
 
+   az login
+
+2. Select your chosen subscription::
+
+   az account set -s <SUBSCRIPTION>
+
+.. note::
+
+   You can see which subscriptions you have available by running::
+
+     az account list --refresh --output table
+
+3. If you **do not** have a Resource Group, then create one::
+
+   az group create --name <RESOURCE_GROUP_NAME> --location <RESOURCE_GROUP_LOCATION> --output table
+
+where `<RESOURCE_GROUP_LOCATION>` refers to a data centre **region**.
+See a list of regions `here <https://azure.microsoft.com/en-us/global-infrastructure/locations/>`_.
 
 Next step
 ---------
