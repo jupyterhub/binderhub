@@ -178,9 +178,10 @@ If you want your BinderHub to push and pull images from an Azure Container Regis
 where:
 
 * `<ACR_NAME>` is the name you gave to your ACR,
-* `<project-name>` is an arbitrary name that is required due to BinderHub assuming that the image_prefix contains an extra level for the project name.
+* `<project-name>` is an arbitrary name that is required due to BinderHub assuming that `image_prefix` contains an extra level for the project name.
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
+  Suggestions for `<project-name>` could be `ACR_NAME` or the name you give your BinderHub.
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,12 +243,13 @@ If you setup your own local registry using
 
 .. important::
 
-    BinderHub assumes that the image_prefix contains an extra level for the project name such that: `gcr.io/<project-id>/<prefix>-name:tag`.
+    BinderHub assumes that `image_prefix` contains an extra level for the project name such that: `gcr.io/<project-id>/<prefix>-name:tag`.
     Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
     See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for more details.
 
     `<some-project-name>` can be completely arbitrary and/or made-up.
-    Without this, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
+    For example, it could be the name you give your BinderHub.
+    Without this extra level, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
 
 Install BinderHub
 -----------------
