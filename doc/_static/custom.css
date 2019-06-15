@@ -56,7 +56,7 @@ p.contrib_affiliation {
 }
 
 td.contrib_entry {
-  width: 100px;
+  width: 150px;
   height: 200px;
   padding: 1em !important;
   vertical-align: top;
@@ -68,7 +68,7 @@ td.contrib_entry a {
 }
 
 td.contrib_entry img {
-  max-width: 120px;
+  width: 100%;
 }
 
 table.contributors {
