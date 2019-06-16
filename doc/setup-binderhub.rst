@@ -100,6 +100,21 @@ Update ``secret.yaml`` by entering the following::
    * ``<docker-id>`` and ``<password>`` are your credentials to login to Docker Hub.
      If you use an organization to store your Docker images, this account must be a member of it.
 
+If you are using Azure Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update `secret.yaml` to include the following::
+
+    registry:
+      url: https://<ACR_NAME>.azurecr.io
+      username: <SERVICE_PRINCIPAL_ID>
+      password: <SERVICE_PRINCIPAL_PASSWORD>
+
+where:
+
+* `<ACR_NAME>` is the name you gave to your Azure Container Registry,
+* `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment,
+* `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal.
 
 Create ``config.yaml``
 ----------------------
@@ -147,6 +162,26 @@ Update ``config.yaml`` by entering the following::
    * **``<prefix>``** can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
+
+If you are using Azure Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want your BinderHub to push and pull images from an Azure Container Registry (ACR), then your `config.yaml` file will look as follows::
+
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: <ACR_NAME>.azurecr.io/<project-name>/<prefix>-
+      DockerRegistry:
+        token_url: "https://<ACR_NAME>.azurecr.io/oauth2/token?service=<ACR_NAME>.azurecr.io"
+
+where:
+
+* `<ACR_NAME>` is the name you gave to your ACR,
+* `<project-name>` is an arbitrary name that is required due to BinderHub assuming that `image_prefix` contains an extra level for the project name.
+  See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
+  If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
+  Suggestions for `<project-name>` could be `ACR_NAME` or the name you give your BinderHub.
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,7 +241,15 @@ If you setup your own local registry using
     and can handle these without any additional configuration
     beyond `registry.url`.
 
+.. important::
 
+    BinderHub assumes that `image_prefix` contains an extra level for the project name such that: `gcr.io/<project-id>/<prefix>-name:tag`.
+    Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
+    See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for more details.
+
+    `<some-project-name>` can be completely arbitrary and/or made-up.
+    For example, it could be the name you give your BinderHub.
+    Without this extra level, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
 
 Install BinderHub
 -----------------
