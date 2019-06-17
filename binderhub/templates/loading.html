@@ -5,8 +5,10 @@
 <meta id="badge-base-url" data-url="{{badge_base_url}}">
 {{ super() }}
 <script src="{{static_url("dist/bundle.js")}}"></script>
-<link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
-<link rel="stylesheet" href="{{static_url("loading.css")}}">
+<link href="{{static_url("dist/styles.css")}}" rel="stylesheet">
+<link href="{{static_url("loading.css")}}" rel="stylesheet">
+
+
 {% endblock head %}
 
 {% block main %}

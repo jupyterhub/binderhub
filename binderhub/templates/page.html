@@ -11,6 +11,12 @@
 <body>
   {% block body %}
 
+  {% if news %}
+  <div id="msg-container">
+    {{ news | safe }}
+  </div>
+  {% endif %}
+
   {% block logo %}
   <div class="container">
     <div class="row">
