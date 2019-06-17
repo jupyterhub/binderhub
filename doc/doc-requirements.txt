@@ -17,4 +17,4 @@ prometheus_client
 python-json-logger
 jupyterhub
 jsonschema
-#pycurl is not installed for docs
+#pycurl Do not install for docs as it breaks the RTD build. Its primary use is for mocks in testing .
