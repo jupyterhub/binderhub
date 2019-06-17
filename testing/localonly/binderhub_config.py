@@ -7,5 +7,4 @@ c.BinderHub.tornado_settings.update({'fake_build':True})
 
 c.BinderHub.about_message = "<blink>Hello world.</blink>"
 
-c.BinderHub.news_message = 'This is headline <a href="#">news.</a>'
-
+c.BinderHub.banner_message = 'This is headline <a href="#">news.</a>'

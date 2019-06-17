@@ -25,7 +25,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
     @property
     def template_namespace(self):
         return dict(static_url=self.static_url,
-                    news=self.settings['news_message'],
+                    banner=self.settings['banner_message'],
                     **self.settings.get('template_variables', {}))
 
     def set_default_headers(self):
