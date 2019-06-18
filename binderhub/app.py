@@ -107,6 +107,18 @@ class BinderHub(Application):
         config=True
     )
 
+    banner_message = Unicode(
+        '',
+        help="""
+        Message to display in a banner on all pages.
+
+        The value will be inserted "as is" into a HTML <div> element
+        with grey background, located at the top of the BinderHub pages. Raw
+        HTML is supported.
+        """,
+        config=True
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -521,6 +533,7 @@ class BinderHub(Application):
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
             'about_message': self.about_message,
+            'banner_message': self.banner_message,
             'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
