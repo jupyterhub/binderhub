@@ -112,8 +112,9 @@ class BinderHub(Application):
         help="""
         Message to display in a banner on all pages.
 
-        Will be directly inserted into the about page's source so you can use
-        raw HTML.
+        The value will be inserted "as is" into a HTML <div> element
+        with grey background, located at the top of the BinderHub pages. Raw
+        HTML is supported.
         """,
         config=True
     )
