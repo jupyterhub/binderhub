@@ -71,6 +71,15 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
+    whitelisted_specs = List(
+        help="""
+        List of specs to whitelist for quota limits.
+
+        Should be a list of regexes (not regex objects) that match specs which should be whitelisted
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -88,6 +97,17 @@ class RepoProvider(LoggingConfigurable):
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
             if re.match(banned, self.spec, re.IGNORECASE):
+                return True
+        return False
+
+    def is_whitelisted(self):
+        """
+        Return true if the given spec is whitelisted
+        """
+        for whitelisted in self.repository_whitelist:
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(whitelisted, self.spec, re.IGNORECASE):
                 return True
         return False
 
