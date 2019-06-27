@@ -71,11 +71,11 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
-    whitelisted_specs = List(
+    high_quota_specs = List(
         help="""
-        List of specs to whitelist for quota limits.
+        List of specs to assign a higher quota limit.
 
-        Should be a list of regexes (not regex objects) that match specs which should be whitelisted
+        Should be a list of regexes (not regex objects) that match specs which should have a higher quota
         """,
         config=True
     )
@@ -100,14 +100,14 @@ class RepoProvider(LoggingConfigurable):
                 return True
         return False
 
-    def is_whitelisted(self):
+    def has_higher_quota(self):
         """
-        Return true if the given spec is whitelisted
+        Return true if the given spec has a higher quota
         """
-        for whitelisted in self.repository_whitelist:
+        for higher_quota in self.high_quota_specs:
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
-            if re.match(whitelisted, self.spec, re.IGNORECASE):
+            if re.match(higher_quota, self.spec, re.IGNORECASE):
                 return True
         return False
 
