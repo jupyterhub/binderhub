@@ -218,6 +218,20 @@ class BinderHub(Application):
         config=True,
     )
 
+    per_repo_quota_higher = Integer(
+        0,
+        help="""
+        Maximum number of concurrent users running from a higher-quota repo.
+
+        Limits the amount of Binder that can be consumed by a single repo. This
+        quota is a second limit for repos with special status. See the
+        `high_quota_specs` parameter of RepoProvider classes for usage.
+
+        0 (default) means no quotas.
+        """,
+        config=True,
+    )
+
     log_tail_lines = Integer(
         100,
         help="""
@@ -526,6 +540,7 @@ class BinderHub(Application):
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,
             'per_repo_quota': self.per_repo_quota,
+            'per_repo_quota_higher': self.per_repo_quota_higher,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,

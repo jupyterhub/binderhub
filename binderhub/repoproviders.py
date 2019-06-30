@@ -71,6 +71,15 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
+    high_quota_specs = List(
+        help="""
+        List of specs to assign a higher quota limit.
+
+        Should be a list of regexes (not regex objects) that match specs which should have a higher quota
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -88,6 +97,17 @@ class RepoProvider(LoggingConfigurable):
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
             if re.match(banned, self.spec, re.IGNORECASE):
+                return True
+        return False
+
+    def has_higher_quota(self):
+        """
+        Return true if the given spec has a higher quota
+        """
+        for higher_quota in self.high_quota_specs:
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(higher_quota, self.spec, re.IGNORECASE):
                 return True
         return False
 

@@ -180,6 +180,7 @@ class BuildHandler(BaseHandler):
             hash=build_slug_hash[:hash_length],
         ).lower()
 
+
     async def fail(self, message):
         await self.emit({
             'phase': 'failed',
@@ -294,7 +295,7 @@ class BuildHandler(BaseHandler):
                 'message': 'Found built image, launching...\n'
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(kube)
+                await self.launch(kube, provider)
             self.event_log.emit('binderhub.jupyter.org/launch', 3, {
                 'provider': provider.name,
                 'spec': spec,
@@ -403,7 +404,7 @@ class BuildHandler(BaseHandler):
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(kube)
+                await self.launch(kube, provider)
             self.event_log.emit('binderhub.jupyter.org/launch', 3, {
                 'provider': provider.name,
                 'spec': spec,
@@ -421,10 +422,13 @@ class BuildHandler(BaseHandler):
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
 
-    async def launch(self, kube):
+    async def launch(self, kube, provider):
         """Ask JupyterHub to launch the image."""
         # check quota first
-        quota = self.settings.get('per_repo_quota')
+        if provider.has_higher_quota():
+            quota = self.settings.get('per_repo_quota_higher')
+        else:
+            quota = self.settings.get('per_repo_quota')
 
         # the image name (without tag) is unique per repo
         # use this to count the number of pods running with a given repo
@@ -456,7 +460,6 @@ class BuildHandler(BaseHandler):
                     matching_pods += 1
                     break
 
-        # TODO: allow whitelist of repos to exceed quota
         # TODO: put busy users in a queue rather than fail?
         # That would be hard to do without in-memory state.
         if quota and matching_pods >= quota:

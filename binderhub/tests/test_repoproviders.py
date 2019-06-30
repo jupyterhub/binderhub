@@ -83,6 +83,26 @@ def test_banned():
     assert provider.is_banned()
 
 
+def test_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^yuvipanda.*'
+        ]
+    )
+    assert not provider.has_higher_quota()
+
+
+def test_not_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^jupyterhub.*'
+        ]
+    )
+    assert provider.has_higher_quota()
+
+
 @pytest.mark.parametrize('ban_spec', ['.*ddEEff.*', '.*ddEEFF.*'])
 def test_ban_is_case_insensitive(ban_spec):
     provider = GitHubRepoProvider(
