@@ -4,6 +4,8 @@ recommonmark==0.4.0
 sphinx-copybutton
 alabaster_jupyterhub
 traitlets
+pandas
+ruamel.yaml
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
