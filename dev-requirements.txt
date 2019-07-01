@@ -6,5 +6,5 @@ pytest-asyncio
 pytest-cov
 requests
 ruamel.yaml>=0.15
-https://github.com/jupyterhub/chartpress/archive/2f26733f6ebf9e2b76bd9cfa3b8a8439daa0b16c.tar.gz
+chartpress==0.3.1
 jupyterhub

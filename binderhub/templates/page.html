@@ -11,6 +11,12 @@
 <body>
   {% block body %}
 
+  {% if banner %}
+  <div id="banner-container">
+    {{ banner | safe }}
+  </div>
+  {% endif %}
+
   {% block logo %}
   <div class="container">
     <div class="row">

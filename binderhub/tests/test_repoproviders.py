@@ -5,7 +5,8 @@ import pytest
 from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
-    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
+    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
+    GitLabRepoProvider, GistRepoProvider, ZenodoProvider
 )
 
 
@@ -34,6 +35,21 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_user == user
     assert raw_repo == repo
     assert raw_ref == unresolved_ref
+
+
+async def test_zenodo():
+    spec = '10.5281/zenodo.3242074'
+
+    provider = ZenodoProvider(spec=spec)
+
+    # have to resolve the ref first
+    ref = await provider.get_resolved_ref()
+    assert ref == '3242074'
+
+    slug = provider.get_build_slug()
+    assert slug == 'zenodo-3242074'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
 
 
 @pytest.mark.github_api
@@ -65,6 +81,26 @@ def test_banned():
         ]
     )
     assert provider.is_banned()
+
+
+def test_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^yuvipanda.*'
+        ]
+    )
+    assert not provider.has_higher_quota()
+
+
+def test_not_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^jupyterhub.*'
+        ]
+    )
+    assert provider.has_higher_quota()
 
 
 @pytest.mark.parametrize('ban_spec', ['.*ddEEff.*', '.*ddEEFF.*'])

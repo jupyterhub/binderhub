@@ -30,7 +30,9 @@ from .builder import BuildHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
+from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
+                            GitLabRepoProvider, GistRepoProvider,
+                            ZenodoProvider)
 from .metrics import MetricsHandler
 
 from .utils import ByteSpecification, url_path_join
@@ -101,6 +103,18 @@ class BinderHub(Application):
 
         Will be directly inserted into the about page's source so you can use
         raw HTML.
+        """,
+        config=True
+    )
+
+    banner_message = Unicode(
+        '',
+        help="""
+        Message to display in a banner on all pages.
+
+        The value will be inserted "as is" into a HTML <div> element
+        with grey background, located at the top of the BinderHub pages. Raw
+        HTML is supported.
         """,
         config=True
     )
@@ -198,6 +212,20 @@ class BinderHub(Application):
         Maximum number of concurrent users running from a given repo.
 
         Limits the amount of Binder that can be consumed by a single repo.
+
+        0 (default) means no quotas.
+        """,
+        config=True,
+    )
+
+    per_repo_quota_higher = Integer(
+        0,
+        help="""
+        Maximum number of concurrent users running from a higher-quota repo.
+
+        Limits the amount of Binder that can be consumed by a single repo. This
+        quota is a second limit for repos with special status. See the
+        `high_quota_specs` parameter of RepoProvider classes for usage.
 
         0 (default) means no quotas.
         """,
@@ -332,6 +360,7 @@ class BinderHub(Application):
             'gist': GistRepoProvider,
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,
+            'zenodo': ZenodoProvider,
         },
         config=True,
         help="""
@@ -411,6 +440,12 @@ class BinderHub(Application):
         '/extra_static/',
         help='Url prefix to serve extra static files.',
         config=True,
+    )
+
+    normalized_origin = Unicode(
+        '',
+        config=True,
+        help='Origin to use when emitting events. Defaults to hostname of request when empty'
     )
 
     @staticmethod
@@ -505,6 +540,7 @@ class BinderHub(Application):
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,
             'per_repo_quota': self.per_repo_quota,
+            'per_repo_quota_higher': self.per_repo_quota_higher,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,
@@ -512,6 +548,7 @@ class BinderHub(Application):
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
             'about_message': self.about_message,
+            'banner_message': self.banner_message,
             'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
@@ -524,7 +561,8 @@ class BinderHub(Application):
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_named_servers': self.use_named_servers,
-            'event_log': self.event_log
+            'event_log': self.event_log,
+            'normalized_origin': self.normalized_origin
         })
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)

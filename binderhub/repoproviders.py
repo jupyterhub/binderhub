@@ -71,6 +71,15 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
+    high_quota_specs = List(
+        help="""
+        List of specs to assign a higher quota limit.
+
+        Should be a list of regexes (not regex objects) that match specs which should have a higher quota
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -88,6 +97,17 @@ class RepoProvider(LoggingConfigurable):
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
             if re.match(banned, self.spec, re.IGNORECASE):
+                return True
+        return False
+
+    def has_higher_quota(self):
+        """
+        Return true if the given spec has a higher quota
+        """
+        for higher_quota in self.high_quota_specs:
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(higher_quota, self.spec, re.IGNORECASE):
                 return True
         return False
 
@@ -121,6 +141,31 @@ class FakeProvider(RepoProvider):
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
+
+
+class ZenodoProvider(RepoProvider):
+    """Provide contents of a Zenodo record
+
+    Users must provide a spec consisting of the Zenodo DOI.
+    """
+    name = Unicode("Zenodo")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+        self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
+        return self.record_id
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "zenodo-{}".format(self.record_id)
 
 
 class GitRepoProvider(RepoProvider):
@@ -421,7 +466,6 @@ class GitHubRepoProvider(RepoProvider):
             remaining=remaining, limit=rate_limit, delta=delta,
         ))
         return resp
-
 
     @gen.coroutine
     def get_resolved_ref(self):

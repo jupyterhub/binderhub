@@ -1,6 +1,6 @@
 {
     "$id": "binderhub.jupyter.org/launch",
-    "version": 2,
+    "version": 3,
     "title": "BinderHub Launch Events",
     "description": "BinderHub emits this event whenever a new repo is launched",
     "type": "object",
@@ -10,7 +10,8 @@
                 "GitHub",
                 "Gist",
                 "GitLab",
-                "Git"
+                "Git",
+                "Zenodo"
             ],
             "description": "Provider for the repository being launched"
         },
@@ -21,6 +22,10 @@
         "status": {
             "enum": ["success", "failure"],
             "description": "Success/Failure of the launch"
+        },
+        "origin": {
+          "type": "string",
+          "description": "BinderHub host where the event originated"
         }
     }
 }
