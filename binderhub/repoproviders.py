@@ -80,6 +80,16 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
+    spec_configuration_override = Dict(
+        help="""
+        Dictionary that defines per-repository configuration overrides.
+
+        Should be a Dictionary. Keys are regexes (not regex objects) that
+        match specs. Values are dictionaries of "config_name: config_value" pairs.
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -110,6 +120,21 @@ class RepoProvider(LoggingConfigurable):
             if re.match(higher_quota, self.spec, re.IGNORECASE):
                 return True
         return False
+
+    def spec_configuration_override(self):
+        """
+        Return the spec configuration overrides if the given spec has them.
+        """
+        if not isinstance(self.spec_configuration_override, dict):
+            raise ValueError(
+                "Specification-specific override is not a "
+                "dictionary, found type %s" % type(self.spec_configuration_override))
+        for spec, config in self.spec_configuration_override:
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(spec, self.spec, re.IGNORECASE):
+                return config
+        return {}
 
     @gen.coroutine
     def get_resolved_ref(self):
