@@ -80,12 +80,14 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
-    spec_configuration_override = Dict(
+    spec_config = Dict(
         help="""
-        Dictionary that defines per-repository configuration overrides.
+        List of tuples that defines per-repository configuration.
 
-        Should be a Dictionary. Keys are regexes (not regex objects) that
-        match specs. Values are dictionaries of "config_name: config_value" pairs.
+        Each item in the list should have two values.
+
+        The first is a regex (not a regex object) that matches specs.
+        The second is a dictionary of "config_name: config_value" pairs.
         """,
         config=True
     )
@@ -121,20 +123,32 @@ class RepoProvider(LoggingConfigurable):
                 return True
         return False
 
-    def spec_configuration_override(self):
+    def repo_config(self, settings):
         """
-        Return the spec configuration overrides if the given spec has them.
+        Return configuration for this repository.
         """
-        if not isinstance(self.spec_configuration_override, dict):
-            raise ValueError(
-                "Specification-specific override is not a "
-                "dictionary, found type %s" % type(self.spec_configuration_override))
-        for spec, config in self.spec_configuration_override:
+        repo_config = {}
+
+        # Load defaults
+        repo_config['per_repo_quota'] = settings.get('per_repo_quota')
+
+        # Spec regex-based configuration
+        for spec, spec_config in self.spec_config:
+            if not isinstance(spec, str):
+                raise ValueError(
+                    "Spec-specific configuration expected "
+                    "a specification regex string, not "
+                    "type %s" % type(spec)
+            if not isinstance(spec_config, dict):
+                raise ValueError(
+                    "Spec-specific configuration expected "
+                    "a specification configuration dict, not "
+                    "type %s" % type(spec_config)
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
             if re.match(spec, self.spec, re.IGNORECASE):
-                return config
-        return {}
+                repo_config.update(spec_config)
+        return repo_config
 
     @gen.coroutine
     def get_resolved_ref(self):

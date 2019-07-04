@@ -425,6 +425,7 @@ class BuildHandler(BaseHandler):
     async def launch(self, kube, provider):
         """Ask JupyterHub to launch the image."""
         # Load the spec-specific configuration if it has been overridden
+        repo_config = provider.repo_config(self.settings)
         spec_config = provider.spec_configuration_override
 
         # check quota first
