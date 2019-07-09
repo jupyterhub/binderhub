@@ -80,14 +80,17 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
-    spec_config = Dict(
+    spec_config = List(
         help="""
-        List of tuples that defines per-repository configuration.
+        List of dictionaries that define per-repository configuration.
 
-        Each item in the list should have two values.
+        Each item in the list is a dictionary with two keys:
 
-        The first is a regex (not a regex object) that matches specs.
-        The second is a dictionary of "config_name: config_value" pairs.
+            pattern : string
+                defines a regex pattern (not a regex object) that matches specs.
+            config : dict
+                a dictionary of "config_name: config_value" pairs that will be
+                applied to any repository that matches `pattern`
         """,
         config=True
     )
@@ -129,25 +132,30 @@ class RepoProvider(LoggingConfigurable):
         """
         repo_config = {}
 
-        # Load defaults
-        repo_config['per_repo_quota'] = settings.get('per_repo_quota')
+        # Defaults and simple overrides
+        if self.has_higher_quota():
+            repo_config['quota'] = settings.get('per_repo_quota_higher')
+        else:
+            repo_config['quota'] = settings.get('per_repo_quota')
 
         # Spec regex-based configuration
-        for spec, spec_config in self.spec_config:
-            if not isinstance(spec, str):
+        for item in self.spec_config:
+            pattern = item.pop('pattern', None)
+            config = item.pop('config', None)
+            if not isinstance(pattern, str):
                 raise ValueError(
-                    "Spec-specific configuration expected "
-                    "a specification regex string, not "
-                    "type %s" % type(spec)
-            if not isinstance(spec_config, dict):
+                    "Spec-pattern configuration expected "
+                    "a regex pattern string, not "
+                    "type %s" % type(pattern))
+            if not isinstance(config, dict):
                 raise ValueError(
-                    "Spec-specific configuration expected "
+                    "Spec-pattern configuration expected "
                     "a specification configuration dict, not "
-                    "type %s" % type(spec_config)
+                    "type %s" % type(config))
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
-            if re.match(spec, self.spec, re.IGNORECASE):
-                repo_config.update(spec_config)
+            if re.match(pattern, self.spec, re.IGNORECASE):
+                repo_config.update(config)
         return repo_config
 
     @gen.coroutine

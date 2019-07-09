@@ -92,6 +92,65 @@ def test_higher_quota():
     )
     assert not provider.has_higher_quota()
 
+def test_custom_config():
+    base_config = {
+        "pattern": '^yuvipanda.*',
+        "config": {
+            "key1": "val1",
+            "quota": 999
+        }
+    }
+
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        config=[base_config]
+    )
+    assert provider.get_config()['key1'] == "val1"
+    assert provider.get_config()['quota'] == 999
+
+    # Not giving a string for the pattern should raise an error
+    config_err_pattern = base_config.copy()
+    config_err_pattern['pattern'] = 100
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        config=[config_err_pattern]
+    )
+    with self.assertRaisesRegexp(ValueError, "a regex pattern string, not"):
+        provider.repo_config()
+
+    # Not giving a dictionary for configuration should raise an error
+    config_err_config = base_config.copy()
+    config_err_config['config'] = "not a dictionary"
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        config=[config_err_config]
+    )
+    with self.assertRaisesRegexp(ValueError, "a specification configuration dict, not"):
+        provider.repo_config()
+
+    # Not providing one of `pattern` or `config` should raise an error
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        config=[base_config, {"pattern": "mypattern"}]
+    )
+    with self.assertRaisesRegexp(ValueError, "a specification configuration dict, not"):
+        provider.repo_config()
+
+    # Two regexes that both match should result in the *last* one being in the config
+    base_config_second = {
+        "pattern": '^yuvip.*',
+        "config": {
+            "key1": "newvalue",
+        }
+    }
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        config=[base_config, base_config_second]
+    )
+    assert provider.get_config()['key1'] == "newvalue"
+    assert provider.get_config()['quota'] == 999
+
+
 
 def test_not_higher_quota():
     provider = GitHubRepoProvider(
