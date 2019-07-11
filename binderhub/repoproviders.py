@@ -13,6 +13,7 @@ import os
 import time
 import urllib.parse
 import re
+import subprocess
 
 from prometheus_client import Gauge
 
@@ -173,7 +174,7 @@ class GitRepoProvider(RepoProvider):
 
     Users must provide a spec of the following form.
 
-    <url-escaped-namespace>/<resolved_ref>
+    <url-escaped-namespace>/<unresolved_ref>
 
     eg:
     https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
@@ -186,16 +187,32 @@ class GitRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        url, resolved_ref = self.spec.rsplit('/', 1)
+        url, unresolved_ref = self.spec.rsplit('/', 1)
         self.repo = urllib.parse.unquote(url)
-        if not resolved_ref:
-            raise ValueError("`resolved_ref` must be specified as a query parameter for the basic git provider")
-        self.sha1_validate(resolved_ref)
-        self.resolved_ref = resolved_ref
-        self.unresolved_ref = resolved_ref
+        self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
+        if not self.unresolved_ref:
+            raise ValueError("`unresolved_ref` must be specified as a query parameter for the basic git provider")
+        try:
+            self.sha1_validate(unresolved_ref)
+            self.resolved_ref = unresolved_ref
+        except ValueError:
+            pass
 
     @gen.coroutine
     def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        command = ["git", "ls-remote", self.repo, self.unresolved_ref]
+        result = subprocess.run(command, text=True, stdout=subprocess.PIPE)
+        if result.returncode:
+            raise Exception("Unable to run git ls-remote to get the `resolved_ref`")
+        if not result.stdout:
+            raise ValueError("The specified branch, tag or commit SHA was not found on the remote.")
+        resolved_ref = result.stdout.split(None, 1)[0]
+
+        self.sha1_validate(resolved_ref)
+        self.resolved_ref = resolved_ref
         return self.resolved_ref
 
     def get_repo_url(self):
