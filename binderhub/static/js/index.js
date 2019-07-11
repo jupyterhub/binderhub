@@ -76,7 +76,7 @@ function updateRepoText() {
   }
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
-    tag_text = "Git commit SHA";
+    tag_text = "Git branch, tag, or commit SHA";
   }
   else if (provider === "zenodo") {
     text = "Zenodo DOI (10.5281/zenodo.3242074)";
