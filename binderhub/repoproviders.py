@@ -187,7 +187,7 @@ class GitRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        url, unresolved_ref = self.spec.rsplit('/', 1)
+        url, unresolved_ref = self.spec.split('/', 1)
         self.repo = urllib.parse.unquote(url)
         self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
         if not self.unresolved_ref:
