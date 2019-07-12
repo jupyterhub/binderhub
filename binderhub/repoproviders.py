@@ -206,7 +206,7 @@ class GitRepoProvider(RepoProvider):
         command = ["git", "ls-remote", self.repo, self.unresolved_ref]
         result = subprocess.run(command, text=True, stdout=subprocess.PIPE)
         if result.returncode:
-            raise Exception("Unable to run git ls-remote to get the `resolved_ref`")
+            raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`")
         if not result.stdout:
             raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
                              .format(self.unresolved_ref))
