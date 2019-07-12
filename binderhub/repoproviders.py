@@ -208,7 +208,7 @@ class GitRepoProvider(RepoProvider):
         if result.returncode:
             raise Exception("Unable to run git ls-remote to get the `resolved_ref`")
         if not result.stdout:
-            raise ValueError("The specified branch, tag or commit SHA was not found on the remote.")
+            raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository.".format(self.unresolved_ref)
         resolved_ref = result.stdout.split(None, 1)[0]
 
         self.sha1_validate(resolved_ref)
