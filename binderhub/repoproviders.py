@@ -194,28 +194,31 @@ class GitRepoProvider(RepoProvider):
         self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
         if not self.unresolved_ref:
             raise ValueError("`unresolved_ref` must be specified as a query parameter for the basic git provider")
-        try:
-            self.sha1_validate(unresolved_ref)
-            self.resolved_ref = unresolved_ref
-        except ValueError:
-            pass
 
     @gen.coroutine
     def get_resolved_ref(self):
         if hasattr(self, 'resolved_ref'):
             return self.resolved_ref
 
-        command = ["git", "ls-remote", self.repo, self.unresolved_ref]
-        result = subprocess.run(command, text=True, stdout=subprocess.PIPE)
-        if result.returncode:
-            raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`")
-        if not result.stdout:
-            raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
-                             .format(self.unresolved_ref))
-        resolved_ref = result.stdout.split(None, 1)[0]
+        try:
+            # Check if the reference is a valid SHA hash
+            self.sha1_validate(self.unresolved_ref)
+        except ValueError:
+            # The ref is a head/tag and we resolve it using `git ls-remote`
+            command = ["git", "ls-remote", self.repo, self.unresolved_ref]
+            result = subprocess.run(command, text=True, stdout=subprocess.PIPE)
+            if result.returncode:
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`")
+            if not result.stdout:
+                raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
+                                .format(self.unresolved_ref))
+            resolved_ref = result.stdout.split(None, 1)[0]
+            self.sha1_validate(resolved_ref)
+            self.resolved_ref = resolved_ref 
+        else:
+            # The ref already was a valid SHA hash
+            self.resolved_ref = self.unresolved_ref
 
-        self.sha1_validate(resolved_ref)
-        self.resolved_ref = resolved_ref
         return self.resolved_ref
 
     def get_repo_url(self):
