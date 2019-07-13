@@ -175,8 +175,10 @@ class GitRepoProvider(RepoProvider):
     Users must provide a spec of the following form.
 
     <url-escaped-namespace>/<unresolved_ref>
+    <url-escaped-namespace>/<resolved_ref>
 
     eg:
+    https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/master
     https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
 
     This provider is typically used if you are deploying binderhub yourself and you require access to repositories that
