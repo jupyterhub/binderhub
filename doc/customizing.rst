@@ -141,6 +141,12 @@ a list of dictionaries that allow you to provide a pattern to match against
 each repository's specification, and override configuration values for any
 repositories that match this pattern.
 
+.. note::
+
+   If you provide **multiple patterns that match a single repository** in your
+   spec-specific configuration, then **later values in the list will override
+   earlier values**.
+
 To define this list of patterns and configuration overrides, use the
 following pattern in your Helm Chart (here we show an example using
 ``GitHubRepoProvider``, but this works for other RepoProviders as well):

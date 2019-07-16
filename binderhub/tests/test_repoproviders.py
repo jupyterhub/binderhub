@@ -94,61 +94,70 @@ def test_higher_quota():
 
 def test_custom_config():
     base_config = {
-        "pattern": '^yuvipanda.*',
+        "pattern": '^jupyterhub.*',
         "config": {
             "key1": "val1",
             "quota": 999
         }
     }
+    settings = {"per_repo_quota": 10}
 
+    # If the spec matches nothing, we should just keep defaults
+    provider = GitHubRepoProvider(
+        spec='totallynotjupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[base_config]
+    )
+    assert provider.repo_config(settings)['quota'] == 10
+
+    # Updating should happen w/ the base config
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        config=[base_config]
+        spec_config=[base_config]
     )
-    assert provider.get_config()['key1'] == "val1"
-    assert provider.get_config()['quota'] == 999
+    assert provider.repo_config(settings)['key1'] == "val1"
+    assert provider.repo_config(settings)['quota'] == 999
 
     # Not giving a string for the pattern should raise an error
     config_err_pattern = base_config.copy()
     config_err_pattern['pattern'] = 100
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        config=[config_err_pattern]
+        spec_config=[config_err_pattern]
     )
-    with self.assertRaisesRegexp(ValueError, "a regex pattern string, not"):
-        provider.repo_config()
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
 
     # Not giving a dictionary for configuration should raise an error
     config_err_config = base_config.copy()
     config_err_config['config'] = "not a dictionary"
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        config=[config_err_config]
+        spec_config=[config_err_config]
     )
-    with self.assertRaisesRegexp(ValueError, "a specification configuration dict, not"):
-        provider.repo_config()
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
 
     # Not providing one of `pattern` or `config` should raise an error
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        config=[base_config, {"pattern": "mypattern"}]
+        spec_config=[base_config, {"pattern": "mypattern"}]
     )
-    with self.assertRaisesRegexp(ValueError, "a specification configuration dict, not"):
-        provider.repo_config()
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
 
     # Two regexes that both match should result in the *last* one being in the config
     base_config_second = {
-        "pattern": '^yuvip.*',
+        "pattern": '^jupyterh.*',
         "config": {
             "key1": "newvalue",
         }
     }
     provider = GitHubRepoProvider(
         spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        config=[base_config, base_config_second]
+        spec_config=[base_config, base_config_second]
     )
-    assert provider.get_config()['key1'] == "newvalue"
-    assert provider.get_config()['quota'] == 999
+    assert provider.repo_config(settings)['key1'] == "newvalue"
+    assert provider.repo_config(settings)['quota'] == 999
 
 
 

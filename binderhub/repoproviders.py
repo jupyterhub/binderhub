@@ -140,8 +140,8 @@ class RepoProvider(LoggingConfigurable):
 
         # Spec regex-based configuration
         for item in self.spec_config:
-            pattern = item.pop('pattern', None)
-            config = item.pop('config', None)
+            pattern = item.get('pattern', None)
+            config = item.get('config', None)
             if not isinstance(pattern, str):
                 raise ValueError(
                     "Spec-pattern configuration expected "
