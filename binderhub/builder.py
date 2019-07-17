@@ -424,11 +424,8 @@ class BuildHandler(BaseHandler):
 
     async def launch(self, kube, provider):
         """Ask JupyterHub to launch the image."""
-        # check quota first
-        if provider.has_higher_quota():
-            quota = self.settings.get('per_repo_quota_higher')
-        else:
-            quota = self.settings.get('per_repo_quota')
+        # Load the spec-specific configuration if it has been overridden
+        repo_config = provider.repo_config(self.settings)
 
         # the image name (without tag) is unique per repo
         # use this to count the number of pods running with a given repo
@@ -462,6 +459,7 @@ class BuildHandler(BaseHandler):
 
         # TODO: put busy users in a queue rather than fail?
         # That would be hard to do without in-memory state.
+        quota = repo_config.get('quota')
         if quota and matching_pods >= quota:
             app_log.error("%s has exceeded quota: %s/%s (%s total)",
                 self.repo_url, matching_pods, quota, total_pods)
