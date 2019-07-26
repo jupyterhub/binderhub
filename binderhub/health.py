@@ -87,6 +87,8 @@ class HealthHandler(BaseHandler):
         res = await self.check_jupyterhub_api(self.hub_url)
         checks.append({"service": "JupyterHub API", "ok": res})
 
-        self.write(
-            json.dumps({"ok": all(check["ok"] for check in checks), "checks": checks})
-        )
+        overall = all(check["ok"] for check in checks)
+        if not overall:
+            self.set_status(503)
+
+        self.write(json.dumps({"ok": overall, "checks": checks}))
