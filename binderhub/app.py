@@ -27,6 +27,7 @@ from jupyterhub.services.auth import HubOAuthCallbackHandler
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
+from .health import HealthHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
@@ -490,7 +491,6 @@ class BinderHub(Application):
                 kubernetes.config.load_kube_config()
             self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes.client.CoreV1Api()
 
-
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
         # default executor for asyncifying blocking calls (e.g. to kubernetes, docker).
@@ -597,6 +597,7 @@ class BinderHub(Application):
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
+            (r'/health', HealthHandler, {'hub_url': self.hub_url}),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
