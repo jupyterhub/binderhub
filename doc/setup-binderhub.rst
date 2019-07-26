@@ -353,8 +353,7 @@ an API access token to raise your API limit to 5000 requests an hour.
       GitHubRepoProvider:
         access_token: <insert_token_value_here>
 
-This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
-BinderHub will automatically use the token stored in this variable when making
+BinderHub will use this token when making
 API requests to GitHub. See the `GitHub authentication documentation
 <https://developer.github.com/v3/guides/getting-started/#authentication>`_ for
 more information about API limits.
