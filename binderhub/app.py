@@ -586,6 +586,10 @@ class BinderHub(Application):
             (r'/(badge\_logo\.svg)',
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
+            # /logo_social.png
+            (r'/(logo\_social\.png)',
+                tornado.web.StaticFileHandler,
+                {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             # /favicon_XXX.ico
             (r'/(favicon\_fail\.ico)',
                 tornado.web.StaticFileHandler,
