@@ -70,12 +70,14 @@ class HealthHandler(BaseHandler):
     async def check_docker_registry(self):
         """Check docker registry health"""
         registry = self.settings["registry"]
-        # we are only interested in getting a response from the registry, we
-        # don't care if the image actually exists or not
-        await registry.get_image_manifest(
-            self.settings["image_prefix"] + "some-image-name"
+
+        # docker registries don't have an explicit health check endpoint.
+        # Instead the recommendation is to query the "root" endpoint which
+        # should return a 401 status when everything is well
+        r = await AsyncHTTPClient().fetch(
+            registry, request_timeout=3, raise_error=False
         )
-        return True
+        return r.code == 401
 
     async def get(self):
         checks = []
