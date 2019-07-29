@@ -1,5 +1,4 @@
 import asyncio
-import json
 
 from functools import wraps
 
@@ -93,4 +92,4 @@ class HealthHandler(BaseHandler):
         if not overall:
             self.set_status(503)
 
-        self.write(json.dumps({"ok": overall, "checks": checks}))
+        self.write({"ok": overall, "checks": checks})
