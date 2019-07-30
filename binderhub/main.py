@@ -53,7 +53,7 @@ class ParameterizedMainHandler(BaseHandler):
             raise HTTPError(400, str(e))
 
         provider_spec = f'{provider_prefix}/{spec}'
-        social_desc = ": ".join([provider_prefix, SPEC_NAMES[provider_prefix]])
+        social_desc = f"{SPEC_NAMES[provider_prefix]}: {spec}"
         nbviewer_url = None
         if provider_prefix == "gh":
             # we can only produce an nbviewer URL for github right now
