@@ -34,7 +34,7 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
                             ZenodoProvider)
-from .metrics import MetricsHandler
+from .metrics import MetricsHandler, UsageHandler
 
 from .utils import ByteSpecification, url_path_join
 from .events import EventLog
@@ -602,6 +602,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url}),
+            (r'/_usage', UsageHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
