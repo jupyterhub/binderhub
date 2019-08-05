@@ -8,11 +8,11 @@ from tornado.log import app_log
 from .base import BaseHandler
 
 SPEC_NAMES = {
-    "gh": "GitHub repository",
-    "gist": "GitHub Gist",
-    "gl": "GitLab repository",
-    "git": "Git repository: ",
-    "zenodo": "Zenodo DOI"
+    "gh": "GitHub",
+    "gist": "Gist",
+    "gl": "GitLab",
+    "git": "Git repo",
+    "zenodo": "Zenodo"
 }
 
 class MainHandler(BaseHandler):
