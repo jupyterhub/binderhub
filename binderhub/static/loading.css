@@ -81,6 +81,10 @@ https://ihatetomatoes.net for initial code templates.*/
     text-align: center;
 }
 
+#loader-links p {
+    font-size: 1.5em;
+}
+
 div#log-container {
     width: 80%;
     margin: 0% 10%;
