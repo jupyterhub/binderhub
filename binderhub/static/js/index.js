@@ -19,6 +19,7 @@ import 'event-source-polyfill';
 import BinderImage from './src/image';
 import { markdownBadge, rstBadge } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
+import { nextHelpText } from './src/loading';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
@@ -330,6 +331,10 @@ function loadingMain(providerSpec) {
     }
   }
   build(providerSpec, log, path, pathType);
+
+  // Looping through help text every few seconds
+  setInterval(nextHelpText, 4000);
+
   return false;
 }
 
@@ -341,35 +346,3 @@ window.indexMain = indexMain;
 window.onload = function() {
   new Clipboard('.clipboard');
 };
-
-
-// Cycle through helpful messages on the loading page
-const help_messages = [
-  'New to Binder? Check out the <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/">Binder Documentation</a> for more information.',
-  'If a Binder takes a long time to launch, it is usually because Binder needs to pull the environment onto a computer for the first time.',
-  'The tool that powers this page is called <a target="_blank" href="https://binderhub.readthedocs.io">BinderHub</a>. It is an open source tool that anybody can deploy.',
-  'The Binder team has <a target="_blank" href="https://mybinder-sre.readthedocs.io/en/latest/">a site reliability guide </a> that talks about what it is like to run a BinderHub.',
-  'You can connect with the Binder community in the <a target="_blank" href="https://discourse.jupyter.org/c/binder">Jupyter community forum</a>.'
-]
-var text = document.querySelector("div#loader-links p.text-center")
-
-function updateLoaderText (msg) {
-  var text = document.querySelector("div#loader-links p.text-center")
-  text.innerHTML = msg;
-};
-
-function loopHelpText () {
-  if (text !== null) {
-    // Repeat looping through the list indefinitely
-    while (true) {
-      help_messages.forEach((msg) => {
-        // Wait 5 seconds, then update the text
-        setTimeout(() => {updateLoaderText(msg);}, 5000)
-      });
-    }
-  } else {
-    // Try again after a few seconds
-    setTimeout(loopHelpText, 2000);
-  }
-}
-loopHelpText();
