@@ -19,6 +19,15 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      tolerations:
+      - effect: NoSchedule
+        key: hub.jupyter.org/dedicated
+        operator: Equal
+        value: user
+      - effect: NoSchedule
+        key: hub.jupyter.org_dedicated
+        operator: Equal
+        value: user
       nodeSelector: {{ toJson .Values.config.BinderHub.build_node_selector  }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ .Release.Name }}-image-cleaner

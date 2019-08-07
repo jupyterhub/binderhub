@@ -5,11 +5,16 @@
   {% block head %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
-
   {% endblock head %}
 </head>
 <body>
   {% block body %}
+
+  {% if banner %}
+  <div id="banner-container">
+    {{ banner | safe }}
+  </div>
+  {% endif %}
 
   {% block logo %}
   <div class="container">

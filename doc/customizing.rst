@@ -125,3 +125,57 @@ To do that update your ``config.yaml`` by the following::
     to hold the value of ``extra_static_url_prefix`` is also defined,
     which was used in custom ``page.html``.
     This is good to do specially if you have many custom templates and static files.
+
+.. _repo-specific-config:
+
+Custom configuration for specific repositories
+----------------------------------------------
+
+Sometimes you would like to provide a repository-specific configuration.
+For example, if you'd like certain repositories to have **higher pod quotas**
+than others, or if you'd like to provide certain resources to a subset of
+repositories.
+
+To override the configuration for a specific repository, you can provide
+a list of dictionaries that allow you to provide a pattern to match against
+each repository's specification, and override configuration values for any
+repositories that match this pattern.
+
+.. note::
+
+   If you provide **multiple patterns that match a single repository** in your
+   spec-specific configuration, then **later values in the list will override
+   earlier values**.
+
+To define this list of patterns and configuration overrides, use the
+following pattern in your Helm Chart (here we show an example using
+``GitHubRepoProvider``, but this works for other RepoProviders as well):
+
+.. code-block:: yaml
+
+   config:
+       GitHubRepoProvider:
+         spec_config:
+           - pattern: ^ines/spacy-binder.*:
+             config:
+                key1: value1
+           - pattern: pattern2
+             config:
+                key1: othervalue1
+                key2: othervalue2
+
+For example, the following specification configuration will assign a
+pod quota of 999 to the spacy-binder repository, and a pod quota
+of 1337 to any repository in the JupyterHub organization.
+
+.. code-block:: yaml
+
+   config:
+       GitHubRepoProvider:
+         spec_config:
+           - pattern: ^ines/spacy-binder.*:
+             config:
+                quota: 999
+           - pattern: ^jupyterhub.*
+             config:
+                quota: 1337

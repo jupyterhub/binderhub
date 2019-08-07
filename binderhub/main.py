@@ -7,6 +7,13 @@ from tornado.log import app_log
 
 from .base import BaseHandler
 
+SPEC_NAMES = {
+    "gh": "GitHub",
+    "gist": "Gist",
+    "gl": "GitLab",
+    "git": "Git repo",
+    "zenodo": "Zenodo"
+}
 
 class MainHandler(BaseHandler):
     """Main handler for requests"""
@@ -15,6 +22,7 @@ class MainHandler(BaseHandler):
     def get(self):
         self.render_template(
             "index.html",
+            badge_base_url=self.settings['badge_base_url'],
             base_url=self.settings['base_url'],
             submit=False,
             google_analytics_code=self.settings['google_analytics_code'],
@@ -45,6 +53,7 @@ class ParameterizedMainHandler(BaseHandler):
             raise HTTPError(400, str(e))
 
         provider_spec = f'{provider_prefix}/{spec}'
+        social_desc = f"{SPEC_NAMES[provider_prefix]}: {spec}"
         nbviewer_url = None
         if provider_prefix == "gh":
             # we can only produce an nbviewer URL for github right now
@@ -57,7 +66,9 @@ class ParameterizedMainHandler(BaseHandler):
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
+            badge_base_url=self.settings['badge_base_url'],
             provider_spec=provider_spec,
+            social_desc=social_desc,
             nbviewer_url=nbviewer_url,
             # urlpath=self.get_argument('urlpath', None),
             submit=True,

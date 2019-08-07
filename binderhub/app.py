@@ -27,10 +27,13 @@ from jupyterhub.services.auth import HubOAuthCallbackHandler
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
+from .health import HealthHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
+from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
+                            GitLabRepoProvider, GistRepoProvider,
+                            ZenodoProvider)
 from .metrics import MetricsHandler
 
 from .utils import ByteSpecification, url_path_join
@@ -105,6 +108,18 @@ class BinderHub(Application):
         config=True
     )
 
+    banner_message = Unicode(
+        '',
+        help="""
+        Message to display in a banner on all pages.
+
+        The value will be inserted "as is" into a HTML <div> element
+        with grey background, located at the top of the BinderHub pages. Raw
+        HTML is supported.
+        """,
+        config=True
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -123,12 +138,23 @@ class BinderHub(Application):
         '/',
         help="The base URL of the entire application",
         config=True)
-
     @validate('base_url')
     def _valid_base_url(self, proposal):
         if not proposal.value.startswith('/'):
             proposal.value = '/' + proposal.value
         if not proposal.value.endswith('/'):
+            proposal.value = proposal.value + '/'
+        return proposal.value
+
+    badge_base_url = Unicode(
+        '',
+        help="Base URL to use when generating launch badges",
+        config=True
+    )
+    @validate('badge_base_url')
+    def _valid_badge_base_url(self, proposal):
+        # add a trailing slash only when a value is set
+        if proposal.value and not proposal.value.endswith('/'):
             proposal.value = proposal.value + '/'
         return proposal.value
 
@@ -187,6 +213,20 @@ class BinderHub(Application):
         Maximum number of concurrent users running from a given repo.
 
         Limits the amount of Binder that can be consumed by a single repo.
+
+        0 (default) means no quotas.
+        """,
+        config=True,
+    )
+
+    per_repo_quota_higher = Integer(
+        0,
+        help="""
+        Maximum number of concurrent users running from a higher-quota repo.
+
+        Limits the amount of Binder that can be consumed by a single repo. This
+        quota is a second limit for repos with special status. See the
+        `high_quota_specs` parameter of RepoProvider classes for usage.
 
         0 (default) means no quotas.
         """,
@@ -321,6 +361,7 @@ class BinderHub(Application):
             'gist': GistRepoProvider,
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,
+            'zenodo': ZenodoProvider,
         },
         config=True,
         help="""
@@ -402,6 +443,12 @@ class BinderHub(Application):
         config=True,
     )
 
+    normalized_origin = Unicode(
+        '',
+        config=True,
+        help='Origin to use when emitting events. Defaults to hostname of request when empty'
+    )
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -443,7 +490,6 @@ class BinderHub(Application):
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
             self.tornado_settings["kubernetes_client"] = self.kube_client = kubernetes.client.CoreV1Api()
-
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)
@@ -494,6 +540,7 @@ class BinderHub(Application):
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,
             'per_repo_quota': self.per_repo_quota,
+            'per_repo_quota_higher': self.per_repo_quota_higher,
             'repo_providers': self.repo_providers,
             'use_registry': self.use_registry,
             'registry': registry,
@@ -501,18 +548,21 @@ class BinderHub(Application):
             'google_analytics_code': self.google_analytics_code,
             'google_analytics_domain': self.google_analytics_domain,
             'about_message': self.about_message,
+            'banner_message': self.banner_message,
             'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
+            'badge_base_url': self.badge_base_url,
             "static_path": os.path.join(HERE, "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
             'use_named_servers': self.use_named_servers,
-            'event_log': self.event_log
+            'event_log': self.event_log,
+            'normalized_origin': self.normalized_origin
         })
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
@@ -536,6 +586,10 @@ class BinderHub(Application):
             (r'/(badge\_logo\.svg)',
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
+            # /logo_social.png
+            (r'/(logo\_social\.png)',
+                tornado.web.StaticFileHandler,
+                {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             # /favicon_XXX.ico
             (r'/(favicon\_fail\.ico)',
                 tornado.web.StaticFileHandler,
@@ -547,6 +601,7 @@ class BinderHub(Application):
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
+            (r'/health', HealthHandler, {'hub_url': self.hub_url}),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]

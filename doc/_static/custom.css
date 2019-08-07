@@ -33,3 +33,44 @@ img.logo {
 .prev-next-top {
   margin-bottom: 1em;
 }
+
+
+/* Federation page CSS */
+.contrib_entry p {
+  margin: 2px;
+  text-align: center;
+}
+
+p.contrib_affiliation {
+  font-size: .7em;
+  font-weight: bold;
+}
+
+.contribs_text {
+  font-size: .8em;
+}
+
+.contrib_entry p.contribs {
+  float: left;
+  margin: 0px;
+}
+
+td.contrib_entry {
+  width: 150px;
+  height: 200px;
+  padding: 1em !important;
+  vertical-align: top;
+  text-align: center;
+}
+
+td.contrib_entry a {
+  text-decoration: none;
+}
+
+td.contrib_entry img {
+  width: 100%;
+}
+
+table.contributors {
+  margin: 0px auto;
+}

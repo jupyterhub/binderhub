@@ -76,6 +76,7 @@ def mock_asynchttpclient(request):
     AsyncHTTPClient.configure(MockAsyncHTTPClient)
     if not os.getenv('GITHUB_ACCESS_TOKEN'):
         load_mock_responses('api.github.com')
+        load_mock_responses('zenodo.org')
 
 
 @pytest.fixture

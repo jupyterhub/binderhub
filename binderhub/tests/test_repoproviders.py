@@ -5,7 +5,8 @@ import pytest
 from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
-    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider, GitLabRepoProvider, GistRepoProvider
+    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
+    GitLabRepoProvider, GistRepoProvider, ZenodoProvider
 )
 
 
@@ -34,6 +35,21 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_user == user
     assert raw_repo == repo
     assert raw_ref == unresolved_ref
+
+
+async def test_zenodo():
+    spec = '10.5281/zenodo.3242074'
+
+    provider = ZenodoProvider(spec=spec)
+
+    # have to resolve the ref first
+    ref = await provider.get_resolved_ref()
+    assert ref == '3242074'
+
+    slug = provider.get_build_slug()
+    assert slug == 'zenodo-3242074'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
 
 
 @pytest.mark.github_api
@@ -65,6 +81,94 @@ def test_banned():
         ]
     )
     assert provider.is_banned()
+
+
+def test_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^yuvipanda.*'
+        ]
+    )
+    assert not provider.has_higher_quota()
+
+def test_custom_config():
+    base_config = {
+        "pattern": '^jupyterhub.*',
+        "config": {
+            "key1": "val1",
+            "quota": 999
+        }
+    }
+    settings = {"per_repo_quota": 10}
+
+    # If the spec matches nothing, we should just keep defaults
+    provider = GitHubRepoProvider(
+        spec='totallynotjupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[base_config]
+    )
+    assert provider.repo_config(settings)['quota'] == 10
+
+    # Updating should happen w/ the base config
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[base_config]
+    )
+    assert provider.repo_config(settings)['key1'] == "val1"
+    assert provider.repo_config(settings)['quota'] == 999
+
+    # Not giving a string for the pattern should raise an error
+    config_err_pattern = base_config.copy()
+    config_err_pattern['pattern'] = 100
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[config_err_pattern]
+    )
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
+
+    # Not giving a dictionary for configuration should raise an error
+    config_err_config = base_config.copy()
+    config_err_config['config'] = "not a dictionary"
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[config_err_config]
+    )
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
+
+    # Not providing one of `pattern` or `config` should raise an error
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[base_config, {"pattern": "mypattern"}]
+    )
+    with pytest.raises(ValueError):
+        provider.repo_config(settings)
+
+    # Two regexes that both match should result in the *last* one being in the config
+    base_config_second = {
+        "pattern": '^jupyterh.*',
+        "config": {
+            "key1": "newvalue",
+        }
+    }
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        spec_config=[base_config, base_config_second]
+    )
+    assert provider.repo_config(settings)['key1'] == "newvalue"
+    assert provider.repo_config(settings)['quota'] == 999
+
+
+
+def test_not_higher_quota():
+    provider = GitHubRepoProvider(
+        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
+        high_quota_specs=[
+            '^jupyterhub.*'
+        ]
+    )
+    assert provider.has_higher_quota()
 
 
 @pytest.mark.parametrize('ban_spec', ['.*ddEEff.*', '.*ddEEFF.*'])

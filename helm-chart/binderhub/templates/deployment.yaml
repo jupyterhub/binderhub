@@ -98,6 +98,9 @@ spec:
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
         {{- end }}
+        {{ if .Values.extraEnv }}
+{{ toYaml .Values.extraEnv | indent 8 }}
+        {{ end }}
         ports:
           - containerPort: 8585
             name: binder

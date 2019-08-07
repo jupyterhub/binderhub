@@ -50,6 +50,14 @@ p > a:hover {
 }
 
 
+#banner-container {
+    text-align: left;
+    color: black;
+    padding: 16px;
+    width: 100%;
+    background-color: rgb(235, 236, 237);
+}
+
 #logo-container {
     text-align: center;
     color: black;

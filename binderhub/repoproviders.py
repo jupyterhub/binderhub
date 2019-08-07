@@ -71,6 +71,30 @@ class RepoProvider(LoggingConfigurable):
         config=True
     )
 
+    high_quota_specs = List(
+        help="""
+        List of specs to assign a higher quota limit.
+
+        Should be a list of regexes (not regex objects) that match specs which should have a higher quota
+        """,
+        config=True
+    )
+
+    spec_config = List(
+        help="""
+        List of dictionaries that define per-repository configuration.
+
+        Each item in the list is a dictionary with two keys:
+
+            pattern : string
+                defines a regex pattern (not a regex object) that matches specs.
+            config : dict
+                a dictionary of "config_name: config_value" pairs that will be
+                applied to any repository that matches `pattern`
+        """,
+        config=True
+    )
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -90,6 +114,49 @@ class RepoProvider(LoggingConfigurable):
             if re.match(banned, self.spec, re.IGNORECASE):
                 return True
         return False
+
+    def has_higher_quota(self):
+        """
+        Return true if the given spec has a higher quota
+        """
+        for higher_quota in self.high_quota_specs:
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(higher_quota, self.spec, re.IGNORECASE):
+                return True
+        return False
+
+    def repo_config(self, settings):
+        """
+        Return configuration for this repository.
+        """
+        repo_config = {}
+
+        # Defaults and simple overrides
+        if self.has_higher_quota():
+            repo_config['quota'] = settings.get('per_repo_quota_higher')
+        else:
+            repo_config['quota'] = settings.get('per_repo_quota')
+
+        # Spec regex-based configuration
+        for item in self.spec_config:
+            pattern = item.get('pattern', None)
+            config = item.get('config', None)
+            if not isinstance(pattern, str):
+                raise ValueError(
+                    "Spec-pattern configuration expected "
+                    "a regex pattern string, not "
+                    "type %s" % type(pattern))
+            if not isinstance(config, dict):
+                raise ValueError(
+                    "Spec-pattern configuration expected "
+                    "a specification configuration dict, not "
+                    "type %s" % type(config))
+            # Ignore case, because most git providers do not
+            # count DS-100/textbook as different from ds-100/textbook
+            if re.match(pattern, self.spec, re.IGNORECASE):
+                repo_config.update(config)
+        return repo_config
 
     @gen.coroutine
     def get_resolved_ref(self):
@@ -121,6 +188,31 @@ class FakeProvider(RepoProvider):
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
+
+
+class ZenodoProvider(RepoProvider):
+    """Provide contents of a Zenodo record
+
+    Users must provide a spec consisting of the Zenodo DOI.
+    """
+    name = Unicode("Zenodo")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+        self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
+        return self.record_id
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "zenodo-{}".format(self.record_id)
 
 
 class GitRepoProvider(RepoProvider):
@@ -421,7 +513,6 @@ class GitHubRepoProvider(RepoProvider):
             remaining=remaining, limit=rate_limit, delta=delta,
         ))
         return resp
-
 
     @gen.coroutine
     def get_resolved_ref(self):

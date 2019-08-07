@@ -192,6 +192,22 @@ class Build:
                         env=env
                     )
                 ],
+                tolerations=[
+                    client.V1Toleration(
+                        key='hub.jupyter.org/dedicated',
+                        operator='Equal',
+                        value='user',
+                        effect='NoSchedule',
+                    ),
+                    # GKE currently does not permit creating taints on a node pool
+                    # with a `/` in the key field
+                    client.V1Toleration(
+                        key='hub.jupyter.org_dedicated',
+                        operator='Equal',
+                        value='user',
+                        effect='NoSchedule',
+                    ),
+                ],
                 node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never",

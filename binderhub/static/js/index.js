@@ -29,6 +29,7 @@ import '../index.css';
 import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
+var BADGE_BASE_URL = $('#badge-base-url').data().url;
 
 function update_favicon(path) {
     var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
@@ -44,7 +45,12 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
     // no repo, no url
     return null;
   }
-  var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  if (BADGE_BASE_URL) {
+    var url = BADGE_BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  }
+  else {
+    var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+  }
   if (path && path.length > 0) {
     // encode the path, it will be decoded in loadingMain
     url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
@@ -56,6 +62,9 @@ function updateRepoText() {
   var text;
   var provider = $("#provider_prefix").val();
   var tag_text = "Git branch, tag, or commit";
+  // first enable branch/ref field, some providers later disable it
+  $("#ref").prop("disabled", false);
+  $("label[for=ref]").prop("disabled", false);
   if (provider === "gh") {
     text = "GitHub repository name or URL";
   } else if (provider === "gl") {
@@ -68,6 +77,11 @@ function updateRepoText() {
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
     tag_text = "Git commit SHA";
+  }
+  else if (provider === "zenodo") {
+    text = "Zenodo DOI (10.5281/zenodo.3242074)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
@@ -92,6 +106,9 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
+  if (providerPrefix === 'zenodo') {
+    ref = "";
+  }
   var path = $('#filepath').val().trim();
   return {'providerPrefix': providerPrefix, 'repo': repo,
           'ref': ref, 'path': path, 'pathType': getPathType()}
@@ -130,10 +147,10 @@ function build(providerSpec, log, path, pathType) {
 
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Loading repository (can take 30s or more to load): " + spec);
+    $('div#loader-text p').text("Starting repository: " + spec);
     window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to load, hang tight!")
-    }, 120000);
+      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to start, hang tight!")
+    }, 17000);
   }
 
   $('#build-progress .progress-bar').addClass('hidden');

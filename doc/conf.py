@@ -18,6 +18,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import os.path as op
 import sys
 import requests
 curdir = os.path.dirname(__file__)
@@ -209,3 +210,8 @@ with open('./helm.txt', 'w') as ff:
 # -- Add custom CSS ----------------------------------------------
 def setup(app):
     app.add_stylesheet('https://gitcdn.link/repo/jupyterhub/binder/master/doc/_static/custom.css')
+
+# -- Run Federation script ----------------------------------------------
+from subprocess import run
+cmd = ["python", op.join('script', 'gen_federation.py')]
+run(cmd)
