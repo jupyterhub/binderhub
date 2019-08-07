@@ -333,9 +333,9 @@ You now have a functioning BinderHub at the above IP address.
 Customizing your Deployment
 ---------------------------
 
-The Helm chart used to install your BinderHub deployemnt has a lot of options
-for you to tweak. Below is a few pointers for how to configure some of the most
-common optional features.
+The Helm chart used to install your BinderHub deployemnt exposes a number of
+optional features. Below we describe a few of the most common customizations
+and how you can configure them.
 
 Increase your GitHub API limit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -439,9 +439,9 @@ the following configuration in your ``config.yaml`` file::
     dind:
       enabled: true
       daemonset:
-      image:
-        name: docker
-        tag: 18.09.2-dind
+        image:
+          name: docker
+          tag: 18.09.2-dind
 
 If you plan to host multiple BinderHub deployments on the same kubernetes
 cluster, you'll also need to isolate the host socket and library directory
