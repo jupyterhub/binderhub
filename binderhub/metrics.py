@@ -79,10 +79,7 @@ class PodQuotaHandler(BaseHandler):
             "total_pods": n_user_pods + n_build_pods,
             "build_pods": n_build_pods,
             "user_pods": n_user_pods,
+            "quota": self.settings["pod_quota"],
         }
-
-        pod_quota = self.settings.get("pod_quota", None)
-        if pod_quota is not None:
-            usage["quota"] = pod_quota
 
         self.write(usage)
