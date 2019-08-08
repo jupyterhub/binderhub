@@ -69,7 +69,7 @@ class PodQuotaHandler(BaseHandler):
         return await asyncio.gather(get_user_pods, get_build_pods)
 
     async def get(self):
-        """Serve statistics about current usage and maximum capacity"""
+        """Serve information about current usage and maximum capacity"""
         user_pods, build_pods = await self._get_pods()
 
         n_user_pods = len(user_pods.items)
