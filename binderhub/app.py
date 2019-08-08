@@ -20,7 +20,16 @@ import tornado.options
 import tornado.log
 from tornado.log import app_log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
+from traitlets import (
+    Unicode,
+    Integer,
+    Bool,
+    Dict,
+    validate,
+    TraitError,
+    default,
+    Type,
+)
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 
@@ -193,6 +202,14 @@ class BinderHub(Application):
         - repo_url: the repository URL used to build the image
         """,
         config=True,
+    )
+
+    registry_class = Type(
+        DockerRegistry,
+        help="""
+        Registry class implementation, change to define your own
+        """,
+        config=True
     )
 
     use_registry = Bool(
@@ -511,7 +528,7 @@ class BinderHub(Application):
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
         if self.use_registry and self.builder_required:
-            registry = DockerRegistry(parent=self)
+            registry = self.registry_class(parent=self)
         else:
             registry = None
 
