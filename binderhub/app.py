@@ -34,7 +34,7 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
                             ZenodoProvider)
-from .metrics import MetricsHandler, UsageHandler
+from .metrics import MetricsHandler, PodQuotaHandler
 
 from .utils import ByteSpecification, url_path_join
 from .events import EventLog
@@ -216,6 +216,22 @@ class BinderHub(Application):
 
         0 (default) means no quotas.
         """,
+        config=True,
+    )
+
+    pod_quota = Integer(
+        None,
+        help="""
+        The  number of concurrent pods this hub has been designed to support.
+
+        This quota is used as an indication for how much above or below the
+        design capacity a hub is running. It is not used to reject new launch
+        requests when usage is above the quota.
+
+        The default corresponds to no quotas, 0 means the hub can't accept pods,
+        and any positive integer sets the quota.
+        """,
+        allow_none=True,
         config=True,
     )
 
@@ -539,6 +555,7 @@ class BinderHub(Application):
             'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,
+            'pod_quota': self.pod_quota,
             'per_repo_quota': self.per_repo_quota,
             'per_repo_quota_higher': self.per_repo_quota_higher,
             'repo_providers': self.repo_providers,
@@ -602,7 +619,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url}),
-            (r'/_usage', UsageHandler),
+            (r'/_pod_quota', PodQuotaHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]

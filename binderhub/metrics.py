@@ -42,7 +42,7 @@ class MetricsHandler(BaseHandler):
         self.write(generate_latest(REGISTRY))
 
 
-class UsageHandler(BaseHandler):
+class PodQuotaHandler(BaseHandler):
     @at_most_every
     async def _get_pods(self):
         """Get information about build and user pods"""
@@ -80,7 +80,9 @@ class UsageHandler(BaseHandler):
             "build_pods": n_build_pods,
             "user_pods": n_user_pods,
         }
-        if "max_pod_capacity" in self.settings:
-            usage["max_capacity"] = self.settings["max_capacity"]
+
+        pod_quota = self.settings.get("pod_quota", None)
+        if pod_quota is not None:
+            usage["quota"] = pod_quota
 
         self.write(usage)
