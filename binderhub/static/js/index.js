@@ -145,13 +145,19 @@ function build(providerSpec, log, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
-
+  var usual_time = 20000;
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Starting repository: " + spec);
+    $('div#loader-text p.launching').text("Starting repository: " + spec)
+    $('div#loader-text p.launch_info').text("Please be patient while your environment loads.")
+    
     window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to start, hang tight!")
-    }, 17000);
+      $('div#loader-text p.launch_info').html("Launch may take longer the first few times this environment has been run.")
+    }, usual_time);
+
+    window.setTimeout(function() {
+      $('div#loader-text p.launch_info').html("Your session is taking longer than usual to start! <a href='https://gitter.im/binder' target='_blank'>Reach out in the Gitter channel to debug</a>")
+    }, usual_time * 4);
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
@@ -187,15 +193,14 @@ function build(providerSpec, log, path, pathType) {
     $('#phase-failed').removeClass('hidden');
 
     $("#loader").addClass("paused");
-    $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
-    update_favicon(BASE_URL + "favicon_fail.ico");
-    // If we fail for any reason, we will show logs!
-    log.show();
 
-    // Show error on loading page
+    // If we fail for any reason, show an error message and logs
+    update_favicon(BASE_URL + "favicon_fail.ico");
+    log.show();
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
-      $('div#loader-text p').html('Error loading ' + spec + '!<br /> See logs below for details.');
+      $('div#loader-text p.launching').html('Error loading ' + spec + '!<br /> See logs below for details.');
+      $('div#loader-text p.launch_info').html("");
     }
     image.close();
   });
@@ -333,7 +338,7 @@ function loadingMain(providerSpec) {
   build(providerSpec, log, path, pathType);
 
   // Looping through help text every few seconds
-  setInterval(nextHelpText, 4000);
+  setInterval(nextHelpText, 6000);
 
   return false;
 }
