@@ -120,6 +120,8 @@ jupyterhub:
   prePuller:
     hook:
       enabled: false
+    continuous:
+      enabled: false
 
 deployment:
   labels: {}
