@@ -41,6 +41,9 @@ spec:
           - dockerd
           - --storage-driver={{ .Values.dind.storageDriver }}
           - -H unix://{{ .Values.dind.hostSocketDir }}/docker.sock
+          {{- if .Values.dind.daemonset.extraArgs }}
+{{ toYaml .Values.dind.daemonset.extraArgs | indent 10 }}
+          {{- end }}
         securityContext:
           privileged: true
         volumeMounts:
