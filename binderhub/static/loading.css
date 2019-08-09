@@ -76,7 +76,7 @@ https://ihatetomatoes.net for initial code templates.*/
 }
 
 div#loader-text {
-    min-height: 9em;
+    min-height: 3em;
 }
 
 #loader-text p {
@@ -88,11 +88,6 @@ div#loader-text {
 
 #loader-text p.launching {
     font-size: 2em;
-    font-weight: bold;
-}
-
-#loader-text p.launch_info {
-    font-size: 1.8em;
 }
 
 div#loader-links {
@@ -100,7 +95,7 @@ div#loader-links {
 }
 
 #loader-links p {
-    font-size: 1.3em;
+    font-size: 1.5em;
     text-align: center;
     max-width:700px;
     margin: 0px auto 10px auto;

@@ -149,15 +149,6 @@ function build(providerSpec, log, path, pathType) {
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
     $('div#loader-text p.launching').text("Starting repository: " + spec)
-    $('div#loader-text p.launch_info').text("Please be patient while your environment loads.")
-    
-    window.setTimeout(function() {
-      $('div#loader-text p.launch_info').html("Launch may take longer the first few times this environment has been run.")
-    }, usual_time);
-
-    window.setTimeout(function() {
-      $('div#loader-text p.launch_info').html("Your session is taking longer than usual to start! <a href='https://gitter.im/binder' target='_blank'>Reach out in the Gitter channel to debug</a>")
-    }, usual_time * 4);
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
@@ -200,7 +191,6 @@ function build(providerSpec, log, path, pathType) {
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
       $('div#loader-text p.launching').html('Error loading ' + spec + '!<br /> See logs below for details.');
-      $('div#loader-text p.launch_info').html("");
     }
     image.close();
   });
@@ -338,7 +328,15 @@ function loadingMain(providerSpec) {
   build(providerSpec, log, path, pathType);
 
   // Looping through help text every few seconds
-  setInterval(nextHelpText, 6000);
+  const launchMessageInterval = 6 * 1000
+  setInterval(nextHelpText, launchMessageInterval);
+
+  // If we have a long launch, add a class so we display a long launch msg
+  const launchTimeout = 120 * 1000
+  setTimeout(() => {
+    $('div#loader-links p.text-center').addClass("longLaunch");
+    nextHelpText();
+  }, launchTimeout)
 
   return false;
 }
@@ -346,6 +344,9 @@ function loadingMain(providerSpec) {
 // export entrypoints
 window.loadingMain = loadingMain;
 window.indexMain = indexMain;
+
+// Show the logs by default
+log.show();
 
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
