@@ -18,6 +18,9 @@ from .utils import async_requests
     "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
         quote("https://github.com/binderhub-ci-repos/requirements", safe='')
     ),
+    "git/{}/master".format(
+        quote("https://github.com/binderhub-ci-repos/requirements", safe='')
+    ),
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
 @pytest.mark.remote
