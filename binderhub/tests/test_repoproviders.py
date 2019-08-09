@@ -161,9 +161,9 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
 
     provider = GitRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == slug
+    assert slug == url
     full_url = provider.get_repo_url()
-    assert full_url == slug
+    assert full_url == url
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == resolved_ref
 
