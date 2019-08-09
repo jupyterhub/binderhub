@@ -253,9 +253,9 @@ class GitRepoProvider(RepoProvider):
         except ValueError:
             # The ref is a head/tag and we resolve it using `git ls-remote`
             command = ["git", "ls-remote", self.repo, self.unresolved_ref]
-            result = subprocess.run(command, text=True, stdout=subprocess.PIPE)
+            result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if result.returncode:
-                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`")
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(result.stderr))
             if not result.stdout:
                 raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
                                 .format(self.unresolved_ref))

@@ -213,19 +213,27 @@ class TestSpecErrorHandling(TestCase):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
 
-def test_git_ref():
+@pytest.mark.parametrize('url,unresolved_ref,resolved_ref', [
+    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s', 
+     'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603',
+     'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'],
+    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s', 
+     '0.8.0',
+     'ada2170a2181ae1760d85eab74e5264d0c6bb67f']
+])
+def test_git_ref(url, unresolved_ref, resolved_ref):
     spec = '{}/{}'.format(
-        quote('https://github.com/jupyterhub/zero-to-jupyterhub-k8s', safe=''),
-        quote('f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603')
+        quote(url, safe=''),
+        quote(unresolved_ref)
     )
 
     provider = GitRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
+    assert slug == url
     full_url = provider.get_repo_url()
-    assert full_url == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
+    assert full_url == url
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
+    assert ref == resolved_ref
 
 
 def test_gitlab_ref():
