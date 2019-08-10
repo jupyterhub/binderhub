@@ -145,7 +145,6 @@ function build(providerSpec, log, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
-  var usual_time = 20000;
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
     $('div#loader-text p.launching').text("Starting repository: " + spec)
@@ -344,9 +343,6 @@ function loadingMain(providerSpec) {
 // export entrypoints
 window.loadingMain = loadingMain;
 window.indexMain = indexMain;
-
-// Show the logs by default
-log.show();
 
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
