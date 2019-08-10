@@ -17,7 +17,7 @@ export function nextHelpText () {
             // Pick a random help message and update
             var msg = help_messages[Math.floor(Math.random() * help_messages.length)];
         } else {
-            var msg = 'Your session is taking longer than usual to start!<br /><a href="https://gitter.im/binder" target="_blank">Reach out in the Gitter channel to debug</a>';
+            var msg = 'Your session is taking longer than usual to start!<br />Check the log messages below to see what is happening.';
         }
         text.html(msg);
     }
