@@ -3,7 +3,7 @@ const help_messages = [
     'New to Binder? Check out the <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/">Binder Documentation</a> for more information.',
     'You can learn more about building your own Binder repositories in <a target="_blank" href="https://docs.mybinder.org">the Binder community documentation</a>.',
     'We use the <a target="_blank" href="https://repo2docker.readthedocs.io/">repo2docker</a> tool to automatically build the environment in which to run your code.',
-    'Take a look at the <a target="_blank" href="https://repo2docker.readthedocs.io/en/latest/config_files.html">full list of configuration files supported by repo2docker.',
+    'Take a look at the <a target="_blank" href="https://repo2docker.readthedocs.io/en/latest/config_files.html">full list of configuration files supported by repo2docker.</a>',
     'Need more than just a Jupyter notebook? You can <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/howto/user_interface.html">customize the user interface</a>.',
     'Take a look at our <a target="_blank" href="https://github.com/binder-examples/">gallery of example repositories</a>.',
     'If a repository takes a long time to launch, it is usually because Binder needs to create the environment for the first time.',
