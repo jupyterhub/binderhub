@@ -172,6 +172,7 @@ function build(providerSpec, log, path, pathType) {
 
   image.onStateChange('building', function(oldState, newState, data) {
     $('#phase-building').removeClass('hidden');
+    log.show();
   });
 
   image.onStateChange('pushing', function(oldState, newState, data) {
