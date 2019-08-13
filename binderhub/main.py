@@ -64,8 +64,8 @@ class ParameterizedMainHandler(BaseHandler):
            
             # Check if we have a JupyterLab + file path, if so then use it for the filepath
             urlpath = self.get_argument('urlpath', '').lstrip('/')
-            if 'lab/tree/' in urlpath:
-                filepath = urlpath.split('lab/tree/')[-1]
+            if urlpath.startswith("lab") and "/tree/" in urlpath:
+                filepath = urlpath.split('tree/', 1)[-1]
             
             blob_or_tree = 'blob' if filepath else 'tree'
             nbviewer_url = f'{nbviewer_url}/{org}/{repo_name}/{blob_or_tree}/{ref}/{filepath}'
