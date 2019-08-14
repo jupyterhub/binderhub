@@ -5,8 +5,7 @@ charts:
       git: jupyterhub/helm-chart
       published: https://jupyterhub.github.io/helm-chart
     paths:
-      - ../setup.py
-      - ../binderhub
+      - ..
     images:
       image-cleaner:
         valuesPath: imageCleaner.image
