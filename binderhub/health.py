@@ -119,15 +119,19 @@ class HealthHandler(BaseHandler):
         return True
 
     @false_if_raises
+    @at_most_every(interval=10)
     @retry
     async def check_docker_registry(self):
         """Check docker registry health"""
+        app_log.info("Checkinng registry status")
         registry = self.settings["registry"]
         # we are only interested in getting a response from the registry, we
         # don't care if the image actually exists or not
+        image_name = self.settings["image_prefix"] + "some-image-name:12345"
         await registry.get_image_manifest(
-            self.settings["image_prefix"] + "some-image-name", "12345"
+            *'/'.join(image_name.split('/')[-2:]).split(':', 1)
         )
+        return True
 
     async def check_pod_quota(self):
         """Compare number of active pods to available quota"""
