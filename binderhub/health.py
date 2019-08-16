@@ -149,7 +149,7 @@ class HealthHandler(BaseHandler):
             "build_pods": n_build_pods,
             "user_pods": n_user_pods,
             "quota": quota,
-            "ok": total_pods <= quota,
+            "ok": total_pods <= quota if quota is not None else True,
         }
         return usage
 
