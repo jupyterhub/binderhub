@@ -123,7 +123,7 @@ class HealthHandler(BaseHandler):
     @retry
     async def check_docker_registry(self):
         """Check docker registry health"""
-        app_log.info("Checkinng registry status")
+        app_log.info("Checking registry status")
         registry = self.settings["registry"]
         # we are only interested in getting a response from the registry, we
         # don't care if the image actually exists or not
