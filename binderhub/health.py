@@ -119,7 +119,7 @@ class HealthHandler(BaseHandler):
         return True
 
     @false_if_raises
-    @at_most_every(interval=10)
+    @at_most_every(interval=15)
     @retry
     async def check_docker_registry(self):
         """Check docker registry health"""
