@@ -122,18 +122,12 @@ class HealthHandler(BaseHandler):
     @retry
     async def check_docker_registry(self):
         """Check docker registry health"""
-        registry = self.settings["registry"].url
-
-        if not registry.endswith("/"):
-            registry += "/"
-
-        # docker registries don't have an explicit health check endpoint.
-        # Instead the recommendation is to query the "root" endpoint which
-        # should return a 401 status when everything is well
-        r = await AsyncHTTPClient().fetch(
-            registry, request_timeout=3, raise_error=False
+        registry = self.settings["registry"]
+        # we are only interested in getting a response from the registry, we
+        # don't care if the image actually exists or not
+        await registry.get_image_manifest(
+            self.settings["image_prefix"] + "some-image-name", "12345"
         )
-        return r.code in (200, 401)
 
     async def check_pod_quota(self):
         """Compare number of active pods to available quota"""
