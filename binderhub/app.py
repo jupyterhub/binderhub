@@ -219,6 +219,23 @@ class BinderHub(Application):
         config=True,
     )
 
+    pod_quota = Integer(
+        None,
+        help="""
+        The number of concurrent pods this hub has been designed to support.
+
+        This quota is used as an indication for how much above or below the
+        design capacity a hub is running. It is not used to reject new launch
+        requests when usage is above the quota.
+
+        The default corresponds to no quota, 0 means the hub can't accept pods
+        (maybe because it is in maintenance mode), and any positive integer
+        sets the quota.
+        """,
+        allow_none=True,
+        config=True,
+    )
+
     per_repo_quota_higher = Integer(
         0,
         help="""
@@ -539,6 +556,7 @@ class BinderHub(Application):
             'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
             'log_tail_lines': self.log_tail_lines,
+            'pod_quota': self.pod_quota,
             'per_repo_quota': self.per_repo_quota,
             'per_repo_quota_higher': self.per_repo_quota_higher,
             'repo_providers': self.repo_providers,
