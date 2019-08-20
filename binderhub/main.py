@@ -1,6 +1,8 @@
 """
 Main handler classes for requests
 """
+import urllib.parse
+
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
@@ -72,16 +74,20 @@ class ParameterizedMainHandler(BaseHandler):
             blob_or_tree = 'blob' if filepath else 'tree'
             nbviewer_url = f'{nbviewer_url}/{org}/{repo_name}/{blob_or_tree}/{ref}/{filepath}'
 
-        # Check if the nbviewer URL is valid and would display something
-        # useful to the reader, if not we don't show it
-        client = AsyncHTTPClient()
-        request = HTTPRequest(nbviewer_url,
-                              method="HEAD",
-                              user_agent="BinderHub",
-                              )
-        response = await client.fetch(request, raise_error=False)
-        if response.code >= 400:
-            nbviewer_url = None
+            # Check if the nbviewer URL is valid and would display something
+            # useful to the reader, if not we don't show it
+            client = AsyncHTTPClient()
+            # quote any unicode characters in the URL
+            proto, rest = nbviewer_url.split("://")
+            rest = urllib.parse.quote(rest)
+
+            request = HTTPRequest(proto + "://" + rest,
+                                  method="HEAD",
+                                  user_agent="BinderHub",
+                                  )
+            response = await client.fetch(request, raise_error=False)
+            if response.code >= 400:
+                nbviewer_url = None
 
         self.render_template(
             "loading.html",
