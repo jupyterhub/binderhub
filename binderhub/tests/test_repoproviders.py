@@ -6,7 +6,8 @@ from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
     tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
-    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider
+    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider,
+    HydroshareProvider
 )
 
 
@@ -63,6 +64,20 @@ async def test_figshare():
 
     slug = provider.get_build_slug()
     assert slug == 'figshare-9782777.v1'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
+
+
+async def test_hydroshare():
+    spec = 'https://www.hydroshare.org/resource/142c59757ed54de1816777828c9716e7/'
+
+    provider = HydroshareProvider(spec=spec)
+
+    ref = await provider.get_resolved_ref()
+    assert ref == '142c59757ed54de1816777828c9716e7.v1545959806'
+
+    slug = provider.get_build_slug()
+    assert slug == 'hydroshare-142c59757ed54de1816777828c9716e7.v1545959806'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
 

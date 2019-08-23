@@ -250,6 +250,42 @@ class FigshareProvider(RepoProvider):
         return "figshare-{}".format(self.record_id)
 
 
+class HydroshareProvider(RepoProvider):
+    """Provide contents of a Hydroshare resource
+
+    Users must provide a spec consisting of the Hydroshare resource id.
+    """
+    name = Unicode("Hydroshare")
+    url_regex = re.compile(r".*([0-9a-f]{32}).*")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        match = self.url_regex.match(self.spec)
+        if not match:
+            raise ValueError("The specified Hydroshare resource id was not recognized.")
+        resource_id = match.groups()[0]
+        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(resource_id),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+        def parse_date(json_body):
+            json_response = json.loads(json_body)
+            date = next(item for item in json_response["dates"] if item["type"] == "modified")["start_date"]
+            date = date.split(".")[0]
+            return str(int(time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%S"))))
+        # date last updated is only good for the day... probably need something finer eventually
+        self.record_id = "{}.v{}".format(resource_id, parse_date(r.body))
+        return self.record_id
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "hydroshare-{}".format(self.record_id)
+
+
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 

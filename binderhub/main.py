@@ -16,7 +16,8 @@ SPEC_NAMES = {
     "gl": "GitLab",
     "git": "Git repo",
     "zenodo": "Zenodo",
-    "figshare": "Figshare"
+    "figshare": "Figshare",
+    "hydroshare": "Hydroshare"
 }
 
 

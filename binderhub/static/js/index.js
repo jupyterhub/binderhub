@@ -89,6 +89,11 @@ function updateRepoText() {
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
+  else if (provider === "hydroshare") {
+    text = "Hydroshare resource URL (https://www.hydroshare.org/resource/)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
+  }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
   $("#ref").attr('placeholder', tag_text);
@@ -112,7 +117,7 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare') {
+  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'hydroshare') {
     ref = "";
   }
   var path = $('#filepath').val().trim();
