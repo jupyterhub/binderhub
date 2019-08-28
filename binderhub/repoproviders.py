@@ -103,6 +103,7 @@ class RepoProvider(LoggingConfigurable):
         help="""
         Credentials (if any) to pass to git when cloning.
         """,
+        config=True
     )
 
     def is_banned(self):
