@@ -422,7 +422,7 @@ Then update ``secret.yaml`` with the following::
         private_token: <insert_token_value_here>
 
 This token will be used for accessing the GitLab API, and is also used as the
-git password when cloning repos. With this token, no username is required to
+Git password when cloning repos. With this token, no username is required to
 clone a repo.
 
 .. _dind:
