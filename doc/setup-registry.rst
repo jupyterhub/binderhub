@@ -6,16 +6,16 @@ Set up the container registry
 BinderHub will build Docker images out of Git repositories, and then push
 them to a Docker registry so that JupyterHub can launch user servers based
 on these images. You can use any registry that
-you like, though this guide covers how to properly configure two popular
-registries: the **Google Container Registry** (``gcr.io``) and DockerHub
-(``hub.docker.com``).
+you like, though this guide covers how to properly configure several popular
+registries. The next step, :doc:`setup-binderhub`, explains how you can 
+properly configure BinderHub to use one of these registries.
 
 .. _use-gcr:
 
 Set up Google Container Registry
 --------------------------------
 
-To use Google Container Registry, you'll need to provide BinderHub
+To use Google Container Registry (``gcr.io``), you'll need to provide BinderHub
 with proper credentials so it can push images. You can do so by creating a
 service account that has authorization to push to Google Container Registry:
 
@@ -48,7 +48,7 @@ registry.
 Set up Docker Hub registry
 ------------------------------
 
-To use **Docker Hub** as a registry first you have to create a
+To use **Docker Hub** (``hub.docker.com``) as a registry first you have to create a
 `Docker ID account <https://docs.docker.com/docker-id/>`_
 in `Docker Hub <https://hub.docker.com/>`_. Your
 Docker ID (username) and password are used to push Docker images to the registry.
@@ -56,9 +56,6 @@ Docker ID (username) and password are used to push Docker images to the registry
 If you want to store Docker images under an organization, you can
 `create an organization <https://docs.docker.com/docker-hub/orgs/>`_.
 This is useful if different Binder instances want to use same registry to store images.
-
-See the next section for how to properly configure your BinderHub to use
-Docker Hub.
 
 .. _use-acr:
 
@@ -139,8 +136,6 @@ where:
 
        SERVICE_PRINCIPAL_PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
        SERVICE_PRINCIPAL_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
-
-See the next section for how to properly configure your BinderHub to use Azure Container Registry.
 
 Next step
 ---------

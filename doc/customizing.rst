@@ -42,9 +42,9 @@ Here it is explained by a minimal example which shows how to use a custom logo.
 Before configuring BinderHub to use custom templates and static files,
 you have to provide these files to the binder pod where the application runs.
 One way to do this using `Init Containers
-<https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_ and a git repo.
+<https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_ and a Git repo.
 
-Firstly assume that you have a git repo ``binderhub_custom_files`` which holds your custom files::
+Firstly assume that you have a Git repo ``binderhub_custom_files`` which holds your custom files::
 
     binderhub_custom_files/
     ├── static
@@ -69,7 +69,7 @@ updates only the source url of the logo in order to use your custom logo::
     It is also possible to have completely new template instead of extending the base one.
     Then BinderHub will ignore the base one.
 
-Now you can use ``Init Containers`` to clone that git repo into a volume (``custom-templates``)
+Now you can use ``Init Containers`` to clone that Git repo into a volume (``custom-templates``)
 which is mounted to both init container and binder container.
 To do that add the following into your ``config.yaml``::
 
