@@ -509,8 +509,14 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
+                def handle_progress_event(event):
+                    self.emit({
+                        'phase': 'launching',
+                        'message': event['message'],
+                        })
                 server_info = await launcher.launch(image=self.image_name, username=username,
-                                                    server_name=server_name, repo_url=self.repo_url)
+                                                    server_name=server_name, repo_url=self.repo_url,
+                                                    event_callback=handle_progress_event)
                 LAUNCH_TIME.labels(
                     status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)

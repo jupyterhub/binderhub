@@ -117,7 +117,7 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username, server_name='', repo_url=''):
+    async def launch(self, image, username, server_name='', repo_url='', event_callback=None):
         """Launch a server for a given image
 
         - creates a temporary user on the Hub if authentication is not enabled
@@ -170,21 +170,37 @@ class Launcher(LoggingConfigurable):
                 body=json.dumps(data).encode('utf8'),
             )
             if resp.code == 202:
+                buffer = []
+                ready_event_container = []
+                def handle_chunk(chunk):
+                    ...
+                    buffer += chunk
+                    line, buffer = buffer.split(b'\r\n')
+                    if line:
+                        line = line.decode('utf8', 'replace')
+                    if line and line.startswith('data:'):
+                        event = json.loads(line.split(':', 1)[1])
+                        if event_callback:
+                            event_callback(event)
+                        if event.get('ready', False):
+                            ready_event_container.append(event)
+
+                resp_future = self.api_request(
+                    'users/{}/servers/{}/progress'.format(username, server_name),
+                    streaming_callback=handle_chunk,
+                )
+                try:
+                    # build & launch timeout should be configurable
+                    await gen.with_timeout(600, resp_future)
+                except gen.TimeoutError:
+                    raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
+
+                # verify that it's running!
+                if not ready_event_container:
+                    raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
+
                 # Server hasn't actually started yet
                 # We wait for it!
-                # NOTE: This ends up being about ten minutes
-                for i in range(64):
-                    user_data = await self.get_user_data(username)
-                    if user_data['servers'][server_name]['ready']:
-                        break
-                    if not user_data['servers'][server_name]['pending']:
-                        raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
-                    # FIXME: make this configurable
-                    # FIXME: Measure how long it takes for servers to start
-                    # and tune this appropriately
-                    await gen.sleep(min(1.4 ** i, 10))
-                else:
-                    raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 
         except HTTPError as e:
             if e.response:
@@ -196,5 +212,5 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
+        data['url'] = self.hub_url + ready_event_container[0]['url']
         return data
