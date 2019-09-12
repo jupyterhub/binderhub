@@ -509,10 +509,10 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
-                def handle_progress_event(event):
-                    self.emit({
+                async def handle_progress_event(event):
+                    await self.emit({
                         'phase': 'launching',
-                        'message': event['message'],
+                        'message': '{}\n'.format(event['message']),
                         })
                 server_info = await launcher.launch(image=self.image_name, username=username,
                                                     server_name=server_name, repo_url=self.repo_url,

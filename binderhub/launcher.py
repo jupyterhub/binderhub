@@ -9,12 +9,15 @@ import string
 from urllib.parse import urlparse
 import uuid
 import os
+from datetime import timedelta
 
 from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
 from traitlets import Integer, Unicode, Bool
+
+from .utils import url_path_join
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -49,6 +52,13 @@ class Launcher(LoggingConfigurable):
         Time (seconds) to wait between retries for Hub API requests.
 
         Time is scaled exponentially by the retry attempt (i.e. 2, 4, 8, 16 seconds)
+        """
+    )
+    launch_timeout = Integer(
+        600,
+        config=True,
+        help="""
+        Wait this amount of time until server is ready, raise TimeoutError otherwise.
         """
     )
 
@@ -170,37 +180,37 @@ class Launcher(LoggingConfigurable):
                 body=json.dumps(data).encode('utf8'),
             )
             if resp.code == 202:
-                buffer = []
+                # Server hasn't actually started yet
+                # listen pending spawn (launch) events until server is ready
                 ready_event_container = []
-                def handle_chunk(chunk):
-                    ...
-                    buffer += chunk
-                    line, buffer = buffer.split(b'\r\n')
+
+                async def handle_chunk(chunk):
+                    line, buffer = chunk.split(b'\n\n')
                     if line:
                         line = line.decode('utf8', 'replace')
                     if line and line.startswith('data:'):
                         event = json.loads(line.split(':', 1)[1])
                         if event_callback:
-                            event_callback(event)
+                            await event_callback(event)
                         if event.get('ready', False):
+                            # stream ends when server is ready
                             ready_event_container.append(event)
 
-                resp_future = self.api_request(
-                    'users/{}/servers/{}/progress'.format(username, server_name),
-                    streaming_callback=handle_chunk,
-                )
+                url_parts = ['users', username]
+                if server_name:
+                    url_parts.extend(['servers', server_name, 'progress'])
+                else:
+                    url_parts.extend(['server/progress'])
+                progress_api_url = url_path_join(*url_parts)
+                resp_future = self.api_request(progress_api_url, streaming_callback=handle_chunk)
                 try:
-                    # build & launch timeout should be configurable
-                    await gen.with_timeout(600, resp_future)
+                    await gen.with_timeout(timedelta(self.launch_timeout), resp_future)
                 except gen.TimeoutError:
                     raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 
-                # verify that it's running!
+                # verify that the server is running!
                 if not ready_event_container:
                     raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
-
-                # Server hasn't actually started yet
-                # We wait for it!
 
         except HTTPError as e:
             if e.response:
@@ -212,5 +222,5 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = self.hub_url + ready_event_container[0]['url']
+        data['url'] = url_path_join(self.hub_url, ready_event_container[0]['url'])
         return data
