@@ -1,6 +1,35 @@
 """Miscellaneous utilities"""
 from collections import OrderedDict
+from hashlib import blake2b
+from math import log
+
 from traitlets import Integer, TraitError
+
+
+def blake2b_as_float(b):
+    """Compute Blake2 digest and convert it to a float.
+
+    Use this to create a float [0, 1) based on the Blake2 hash function.
+    """
+    return (
+        int.from_bytes(blake2b(b, digest_size=8).digest(), "big") / 0xFFFFFFFFFFFFFFFF
+    )
+
+
+def rendezvous_rank(buckets, key):
+    """Rank the buckets for a given key using Rendez-vous hashing
+
+    Each bucket is scored for the key and the best match is assigned the
+    highest score. The return value is a list of tuples of (score, bucket),
+    sorted in decreasing order.
+    """
+    ranking = []
+    for bucket in buckets:
+        h = blake2b_as_float(b"%s-%s" % (str(key).encode(), str(bucket).encode()))
+        score = 1 / -log(h)
+        ranking.append((score, bucket))
+
+    return sorted(ranking, reverse=True)
 
 
 class ByteSpecification(Integer):
@@ -17,10 +46,10 @@ class ByteSpecification(Integer):
     """
 
     UNIT_SUFFIXES = {
-        'K': 1024,
-        'M': 1024 * 1024,
-        'G': 1024 * 1024 * 1024,
-        'T': 1024 * 1024 * 1024 * 1024,
+        "K": 1024,
+        "M": 1024 * 1024,
+        "G": 1024 * 1024 * 1024,
+        "T": 1024 * 1024 * 1024 * 1024,
     }
 
     # Default to allowing None as a value
@@ -40,16 +69,25 @@ class ByteSpecification(Integer):
         try:
             num = float(value[:-1])
         except ValueError:
-            raise TraitError('{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T'.format(val=value))
+            raise TraitError(
+                "{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T".format(
+                    val=value
+                )
+            )
         suffix = value[-1]
         if suffix not in self.UNIT_SUFFIXES:
-            raise TraitError('{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T'.format(val=value))
+            raise TraitError(
+                "{val} is not a valid memory specification. Must be an int or a string with suffix K, M, G, T".format(
+                    val=value
+                )
+            )
         else:
             return int(float(num) * self.UNIT_SUFFIXES[suffix])
 
 
 class Cache(OrderedDict):
     """Basic LRU Cache with get/set"""
+
     def __init__(self, max_size=1024):
         self.max_size = max_size
 
@@ -83,17 +121,17 @@ def url_path_join(*pieces):
 
     Copied from `notebook.utils.url_path_join`.
     """
-    initial = pieces[0].startswith('/')
-    final = pieces[-1].endswith('/')
-    stripped = [ s.strip('/') for s in pieces ]
-    result = '/'.join(s for s in stripped if s)
+    initial = pieces[0].startswith("/")
+    final = pieces[-1].endswith("/")
+    stripped = [s.strip("/") for s in pieces]
+    result = "/".join(s for s in stripped if s)
 
     if initial:
-        result = '/' + result
+        result = "/" + result
     if final:
-        result = result + '/'
-    if result == '//':
-        result = '/'
+        result = result + "/"
+    if result == "//":
+        result = "/"
 
     return result
 
