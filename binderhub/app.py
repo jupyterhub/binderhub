@@ -33,7 +33,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
-                            ZenodoProvider)
+                            ZenodoProvider, FigshareProvider)
 from .metrics import MetricsHandler
 
 from .utils import ByteSpecification, url_path_join
@@ -379,6 +379,7 @@ class BinderHub(Application):
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,
             'zenodo': ZenodoProvider,
+            'figshare': FigshareProvider,
         },
         config=True,
         help="""

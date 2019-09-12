@@ -108,7 +108,7 @@ every day development.
 
 * Start and stop minikube with `minikube start` and `minikube stop`.
 * Install JupyterHub in minikube with helm `./testing/minikube/install-hub`
-* Setup docker to use the same docker daemon as your minikube cluster `eval $(minikube docker-env)`
+* Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
 * Start BinderHub `python3 -m binderhub -f testing/minikube/binderhub_config.py`
 * Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
 
@@ -209,7 +209,7 @@ sudo apt install socat
    eval $(minikube docker-env)
    ```
 
-  This command sets up docker to use the same docker daemon as your minikube
+  This command sets up `docker` to use the same Docker daemon as your minikube
   cluster does. This means images you build are directly available to the
   cluster. Note: when you no longer wish to use the minikube host, you can
   undo this change by running:
@@ -228,6 +228,26 @@ sudo apt install socat
 
 All features should work, including building and launching of repositories.
 
+
+### Tip: Use local repo2docker version
+
+BinderHub runs repo2docker in a container.
+For testing the combination of an unreleased repo2docker feature with BinderHub, you can use a locally build repo2docker image.
+You can configure the image in the file `testing/minikube/binderhub_config.py` with the following line:
+
+```python
+c.BinderHub.build_image = 'jupyter-repo2docker:my_image_tag'
+```
+
+**Important**: the image must be build using the same Docker daemon as the minikube cluster, otherwise you get an error _"Failed to pull image [...]  repository does not exist or may require 'docker login'"_.
+
+### Tip: Enable debug logging
+
+In the file `testing/minikube/binderhub_config.py` add the following line:
+
+```python
+c.BinderHub.debug = True
+```
 
 ### Tip: Increase your GitHub API limit
 
