@@ -183,18 +183,24 @@ class Launcher(LoggingConfigurable):
                 # Server hasn't actually started yet
                 # listen pending spawn (launch) events until server is ready
                 ready_event_container = []
+                buffer_list = []
 
                 async def handle_chunk(chunk):
-                    line, buffer = chunk.split(b'\n\n')
-                    if line:
-                        line = line.decode('utf8', 'replace')
-                    if line and line.startswith('data:'):
-                        event = json.loads(line.split(':', 1)[1])
-                        if event_callback:
-                            await event_callback(event)
-                        if event.get('ready', False):
-                            # stream ends when server is ready
-                            ready_event_container.append(event)
+                    lines = b''.join(buffer_list + [chunk]).split(b'\n\n')
+                    # the last item in the list is usually an empty line ('')
+                    # but it can be the partial line after the last `\n\n`,
+                    # so put it back on the buffer to handle with the next chunk
+                    buffer_list[:] = [lines[-1]]
+                    for line in lines[:-1]:
+                        if line:
+                            line = line.decode('utf8', 'replace')
+                        if line and line.startswith('data:'):
+                            event = json.loads(line.split(':', 1)[1])
+                            if event_callback:
+                                await event_callback(event)
+                            if event.get('ready', False):
+                                # stream ends when server is ready
+                                ready_event_container.append(event)
 
                 url_parts = ['users', username]
                 if server_name:
