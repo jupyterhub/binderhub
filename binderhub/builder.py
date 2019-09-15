@@ -340,7 +340,8 @@ class BuildHandler(BaseHandler):
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,
             log_tail_lines=self.settings['log_tail_lines'],
-            git_credentials=provider.git_credentials
+            git_credentials=provider.git_credentials,
+            sticky_builds=self.settings['sticky_builds'],
         )
 
         with BUILDS_INPROGRESS.track_inprogress():

@@ -8,6 +8,8 @@ from urllib.parse import quote
 import pytest
 from tornado.httputil import url_concat
 
+from kubernetes import client
+
 from binderhub.build import Build
 from .utils import async_requests
 
@@ -49,6 +51,44 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     r = await async_requests.get(url_concat(final['url'], {'token': final['token']}))
     r.raise_for_status()
     assert r.url.startswith(final['url'])
+
+
+def test_default_affinity():
+    # check that the default affinity is a pod anti-affinity
+    build = Build(
+        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        namespace='build_namespace', repo_url=mock.MagicMock(),
+        ref=mock.MagicMock(), build_image=mock.MagicMock(),
+        image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
+        memory_limit=mock.MagicMock(), git_credentials=None,
+        docker_host='http://mydockerregistry.local',
+        node_selector=mock.MagicMock())
+
+    affinity = build.get_affinity()
+
+    assert isinstance(affinity, client.V1Affinity)
+    assert affinity.node_affinity is None
+    assert affinity.pod_affinity is None
+    assert affinity.pod_anti_affinity is not None
+
+
+def test_sticky_builds_affinity():
+    build = Build(
+        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        namespace='build_namespace', repo_url=mock.MagicMock(),
+        ref=mock.MagicMock(), build_image=mock.MagicMock(),
+        image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
+        memory_limit=mock.MagicMock(), git_credentials=None,
+        docker_host='http://mydockerregistry.local',
+        node_selector=mock.MagicMock(),
+        sticky_builds=True)
+
+    affinity = build.get_affinity()
+
+    assert isinstance(affinity, client.V1Affinity)
+    assert affinity.node_affinity is not None
+    assert affinity.pod_affinity is None
+    assert affinity.pod_anti_affinity is None
 
 
 def test_git_credentials_passed_to_podspec_upon_submit():
