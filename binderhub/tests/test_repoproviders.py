@@ -214,10 +214,10 @@ class TestSpecErrorHandling(TestCase):
 
 
 @pytest.mark.parametrize('url,unresolved_ref,resolved_ref', [
-    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s', 
+    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s',
      'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603',
      'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'],
-    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s', 
+    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s',
      '0.8.0',
      'ada2170a2181ae1760d85eab74e5264d0c6bb67f']
 ])
@@ -238,14 +238,14 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
 
 def test_gitlab_ref():
     spec = '{}/{}'.format(
-        quote('gitlab-org/gitlab-ce', safe=''),
+        quote('gitlab-org/gitlab-foss', safe=''),
         quote('v10.0.6')
     )
     provider = GitLabRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == 'gitlab_-org-gitlab_-ce'
+    assert slug == 'gitlab_-org-gitlab_-foss'
     full_url = provider.get_repo_url()
-    assert full_url == 'https://gitlab.com/gitlab-org/gitlab-ce.git'
+    assert full_url == 'https://gitlab.com/gitlab-org/gitlab-foss.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
 
