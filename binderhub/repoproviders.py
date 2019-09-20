@@ -436,13 +436,13 @@ class GitHubRepoProvider(RepoProvider):
     auth = Dict(
         help="""Auth parameters for the GitHub API access
 
-        Populated from client_id, client_secret, access_token.
+        Populated from client_id, client_secret.
     """
     )
     @default('auth')
     def _default_auth(self):
         auth = {}
-        for key in ('client_id', 'client_secret', 'access_token'):
+        for key in ('client_id', 'client_secret'):
             value = getattr(self, key)
             if value:
                 auth[key] = value
@@ -478,6 +478,10 @@ class GitHubRepoProvider(RepoProvider):
             api_url = url_concat(api_url, self.auth)
 
         headers = {}
+        # based on: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
+        if self.access_token:
+            headers['Authorization'] = "token {token}".format(token=self.access_token)
+
         if etag:
             headers['If-None-Match'] = etag
         req = HTTPRequest(api_url, headers=headers, user_agent="BinderHub")
