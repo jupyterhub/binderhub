@@ -2,6 +2,7 @@
 
 import json
 import sys
+from collections import namedtuple
 from unittest import mock
 from urllib.parse import quote
 
@@ -73,8 +74,18 @@ def test_default_affinity():
 
 
 def test_sticky_builds_affinity():
+    # Setup some mock objects for the response from the k8s API
+    Pod = namedtuple("Pod", "spec")
+    PodSpec = namedtuple("PodSpec", "node_name")
+    PodList = namedtuple("PodList", "items")
+
+    mock_k8s_api = mock.MagicMock()
+    mock_k8s_api.list_namespaced_pod.return_value = PodList(
+        [Pod(PodSpec("node-a")), Pod(PodSpec("node-b"))],
+    )
+
     build = Build(
-        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        mock.MagicMock(), api=mock_k8s_api, name='test_build',
         namespace='build_namespace', repo_url=mock.MagicMock(),
         ref=mock.MagicMock(), build_image=mock.MagicMock(),
         image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
@@ -89,6 +100,9 @@ def test_sticky_builds_affinity():
     assert affinity.node_affinity is not None
     assert affinity.pod_affinity is None
     assert affinity.pod_anti_affinity is None
+
+    # One of the two nodes we have in our mock should be the preferred node
+    assert affinity.node_affinity.preferred_during_scheduling_ignored_during_execution[0].preference.match_fields[0].values[0] in ("node-a", "node-b")
 
 
 def test_git_credentials_passed_to_podspec_upon_submit():

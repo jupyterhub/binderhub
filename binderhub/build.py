@@ -167,6 +167,7 @@ class Build:
             self.namespace,
             label_selector="component=dind,app=binder",
         )
+
         if self.sticky_builds and dind_pods:
             node_names = [pod.spec.node_name for pod in dind_pods.items]
             ranked_nodes = rendezvous_rank(node_names, self.repo_url)
