@@ -1,35 +1,30 @@
 """Miscellaneous utilities"""
 from collections import OrderedDict
 from hashlib import blake2b
-from math import log
 
 from traitlets import Integer, TraitError
 
 
-def blake2b_as_float(b):
-    """Compute Blake2 digest and convert it to a float.
+def blake2b_as_int(b):
+    """Compute digest of the bytes `b` using the Blake2 hash function.
 
-    Use this to create a float [0, 1) based on the Blake2 hash function.
+    Returns a unsigned 64bit integer.
     """
-    return (
-        int.from_bytes(blake2b(b, digest_size=8).digest(), "big") / 0xFFFFFFFFFFFFFFFF
-    )
+    return int.from_bytes(blake2b(b, digest_size=8).digest(), "big")
 
 
 def rendezvous_rank(buckets, key):
     """Rank the buckets for a given key using Rendez-vous hashing
 
-    Each bucket is scored for the key and the best match is assigned the
-    highest score. The return value is a list of tuples of (score, bucket),
-    sorted in decreasing order.
+    Each bucket is scored for the specified key. The return value is a list of
+    all buckets, sorted in decreasing order (highest ranked first).
     """
     ranking = []
     for bucket in buckets:
-        h = blake2b_as_float(b"%s-%s" % (str(key).encode(), str(bucket).encode()))
-        score = 1 / -log(h)
+        score = blake2b_as_int(b"%s-%s" % (str(key).encode(), str(bucket).encode()))
         ranking.append((score, bucket))
 
-    return sorted(ranking, reverse=True)
+    return [b for (s, b) in sorted(ranking, reverse=True)]
 
 
 class ByteSpecification(Integer):

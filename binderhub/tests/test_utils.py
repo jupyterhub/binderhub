@@ -6,20 +6,18 @@ def test_rendezvous_rank():
     # other buckets are removed
     key = "k1"
     first_round = utils.rendezvous_rank(["b1", "b2", "b3"], key)
-    second_round = utils.rendezvous_rank([first_round[0][1], first_round[1][1]], key)
-
-    print(first_round)
+    second_round = utils.rendezvous_rank([first_round[0], first_round[1]], key)
 
     assert first_round[0] == second_round[0], key
 
     key = "sdsdggdddddd"
     first_round = utils.rendezvous_rank(["b1", "b2", "b3"], key)
-    second_round = utils.rendezvous_rank([first_round[0][1], first_round[1][1]], key)
+    second_round = utils.rendezvous_rank([first_round[0], first_round[1]], key)
 
     assert first_round[0] == second_round[0], key
 
     key = "crazy frog is a crazy key"
     first_round = utils.rendezvous_rank(["b1", "b2", "b3"], key)
-    second_round = utils.rendezvous_rank([first_round[0][1], first_round[1][1]], key)
+    second_round = utils.rendezvous_rank([first_round[0], first_round[1]], key)
 
     assert first_round[0] == second_round[0], key

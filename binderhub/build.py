@@ -153,32 +153,43 @@ class Build:
     def get_affinity(self):
         """Determine the affinity term for the build pod.
 
-        There are a total of two affinity strategies, which one is used depends
-        on how the BinderHub is configured.
+        There are a two affinity strategies, which one is used depends on how
+        the BinderHub is configured.
 
         In the default setup the affinity of each build pod is an "anti-affinity"
-        which causes pods to prefer to schedule on separate nodes.
+        which causes the pods to prefer to schedule on separate nodes.
 
-        In a setup with docker-in-docker pods for a particular repository
-        prefer to schedule on the same node in order to reuse the build cache
-        of previous builds.
+        In a setup with docker-in-docker enabled pods for a particular
+        repository prefer to schedule on the same node in order to reuse the
+        docker layer cache of previous builds.
         """
         dind_pods = self.api.list_namespaced_pod(
             self.namespace,
             label_selector="component=dind,app=binder",
         )
         if self.sticky_builds and dind_pods:
-            nodes = dict((item.spec.node_name, item.spec)
-                         for item in dind_pods.items)
-            ranked_nodes = rendezvous_rank(list(nodes.keys), self.repo_url)
-            best_node_name = ranked_nodes[0][1]
-            # we reuse the affinity term of the DIND pod instead of
-            # constructing our own. But we want a soft preference instead of
-            # a hard preference in case that node is full or has gone away
-            # in the meantime
-            affinity = nodes[best_node_name].spec.affinity
-            affinity.node_affinity.preferred_during_scheduling_ignored_during_execution = affinity.node_affinity.required_during_scheduling_ignored_during_execution
-            affinity.node_affinity.required_during_scheduling_ignored_during_execution = None
+            node_names = [pod.spec.node_name for pod in dind_pods.items]
+            ranked_nodes = rendezvous_rank(node_names, self.repo_url)
+            best_node_name = ranked_nodes[0]
+
+            affinity = client.V1Affinity(
+                node_affinity=client.V1NodeAffinity(
+                    preferred_during_scheduling_ignored_during_execution=[
+                        client.V1PreferredSchedulingTerm(
+                            weight=100,
+                            preference=client.V1NodeSelectorTerm(
+                                match_fields=[
+                                    client.V1NodeSelectorRequirement(
+                                        key="metadata.name",
+                                        operator="In",
+                                        values=[best_node_name],
+                                    )
+                                ]
+                            ),
+                        )
+                    ]
+                )
+            )
 
         else:
             affinity = client.V1Affinity(
