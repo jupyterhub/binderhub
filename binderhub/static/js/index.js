@@ -84,6 +84,11 @@ function updateRepoText() {
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
+  else if (provider === "figshare") {
+    text = "Figshare DOI (10.6084/m9.figshare.9782777.v1)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
+  }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
   $("#ref").attr('placeholder', tag_text);
@@ -107,7 +112,7 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zenodo') {
+  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare') {
     ref = "";
   }
   var path = $('#filepath').val().trim();

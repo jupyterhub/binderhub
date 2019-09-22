@@ -217,6 +217,39 @@ class ZenodoProvider(RepoProvider):
         return "zenodo-{}".format(self.record_id)
 
 
+class FigshareProvider(RepoProvider):
+    """Provide contents of a Figshare article
+
+    Users must provide a spec consisting of the Figshare DOI.
+    """
+    name = Unicode("Figshare")
+    url_regex = re.compile(r"(.*)/articles/([^/]+)/(\d+)(/)?(\d+)?")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+
+        match = self.url_regex.match(r.effective_url)
+        article_id = match.groups()[2]
+        article_version = match.groups()[4]
+        if not article_version:
+            article_version = "1"
+        self.record_id = "{}.v{}".format(article_id, article_version)
+
+        return self.record_id
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "figshare-{}".format(self.record_id)
+
+
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 

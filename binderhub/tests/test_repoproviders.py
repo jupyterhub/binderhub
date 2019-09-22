@@ -6,7 +6,7 @@ from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
     tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
-    GitLabRepoProvider, GistRepoProvider, ZenodoProvider
+    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider
 )
 
 
@@ -48,6 +48,21 @@ async def test_zenodo():
 
     slug = provider.get_build_slug()
     assert slug == 'zenodo-3242074'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
+
+
+async def test_figshare():
+    spec = '10.6084/m9.figshare.9782777.v1'
+
+    provider = FigshareProvider(spec=spec)
+
+    # have to resolve the ref first
+    ref = await provider.get_resolved_ref()
+    assert ref == '9782777.v1'
+
+    slug = provider.get_build_slug()
+    assert slug == 'figshare-9782777.v1'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
 
