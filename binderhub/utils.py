@@ -5,7 +5,7 @@ from hashlib import blake2b
 from traitlets import Integer, TraitError
 
 
-def blake2b_as_int(b):
+def blake2b_hash_as_int(b):
     """Compute digest of the bytes `b` using the Blake2 hash function.
 
     Returns a unsigned 64bit integer.
@@ -21,7 +21,12 @@ def rendezvous_rank(buckets, key):
     """
     ranking = []
     for bucket in buckets:
-        score = blake2b_as_int(b"%s-%s" % (str(key).encode(), str(bucket).encode()))
+        # The particular hash function doesn't matter a lot, as long as it is
+        # one that maps the key to a fixed sized value and distributes the keys
+        # uniformly across the output space
+        score = blake2b_hash_as_int(
+            b"%s-%s" % (str(key).encode(), str(bucket).encode())
+        )
         ranking.append((score, bucket))
 
     return [b for (s, b) in sorted(ranking, reverse=True)]
