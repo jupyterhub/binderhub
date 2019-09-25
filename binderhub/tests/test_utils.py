@@ -29,22 +29,22 @@ def test_rendezvous_redistribution():
     # when one is added
     n_keys = 3000
 
-    # counnt how many keys were moved and which bucket were they moved from
+    # count how many keys were moved, which bucket a key started from and
+    # which bucket a key was moved from (to the new bucket)
     n_moved = 0
-    from_b1 = 0
-    from_b2 = 0
+    from_bucket = {"b1": 0, "b2": 0}
+    start_in = {"b1": 0, "b2": 0}
 
     for i in range(n_keys):
         key = f"key-{i}"
         two_buckets = utils.rendezvous_rank(["b1", "b2"], key)
+        start_in[two_buckets[0]] += 1
         three_buckets = utils.rendezvous_rank(["b1", "b2", "b3"], key)
 
         if two_buckets[0] != three_buckets[0]:
             n_moved += 1
-            if two_buckets[0] == "b1":
-                from_b1 += 1
-            if two_buckets[0] == "b2":
-                from_b2 += 1
+            from_bucket[two_buckets[0]] += 1
+
             # should always move to the newly added bucket
             assert three_buckets[0] == "b3"
 
@@ -53,4 +53,8 @@ def test_rendezvous_redistribution():
     assert 0.31 < n_moved / n_keys < 0.35
     # keys should move from the two original buckets with approximately
     # equal probability
-    assert abs(from_b1 - from_b2) < 10
+    assert abs(from_bucket["b1"] - from_bucket["b2"]) < 10
+
+    # use the standard deviation of the expected number of entries in each
+    # bucket to get an idea for a reasonable (order of magnitude) difference
+    assert abs(start_in["b1"] - start_in["b2"]) < (n_keys/2)**0.5
