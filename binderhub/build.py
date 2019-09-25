@@ -181,7 +181,7 @@ class Build:
                             preference=client.V1NodeSelectorTerm(
                                 match_fields=[
                                     client.V1NodeSelectorRequirement(
-                                        key="metadata.name",
+                                        key="kubernetes.io/hostname",
                                         operator="In",
                                         values=[best_node_name],
                                     )
