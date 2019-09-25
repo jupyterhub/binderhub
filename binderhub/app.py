@@ -196,6 +196,19 @@ class BinderHub(Application):
         config=True,
     )
 
+    sticky_builds = Bool(
+        False,
+        help="""
+        Attempt to assign builds for the same repository to the same node.
+
+        In order to speed up re-builds of a repository all its builds will
+        be assigned to the same node in the cluster.
+
+        Note: This feature only works if you also enable docker-in-docker support.
+        """,
+        config=True,
+    )
+
     use_registry = Bool(
         True,
         help="""
@@ -556,6 +569,7 @@ class BinderHub(Application):
             "build_image": self.build_image,
             'build_node_selector': self.build_node_selector,
             'build_pool': self.build_pool,
+            "sticky_builds": self.sticky_builds,
             'log_tail_lines': self.log_tail_lines,
             'pod_quota': self.pod_quota,
             'per_repo_quota': self.per_repo_quota,
