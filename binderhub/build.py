@@ -179,7 +179,7 @@ class Build:
                         client.V1PreferredSchedulingTerm(
                             weight=100,
                             preference=client.V1NodeSelectorTerm(
-                                match_fields=[
+                                match_expressions=[
                                     client.V1NodeSelectorRequirement(
                                         key="kubernetes.io/hostname",
                                         operator="In",
