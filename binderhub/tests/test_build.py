@@ -102,7 +102,7 @@ def test_sticky_builds_affinity():
     assert affinity.pod_anti_affinity is None
 
     # One of the two nodes we have in our mock should be the preferred node
-    assert affinity.node_affinity.preferred_during_scheduling_ignored_during_execution[0].preference.match_fields[0].values[0] in ("node-a", "node-b")
+    assert affinity.node_affinity.preferred_during_scheduling_ignored_during_execution[0].preference.match_expressions[0].values[0] in ("node-a", "node-b")
 
 
 def test_git_credentials_passed_to_podspec_upon_submit():
