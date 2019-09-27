@@ -271,7 +271,7 @@ class BuildHandler(BaseHandler):
         ).replace('_', '-').lower()
 
         if self.settings['use_registry']:
-            image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
+            image_manifest = await self.registry.get_image_manifest(*image_name.split(':', 1))
             image_found = bool(image_manifest)
         else:
             # Check if the image exists locally!
