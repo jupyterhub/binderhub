@@ -6,7 +6,8 @@ from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
     tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
-    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider
+    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider,
+    DataverseProvider
 )
 
 
@@ -96,6 +97,20 @@ async def test_figshare(spec, resolved_spec, resolved_ref, resolved_ref_url, bui
     assert ref_url == resolved_ref_url
     spec = await provider.get_resolved_spec()
     assert spec == resolved_spec
+
+
+async def test_dataverse():
+    spec = '10.7910/DVN/TJCLKP'
+
+    provider = DataverseProvider(spec=spec)
+    # have to resolve the ref first
+    ref = await provider.get_resolved_ref()
+    assert ref == 150599
+
+    slug = provider.get_build_slug()
+    assert slug == 'dataverse-dvn-2ftjclkp'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
 
 
 @pytest.mark.github_api

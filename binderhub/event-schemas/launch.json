@@ -12,7 +12,8 @@
                 "GitLab",
                 "Git",
                 "Zenodo",
-                "Figshare"
+                "Figshare",
+                "Dataverse"
             ],
             "description": "Provider for the repository being launched"
         },
