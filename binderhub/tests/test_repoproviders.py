@@ -69,7 +69,7 @@ async def test_figshare():
 
 
 async def test_hydroshare():
-    spec = 'https://www.hydroshare.org/resource/142c59757ed54de1816777828c9716e7/'
+    spec = 'https://www.hydroshare.org/resource/142c59757ed54de1816777828c9716e7'
 
     provider = HydroshareProvider(spec=spec)
 

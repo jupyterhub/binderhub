@@ -264,8 +264,8 @@ class HydroshareProvider(RepoProvider):
         match = self.url_regex.match(self.spec)
         if not match:
             raise ValueError("The specified Hydroshare resource id was not recognized.")
-        resource_id = match.groups()[0]
-        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(resource_id),
+        self.resource_id = match.groups()[0]
+        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
                           user_agent="BinderHub")
         r = yield client.fetch(req)
         def parse_date(json_body):
@@ -274,13 +274,11 @@ class HydroshareProvider(RepoProvider):
             date = date.split(".")[0]
             return str(int(time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%S"))))
         # date last updated is only good for the day... probably need something finer eventually
-        self.record_id = "{}.v{}".format(resource_id, parse_date(r.body))
+        self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
         return self.record_id
 
     def get_repo_url(self):
-        # While called repo URL, the return value of this function is passed
-        # as argument to repo2docker, hence we return the spec as is.
-        return self.spec
+        return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
 
     def get_build_slug(self):
         return "hydroshare-{}".format(self.record_id)
