@@ -90,7 +90,7 @@ function updateRepoText() {
     $("label[for=ref]").prop("disabled", true);
   }
   else if (provider === "hydroshare") {
-    text = "Hydroshare resource URL (https://www.hydroshare.org/resource/)";
+    text = "Hydroshare resource id or URL";
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
