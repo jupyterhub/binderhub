@@ -317,7 +317,11 @@ class DataverseProvider(RepoProvider):
         assert resp["status"] == "OK"
 
         self.identifier = resp["data"]["identifier"]
-        self.record_id = resp["data"]["latestVersion"]["id"]
+        self.record_id = "{datasetId}.v{major}.{minor}".format(
+            datasetId=resp["data"]["id"],
+            major=resp["data"]["latestVersion"]["versionNumber"],
+            minor=resp["data"]["latestVersion"]["versionMinorNumber"],
+        )
         return self.record_id
 
     def get_repo_url(self):

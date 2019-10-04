@@ -105,7 +105,7 @@ async def test_dataverse():
     provider = DataverseProvider(spec=spec)
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
-    assert ref == 150599
+    assert ref == '3035124.v3.0'
 
     slug = provider.get_build_slug()
     assert slug == 'dataverse-dvn-2ftjclkp'
