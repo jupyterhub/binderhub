@@ -225,9 +225,9 @@ class ZenodoProvider(RepoProvider):
         return self.record_id
 
     async def get_resolved_spec(self):
-        if not hasattr(self, 'resolved_ref'):
-            self.resolved_ref = await self.get_resolved_ref()
-        resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.resolved_ref
+        if not hasattr(self, 'record_id'):
+            self.record_id = await self.get_resolved_ref()
+        resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.record_id
         return resolved_spec
 
     def get_repo_url(self):
@@ -268,12 +268,12 @@ class FigshareProvider(RepoProvider):
         return self.record_id
 
     async def get_resolved_spec(self):
-        if not hasattr(self, 'resolved_ref'):
-            self.resolved_ref = await self.get_resolved_ref()
+        if not hasattr(self, 'record_id'):
+            self.record_id = await self.get_resolved_ref()
 
         # spec without version is accepted as version 1 - check get_resolved_ref method
         # so we first strip article id and version and add it again
-        resolved_spec = self.spec.split("figshare")[0] + "figshare." + self.resolved_ref
+        resolved_spec = self.spec.split("figshare")[0] + "figshare." + self.record_id
         return resolved_spec
 
     def get_repo_url(self):
