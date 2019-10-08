@@ -258,13 +258,17 @@ class HydroshareProvider(RepoProvider):
     name = Unicode("Hydroshare")
     url_regex = re.compile(r".*([0-9a-f]{32}).*")
 
+    def _parse_resource_id(self, spec):
+        match = self.url_regex.match(spec)
+        if not match:
+            raise ValueError("The specified Hydroshare resource id was not recognized.")
+        resource_id = match.groups()[0]
+        return resource_id
+
     @gen.coroutine
     def get_resolved_ref(self):
         client = AsyncHTTPClient()
-        match = self.url_regex.match(self.spec)
-        if not match:
-            raise ValueError("The specified Hydroshare resource id was not recognized.")
-        self.resource_id = match.groups()[0]
+        self.resource_id = self._parse_resource_id(self.spec)
         req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
                           user_agent="BinderHub")
         r = yield client.fetch(req)
@@ -278,6 +282,7 @@ class HydroshareProvider(RepoProvider):
         return self.record_id
 
     def get_repo_url(self):
+        self.resource_id = self._parse_resource_id(self.spec)
         return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
 
     def get_build_slug(self):
