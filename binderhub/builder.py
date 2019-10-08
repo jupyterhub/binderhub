@@ -319,7 +319,7 @@ class BuildHandler(BaseHandler):
         resolved_spec = await provider.get_resolved_spec()
         persistent_binder_url = f"{self.request.protocol}://{self.request.host}{self.settings['base_url']}v2/" \
                                 f"{provider_prefix}/{resolved_spec}"
-        ref_url = await provider.get_ref_url()
+        ref_url = await provider.get_resolved_ref_url()
         appendix = self.settings['appendix'].format(
             binder_url=binder_url,
             repo_url=repo_url,

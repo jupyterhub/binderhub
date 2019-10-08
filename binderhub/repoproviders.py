@@ -174,7 +174,7 @@ class RepoProvider(LoggingConfigurable):
         raise NotImplementedError("Must be overridden in the child class")
 
     @gen.coroutine
-    def get_ref_url(self):
+    def get_resolved_ref_url(self):
         """Return the URL of repository at this commit in history"""
         raise NotImplementedError("Must be overridden in child class")
 
@@ -201,7 +201,7 @@ class FakeProvider(RepoProvider):
     def get_repo_url(self):
         return "https://example.com/fake/repo.git"
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         return "https://example.com/fake/repo/tree/1a2b3c4d5e6f"
 
     def get_build_slug(self):
@@ -232,7 +232,7 @@ class ZenodoProvider(RepoProvider):
         # as argument to repo2docker, hence we return the spec as is.
         return self.spec
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         return f"https://doi.org/{self.spec}"
 
     def get_build_slug(self):
@@ -271,7 +271,7 @@ class FigshareProvider(RepoProvider):
         # as argument to repo2docker, hence we return the spec as is.
         return self.spec
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         return f"https://doi.org/{self.spec}"
 
     def get_build_slug(self):
@@ -338,7 +338,7 @@ class GitRepoProvider(RepoProvider):
     def get_repo_url(self):
         return self.repo
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         # not possible to construct ref url of unknown git provider
         return self.get_repo_url()
 
@@ -459,7 +459,7 @@ class GitLabRepoProvider(RepoProvider):
     def get_repo_url(self):
         return f"https://{self.hostname}/{self.namespace}.git"
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         if not hasattr(self, 'resolved_ref'):
             self.resolved_ref = await self.get_resolved_ref()
         return f"https://{self.hostname}/{self.namespace}/tree/{self.resolved_ref}"
@@ -548,7 +548,7 @@ class GitHubRepoProvider(RepoProvider):
     def get_repo_url(self):
         return f"https://{self.hostname}/{self.user}/{self.repo}"
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         if not hasattr(self, 'resolved_ref'):
             self.resolved_ref = await self.get_resolved_ref()
         return f"https://{self.hostname}/{self.user}/{self.repo}/tree/{self.resolved_ref}"
@@ -715,7 +715,7 @@ class GistRepoProvider(GitHubRepoProvider):
     def get_repo_url(self):
         return f'https://{self.hostname}/{self.user}/{self.gist_id}.git'
 
-    async def get_ref_url(self):
+    async def get_resolved_ref_url(self):
         if not hasattr(self, 'resolved_ref'):
             self.resolved_ref = await self.get_resolved_ref()
         return f'https://{self.hostname}/{self.user}/{self.gist_id}/{self.resolved_ref}'

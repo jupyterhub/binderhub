@@ -50,7 +50,7 @@ async def test_zenodo():
     assert slug == 'zenodo-3242074'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
-    ref_url = await provider.get_ref_url()
+    ref_url = await provider.get_resolved_ref_url()
     assert ref_url == f"https://doi.org/{spec}"
     resolved_spec = await provider.get_resolved_spec()
     assert resolved_spec == spec
@@ -69,7 +69,7 @@ async def test_figshare():
     assert slug == 'figshare-9782777.v1'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
-    ref_url = await provider.get_ref_url()
+    ref_url = await provider.get_resolved_ref_url()
     assert ref_url == f"https://doi.org/{spec}"
     resolved_spec = await provider.get_resolved_spec()
     assert resolved_spec == spec
@@ -86,7 +86,7 @@ def test_github_ref():
     assert full_url == f'https://github.com/{namespace}'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
-    ref_url = IOLoop().run_sync(provider.get_ref_url)
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == f'https://github.com/{namespace}/tree/{ref}'
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == f'{namespace}/{ref}'
@@ -263,7 +263,7 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     assert full_url == url
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == resolved_ref
-    ref_url = IOLoop().run_sync(provider.get_ref_url)
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == full_url
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == quote(url, safe='') + f'/{resolved_ref}'
@@ -282,7 +282,7 @@ def test_gitlab_ref():
     assert full_url == f'https://gitlab.com/{namespace}.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
-    ref_url = IOLoop().run_sync(provider.get_ref_url)
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == f'https://gitlab.com/{namespace}/tree/{ref}'
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == quote(namespace, safe='') + f'/{ref}'
@@ -299,7 +299,7 @@ def test_gist_ref():
     assert full_url == f'https://gist.github.com/{spec}.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
-    ref_url = IOLoop().run_sync(provider.get_ref_url)
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == f'https://gist.github.com/{spec}/{ref}'
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == f'{spec}/{ref}'
