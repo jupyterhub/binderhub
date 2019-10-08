@@ -225,7 +225,10 @@ class ZenodoProvider(RepoProvider):
         return self.record_id
 
     async def get_resolved_spec(self):
-        return self.spec
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.resolved_ref
+        return resolved_spec
 
     def get_repo_url(self):
         # While called repo URL, the return value of this function is passed
@@ -233,7 +236,8 @@ class ZenodoProvider(RepoProvider):
         return self.spec
 
     async def get_resolved_ref_url(self):
-        return f"https://doi.org/{self.spec}"
+        resolved_spec = await self.get_resolved_spec()
+        return f"https://doi.org/{resolved_spec}"
 
     def get_build_slug(self):
         return "zenodo-{}".format(self.record_id)
@@ -264,7 +268,13 @@ class FigshareProvider(RepoProvider):
         return self.record_id
 
     async def get_resolved_spec(self):
-        return self.spec
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+
+        # spec without version is accepted as version 1 - check get_resolved_ref method
+        # so we first strip article id and version and add it again
+        resolved_spec = self.spec.split("figshare")[0] + "figshare." + self.resolved_ref
+        return resolved_spec
 
     def get_repo_url(self):
         # While called repo URL, the return value of this function is passed
@@ -272,13 +282,8 @@ class FigshareProvider(RepoProvider):
         return self.spec
 
     async def get_resolved_ref_url(self):
-        if not hasattr(self, 'resolved_ref'):
-            self.resolved_ref = await self.get_resolved_ref()
-
-        # spec without version is accepted as version 1 - check get_resolved_ref method
-        # so we first strip article id and version and add it again
-        spec = self.spec.rstrip(self.resolved_ref) + "." + self.resolved_ref
-        return f"https://doi.org/{spec}"
+        resolved_spec = await self.get_resolved_spec()
+        return f"https://doi.org/{resolved_spec}"
 
     def get_build_slug(self):
         return "figshare-{}".format(self.record_id)

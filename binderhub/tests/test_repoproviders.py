@@ -37,36 +37,48 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_ref == unresolved_ref
 
 
-async def test_zenodo():
-    spec = '10.5281/zenodo.3242074'
-
+@pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
+    ['10.5281/zenodo.3242074',
+     '10.5281/zenodo.3242074',
+     '3242074',
+     'https://doi.org/10.5281/zenodo.3242074',
+     'zenodo-3242074'],
+    ['10.5281/zenodo.3242073',
+     '10.5281/zenodo.3242074',
+     '3242074',
+     'https://doi.org/10.5281/zenodo.3242074',
+     'zenodo-3242074'],
+])
+async def test_zenodo(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = ZenodoProvider(spec=spec)
 
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
-    assert ref == '3242074'
+    assert ref == resolved_ref
 
     slug = provider.get_build_slug()
-    assert slug == 'zenodo-3242074'
+    assert slug == build_slug
     repo_url = provider.get_repo_url()
     assert repo_url == spec
     ref_url = await provider.get_resolved_ref_url()
-    assert ref_url == f"https://doi.org/{spec}"
-    resolved_spec = await provider.get_resolved_spec()
-    assert resolved_spec == spec
+    assert ref_url == resolved_ref_url
+    spec = await provider.get_resolved_spec()
+    assert spec == resolved_spec
 
 
-@pytest.mark.parametrize('spec,resolved_ref,resolved_ref_url,build_slug', [
+@pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
     ['10.6084/m9.figshare.9782777.v1',
+     '10.6084/m9.figshare.9782777.v1',
      '9782777.v1',
      'https://doi.org/10.6084/m9.figshare.9782777.v1',
      'figshare-9782777.v1'],
     ['10.6084/m9.figshare.9782777',
+     '10.6084/m9.figshare.9782777.v1',
      '9782777.v1',
      'https://doi.org/10.6084/m9.figshare.9782777.v1',
      'figshare-9782777.v1'],
 ])
-async def test_figshare(spec, resolved_ref, resolved_ref_url, build_slug):
+async def test_figshare(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = FigshareProvider(spec=spec)
 
     # have to resolve the ref first
@@ -79,8 +91,8 @@ async def test_figshare(spec, resolved_ref, resolved_ref_url, build_slug):
     assert repo_url == spec
     ref_url = await provider.get_resolved_ref_url()
     assert ref_url == resolved_ref_url
-    resolved_spec = await provider.get_resolved_spec()
-    assert resolved_spec == spec
+    spec = await provider.get_resolved_spec()
+    assert spec == resolved_spec
 
 
 @pytest.mark.github_api
