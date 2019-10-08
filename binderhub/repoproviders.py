@@ -272,7 +272,13 @@ class FigshareProvider(RepoProvider):
         return self.spec
 
     async def get_resolved_ref_url(self):
-        return f"https://doi.org/{self.spec}"
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+
+        # spec without version is accepted as version 1 - check get_resolved_ref method
+        # so we first strip article id and version and add it again
+        spec = self.spec.rstrip(self.resolved_ref) + "." + self.resolved_ref
+        return f"https://doi.org/{spec}"
 
     def get_build_slug(self):
         return "figshare-{}".format(self.record_id)
