@@ -314,11 +314,21 @@ class BuildHandler(BaseHandler):
 
         BuildClass = FakeBuild if self.settings.get('fake_build') else Build
 
-        binder_url = f"{self.request.protocol}://{self.request.host}{self.settings['base_url']}v2/" \
-                     f"{provider_prefix}/{spec}"
+        binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
+            proto=self.request.protocol,
+            host=self.request.host,
+            base_url=self.settings['base_url'],
+            provider=provider_prefix,
+            spec=spec,
+        )
         resolved_spec = await provider.get_resolved_spec()
-        persistent_binder_url = f"{self.request.protocol}://{self.request.host}{self.settings['base_url']}v2/" \
-                                f"{provider_prefix}/{resolved_spec}"
+        persistent_binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
+            proto=self.request.protocol,
+            host=self.request.host,
+            base_url=self.settings['base_url'],
+            provider=provider_prefix,
+            spec=resolved_spec,
+        )
         ref_url = await provider.get_resolved_ref_url()
         appendix = self.settings['appendix'].format(
             binder_url=binder_url,
