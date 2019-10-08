@@ -227,6 +227,9 @@ class ZenodoProvider(RepoProvider):
     async def get_resolved_spec(self):
         if not hasattr(self, 'record_id'):
             self.record_id = await self.get_resolved_ref()
+        # zenodo registers a DOI which represents all versions.
+        # and it always resolves to latest version
+        # for that case, we have to replace it with record id
         resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.record_id
         return resolved_spec
 
