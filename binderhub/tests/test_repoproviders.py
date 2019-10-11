@@ -43,7 +43,7 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
      '3242074',
      'https://doi.org/10.5281/zenodo.3242074',
      'zenodo-3242074'],
-    # 10.5281/zenodo.705645 -> This DOI represents all versions, and will always resolve to the latest one
+    # 10.5281/zenodo.3242073 -> This DOI represents all versions, and will always resolve to the latest one
     # for now it is 3242074
     ['10.5281/zenodo.3242073',
      '10.5281/zenodo.3242074',
