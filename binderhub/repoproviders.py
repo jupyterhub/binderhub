@@ -227,9 +227,10 @@ class ZenodoProvider(RepoProvider):
     async def get_resolved_spec(self):
         if not hasattr(self, 'record_id'):
             self.record_id = await self.get_resolved_ref()
-        # zenodo registers a DOI which represents all versions.
+        # zenodo registers a DOI which represents all versions of a software package
         # and it always resolves to latest version
-        # for that case, we have to replace it with record id
+        # for that case, we have to replace the version number in DOIs with
+        # the specific (resolved) version (record_id)
         resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.record_id
         return resolved_spec
 
@@ -275,7 +276,8 @@ class FigshareProvider(RepoProvider):
             self.record_id = await self.get_resolved_ref()
 
         # spec without version is accepted as version 1 - check get_resolved_ref method
-        # so we first strip article id and version and add it again
+        # for that case, we have to replace the version number in DOIs with
+        # the specific (resolved) version (record_id)
         resolved_spec = self.spec.split("figshare")[0] + "figshare." + self.record_id
         return resolved_spec
 
