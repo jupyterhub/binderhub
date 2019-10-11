@@ -19,14 +19,12 @@ you need to add the following into ``config.yaml``:
         users: False
 
       hub:
+        redirectToServer: false
         services:
           binder:
             oauth_redirect_uri: "http://<binderhub_url>/oauth_callback"
             oauth_client_id: "binder-oauth-client-test"
         extraConfig:
-          hub_extra: |
-            c.JupyterHub.redirect_to_server = False
-
           binder: |
             from kubespawner import KubeSpawner
 
@@ -83,6 +81,9 @@ you have to enable named servers on JupyterHub:
     jupyterhub:
       hub:
         allowNamedServers: true
+        # change this value as you wish,
+        # or remove this line if you don't want to have any limit
+        namedServerLimitPerUser: 5
 
 .. note::
     BinderHub assigns a unique name to each server with max 40 characters.
