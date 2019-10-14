@@ -82,6 +82,20 @@ async def test_hydroshare():
     assert repo_url == spec
 
 
+async def test_hydroshare_doi():
+    spec = '10.4211/hs.b8f6eae9d89241cf8b5904033460af61'
+
+    provider = HydroshareProvider(spec=spec)
+
+    ref = await provider.get_resolved_ref()
+    assert ref == 'b8f6eae9d89241cf8b5904033460af61.v1565467392'
+
+    slug = provider.get_build_slug()
+    assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565467392'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
+
+
 @pytest.mark.github_api
 def test_github_ref():
     provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4')
