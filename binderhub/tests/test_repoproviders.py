@@ -88,10 +88,10 @@ async def test_hydroshare_doi():
     provider = HydroshareProvider(spec=spec)
 
     ref = await provider.get_resolved_ref()
-    assert ref == 'b8f6eae9d89241cf8b5904033460af61.v1565467392'
+    assert ref == 'b8f6eae9d89241cf8b5904033460af61.v1565445792'
 
     slug = provider.get_build_slug()
-    assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565467392'
+    assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565445792'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
 
