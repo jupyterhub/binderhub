@@ -274,9 +274,15 @@ class HydroshareProvider(RepoProvider):
         r = yield client.fetch(req)
         def parse_date(json_body):
             json_response = json.loads(json_body)
-            date = next(item for item in json_response["dates"] if item["type"] == "modified")["start_date"]
+            date = next(
+                item for item in json_response["dates"] if item["type"] == "modified"
+            )["start_date"]
+            # Hydroshare timestamp always returns the same timezone, so strip it
             date = date.split(".")[0]
-            return str(int(time.mktime(time.strptime(date, "%Y-%m-%dT%H:%M:%S"))))
+            parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+            epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
+            # truncate the timestamp
+            return str(int(epoch))
         # date last updated is only good for the day... probably need something finer eventually
         self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
         return self.record_id
