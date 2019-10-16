@@ -93,7 +93,7 @@ async def test_hydroshare_doi():
     slug = provider.get_build_slug()
     assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565445792'
     repo_url = provider.get_repo_url()
-    assert repo_url == spec
+    assert repo_url ==  'https://www.hydroshare.org/resource/b8f6eae9d89241cf8b5904033460af61'
 
 
 @pytest.mark.github_api
