@@ -287,7 +287,7 @@ introduced, particularly when bumping major versions of JupyterHub.
 
 Checklist for creating BinderHub releases. For PyPI packaging read https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi
 
-* update/close the `CHANGES.rst` for this release
+* update/close the `CHANGES.md` for this release (see below)
 * create a git tag for the release
 * `pip install twine`
 * `python setup.py sdist`
@@ -297,3 +297,17 @@ Checklist for creating BinderHub releases. For PyPI packaging read https://packa
 * `twine upload dist/*`
 * create a new release on https://github.com/jupyterhub/binderhub/releases
 * add a new section at the top of the change log for future releases
+
+### Bumping the changelog
+
+As BinderHub does not have a typical semver release schedule, we try to
+update the changelog in `CHANGES.md` every three months. A useful tool
+for this [can be found here](https://github.com/choldgraf/github-activity).
+If you choose to use this tool, the command that generated current sections
+in the changelog is below:
+
+```bash
+github-activity jupyterhub/binderhub -s <START-DATE> -u <END-DATE> --tags enhancement,bug --strip-brackets
+```
+
+Copy and paste the output of this command into a new section in `CHANGES.md`.
