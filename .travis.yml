@@ -33,7 +33,13 @@ after_failure:
   - |
     # get pod logs
     kubectl get pod --all-namespaces
+    echo
+    echo
+    # get services
+    kubectl get svc --all-namespaces
     for pod in $(kubectl get pod --no-headers --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
+      echo
+      echo
       echo $pod
       kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
     done
