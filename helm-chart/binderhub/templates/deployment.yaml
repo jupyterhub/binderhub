@@ -6,7 +6,7 @@ spec:
   replicas: {{ .Values.replicas }}
   strategy:
     rollingUpdate:
-        {{- if eq .Values.replicas 1.0 }}
+        {{- if eq (.Values.replicas | int) 1 }}
         maxSurge: 1
         maxUnavailable: 0
         {{- end }}
