@@ -8,6 +8,7 @@ import json
 import string
 import time
 import escapism
+import re
 
 import docker
 from tornado.concurrent import chain_future, Future
@@ -187,6 +188,30 @@ class BuildHandler(BaseHandler):
             'message': message + '\n',
         })
 
+    @staticmethod
+    def _get_image_basename_and_tag(full_name):
+        """Get a supposed image name and tag without the registry part
+
+        :param full_name: full image specification, e.g. "gitlab.com/user/project:tag"
+        :return: tuple of image name and tag, e.g. ("user/project", "tag")
+        """
+        # the tag is either after the last (and only) colon, or not given at all, in which case "latest" is implied
+        tag_splits = full_name.rsplit(':', 1)
+        if len(tag_splits) == 2:
+            image_name = tag_splits[0]
+            tag = tag_splits[1]
+        else:
+            image_name = full_name
+            tag = 'latest'
+
+        if re.fullmatch('[a-z0-9]{4,30}/[a-z0-9\._-]{2,255}', image_name):
+            # if it looks like a Docker Hub image name, we're done
+            return image_name, tag
+        else:
+            # if the image isn't implied to origin at Docker Hub, the first part has to be a registry
+            image_basename = '/'.join(image_name.split('/')[1:])
+            return image_basename, tag
+
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
@@ -271,7 +296,7 @@ class BuildHandler(BaseHandler):
         ).replace('_', '-').lower()
 
         if self.settings['use_registry']:
-            image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
+            image_manifest = await self.registry.get_image_manifest(*self._get_image_basename_and_tag(image_name))
             image_found = bool(image_manifest)
         else:
             # Check if the image exists locally!
