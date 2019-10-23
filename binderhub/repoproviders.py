@@ -593,6 +593,7 @@ class GitHubRepoProvider(RepoProvider):
             elif (
                 e.code == 403
                 and e.response
+                and 'x-ratelimit-remaining' in e.response.headers
                 and e.response.headers.get('x-ratelimit-remaining') == '0'
             ):
                 rate_limit = e.response.headers['x-ratelimit-limit']
@@ -617,28 +618,30 @@ class GitHubRepoProvider(RepoProvider):
             else:
                 raise
 
-        # record and log github rate limit
-        remaining = int(resp.headers['x-ratelimit-remaining'])
-        rate_limit = int(resp.headers['x-ratelimit-limit'])
-        reset_timestamp = int(resp.headers['x-ratelimit-reset'])
+        if 'x-ratelimit-remaining' in resp.headers:
+            # record and log github rate limit
+            remaining = int(resp.headers['x-ratelimit-remaining'])
+            rate_limit = int(resp.headers['x-ratelimit-limit'])
+            reset_timestamp = int(resp.headers['x-ratelimit-reset'])
 
-        # record with prometheus
-        GITHUB_RATE_LIMIT.set(remaining)
+            # record with prometheus
+            GITHUB_RATE_LIMIT.set(remaining)
 
-        # log at different levels, depending on remaining fraction
-        fraction = remaining / rate_limit
-        if fraction < 0.2:
-            log = self.log.warning
-        elif fraction < 0.5:
-            log = self.log.info
-        else:
-            log = self.log.debug
+            # log at different levels, depending on remaining fraction
+            fraction = remaining / rate_limit
+            if fraction < 0.2:
+                log = self.log.warning
+            elif fraction < 0.5:
+                log = self.log.info
+            else:
+                log = self.log.debug
 
-        # str(timedelta) looks like '00:32'
-        delta = timedelta(seconds=int(reset_timestamp - time.time()))
-        log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
-            remaining=remaining, limit=rate_limit, delta=delta,
-        ))
+            # str(timedelta) looks like '00:32'
+            delta = timedelta(seconds=int(reset_timestamp - time.time()))
+            log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
+                remaining=remaining, limit=rate_limit, delta=delta,
+            ))
+        
         return resp
 
     @gen.coroutine
