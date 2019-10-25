@@ -496,6 +496,17 @@ class GitHubRepoProvider(RepoProvider):
         e.g. GitHub Enterprise.
         """)
 
+    api_base_path = Unicode('https://api.{hostname}',
+        config=True,
+        help="""The base path of the GitHub API
+        
+        Only necessary if not github.com,
+        e.g. GitHub Enterprise.
+
+        Can use {hostname} for substitution,
+        e.g. 'https://{hostname}/api/v3'
+        """)
+
     client_id = Unicode(config=True,
         help="""GitHub client id for authentication with the GitHub API
 
@@ -649,9 +660,9 @@ class GitHubRepoProvider(RepoProvider):
         if hasattr(self, 'resolved_ref'):
             return self.resolved_ref
 
-        api_url = "https://api.{hostname}/repos/{user}/{repo}/commits/{ref}".format(
-            user=self.user, repo=self.repo, ref=self.unresolved_ref,
-            hostname=self.hostname,
+        api_url = "{api_base_path}/repos/{user}/{repo}/commits/{ref}".format(
+            api_base_path=self.api_base_path.format(hostname=self.hostname), 
+            user=self.user, repo=self.repo, ref=self.unresolved_ref
         )
         self.log.debug("Fetching %s", api_url)
         cached = self.cache.get(api_url)
