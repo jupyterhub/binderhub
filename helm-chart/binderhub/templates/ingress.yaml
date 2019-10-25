@@ -21,7 +21,7 @@ spec:
           - path: /
             backend:
               serviceName: binder
-              servicePort: 8585
+              servicePort: 80
     {{- end }}
   {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
   tls:
