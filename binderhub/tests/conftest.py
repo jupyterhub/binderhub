@@ -222,9 +222,9 @@ def cleanup_pods(namespace, labels):
         print(f"deleting pod {pod.metadata.name}")
         try:
             kube.delete_namespaced_pod(
-                pod.metadata.name,
-                namespace,
-                kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
+                name=pod.metadata.name,
+                namespace=namespace,
+                body=kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
             )
         except kubernetes.client.rest.ApiException as e:
             # ignore 404, 409: already gone
