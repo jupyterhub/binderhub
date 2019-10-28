@@ -510,9 +510,13 @@ class BuildHandler(BaseHandler):
                 server_name = ''
             try:
                 async def handle_progress_event(event):
+                    message = event['message']
+                    if message.startswith("20"):
+                        # remove timestamp and type info from message
+                        message = message.split(' ', 3)[-1]
                     await self.emit({
                         'phase': 'launching',
-                        'message': '{}\n'.format(event['message']),
+                        'message': '{}\n'.format(message),
                         })
                 server_info = await launcher.launch(image=self.image_name, username=username,
                                                     server_name=server_name, repo_url=self.repo_url,
