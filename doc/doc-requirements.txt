@@ -9,7 +9,7 @@ ruamel.yaml
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
-kubernetes>=4.*
+kubernetes==9.0.*
 escapism
 tornado
 traitlets
