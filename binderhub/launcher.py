@@ -210,7 +210,7 @@ class Launcher(LoggingConfigurable):
                 progress_api_url = url_path_join(*url_parts)
                 resp_future = self.api_request(progress_api_url, streaming_callback=handle_chunk)
                 try:
-                    await gen.with_timeout(timedelta(self.launch_timeout), resp_future)
+                    await gen.with_timeout(timedelta(seconds=self.launch_timeout), resp_future)
                 except gen.TimeoutError:
                     raise web.HTTPError(500, "Image %s for user %s took too long to launch" % (image, username))
 
