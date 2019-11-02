@@ -378,7 +378,15 @@ class BinderHub(Application):
         """,
         config=True,
     )
-    @validate('hub_url')
+
+    hub_url_public = Unicode(
+        help="""
+        The public base URL of the JupyterHub instance where users will run if different from hub_url
+        """,
+        config=True,
+    )
+
+    @validate('hub_url', 'hub_url_public')
     def _add_slash(self, proposal):
         """trait validator to ensure hub_url ends with a trailing slash"""
         if proposal.value is not None and not proposal.value.endswith('/'):
@@ -577,6 +585,7 @@ class BinderHub(Application):
         self.launcher = Launcher(
             parent=self,
             hub_url=self.hub_url,
+            hub_url_public=self.hub_url_public,
             hub_api_token=self.hub_api_token,
             create_user=not self.auth_enabled,
         )
