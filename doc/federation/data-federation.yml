@@ -13,8 +13,8 @@
   run_by_link: https://www.ovh.com/world/
 
 - url_binderhub: https://gesis.mybinder.org
-  logo: https://notebooks.gesis.org/static/images/gs_home_logo_en.svg
+  logo: https://notebooks.gesis.org/static/images/logo/logo_big_square_transparent.png
   funded_by: GESIS
-  funded_by_link: https://notebooks.gesis.org/
-  run_by: The GESIS Notebooks team
-  run_by_link: https://notebooks.gesis.org/
+  funded_by_link: https://www.gesis.org/en/home
+  run_by: The GESIS Notebooks Team
+  run_by_link: https://notebooks.gesis.org/about/
