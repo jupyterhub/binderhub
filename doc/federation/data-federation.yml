@@ -11,3 +11,10 @@
   funded_by_link: https://www.ovh.com/world/
   run_by: The OVH Team
   run_by_link: https://www.ovh.com/world/
+
+- url_binderhub: https://gesis.mybinder.org
+  logo: https://notebooks.gesis.org/static/images/gs_home_logo_en.svg
+  funded_by: GESIS
+  funded_by_link: https://notebooks.gesis.org/
+  run_by: The GESIS Notebooks team
+  run_by_link: https://notebooks.gesis.org/
