@@ -405,7 +405,7 @@ class BuildHandler(BaseHandler):
                     # We expect logs to be already JSON structured anyway
                     event = progress['payload']
                     payload = json.loads(event)
-                    if payload.get('phase') == 'failure':
+                    if payload.get('phase') in ('failure', 'failed'):
                         failed = True
                         BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
                         BUILD_COUNT.labels(status='failure', **self.repo_metric_labels).inc()
