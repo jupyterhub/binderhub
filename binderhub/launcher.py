@@ -228,5 +228,5 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = url_path_join(self.hub_url, ready_event_container[0]['url'])
+        data['url'] = url_path_join(self.hub_url, 'user/{}/{}'.format(username, server_name))
         return data
