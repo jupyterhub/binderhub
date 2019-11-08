@@ -211,6 +211,7 @@ class BinderHub(Application):
         Registry class implementation, change to define your own
         """,
         config=True
+    )
       
     sticky_builds = Bool(
         False,
