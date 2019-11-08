@@ -330,8 +330,15 @@ You now have a functioning BinderHub at the above IP address.
 
 .. _api-limit:
 
+Customizing your Deployment
+---------------------------
+
+The Helm chart used to install your BinderHub deployemnt exposes a number of
+optional features. Below we describe a few of the most common customizations
+and how you can configure them.
+
 Increase your GitHub API limit
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
 
@@ -353,18 +360,15 @@ an API access token to raise your API limit to 5000 requests an hour.
       GitHubRepoProvider:
         access_token: <insert_token_value_here>
 
-This value will be loaded into `GITHUB_ACCESS_TOKEN` environment variable and
-BinderHub will automatically use the token stored in this variable when making
+BinderHub will use this token when making
 API requests to GitHub. See the `GitHub authentication documentation
 <https://developer.github.com/v3/guides/getting-started/#authentication>`_ for
 more information about API limits.
 
-For next steps, see :doc:`debug` and :doc:`turn-off`.
-
 .. _private-repos:
 
 Accessing private repositories
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, BinderHub doesn't have access to private repositories
 (repositories that require credentials to clone).
@@ -381,7 +385,7 @@ you want BinderHub to be able to build.
   BinderHub.
 
 GitHub
-~~~~~~
+^^^^^^
 
 Granting permission follows the the same steps above in :ref:`api-limit` to create
 a GitHub access token and configure BinderHub to use it.
@@ -403,7 +407,7 @@ time at `the token administration page <https://github.com/settings/tokens>`_.
    GitHub will allow more granular permissions for private repos.
 
 GitLab
-~~~~~~
+^^^^^^
 
 To access private GitLab repos, create an API token for your binderhub user
 under "User Settings" > "Access tokens". It at least needs the scopes "api" and
@@ -418,5 +422,34 @@ Then update ``secret.yaml`` with the following::
         private_token: <insert_token_value_here>
 
 This token will be used for accessing the GitLab API, and is also used as the
-git password when cloning repos. With this token, no username is required to
+Git password when cloning repos. With this token, no username is required to
 clone a repo.
+
+.. _dind:
+
+Use Docker-inside-Docker (DinD)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, BinderHub will build pods with the host Docker installation.
+This often means you are stuck with whatever version of Docker provided by your
+cloud provider. BinderHub supports an alternative that uses `Docker-in-Docker
+(DinD) <https://hub.docker.com/_/docker>`_. To turn `dind` on, you'll need to set
+the following configuration in your ``config.yaml`` file::
+
+    dind:
+      enabled: true
+      daemonset:
+        image:
+          name: docker
+          tag: 18.09.2-dind
+
+If you plan to host multiple BinderHub deployments on the same kubernetes
+cluster, you'll also need to isolate the host socket and library directory
+for each DinD application::
+
+    dind:
+      hostLibDir: /var/lib/dind/"<name of deployment, e.g. staging>"
+      hostSocketDir: /var/run/dind/"<name of deployment, e.g. staging>"
+
+
+For next steps, see :doc:`debug` and :doc:`turn-off`.

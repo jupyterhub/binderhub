@@ -59,7 +59,10 @@ auth:
     className: "nullauthenticator.NullAuthenticator"
 
 prePuller:
-  enabled: false
+  hook:
+    enabled: false
+  continuous:
+    enabled: false
 
 proxy:
   # Another secret!

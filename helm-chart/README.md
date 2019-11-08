@@ -22,7 +22,7 @@ Charts are Helm packages that contain at least two things:
 
 ## Contents of this repository
 
-### `jupyterhub` folder
+### `binderhub` folder
 
 Fundamental elements of a chart including:
 

@@ -108,7 +108,7 @@ every day development.
 
 * Start and stop minikube with `minikube start` and `minikube stop`.
 * Install JupyterHub in minikube with helm `./testing/minikube/install-hub`
-* Setup docker to use the same docker daemon as your minikube cluster `eval $(minikube docker-env)`
+* Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
 * Start BinderHub `python3 -m binderhub -f testing/minikube/binderhub_config.py`
 * Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
 
@@ -209,7 +209,7 @@ sudo apt install socat
    eval $(minikube docker-env)
    ```
 
-  This command sets up docker to use the same docker daemon as your minikube
+  This command sets up `docker` to use the same Docker daemon as your minikube
   cluster does. This means images you build are directly available to the
   cluster. Note: when you no longer wish to use the minikube host, you can
   undo this change by running:
@@ -228,6 +228,26 @@ sudo apt install socat
 
 All features should work, including building and launching of repositories.
 
+
+### Tip: Use local repo2docker version
+
+BinderHub runs repo2docker in a container.
+For testing the combination of an unreleased repo2docker feature with BinderHub, you can use a locally build repo2docker image.
+You can configure the image in the file `testing/minikube/binderhub_config.py` with the following line:
+
+```python
+c.BinderHub.build_image = 'jupyter-repo2docker:my_image_tag'
+```
+
+**Important**: the image must be build using the same Docker daemon as the minikube cluster, otherwise you get an error _"Failed to pull image [...]  repository does not exist or may require 'docker login'"_.
+
+### Tip: Enable debug logging
+
+In the file `testing/minikube/binderhub_config.py` add the following line:
+
+```python
+c.BinderHub.debug = True
+```
 
 ### Tip: Increase your GitHub API limit
 
@@ -267,7 +287,7 @@ introduced, particularly when bumping major versions of JupyterHub.
 
 Checklist for creating BinderHub releases. For PyPI packaging read https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi
 
-* update/close the `CHANGES.rst` for this release
+* update/close the `CHANGES.md` for this release (see below)
 * create a git tag for the release
 * `pip install twine`
 * `python setup.py sdist`
@@ -277,3 +297,17 @@ Checklist for creating BinderHub releases. For PyPI packaging read https://packa
 * `twine upload dist/*`
 * create a new release on https://github.com/jupyterhub/binderhub/releases
 * add a new section at the top of the change log for future releases
+
+### Bumping the changelog
+
+As BinderHub does not have a typical semver release schedule, we try to
+update the changelog in `CHANGES.md` every three months. A useful tool
+for this [can be found here](https://github.com/choldgraf/github-activity).
+If you choose to use this tool, the command that generated current sections
+in the changelog is below:
+
+```bash
+github-activity jupyterhub/binderhub -s <START-DATE> -u <END-DATE> --tags enhancement,bug --strip-brackets
+```
+
+Copy and paste the output of this command into a new section in `CHANGES.md`.

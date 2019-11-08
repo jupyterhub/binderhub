@@ -11,7 +11,8 @@
                 "Gist",
                 "GitLab",
                 "Git",
-                "Zenodo"
+                "Zenodo",
+                "Figshare"
             ],
             "description": "Provider for the repository being launched"
         },

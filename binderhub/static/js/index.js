@@ -19,6 +19,7 @@ import 'event-source-polyfill';
 import BinderImage from './src/image';
 import { markdownBadge, rstBadge } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
+import { nextHelpText } from './src/loading';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
@@ -76,10 +77,15 @@ function updateRepoText() {
   }
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
-    tag_text = "Git commit SHA";
+    tag_text = "Git branch, tag, or commit SHA";
   }
   else if (provider === "zenodo") {
     text = "Zenodo DOI (10.5281/zenodo.3242074)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
+  }
+  else if (provider === "figshare") {
+    text = "Figshare DOI (10.6084/m9.figshare.9782777.v1)";
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
@@ -106,7 +112,7 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zenodo') {
+  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare') {
     ref = "";
   }
   var path = $('#filepath').val().trim();
@@ -144,13 +150,9 @@ function build(providerSpec, log, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
-
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p').text("Starting repository: " + spec);
-    window.setTimeout(function() {
-      $('div#loader-text p').html("Repository " + spec + " is taking longer than usual to start, hang tight!")
-    }, 17000);
+    $('div#loader-text p.launching').text("Starting repository: " + spec)
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
@@ -175,6 +177,7 @@ function build(providerSpec, log, path, pathType) {
 
   image.onStateChange('building', function(oldState, newState, data) {
     $('#phase-building').removeClass('hidden');
+    log.show();
   });
 
   image.onStateChange('pushing', function(oldState, newState, data) {
@@ -186,15 +189,13 @@ function build(providerSpec, log, path, pathType) {
     $('#phase-failed').removeClass('hidden');
 
     $("#loader").addClass("paused");
-    $('div#loader-text p').html("Repository " + spec + " has failed to load!<br />See the logs for details.");
-    update_favicon(BASE_URL + "favicon_fail.ico");
-    // If we fail for any reason, we will show logs!
-    log.show();
 
-    // Show error on loading page
+    // If we fail for any reason, show an error message and logs
+    update_favicon(BASE_URL + "favicon_fail.ico");
+    log.show();
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
-      $('div#loader-text p').html('Error loading ' + spec + '!<br /> See logs below for details.');
+      $('div#loader-text p.launching').html('Error loading ' + spec + '!<br /> See logs below for details.');
     }
     image.close();
   });
@@ -330,6 +331,18 @@ function loadingMain(providerSpec) {
     }
   }
   build(providerSpec, log, path, pathType);
+
+  // Looping through help text every few seconds
+  const launchMessageInterval = 6 * 1000
+  setInterval(nextHelpText, launchMessageInterval);
+
+  // If we have a long launch, add a class so we display a long launch msg
+  const launchTimeout = 120 * 1000
+  setTimeout(() => {
+    $('div#loader-links p.text-center').addClass("longLaunch");
+    nextHelpText();
+  }, launchTimeout)
+
   return false;
 }
 

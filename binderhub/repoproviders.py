@@ -13,6 +13,7 @@ import os
 import time
 import urllib.parse
 import re
+import subprocess
 
 from prometheus_client import Gauge
 
@@ -102,6 +103,7 @@ class RepoProvider(LoggingConfigurable):
         help="""
         Credentials (if any) to pass to git when cloning.
         """,
+        config=True
     )
 
     def is_banned(self):
@@ -162,9 +164,19 @@ class RepoProvider(LoggingConfigurable):
     def get_resolved_ref(self):
         raise NotImplementedError("Must be overridden in child class")
 
+    @gen.coroutine
+    def get_resolved_spec(self):
+        """Return the spec with resolved ref."""
+        raise NotImplementedError("Must be overridden in child class")
+
     def get_repo_url(self):
         """Return the git clone-able repo URL"""
         raise NotImplementedError("Must be overridden in the child class")
+
+    @gen.coroutine
+    def get_resolved_ref_url(self):
+        """Return the URL of repository at this commit in history"""
+        raise NotImplementedError("Must be overridden in child class")
 
     def get_build_slug(self):
         """Return a unique build slug"""
@@ -183,8 +195,14 @@ class FakeProvider(RepoProvider):
     async def get_resolved_ref(self):
         return "1a2b3c4d5e6f"
 
+    async def get_resolved_spec(self):
+        return "fake/repo/1a2b3c4d5e6f"
+
     def get_repo_url(self):
         return "https://example.com/fake/repo.git"
+
+    async def get_resolved_ref_url(self):
+        return "https://example.com/fake/repo/tree/1a2b3c4d5e6f"
 
     def get_build_slug(self):
         return '{user}-{repo}'.format(user='Rick', repo='Morty')
@@ -206,13 +224,74 @@ class ZenodoProvider(RepoProvider):
         self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
         return self.record_id
 
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'record_id'):
+            self.record_id = await self.get_resolved_ref()
+        # zenodo registers a DOI which represents all versions of a software package
+        # and it always resolves to latest version
+        # for that case, we have to replace the version number in DOIs with
+        # the specific (resolved) version (record_id)
+        resolved_spec = self.spec.split("zenodo")[0] + "zenodo." + self.record_id
+        return resolved_spec
+
     def get_repo_url(self):
         # While called repo URL, the return value of this function is passed
         # as argument to repo2docker, hence we return the spec as is.
         return self.spec
 
+    async def get_resolved_ref_url(self):
+        resolved_spec = await self.get_resolved_spec()
+        return f"https://doi.org/{resolved_spec}"
+
     def get_build_slug(self):
         return "zenodo-{}".format(self.record_id)
+
+
+class FigshareProvider(RepoProvider):
+    """Provide contents of a Figshare article
+
+    Users must provide a spec consisting of the Figshare DOI.
+    """
+    name = Unicode("Figshare")
+    url_regex = re.compile(r"(.*)/articles/([^/]+)/(\d+)(/)?(\d+)?")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+
+        match = self.url_regex.match(r.effective_url)
+        article_id = match.groups()[2]
+        article_version = match.groups()[4]
+        if not article_version:
+            article_version = "1"
+        self.record_id = "{}.v{}".format(article_id, article_version)
+
+        return self.record_id
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'record_id'):
+            self.record_id = await self.get_resolved_ref()
+
+        # spec without version is accepted as version 1 - check get_resolved_ref method
+        # for that case, we have to replace the version number in DOIs with
+        # the specific (resolved) version (record_id)
+        resolved_spec = self.spec.split("figshare")[0] + "figshare." + self.record_id
+        return resolved_spec
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    async def get_resolved_ref_url(self):
+        resolved_spec = await self.get_resolved_spec()
+        return f"https://doi.org/{resolved_spec}"
+
+    def get_build_slug(self):
+        return "figshare-{}".format(self.record_id)
 
 
 class GitRepoProvider(RepoProvider):
@@ -220,9 +299,11 @@ class GitRepoProvider(RepoProvider):
 
     Users must provide a spec of the following form.
 
+    <url-escaped-namespace>/<unresolved_ref>
     <url-escaped-namespace>/<resolved_ref>
 
     eg:
+    https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/master
     https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
 
     This provider is typically used if you are deploying binderhub yourself and you require access to repositories that
@@ -233,20 +314,49 @@ class GitRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        url, resolved_ref = self.spec.rsplit('/', 1)
-        self.repo = urllib.parse.unquote(url)
-        if not resolved_ref:
-            raise ValueError("`resolved_ref` must be specified as a query parameter for the basic git provider")
-        self.sha1_validate(resolved_ref)
-        self.resolved_ref = resolved_ref
-        self.unresolved_ref = resolved_ref
+        self.url, unresolved_ref = self.spec.split('/', 1)
+        self.repo = urllib.parse.unquote(self.url)
+        self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
+        if not self.unresolved_ref:
+            raise ValueError("`unresolved_ref` must be specified as a query parameter for the basic git provider")
 
     @gen.coroutine
     def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        try:
+            # Check if the reference is a valid SHA hash
+            self.sha1_validate(self.unresolved_ref)
+        except ValueError:
+            # The ref is a head/tag and we resolve it using `git ls-remote`
+            command = ["git", "ls-remote", self.repo, self.unresolved_ref]
+            result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode:
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(result.stderr))
+            if not result.stdout:
+                raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
+                                .format(self.unresolved_ref))
+            resolved_ref = result.stdout.split(None, 1)[0]
+            self.sha1_validate(resolved_ref)
+            self.resolved_ref = resolved_ref 
+        else:
+            # The ref already was a valid SHA hash
+            self.resolved_ref = self.unresolved_ref
+
         return self.resolved_ref
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"{self.url}/{self.resolved_ref}"
 
     def get_repo_url(self):
         return self.repo
+
+    async def get_resolved_ref_url(self):
+        # not possible to construct ref url of unknown git provider
+        return self.get_repo_url()
 
     def get_build_slug(self):
         return self.repo
@@ -317,8 +427,8 @@ class GitLabRepoProvider(RepoProvider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        quoted_namespace, unresolved_ref = self.spec.split('/', 1)
-        self.namespace = urllib.parse.unquote(quoted_namespace)
+        self.quoted_namespace, unresolved_ref = self.spec.split('/', 1)
+        self.namespace = urllib.parse.unquote(self.quoted_namespace)
         self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
         if not self.unresolved_ref:
             raise ValueError("An unresolved ref is required")
@@ -353,13 +463,22 @@ class GitLabRepoProvider(RepoProvider):
         self.resolved_ref = ref_info['id']
         return self.resolved_ref
 
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"{self.quoted_namespace}/{self.resolved_ref}"
+
     def get_build_slug(self):
         # escape the name and replace dashes with something else.
         return '-'.join(p.replace('-', '_-') for p in self.namespace.split('/'))
 
     def get_repo_url(self):
-        return "https://{hostname}/{namespace}.git".format(
-            hostname=self.hostname, namespace=self.namespace)
+        return f"https://{self.hostname}/{self.namespace}.git"
+
+    async def get_resolved_ref_url(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"https://{self.hostname}/{self.namespace}/tree/{self.resolved_ref}"
 
 
 class GitHubRepoProvider(RepoProvider):
@@ -375,6 +494,17 @@ class GitHubRepoProvider(RepoProvider):
 
         Only necessary if not github.com,
         e.g. GitHub Enterprise.
+        """)
+
+    api_base_path = Unicode('https://api.{hostname}',
+        config=True,
+        help="""The base path of the GitHub API
+        
+        Only necessary if not github.com,
+        e.g. GitHub Enterprise.
+
+        Can use {hostname} for substitution,
+        e.g. 'https://{hostname}/api/v3'
         """)
 
     client_id = Unicode(config=True,
@@ -412,13 +542,13 @@ class GitHubRepoProvider(RepoProvider):
     auth = Dict(
         help="""Auth parameters for the GitHub API access
 
-        Populated from client_id, client_secret, access_token.
+        Populated from client_id, client_secret.
     """
     )
     @default('auth')
     def _default_auth(self):
         auth = {}
-        for key in ('client_id', 'client_secret', 'access_token'):
+        for key in ('client_id', 'client_secret'):
             value = getattr(self, key)
             if value:
                 auth[key] = value
@@ -443,8 +573,12 @@ class GitHubRepoProvider(RepoProvider):
         self.repo = strip_suffix(self.repo, ".git")
 
     def get_repo_url(self):
-        return "https://{hostname}/{user}/{repo}".format(
-            hostname=self.hostname, user=self.user, repo=self.repo)
+        return f"https://{self.hostname}/{self.user}/{self.repo}"
+
+    async def get_resolved_ref_url(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"https://{self.hostname}/{self.user}/{self.repo}/tree/{self.resolved_ref}"
 
     @gen.coroutine
     def github_api_request(self, api_url, etag=None):
@@ -454,6 +588,10 @@ class GitHubRepoProvider(RepoProvider):
             api_url = url_concat(api_url, self.auth)
 
         headers = {}
+        # based on: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
+        if self.access_token:
+            headers['Authorization'] = "token {token}".format(token=self.access_token)
+
         if etag:
             headers['If-None-Match'] = etag
         req = HTTPRequest(api_url, headers=headers, user_agent="BinderHub")
@@ -466,6 +604,7 @@ class GitHubRepoProvider(RepoProvider):
             elif (
                 e.code == 403
                 and e.response
+                and 'x-ratelimit-remaining' in e.response.headers
                 and e.response.headers.get('x-ratelimit-remaining') == '0'
             ):
                 rate_limit = e.response.headers['x-ratelimit-limit']
@@ -490,28 +629,30 @@ class GitHubRepoProvider(RepoProvider):
             else:
                 raise
 
-        # record and log github rate limit
-        remaining = int(resp.headers['x-ratelimit-remaining'])
-        rate_limit = int(resp.headers['x-ratelimit-limit'])
-        reset_timestamp = int(resp.headers['x-ratelimit-reset'])
+        if 'x-ratelimit-remaining' in resp.headers:
+            # record and log github rate limit
+            remaining = int(resp.headers['x-ratelimit-remaining'])
+            rate_limit = int(resp.headers['x-ratelimit-limit'])
+            reset_timestamp = int(resp.headers['x-ratelimit-reset'])
 
-        # record with prometheus
-        GITHUB_RATE_LIMIT.set(remaining)
+            # record with prometheus
+            GITHUB_RATE_LIMIT.set(remaining)
 
-        # log at different levels, depending on remaining fraction
-        fraction = remaining / rate_limit
-        if fraction < 0.2:
-            log = self.log.warning
-        elif fraction < 0.5:
-            log = self.log.info
-        else:
-            log = self.log.debug
+            # log at different levels, depending on remaining fraction
+            fraction = remaining / rate_limit
+            if fraction < 0.2:
+                log = self.log.warning
+            elif fraction < 0.5:
+                log = self.log.info
+            else:
+                log = self.log.debug
 
-        # str(timedelta) looks like '00:32'
-        delta = timedelta(seconds=int(reset_timestamp - time.time()))
-        log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
-            remaining=remaining, limit=rate_limit, delta=delta,
-        ))
+            # str(timedelta) looks like '00:32'
+            delta = timedelta(seconds=int(reset_timestamp - time.time()))
+            log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
+                remaining=remaining, limit=rate_limit, delta=delta,
+            ))
+        
         return resp
 
     @gen.coroutine
@@ -519,9 +660,9 @@ class GitHubRepoProvider(RepoProvider):
         if hasattr(self, 'resolved_ref'):
             return self.resolved_ref
 
-        api_url = "https://api.{hostname}/repos/{user}/{repo}/commits/{ref}".format(
-            user=self.user, repo=self.repo, ref=self.unresolved_ref,
-            hostname=self.hostname,
+        api_url = "{api_base_path}/repos/{user}/{repo}/commits/{ref}".format(
+            api_base_path=self.api_base_path.format(hostname=self.hostname), 
+            user=self.user, repo=self.repo, ref=self.unresolved_ref
         )
         self.log.debug("Fetching %s", api_url)
         cached = self.cache.get(api_url)
@@ -560,6 +701,11 @@ class GitHubRepoProvider(RepoProvider):
         )
         return self.resolved_ref
 
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"{self.user}/{self.repo}/{self.resolved_ref}"
+
     def get_build_slug(self):
         return '{user}-{repo}'.format(user=self.user, repo=self.repo)
 
@@ -578,6 +724,7 @@ class GistRepoProvider(GitHubRepoProvider):
     """
 
     name = Unicode('Gist')
+    hostname = Unicode('gist.github.com')
 
     allow_secret_gist = Bool(
         default_value=False,
@@ -596,7 +743,12 @@ class GistRepoProvider(GitHubRepoProvider):
             self.unresolved_ref = ''
 
     def get_repo_url(self):
-        return f'https://gist.github.com/{self.user}/{self.gist_id}.git'
+        return f'https://{self.hostname}/{self.user}/{self.gist_id}.git'
+
+    async def get_resolved_ref_url(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f'https://{self.hostname}/{self.user}/{self.gist_id}/{self.resolved_ref}'
 
     @gen.coroutine
     def get_resolved_ref(self):
@@ -627,6 +779,11 @@ class GistRepoProvider(GitHubRepoProvider):
                 self.resolved_ref = self.unresolved_ref
 
         return self.resolved_ref
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f'{self.user}/{self.gist_id}/{self.resolved_ref}'
 
     def get_build_slug(self):
         return self.gist_id

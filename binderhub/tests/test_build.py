@@ -2,11 +2,14 @@
 
 import json
 import sys
+from collections import namedtuple
 from unittest import mock
 from urllib.parse import quote
 
 import pytest
 from tornado.httputil import url_concat
+
+from kubernetes import client
 
 from binderhub.build import Build
 from .utils import async_requests
@@ -16,7 +19,10 @@ from .utils import async_requests
 @pytest.mark.parametrize("slug", [
     "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
     "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
-        quote("https://github.com/binderhub-ci-repos/requirements")
+        quote("https://github.com/binderhub-ci-repos/requirements", safe='')
+    ),
+    "git/{}/master".format(
+        quote("https://github.com/binderhub-ci-repos/requirements", safe='')
     ),
     "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
 ])
@@ -46,6 +52,57 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     r = await async_requests.get(url_concat(final['url'], {'token': final['token']}))
     r.raise_for_status()
     assert r.url.startswith(final['url'])
+
+
+def test_default_affinity():
+    # check that the default affinity is a pod anti-affinity
+    build = Build(
+        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        namespace='build_namespace', repo_url=mock.MagicMock(),
+        ref=mock.MagicMock(), build_image=mock.MagicMock(),
+        image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
+        memory_limit=mock.MagicMock(), git_credentials=None,
+        docker_host='http://mydockerregistry.local',
+        node_selector=mock.MagicMock())
+
+    affinity = build.get_affinity()
+
+    assert isinstance(affinity, client.V1Affinity)
+    assert affinity.node_affinity is None
+    assert affinity.pod_affinity is None
+    assert affinity.pod_anti_affinity is not None
+
+
+def test_sticky_builds_affinity():
+    # Setup some mock objects for the response from the k8s API
+    Pod = namedtuple("Pod", "spec")
+    PodSpec = namedtuple("PodSpec", "node_name")
+    PodList = namedtuple("PodList", "items")
+
+    mock_k8s_api = mock.MagicMock()
+    mock_k8s_api.list_namespaced_pod.return_value = PodList(
+        [Pod(PodSpec("node-a")), Pod(PodSpec("node-b"))],
+    )
+
+    build = Build(
+        mock.MagicMock(), api=mock_k8s_api, name='test_build',
+        namespace='build_namespace', repo_url=mock.MagicMock(),
+        ref=mock.MagicMock(), build_image=mock.MagicMock(),
+        image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
+        memory_limit=mock.MagicMock(), git_credentials=None,
+        docker_host='http://mydockerregistry.local',
+        node_selector=mock.MagicMock(),
+        sticky_builds=True)
+
+    affinity = build.get_affinity()
+
+    assert isinstance(affinity, client.V1Affinity)
+    assert affinity.node_affinity is not None
+    assert affinity.pod_affinity is None
+    assert affinity.pod_anti_affinity is None
+
+    # One of the two nodes we have in our mock should be the preferred node
+    assert affinity.node_affinity.preferred_during_scheduling_ignored_during_execution[0].preference.match_expressions[0].values[0] in ("node-a", "node-b")
 
 
 def test_git_credentials_passed_to_podspec_upon_submit():

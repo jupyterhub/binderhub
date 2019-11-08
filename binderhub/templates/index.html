@@ -4,6 +4,17 @@
 <meta id="base-url" data-url="{{base_url}}">
 <meta id="badge-base-url" data-url="{{badge_base_url}}">
 <script src="{{static_url("dist/bundle.js")}}"></script>
+
+
+<!-- Social media previews -->
+<meta property="og:title" content="The Binder Project">
+<meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
+<meta property="og:description" content="Reproducible, sharable, interactive computing environments.">
+<meta property="og:image:width" content="1334">
+<meta property="og:image:height" content="700">
+<meta property="og:image:alt" content="The Binder Project Logo" />
+<meta name="twitter:card" content="summary_large_image">
+
 {{ super() }}
 {% endblock head %}
 
@@ -44,6 +55,7 @@
                 <li class="dropdown-item" value="gl"><a href="#">GitLab.com</a></li>
                 <li class="dropdown-item" value="git"><a href="#">Git repository</a></li>
                 <li class="dropdown-item" value="zenodo"><a href="#">Zenodo DOI</a></li>
+                <li class="dropdown-item" value="figshare"><a href="#">Figshare DOI</a></li>
               </ul>
             </div>
           </div>

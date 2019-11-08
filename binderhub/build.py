@@ -12,6 +12,8 @@ from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
+from .utils import rendezvous_rank
+
 
 class Build:
     """Represents a build of a git repository into a docker image.
@@ -36,7 +38,7 @@ class Build:
     """
     def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
-                 appendix='', log_tail_lines=100):
+                 appendix='', log_tail_lines=100, sticky_builds=False):
         self.q = q
         self.api = api
         self.repo_url = repo_url
@@ -55,6 +57,10 @@ class Build:
 
         self.stop_event = threading.Event()
         self.git_credentials = git_credentials
+
+        self.sticky_builds = sticky_builds
+
+        self._component_label = "binderhub-build"
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -144,8 +150,71 @@ class Build:
         """Put the current action item into the queue for execution."""
         self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
+    def get_affinity(self):
+        """Determine the affinity term for the build pod.
+
+        There are a two affinity strategies, which one is used depends on how
+        the BinderHub is configured.
+
+        In the default setup the affinity of each build pod is an "anti-affinity"
+        which causes the pods to prefer to schedule on separate nodes.
+
+        In a setup with docker-in-docker enabled pods for a particular
+        repository prefer to schedule on the same node in order to reuse the
+        docker layer cache of previous builds.
+        """
+        dind_pods = self.api.list_namespaced_pod(
+            self.namespace,
+            label_selector="component=dind,app=binder",
+        )
+
+        if self.sticky_builds and dind_pods:
+            node_names = [pod.spec.node_name for pod in dind_pods.items]
+            ranked_nodes = rendezvous_rank(node_names, self.repo_url)
+            best_node_name = ranked_nodes[0]
+
+            affinity = client.V1Affinity(
+                node_affinity=client.V1NodeAffinity(
+                    preferred_during_scheduling_ignored_during_execution=[
+                        client.V1PreferredSchedulingTerm(
+                            weight=100,
+                            preference=client.V1NodeSelectorTerm(
+                                match_expressions=[
+                                    client.V1NodeSelectorRequirement(
+                                        key="kubernetes.io/hostname",
+                                        operator="In",
+                                        values=[best_node_name],
+                                    )
+                                ]
+                            ),
+                        )
+                    ]
+                )
+            )
+
+        else:
+            affinity = client.V1Affinity(
+                pod_anti_affinity=client.V1PodAntiAffinity(
+                    preferred_during_scheduling_ignored_during_execution=[
+                        client.V1WeightedPodAffinityTerm(
+                            weight=100,
+                            pod_affinity_term=client.V1PodAffinityTerm(
+                                topology_key="kubernetes.io/hostname",
+                                label_selector=client.V1LabelSelector(
+                                    match_labels=dict(
+                                        component=self._component_label
+                                    )
+                                )
+                            )
+                        )
+                    ]
+                )
+            )
+
+        return affinity
+
     def submit(self):
-        """Submit a image spec to openshift's s2i and wait for completion """
+        """Submit a build pod to create the image for the repository."""
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
@@ -166,13 +235,12 @@ class Build:
         if self.git_credentials:
             env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
 
-        component_label = "binderhub-build"
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
                 labels={
                     "name": self.name,
-                    "component": component_label,
+                    "component": self._component_label,
                 },
                 annotations={
                     "binder-repo": self.repo_url,
@@ -211,23 +279,7 @@ class Build:
                 node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never",
-                affinity=client.V1Affinity(
-                    pod_anti_affinity=client.V1PodAntiAffinity(
-                        preferred_during_scheduling_ignored_during_execution=[
-                            client.V1WeightedPodAffinityTerm(
-                                weight=100,
-                                pod_affinity_term=client.V1PodAffinityTerm(
-                                    topology_key="kubernetes.io/hostname",
-                                    label_selector=client.V1LabelSelector(
-                                        match_labels=dict(
-                                            component=component_label
-                                        )
-                                    )
-                                )
-                            )
-                        ]
-                    )
-                )
+                affinity=self.get_affinity()
             )
         )
 

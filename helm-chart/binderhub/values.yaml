@@ -120,6 +120,8 @@ jupyterhub:
   prePuller:
     hook:
       enabled: false
+    continuous:
+      enabled: false
 
 deployment:
   labels: {}
@@ -131,6 +133,8 @@ dind:
     image:
       name: docker
       tag: 18.09.2-dind
+    # Additional command line arguments to pass to dockerd
+    extraArgs: []
   storageDriver: overlay2
   resources: {}
   hostSocketDir: /var/run/dind

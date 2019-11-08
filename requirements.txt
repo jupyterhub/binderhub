@@ -1,6 +1,6 @@
 # When you change this file please also update `doc/doc-requirements.txt`
 # which needs to be kept in sync manually.
-kubernetes>=4.*
+kubernetes==9.0.*
 escapism
 tornado
 traitlets
