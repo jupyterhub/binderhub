@@ -69,6 +69,7 @@ in the community have done.
    debug
    customizing
    authentication
+   https
    known-deployments
    federation/federation
 
