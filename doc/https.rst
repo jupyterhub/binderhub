@@ -81,7 +81,7 @@ file ``nginx-ingress.yaml``:
 Afterwards we install the ingress proxy using
 ``helm install stable/nginx-ingress --name binderhub-proxy --namespace <same-namespace-as-binderhub> -f nginx-ingress.yaml``.
 Then wait until it is ready and showing the correct IP when looking at the output of
-``kubectl --namespace qc-binder-dev get services binderhub-proxy-nginx-ingress-controller``.
+``kubectl --namespace <same-namespace-as-binderhub> get services binderhub-proxy-nginx-ingress-controller``.
 
 Adjust BinderHub config to serve via HTTPS
 ------------------------------------------
