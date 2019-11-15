@@ -87,7 +87,7 @@ Adjust BinderHub config to serve via HTTPS
 ------------------------------------------
 
 With the static IP, DNS records and ingress proxy setup, we can now change our
-BinderHub configuration to serve via HTTPS. Therefore adjust your ``config.yaml``
+BinderHub configuration to serve traffic via HTTPS. Therefore adjust your ``config.yaml``
 with the following sections and apply it using ``helm upgrade ...``.
 
 .. code:: yaml
