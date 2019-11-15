@@ -69,7 +69,9 @@ function updateRepoText() {
     tag_text = "Git commit SHA";
   }
   $("#repository").attr('placeholder', text);
+  $("label[for=repository]").text(text);
   $("#ref").attr('placeholder', tag_text);
+  $("label[for=ref]").text(tag_text);
 }
 
 function getBuildFormValues() {
