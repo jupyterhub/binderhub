@@ -17,7 +17,10 @@ Setup IP & domain
 2. Buy a domain name from a registrar. Pick whichever one you want.
 3. Set A records to your above retrieved external IP, one for Binder and
    one for JupyterHub. We need two distinct subdomains for the routing to
-   the two different services as they will be served by the same proxy.
+   the two different services as they will be served by the same ingress proxy.
+   We suggest you use ``hub.binder.`` for JupyterHub and ``binder.`` for your
+   BinderHub. Once you are done your BinderHub will be available at
+   ``https://binder.``.
 4. Wait some minutes for the DNS A records to propagate.
 
 cert-manager for automatic TLS certificate provisioning
@@ -110,7 +113,7 @@ with the following sections and apply it using ``helm upgrade ...``.
             enabled: true
             type: nginx
         tls:
-           - secretName: <jupyterhub-URL>-tls
+           - secretName: <jupyterhub-URL-with-dashes-instead-of-dots>-tls
              hosts:
               - <jupyterhub-URL>
 
@@ -126,7 +129,7 @@ with the following sections and apply it using ``helm upgrade ...``.
           enabled: true
           type: nginx
       tls:
-        - secretName: <binderhub-URL>-tls
+        - secretName: <binderhub-URL-with-dashes-instead-of-dots>-tls
           hosts:
             - <binderhub-URL>
 
