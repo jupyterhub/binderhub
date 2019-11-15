@@ -63,6 +63,7 @@ our certificates. Use the following template to create a new file
             ingress:
               class: nginx
 
+See the documentation for `more details on configuring the issuer <https://docs.cert-manager.io/en/latest/tasks/issuers/setup-acme/index.html>`_.
 
 Ingress proxy using nginx
 -------------------------
