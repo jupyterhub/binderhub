@@ -36,9 +36,8 @@
         <h4 id="form-header" class='row'>Build and launch a repository</h4>
         <input type="hidden" id="provider_prefix" value="gh"/>
         <div class="form-group row">
-          <label for="repository">GitHub repo or Gist name or GitLab.com URL</label>
+          <label for="repository">Git repository URL (github.com, gitlab.com or self-host)</label>
           <div class="input-group">
-            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
             <div class="input-group-btn" id="url-type-btn">
               <button type="button" class="btn btn-secondary dropdown-toggle"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -58,6 +57,7 @@
                 <li class="dropdown-item" value="figshare"><a href="#">Figshare DOI</a></li>
               </ul>
             </div>
+            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
           </div>
         </div>
         <div class="form-row row">
