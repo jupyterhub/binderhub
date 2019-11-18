@@ -1,23 +1,28 @@
+# For a reference on this configuration, see the chartpress README file.
+# ref: https://github.com/jupyterhub/chartpress
 charts:
   - name: binderhub
     imagePrefix: jupyterhub/k8s-
     repo:
       git: jupyterhub/helm-chart
       published: https://jupyterhub.github.io/helm-chart
-    paths:
-      - ..
+    resetTag: local
+    resetVersion: 0.2.0
+    # NOTE: All paths will be set relative to this file's location, which is in the
+    # helm-chart folder.
     images:
       image-cleaner:
         valuesPath: imageCleaner.image
       binderhub:
-        # Context to send to docker build for use by the Dockerfile
+        # Context to send to docker build for use by the Dockerfile. We pass the
+        # root folder in order to allow the image to access and build the python
+        # package. Since we do that, chartpress will always react to changes in
+        # documentation and other things, and always consider the chart version
+        # to change along with the image version.
         contextPath: ..
-        # Dockerfile path relative to chartpress.yaml
+        # Since we changed the contextPath, we must also change the
+        # dockerfilePath. This is because chartpress assume the Dockerfile will
+        # reside in the contextPath folder, and since we overrode the default of
+        # images/binderhub it will be the wrong folder.
         dockerfilePath: images/binderhub/Dockerfile
         valuesPath: image
-        # additional paths relevant to the image
-        # in addition to image directory itself
-        # paths are relative to chartpress.yaml
-        paths:
-          - ../setup.py
-          - ../binderhub
