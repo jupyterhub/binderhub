@@ -29,11 +29,12 @@ WORKDIR /
 # to the current directory within the container.
 COPY --from=build-stage /tmp/binderhub/dist/*.whl .
 
-# Copy the additional Python requirements for our Docker container. These can be
-# certain pinned versions or peer dependencies.
+# Copy the additional Python requirements for our Docker container from the
+# build context. These can be certain pinned versions or peer dependencies.
+COPY helm-chart/images/binderhub/requirements.txt .
 RUN pip install --no-cache-dir \
         *.whl \
-        -r /tmp/binderhub/helm-chart/images/binderhub/requirements.txt
+        -r requirements.txt
 
 # Copy the binderhub configuration to use.
 # FUTURE: Follow the approach taken in Z2JH:
