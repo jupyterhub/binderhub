@@ -196,7 +196,7 @@ texinfo_documents = [
 # -- Custom scripts -------------------------------------------
 
 # Grab the latest version of the k8s and helm install instructions.
-helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-helm.rst"
+helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-jupyterhub/setup-helm.rst"
 
 resp = requests.get(helm_instructions)
 with open('./helm.txt', 'w') as ff:
