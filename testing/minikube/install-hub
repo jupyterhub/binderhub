@@ -83,17 +83,32 @@ def wait_for(f, msg, timeout=300):
         raise TimeoutError(f"{msg} did not occur in {timeout} seconds")
     print(msg)
 
-def hub_running():
-    """Return whether all pods in our test namespace are ready"""
-    pods = kube.list_namespaced_pod(namespace).items
-    # debug:
-    for pod in pods:
-        print(f"{pod.status.phase}\t{pod.metadata.name}")
-    return all(pod.status.phase == 'Running' for pod in pods)
+def pods_ready():
+    """
+    Return whether all pods in our test namespace are ready, which is a tougher
+    criteria than running.
 
-# wait until all of our pods are running
+    ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions
+    ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#podstatus-v1-core
+    """
+    pods = kube.list_namespaced_pod(namespace).items
+
+    # FIXME: we could perhaps delegate this waiting for readiness to kubernetes
+    # api and do like in z2jh:
+    # https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/5703a8de9017d83242f8d4dd1ac00887c162629b/dev#L261-L266
+    all_pods_ready = True
+    for pod in pods:
+        if not any(
+            condition.type == "Ready" and condition.status == "True"
+            for condition in pod.status.conditions
+        ):
+            all_pods_ready = False
+            print(f"{pod.status.phase}\t{pod.metadata.name}")
+    return all_pods_ready
+
+# wait until all of our pods are running and ready
 try:
-    wait_for(hub_running, "Hub is up")
+    wait_for(pods_ready, "Hub is up")
 except TimeoutError:
     # show pods on timeout, in case there's a hint about what's wrong
     check_call(['kubectl', 'get', 'pod', '--all-namespaces'])
