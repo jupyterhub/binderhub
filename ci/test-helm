@@ -34,21 +34,39 @@ if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
 EOF
 fi
 
+# FIXME: Move to a dedicated build stage in travis like in z2jh
+#
+# ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/.travis.yml
 if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
   openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
   chmod 0400 travis
   export GIT_SSH_COMMAND="ssh -i ${PWD}/travis"
   docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
-  PUSH="--push --publish-chart"
+
+  if [ "${TRAVIS_TAG:-}" == "" ]; then
+    # Using --long, we are ensured to get a build suffix, which ensures we don't
+    # build the same tag twice. The --extra-message influences the additional
+    # text to the commit message on the gh-pages branch of
+    # jupyterhub/helm-chart.
+    #
+    # ref: https://github.com/jupyterhub/helm-chart
+    PUSH="--push --publish-chart --long --extra-message \"${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')\""
+  else
+    # Setting a tag explicitly enforces a rebuild if this tag had already been
+    # built and we wanted to override it.
+    PUSH="--push --publish-chart --tag ${TRAVIS_TAG}"
+  fi
 else
   PUSH=""
 fi
+
+
 
 echo "building helm chart"
 cd helm-chart
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm dependency update binderhub
-chartpress --commit-range ${TRAVIS_COMMIT_RANGE} ${PUSH} --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')"
+chartpress ${PUSH}
 cd ..
 # git diff will show us the result of the chartpress render.
 # This should only include the tags for chartpress images.
