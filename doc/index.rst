@@ -23,7 +23,7 @@ remotely.
 This guide assists you, an administrator, through the process of setting up
 your BinderHub deployment.
 
-To get started creating your own BinderHub, start with :doc:`create-cloud-resources`.
+To get started creating your own BinderHub, start with :doc:`zero-to-binderhub`.
 
 .. note::
 
@@ -51,10 +51,7 @@ A guide to help you create your own BinderHub from scratch.
    :numbered:
    :caption: Zero to BinderHub
 
-   create-cloud-resources
-   setup-registry
-   setup-binderhub
-   turn-off
+   zero-to-binderhub/index
 
 Customization and deployment information
 ========================================
@@ -66,12 +63,7 @@ in the community have done.
    :maxdepth: 2
    :caption: Customization and deployment
 
-   debug
-   customizing
-   authentication
-   https
-   known-deployments
-   federation/federation
+   customization/index
 
 BinderHub Developer and Architecture Documentation
 ==================================================
@@ -82,7 +74,4 @@ A more detailed overview of the BinderHub design, architecture, and functionalit
    :maxdepth: 2
    :caption:  Developer and architecture docs
 
-   overview
-   eventlogging
-   api
-   reference/ref-index.rst
+   developer/index
