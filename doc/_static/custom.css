@@ -56,11 +56,12 @@ p.contrib_affiliation {
 }
 
 td.contrib_entry {
-  width: 150px;
+  width: 200px;
   height: 200px;
   padding: 1em !important;
   vertical-align: top;
   text-align: center;
+  border: 1px solid #888 !important;
 }
 
 td.contrib_entry a {

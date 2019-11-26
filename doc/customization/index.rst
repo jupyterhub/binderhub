@@ -1,5 +1,5 @@
-Customization and deployment information
-========================================
+Customization
+=============
 
 Information on how to customize your BinderHub as well as explore what others
 in the community have done.
@@ -12,5 +12,3 @@ in the community have done.
    ../customizing
    ../authentication
    ../https
-   ../known-deployments
-   ../federation/federation
