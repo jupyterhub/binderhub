@@ -34,6 +34,19 @@ you need to add the following into ``config.yaml``:
                     # binder service sets the image spec via user options
                     self.image = self.user_options['image']
                   return super().start()
+
+              def get_env(self):
+                  env = super(BinderSpawner, self).get_env()
+                  if 'repo_url' in self.user_options:
+                    env['BINDER_REPO_URL'] = self.user_options['repo_url']
+                  if 'ref_url' in self.user_options:
+                      env['BINDER_REF_URL'] = self.user_options['ref_url']
+                  if 'binder_url' in self.user_options:
+                      env['BINDER_URL'] = self.user_options['binder_url']
+                  if 'persistent_binder_url' in self.user_options:
+                      env['BINDER_PERSISTENT_URL'] = self.user_options['persistent_binder_url']
+                  return env
+
             c.JupyterHub.spawner_class = BinderSpawner
 
       singleuser:
