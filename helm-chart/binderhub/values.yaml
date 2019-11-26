@@ -99,6 +99,13 @@ jupyterhub:
               self.image = self.user_options['image']
               return super().start()
 
+          def get_env(self):
+              if 'repo_url' not in self.user_options:
+                  raise web.HTTPError(400, "repo_url required")
+              env = super(BinderSpawner, self).get_env()
+              env['BINDER_REPO_URL'] = self.user_options['repo_url']
+              return env
+
         c.JupyterHub.spawner_class = BinderSpawner
     services:
       binder:
