@@ -255,6 +255,8 @@ class BuildHandler(BaseHandler):
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
 
+        ref_url = self.ref_url = await provider.get_resolved_ref_url()
+
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
         image_prefix = self.settings['image_prefix']
@@ -329,7 +331,6 @@ class BuildHandler(BaseHandler):
             provider=provider_prefix,
             spec=resolved_spec,
         )
-        ref_url = await provider.get_resolved_ref_url()
         appendix = self.settings['appendix'].format(
             binder_url=binder_url,
             repo_url=repo_url,
@@ -509,8 +510,11 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
-                server_info = await launcher.launch(image=self.image_name, username=username,
-                                                    server_name=server_name, repo_url=self.repo_url)
+                server_info = await launcher.launch(image=self.image_name,
+                                                    username=username,
+                                                    server_name=server_name,
+                                                    repo_url=self.repo_url,
+                                                    ref_url=self.ref_url)
                 LAUNCH_TIME.labels(
                     status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)

@@ -102,8 +102,11 @@ jupyterhub:
           def get_env(self):
               if 'repo_url' not in self.user_options:
                   raise web.HTTPError(400, "repo_url required")
+              if 'ref_url' not in self.user_options:
+                  raise web.HTTPError(400, "ref_url required")
               env = super(BinderSpawner, self).get_env()
               env['BINDER_REPO_URL'] = self.user_options['repo_url']
+              env['BINDER_REF_URL'] = self.user_options['ref_url']
               return env
 
         c.JupyterHub.spawner_class = BinderSpawner
