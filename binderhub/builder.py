@@ -513,7 +513,7 @@ class BuildHandler(BaseHandler):
                     message = event['message']
                     if message.startswith("20"):
                         # remove timestamp and type info from message
-                        message = message.split(' ', 3)[-1]
+                        message = message.split('] ', 1)[-1]
                     await self.emit({
                         'phase': 'launching',
                         'message': '{}\n'.format(message),
