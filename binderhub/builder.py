@@ -258,17 +258,16 @@ class BuildHandler(BaseHandler):
         self.ref_url = await provider.get_resolved_ref_url()
         resolved_spec = await provider.get_resolved_spec()
 
-        self.binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
+        self.binder_launch_host = self.settings['badge_base_url'] or '{proto}://{host}{base_url}'.format(
             proto=self.request.protocol,
             host=self.request.host,
             base_url=self.settings['base_url'],
+        )
+        self.binder_request = 'v2/{provider}/{spec}'.format(
             provider=provider_prefix,
             spec=spec,
         )
-        self.persistent_binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
-            proto=self.request.protocol,
-            host=self.request.host,
-            base_url=self.settings['base_url'],
+        self.binder_persistent_request = 'v2/{provider}/{spec}'.format(
             provider=provider_prefix,
             spec=resolved_spec,
         )
@@ -333,9 +332,9 @@ class BuildHandler(BaseHandler):
         BuildClass = FakeBuild if self.settings.get('fake_build') else Build
 
         appendix = self.settings['appendix'].format(
-            binder_url=self.binder_url,
+            binder_url=self.binder_launch_host + self.binder_request,
+            persistent_binder_url=self.binder_launch_host + self.binder_persistent_request,
             repo_url=repo_url,
-            persistent_binder_url=self.persistent_binder_url,
             ref_url=self.ref_url,
         )
 
@@ -512,9 +511,10 @@ class BuildHandler(BaseHandler):
                 server_name = ''
             try:
                 extra_args = {
-                    'ref_url': self.ref_url,
-                    'binder_url': self.binder_url,
-                    'persistent_binder_url': self.persistent_binder_url,
+                    'binder_ref_url': self.ref_url,
+                    'binder_launch_host': self.binder_launch_host,
+                    'binder_request': self.binder_request,
+                    'binder_persistent_request': self.binder_persistent_request,
                 }
                 server_info = await launcher.launch(image=self.image_name,
                                                     username=username,
