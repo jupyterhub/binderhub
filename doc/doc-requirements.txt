@@ -2,10 +2,10 @@
 sphinx>=1.7
 recommonmark==0.4.0
 sphinx-copybutton
-alabaster_jupyterhub
 traitlets
 pandas
 ruamel.yaml
+git+https://github.com/pandas-dev/pandas-sphinx-theme.git@master
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
