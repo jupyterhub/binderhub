@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 import jsonschema
 from pythonjsonlogger import jsonlogger
-from .traitlets import Callable
+from jupyterhub.traitlets import Callable
 import json
 
 

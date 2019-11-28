@@ -15,8 +15,8 @@ from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
 from traitlets import Integer, Unicode, Bool
-from .traitlets import Callable
-from .utils import maybe_future
+from jupyterhub.traitlets import Callable
+from jupyterhub.utils import maybe_future
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
