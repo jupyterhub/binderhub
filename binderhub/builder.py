@@ -263,6 +263,7 @@ class BuildHandler(BaseHandler):
             host=self.request.host,
             base_url=self.settings['base_url'],
         )
+        # These are relative URLs so do not have a leading /
         self.binder_request = 'v2/{provider}/{spec}'.format(
             provider=provider_prefix,
             spec=spec,
