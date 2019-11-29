@@ -255,6 +255,24 @@ class BuildHandler(BaseHandler):
             await self.fail("Could not resolve ref for %s. Double check your URL." % key)
             return
 
+        self.ref_url = await provider.get_resolved_ref_url()
+        resolved_spec = await provider.get_resolved_spec()
+
+        self.binder_launch_host = self.settings['badge_base_url'] or '{proto}://{host}{base_url}'.format(
+            proto=self.request.protocol,
+            host=self.request.host,
+            base_url=self.settings['base_url'],
+        )
+        # These are relative URLs so do not have a leading /
+        self.binder_request = 'v2/{provider}/{spec}'.format(
+            provider=provider_prefix,
+            spec=spec,
+        )
+        self.binder_persistent_request = 'v2/{provider}/{spec}'.format(
+            provider=provider_prefix,
+            spec=resolved_spec,
+        )
+
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
         image_prefix = self.settings['image_prefix']
@@ -314,27 +332,11 @@ class BuildHandler(BaseHandler):
 
         BuildClass = FakeBuild if self.settings.get('fake_build') else Build
 
-        binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
-            proto=self.request.protocol,
-            host=self.request.host,
-            base_url=self.settings['base_url'],
-            provider=provider_prefix,
-            spec=spec,
-        )
-        resolved_spec = await provider.get_resolved_spec()
-        persistent_binder_url = '{proto}://{host}{base_url}v2/{provider}/{spec}'.format(
-            proto=self.request.protocol,
-            host=self.request.host,
-            base_url=self.settings['base_url'],
-            provider=provider_prefix,
-            spec=resolved_spec,
-        )
-        ref_url = await provider.get_resolved_ref_url()
         appendix = self.settings['appendix'].format(
-            binder_url=binder_url,
+            binder_url=self.binder_launch_host + self.binder_request,
+            persistent_binder_url=self.binder_launch_host + self.binder_persistent_request,
             repo_url=repo_url,
-            persistent_binder_url=persistent_binder_url,
-            ref_url=ref_url,
+            ref_url=self.ref_url,
         )
 
         self.build = build = BuildClass(
@@ -509,8 +511,17 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
-                server_info = await launcher.launch(image=self.image_name, username=username,
-                                                    server_name=server_name, repo_url=self.repo_url)
+                extra_args = {
+                    'binder_ref_url': self.ref_url,
+                    'binder_launch_host': self.binder_launch_host,
+                    'binder_request': self.binder_request,
+                    'binder_persistent_request': self.binder_persistent_request,
+                }
+                server_info = await launcher.launch(image=self.image_name,
+                                                    username=username,
+                                                    server_name=server_name,
+                                                    repo_url=self.repo_url,
+                                                    extra_args=extra_args)
                 LAUNCH_TIME.labels(
                     status='success', retries=i,
                 ).observe(time.perf_counter() - launch_starttime)
