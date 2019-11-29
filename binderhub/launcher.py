@@ -15,6 +15,8 @@ from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
 from traitlets import Integer, Unicode, Bool
+from jupyterhub.traitlets import Callable
+from jupyterhub.utils import maybe_future
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -49,6 +51,18 @@ class Launcher(LoggingConfigurable):
         Time (seconds) to wait between retries for Hub API requests.
 
         Time is scaled exponentially by the retry attempt (i.e. 2, 4, 8, 16 seconds)
+        """
+    )
+    pre_launch_hook = Callable(
+        None,
+        config=True,
+        allow_none=True,
+        help="""
+        An optional hook function that you can use to implement checks before starting a user's server. 
+        For example if you have a non-standard BinderHub deployment, 
+        in this hook you can check if the current user has right to launch a new repo.
+        
+        Receives 5 parameters: launcher, image, username, server_name, repo_url
         """
     )
 
@@ -152,6 +166,9 @@ class Launcher(LoggingConfigurable):
             user_data = await self.get_user_data(username)
             if server_name in user_data['servers']:
                 raise web.HTTPError(409, "User %s already has a running server." % username)
+
+        if self.pre_launch_hook:
+            await maybe_future(self.pre_launch_hook(self, image, username, server_name, repo_url))
 
         # data to be passed into spawner's user_options during launch
         # and also to be returned into 'ready' state
