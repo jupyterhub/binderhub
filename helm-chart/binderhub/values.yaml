@@ -161,6 +161,8 @@ imageCleaner:
     repository: jupyterhub/k8s-image-cleaner
   # delete an image at most every 5 seconds
   delay: 5
+  # Interpret threshold values as percentage or bytes
+  imageGCThresholdType: "relative"
   # when 80% of inodes are used,
   # cull images until it drops below 60%
   imageGCThresholdHigh: 80
