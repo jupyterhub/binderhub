@@ -138,6 +138,11 @@ def main():
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
+    # with the threshold type set to relative the thresholds are interpreted
+    # as a percentage of how full the partition is. In absolute mode the
+    # thresholds are interpreted as size in bytes. By default you should use
+    # "relative" mode. Use "absolute" mode when you are using DIND and your
+    # nodes only have one partition.
     if gc_threshold_type == "relative":
         get_used = get_used_percent
         used_msg = '{used:.1f}% used'
