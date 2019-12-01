@@ -134,6 +134,29 @@ your BinderHub to require authentication. These tests will generate a lot of
 output and take a few minutes to run. The tests will attempt to clean up after
 themselves on your minikube cluster.
 
+To manually test changes to the Helm chart you will have to build the chart,
+all images involved and deploy it locally. Steps to do this:
+
+1. start minikube
+1. setup docker to user the minikube dockerd `eval $(minikube docker-env)`
+1. build the helm chart `cd helm-chart && chartpress && cd ..`
+1. install the BinderHub chart with
+```
+helm install \
+  --name binder-test \
+  --namespace binder-test-helm \
+  helm-chart/binderhub \
+  -f helm-chart/minikube-binder.yaml
+```
+
+You can now access your BinderHub at: `http://192.168.99.100:30901`. If your
+minikube instance has a different IP use `minikube ip` to find it. You will
+have to use that IP in two places. Add `--set config.BinderHub.hub_url: http://$IP:30902`
+to your `helm install` command and access your BinderHub at `http://$IP:30901`.
+Replace `$IP` with the output of `minikube ip`.
+
+To remove the deployment again: `helm delete --purge binder-test`.
+
 
 ### One-time installation
 
