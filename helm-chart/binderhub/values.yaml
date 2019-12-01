@@ -145,7 +145,7 @@ dind:
   daemonset:
     image:
       name: docker
-      tag: 18.09.2-dind
+      tag: 19.03.5-dind
     # Additional command line arguments to pass to dockerd
     extraArgs: []
   storageDriver: overlay2
