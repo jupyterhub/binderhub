@@ -20,6 +20,22 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO)
 
 
+def get_absolute_size(path):
+    """
+    Directory size in bytes
+    """
+    total = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for fname in filenames:
+            f = os.path.join(dirpath, fname)
+            # some files are links, skip them as they don't use
+            # up additional space
+            if os.path.isfile(f):
+                total += os.path.getsize(f)
+
+    return total
+
+
 def get_used_percent(path):
     """
     Return disk usage as a percentage
@@ -113,6 +129,7 @@ def main():
     path_to_check = os.getenv('PATH_TO_CHECK', '/var/lib/docker')
     interval = float(os.getenv('IMAGE_GC_INTERVAL', '300'))
     delay = float(os.getenv('IMAGE_GC_DELAY', '1'))
+    gc_threshold_type = os.getenv('IMAGE_GC_THRESHOLD_TYPE', 'relative')
     gc_low = float(os.getenv('IMAGE_GC_THRESHOLD_LOW', '60'))
     gc_high = float(os.getenv('IMAGE_GC_THRESHOLD_HIGH', '80'))
 
@@ -121,9 +138,16 @@ def main():
     client = docker.from_env(version='auto')
     images = get_docker_images(client)
 
+    if gc_threshold_type == "relative":
+        get_used = get_used_percent
+        used_msg = '{used:.1f}% used'
+    else:
+        get_used = get_absolute_size
+        used_msg = '{used}bytes used'
+
     while True:
-        used = get_used_percent(path_to_check)
-        logging.info(f'{used:.1f}% used')
+        used = get_used(path_to_check)
+        logging.info(used_msg.format(used=used))
         if used < gc_high:
             # Do nothing! We have enough space
             pass
@@ -145,7 +169,7 @@ def main():
 
             deleted = 0
 
-            while images and get_used_percent(path_to_check) > gc_low:
+            while images and get_used(path_to_check) > gc_low:
                 # Ensure the node is still cordoned
                 if node:
                     logging.info(f"Cordoning node {node}")
