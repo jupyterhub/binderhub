@@ -35,7 +35,7 @@ Adding a new repository provider
 ================================
 
 It is possible to add new repository providers to BinderHub, allowing
-a BinderHub deployment to fetch git repositories from new locations
+a BinderHub deployment to fetch repositories from new locations
 on the web. Doing so involves defining your own RepoProvider sub-class
 and modifying a set of methods/attributes to interface with the online
 provider to which you are providing access.
