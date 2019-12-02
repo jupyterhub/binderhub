@@ -5,6 +5,11 @@
 
 rbac:
   enabled: true
+
+custom:
+  cors:
+    allowOrigin: "*"
+
 hub:
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
@@ -20,16 +25,23 @@ hub:
       from kubespawner import KubeSpawner
       from tornado import web
 
+      # get cors config from values.custom.cors
+      import z2jh
+      cors = z2jh.get_config('custom.cors', {})
+
       class BinderSpawner(KubeSpawner):
         def get_args(self):
-            return [
+            args = [
                 '--ip=0.0.0.0',
                 '--port=%i' % self.port,
                 '--NotebookApp.base_url=%s' % self.server.base_url,
                 '--NotebookApp.token=%s' % self.user_options['token'],
                 '--NotebookApp.trust_xheaders=True',
-                '--NotebookApp.allow_origin=*',
-            ] + self.args
+            ]
+            allow_origin = cors.get('allowOrigin')
+            if allow_origin:
+                args.append('--NotebookApp.allow_origin=' + allow_origin)
+            return args + self.args
 
         def start(self):
             if 'token' not in self.user_options:
@@ -37,7 +49,7 @@ hub:
             if 'image' not in self.user_options:
               raise web.HTTPError(400, "image required")
 
-            self.image_spec = self.user_options['image']
+            self.image = self.user_options['image']
             return super().start()
 
         def get_env(self):
