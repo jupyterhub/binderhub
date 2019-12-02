@@ -5,7 +5,7 @@ Repository Providers
 ====================
 
 Repository Providers (or RepoProviders) are
-locations where git repositories are stored (e.g.,
+locations where repositories are stored (e.g.,
 GitHub). BinderHub supports a number of providers out of the
 box, and can be extended to support new providers. For a complete
 listing of the provider classes, see :ref:`api-repoproviders`.
