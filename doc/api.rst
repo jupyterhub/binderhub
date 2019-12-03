@@ -12,31 +12,15 @@ There's one API endpoint, which is:
 
 Even though it says **build** it actually performs **launch**.
 
-**provider_prefix** identifies the provider.
-**spec** defines the source of the computing environment to be built and 
-served using the given provider.
-See :ref:`providers-section` for supported inputs.
+* **provider_prefix** identifies the provider.
+* **spec** defines the source of the computing environment to be built and
+  served using the given provider.
 
-.. _providers-section:
+.. note:: The **provider_prefix** can be any of the supported
+          repository providers in BinderHub, see the
+          :ref:`providers-section` section for supported inputs.
 
-Providers
----------
-
-Currently supported providers, their prefixes and specs are:
-
-+------------+--------------------+-------------------------------------------------------------+----------------------------+
-| Provider   | provider_prefix    | spec                                                        | notes                      |
-+============+====================+=============================================================+============================+
-| GitHub     | ``gh``             | ``<user>/<repo>/<commit-sha-or-tag-or-branch>``             |                            |
-+------------+--------------------+-------------------------------------------------------------+----------------------------+
-| Git        | ``git``            | ``<url-escaped-url>/<commit-sha>``                          | arbitrary HTTP git repos   |
-+------------+--------------------+-------------------------------------------------------------+----------------------------+
-| GitLab     | ``gl``             | ``<url-escaped-namespace>/<commit-sha-or-tag-or-branch>``   |                            |
-+------------+--------------------+-------------------------------------------------------------+----------------------------+ 
-| Gist       | ``gist``           | ``<github-username>/<gist-id><commit-sha-or-tag>``          |                            |
-+------------+--------------------+-------------------------------------------------------------+----------------------------+
-
-Next, construct an appropriate URL and send a request.
+To use this endpoint, construct an appropriate URL and send a request.
 
 You'll get back an `Event
 Stream <https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events>`__.
@@ -55,6 +39,7 @@ When the request is received, the following happens:
    streaming logs from it to the user.
 4. If the build succeeds, we contact the JupyterHub API and start
    launching the server.
+
 
 Events
 ------

@@ -1,11 +1,11 @@
 """
-Classes for Repo providers
+Classes for Repo providers.
 
 Subclass the base class, ``RepoProvider``, to support different version
 control services and providers.
 
-Note: When adding a new repo provider, add it to the allowed values for
-      repo providers in event-schemas/launch.json.
+.. note:: When adding a new repo provider, add it to the allowed values for
+          repo providers in event-schemas/launch.json.
 """
 from datetime import timedelta
 import json
@@ -339,7 +339,7 @@ class GitRepoProvider(RepoProvider):
                                 .format(self.unresolved_ref))
             resolved_ref = result.stdout.split(None, 1)[0]
             self.sha1_validate(resolved_ref)
-            self.resolved_ref = resolved_ref 
+            self.resolved_ref = resolved_ref
         else:
             # The ref already was a valid SHA hash
             self.resolved_ref = self.unresolved_ref
@@ -499,7 +499,7 @@ class GitHubRepoProvider(RepoProvider):
     api_base_path = Unicode('https://api.{hostname}',
         config=True,
         help="""The base path of the GitHub API
-        
+
         Only necessary if not github.com,
         e.g. GitHub Enterprise.
 
@@ -652,7 +652,7 @@ class GitHubRepoProvider(RepoProvider):
             log("GitHub rate limit remaining {remaining}/{limit}. Reset in {delta}.".format(
                 remaining=remaining, limit=rate_limit, delta=delta,
             ))
-        
+
         return resp
 
     @gen.coroutine
@@ -661,7 +661,7 @@ class GitHubRepoProvider(RepoProvider):
             return self.resolved_ref
 
         api_url = "{api_base_path}/repos/{user}/{repo}/commits/{ref}".format(
-            api_base_path=self.api_base_path.format(hostname=self.hostname), 
+            api_base_path=self.api_base_path.format(hostname=self.hostname),
             user=self.user, repo=self.repo, ref=self.unresolved_ref
         )
         self.log.debug("Fetching %s", api_url)
@@ -720,6 +720,7 @@ class GistRepoProvider(GitHubRepoProvider):
     The ref is optional, valid values are
         - a full sha1 of a ref in the history
         - master
+
     If master or no ref is specified the latest revision will be used.
     """
 
