@@ -5,6 +5,8 @@ hub:
     binder:
       oauth_redirect_uri: "http://127.0.0.1:8585/oauth_callback"
       oauth_client_id: "binder-oauth-client-test"
+custom:
+  binderauth_enabled: true
 
 auth:
   type: dummy
