@@ -165,11 +165,6 @@ class BinderHub(Application):
         start the new server for the logged in user.""",
         config=True)
 
-    use_named_servers = Bool(
-        False,
-        help="Use named servers when authentication is enabled.",
-        config=True)
-
     port = Integer(
         8585,
         help="""
@@ -593,7 +588,6 @@ class BinderHub(Application):
             'template_variables': self.template_variables,
             'executor': self.executor,
             'auth_enabled': self.auth_enabled,
-            'use_named_servers': self.use_named_servers,
             'event_log': self.event_log,
             'normalized_origin': self.normalized_origin
         })

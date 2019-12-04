@@ -65,9 +65,6 @@ you have to enable named servers on JupyterHub:
 
 .. code:: yaml
 
-    config:
-      BinderHub:
-        use_named_servers: true
     jupyterhub:
       hub:
         allowNamedServers: true
