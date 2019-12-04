@@ -29,7 +29,7 @@ For example::
     jupyterhub:
       extraConfig:
         10-binder-customisations:
-          class MyBinderSpawner(BinderSpawner):
+          class MyCustomBinderSpawner(BinderSpawner):
               ...
 
 About page customization
