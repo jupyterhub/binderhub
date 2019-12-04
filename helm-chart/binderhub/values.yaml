@@ -65,9 +65,6 @@ jupyterhub:
   hub:
     extraConfig:
       00-binder: |
-        import os
-        import sys
-        import yaml
         from tornado import web
 
         # get custom config from values.custom

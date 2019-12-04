@@ -27,10 +27,20 @@ For example::
 
   binderhub:
     jupyterhub:
-      extraConfig:
-        10-binder-customisations:
-          class MyCustomBinderSpawner(BinderSpawner):
-              ...
+      hub:
+        extraConfig:
+          10-binder-customisations: |
+            class MyCustomBinderSpawner(BinderSpawner):
+                ...
+
+            c.JupyterHub.spawner_class = MyCustomBinderSpawner
+
+BinderHub uses the `jupyterhub.hub.extraConfig setting
+<https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/advanced.html#hub-extraconfig>`_
+to customise JupyterHub.
+For example, ``BinderSpawner`` is defined under the ``00-binder`` key.
+Keys are evaluated in alphanumeric order, so later keys such as
+``10-binder-customisations`` can use objects defined in earlier keys.
 
 About page customization
 ------------------------

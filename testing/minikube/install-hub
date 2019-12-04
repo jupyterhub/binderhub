@@ -45,7 +45,10 @@ jupyterhub = get_hub_chart_dependency()
 check_call(['helm', 'repo', 'add', 'jupyterhub', jupyterhub['repository']])
 check_call(['helm', 'repo', 'update', 'jupyterhub'])
 
-# Extract the JupyterHub config from the helm chart values.yaml
+# Deploying BinderHub normally automatically deploys JupyterHub from the same
+# configuration file.
+# In the CI tests JupyterHub is configured independently, so extract the
+# JupyterHub config from the BinderHub helm chart values.yaml
 tmp = NamedTemporaryFile(suffix='.yaml', delete=False)
 tmp.close()
 jupyterhub_values_yaml = tmp.name
