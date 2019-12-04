@@ -60,4 +60,5 @@ that implements the ``DataverseProvider`` class.
    specification for this repository provider.
 #. Add `a test for your repoprovider <https://github.com/jupyterhub/binderhub/pull/969/files#diff-360740f27b99f96e330327e34440a0e8R102>`_
    to ensure that it properly resolves and fetches a repository URL.
-#. Document your new repository provider on the :ref:`providers-section` page.
+#. Document your new repository provider on the :ref:`providers-section` page as well
+   as the :ref:`api-repoproviders` page.
