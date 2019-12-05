@@ -59,58 +59,62 @@ jupyterhub:
     users: true
   custom:
     cors: *cors
+    binderauth_enabled: false
   rbac:
     enabled: true
   hub:
     extraConfig:
-      binder: |
-        import os
-        import sys
-        import yaml
+      00-binder: |
         from tornado import web
 
-        # get cors config from values.custom.cors
+        # get custom config from values.custom
         import z2jh
         cors = z2jh.get_config('custom.cors', {})
+        auth_enabled = z2jh.get_config('custom.binderauth_enabled', False)
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
 
         class BinderSpawner(KubeSpawner):
-          def get_args(self):
-              args = [
-                  '--ip=0.0.0.0',
-                  '--port=%i' % self.port,
-                  '--NotebookApp.base_url=%s' % self.server.base_url,
-                  '--NotebookApp.token=%s' % self.user_options['token'],
-                  '--NotebookApp.trust_xheaders=True',
-              ]
-              allow_origin = cors.get('allowOrigin')
-              if allow_origin:
-                  args.append('--NotebookApp.allow_origin=' + allow_origin)
-              return args + self.args
+            def get_args(self):
+                if auth_enabled:
+                    args = super().get_args()
+                else:
+                    args = [
+                        '--ip=0.0.0.0',
+                        '--port=%i' % self.port,
+                        '--NotebookApp.base_url=%s' % self.server.base_url,
+                        '--NotebookApp.token=%s' % self.user_options['token'],
+                        '--NotebookApp.trust_xheaders=True',
+                    ]
+                    allow_origin = cors.get('allowOrigin')
+                    if allow_origin:
+                        args.append('--NotebookApp.allow_origin=' + allow_origin)
+                    args += self.args
+                return args
 
-          def start(self):
-              if 'token' not in self.user_options:
-                raise web.HTTPError(400, "token required")
-              if 'image' not in self.user_options:
-                raise web.HTTPError(400, "image required")
+            def start(self):
+                if not auth_enabled:
+                    if 'token' not in self.user_options:
+                        raise web.HTTPError(400, "token required")
+                    if 'image' not in self.user_options:
+                        raise web.HTTPError(400, "image required")
+                if 'image' in self.user_options:
+                    self.image = self.user_options['image']
+                return super().start()
 
-              self.image = self.user_options['image']
-              return super().start()
-
-          def get_env(self):
-              env = super(BinderSpawner, self).get_env()
-              if 'repo_url' in self.user_options:
-                  env['BINDER_REPO_URL'] = self.user_options['repo_url']
-              for key in (
-                      'binder_ref_url',
-                      'binder_launch_host',
-                      'binder_persistent_request',
-                      'binder_request'):
-                  if key in self.user_options:
-                      env[key.upper()] = self.user_options[key]
-              return env
+            def get_env(self):
+                env = super().get_env()
+                if 'repo_url' in self.user_options:
+                    env['BINDER_REPO_URL'] = self.user_options['repo_url']
+                for key in (
+                        'binder_ref_url',
+                        'binder_launch_host',
+                        'binder_persistent_request',
+                        'binder_request'):
+                    if key in self.user_options:
+                        env[key.upper()] = self.user_options[key]
+                return env
 
         c.JupyterHub.spawner_class = BinderSpawner
     services:
