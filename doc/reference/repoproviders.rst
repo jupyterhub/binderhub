@@ -52,6 +52,13 @@ Module: :mod:`binderhub.repoproviders`
     :members:
 
 
+:class:`DataverseProvider`
+---------------------------
+
+.. autoconfigurable:: DataverseProvider
+    :members:
+
+
 :class:`GitRepoProvider`
 ---------------------------
 
