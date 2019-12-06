@@ -1,4 +1,7 @@
 {{- if .Values.ingress.enabled -}}
+# FIXME: Update before k8s 1.20 but after we no longer require support for k8s
+# 1.14. networking.k8s.io/v1beta1 was introduced in k8s 1.14 to replace
+# extensions/v1beta1 that goes away in k8s 1.20.
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -21,7 +24,7 @@ spec:
           - path: /
             backend:
               serviceName: binder
-              servicePort: 8585
+              servicePort: 80
     {{- end }}
   {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
   tls:

@@ -22,6 +22,25 @@ For information on how to configure your JupyterHub deployment, see the
 `JupyterHub for Kubernetes Customization Guide
 <https://zero-to-jupyterhub.readthedocs.io/en/latest/#customization-guide>`_.
 
+If you want to customise the spawner you can subclass it in ``extraConfig``.
+For example::
+
+  binderhub:
+    jupyterhub:
+      hub:
+        extraConfig:
+          10-binder-customisations: |
+            class MyCustomBinderSpawner(BinderSpawner):
+                ...
+
+            c.JupyterHub.spawner_class = MyCustomBinderSpawner
+
+BinderHub uses the `jupyterhub.hub.extraConfig setting
+<https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/advanced.html#hub-extraconfig>`_
+to customise JupyterHub.
+For example, ``BinderSpawner`` is defined under the ``00-binder`` key.
+Keys are evaluated in alphanumeric order, so later keys such as
+``10-binder-customisations`` can use objects defined in earlier keys.
 
 About page customization
 ------------------------

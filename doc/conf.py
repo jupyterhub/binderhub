@@ -108,33 +108,19 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import alabaster_jupyterhub
-html_theme = 'alabaster_jupyterhub'
-html_theme_path = [alabaster_jupyterhub.get_html_theme_path()]
+html_theme = 'pandas_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {
-    'show_related': True,
-    'description': "A project to build and serve Binders",
-    'github_user': 'jupyterhub',
-    'github_repo': 'binderhub',
-}
+html_theme_options = {}
 
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'sourcelink.html',
-        'searchbox.html'
-    ]
-}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ['custom.css']
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -196,7 +182,7 @@ texinfo_documents = [
 # -- Custom scripts -------------------------------------------
 
 # Grab the latest version of the k8s and helm install instructions.
-helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-helm.rst"
+helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-jupyterhub/setup-helm.rst"
 
 resp = requests.get(helm_instructions)
 with open('./helm.txt', 'w') as ff:

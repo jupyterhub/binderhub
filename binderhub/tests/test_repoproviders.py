@@ -38,34 +38,65 @@ def test_spec_processing(spec, raw_user, raw_repo, raw_ref):
     assert raw_ref == unresolved_ref
 
 
-async def test_zenodo():
-    spec = '10.5281/zenodo.3242074'
-
+@pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
+    ['10.5281/zenodo.3242074',
+     '10.5281/zenodo.3242074',
+     '3242074',
+     'https://doi.org/10.5281/zenodo.3242074',
+     'zenodo-3242074'],
+    # 10.5281/zenodo.3242073 -> This DOI represents all versions, and will always resolve to the latest one
+    # for now it is 3242074
+    ['10.5281/zenodo.3242073',
+     '10.5281/zenodo.3242074',
+     '3242074',
+     'https://doi.org/10.5281/zenodo.3242074',
+     'zenodo-3242074'],
+])
+async def test_zenodo(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = ZenodoProvider(spec=spec)
 
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
-    assert ref == '3242074'
+    assert ref == resolved_ref
 
     slug = provider.get_build_slug()
-    assert slug == 'zenodo-3242074'
+    assert slug == build_slug
     repo_url = provider.get_repo_url()
     assert repo_url == spec
+    ref_url = await provider.get_resolved_ref_url()
+    assert ref_url == resolved_ref_url
+    spec = await provider.get_resolved_spec()
+    assert spec == resolved_spec
 
 
-async def test_figshare():
-    spec = '10.6084/m9.figshare.9782777.v1'
-
+@pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
+    ['10.6084/m9.figshare.9782777.v1',
+     '10.6084/m9.figshare.9782777.v1',
+     '9782777.v1',
+     'https://doi.org/10.6084/m9.figshare.9782777.v1',
+     'figshare-9782777.v1'],
+    # spec without version is accepted as version 1 - check FigshareProvider.get_resolved_ref()
+    ['10.6084/m9.figshare.9782777',
+     '10.6084/m9.figshare.9782777.v1',
+     '9782777.v1',
+     'https://doi.org/10.6084/m9.figshare.9782777.v1',
+     'figshare-9782777.v1'],
+])
+async def test_figshare(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = FigshareProvider(spec=spec)
 
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
-    assert ref == '9782777.v1'
+    assert ref == resolved_ref
 
     slug = provider.get_build_slug()
-    assert slug == 'figshare-9782777.v1'
+    assert slug == build_slug
     repo_url = provider.get_repo_url()
     assert repo_url == spec
+    ref_url = await provider.get_resolved_ref_url()
+    assert ref_url == resolved_ref_url
+    spec = await provider.get_resolved_spec()
+    assert spec == resolved_spec
 
 
 async def test_hydroshare():
@@ -98,13 +129,19 @@ async def test_hydroshare_doi():
 
 @pytest.mark.github_api
 def test_github_ref():
-    provider = GitHubRepoProvider(spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4')
+    namespace = 'jupyterhub/zero-to-jupyterhub-k8s'
+    spec = f'{namespace}/v0.4'
+    provider = GitHubRepoProvider(spec=spec)
     slug = provider.get_build_slug()
     assert slug == 'jupyterhub-zero-to-jupyterhub-k8s'
     full_url = provider.get_repo_url()
-    assert full_url == 'https://github.com/jupyterhub/zero-to-jupyterhub-k8s'
+    assert full_url == f'https://github.com/{namespace}'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == f'https://github.com/{namespace}/tree/{ref}'
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == f'{namespace}/{ref}'
 
 
 def test_not_banned():
@@ -278,20 +315,29 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     assert full_url == url
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == resolved_ref
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == full_url
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == quote(url, safe='') + f'/{resolved_ref}'
 
 
 def test_gitlab_ref():
+    namespace = 'gitlab-org/gitlab-foss'
     spec = '{}/{}'.format(
-        quote('gitlab-org/gitlab-foss', safe=''),
+        quote(namespace, safe=''),
         quote('v10.0.6')
     )
     provider = GitLabRepoProvider(spec=spec)
     slug = provider.get_build_slug()
     assert slug == 'gitlab_-org-gitlab_-foss'
     full_url = provider.get_repo_url()
-    assert full_url == 'https://gitlab.com/gitlab-org/gitlab-foss.git'
+    assert full_url == f'https://gitlab.com/{namespace}.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == f'https://gitlab.com/{namespace}/tree/{ref}'
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == quote(namespace, safe='') + f'/{ref}'
 
 
 @pytest.mark.github_api
@@ -302,9 +348,13 @@ def test_gist_ref():
     slug = provider.get_build_slug()
     assert slug == '8a658f7f63b13768d1e75fa2464f5092'
     full_url = provider.get_repo_url()
-    assert full_url == 'https://gist.github.com/mariusvniekerk/8a658f7f63b13768d1e75fa2464f5092.git'
+    assert full_url == f'https://gist.github.com/{spec}.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == f'https://gist.github.com/{spec}/{ref}'
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == f'{spec}/{ref}'
 
 
 @pytest.mark.github_api

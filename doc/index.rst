@@ -23,7 +23,7 @@ remotely.
 This guide assists you, an administrator, through the process of setting up
 your BinderHub deployment.
 
-To get started creating your own BinderHub, start with :doc:`create-cloud-resources`.
+To get started creating your own BinderHub, start with :ref:`zero-to-binderhub`.
 
 .. note::
 
@@ -48,13 +48,8 @@ A guide to help you create your own BinderHub from scratch.
 
 .. toctree::
    :maxdepth: 2
-   :numbered:
-   :caption: Zero to BinderHub
 
-   create-cloud-resources
-   setup-registry
-   setup-binderhub
-   turn-off
+   zero-to-binderhub/index
 
 Customization and deployment information
 ========================================
@@ -64,13 +59,8 @@ in the community have done.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Customization and deployment
 
-   debug
-   customizing
-   authentication
-   known-deployments
-   federation/federation
+   customization/index
 
 BinderHub Developer and Architecture Documentation
 ==================================================
@@ -81,7 +71,17 @@ A more detailed overview of the BinderHub design, architecture, and functionalit
    :maxdepth: 2
    :caption:  Developer and architecture docs
 
-   overview
-   eventlogging
-   api
-   reference/ref-index.rst
+   developer/index
+
+The BinderHub community
+=======================
+
+The BinderHub community includes members of organizations deploying their own BinderHubs,
+as well as members of the broader Jupyter and Binder communities.
+
+This section contains a collection of resources for and about the BinderHub community.
+
+.. toctree::
+   :maxdepth: 2
+
+   community/index

@@ -134,6 +134,29 @@ your BinderHub to require authentication. These tests will generate a lot of
 output and take a few minutes to run. The tests will attempt to clean up after
 themselves on your minikube cluster.
 
+To manually test changes to the Helm chart you will have to build the chart,
+all images involved and deploy it locally. Steps to do this:
+
+1. start minikube
+1. setup docker to user the minikube dockerd `eval $(minikube docker-env)`
+1. build the helm chart `cd helm-chart && chartpress && cd ..`
+1. install the BinderHub chart with
+```
+helm install \
+  --name binder-test \
+  --namespace binder-test-helm \
+  helm-chart/binderhub \
+  -f helm-chart/minikube-binder.yaml
+```
+
+You can now access your BinderHub at: `http://192.168.99.100:30901`. If your
+minikube instance has a different IP use `minikube ip` to find it. You will
+have to use that IP in two places. Add `--set config.BinderHub.hub_url: http://$IP:30902`
+to your `helm install` command and access your BinderHub at `http://$IP:30901`.
+Replace `$IP` with the output of `minikube ip`.
+
+To remove the deployment again: `helm delete --purge binder-test`.
+
 
 ### One-time installation
 
@@ -287,7 +310,7 @@ introduced, particularly when bumping major versions of JupyterHub.
 
 Checklist for creating BinderHub releases. For PyPI packaging read https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi
 
-* update/close the `CHANGES.rst` for this release
+* update/close the `CHANGES.md` for this release (see below)
 * create a git tag for the release
 * `pip install twine`
 * `python setup.py sdist`
@@ -297,3 +320,17 @@ Checklist for creating BinderHub releases. For PyPI packaging read https://packa
 * `twine upload dist/*`
 * create a new release on https://github.com/jupyterhub/binderhub/releases
 * add a new section at the top of the change log for future releases
+
+### Bumping the changelog
+
+As BinderHub does not have a typical semver release schedule, we try to
+update the changelog in `CHANGES.md` every three months. A useful tool
+for this [can be found here](https://github.com/choldgraf/github-activity).
+If you choose to use this tool, the command that generated current sections
+in the changelog is below:
+
+```bash
+github-activity jupyterhub/binderhub -s <START-DATE> -u <END-DATE> --tags enhancement,bug --strip-brackets
+```
+
+Copy and paste the output of this command into a new section in `CHANGES.md`.

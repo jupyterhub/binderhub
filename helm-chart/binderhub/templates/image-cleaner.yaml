@@ -1,6 +1,6 @@
 {{ if .Values.imageCleaner.enabled -}}
 {{- $Values := .Values -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Release.Name }}-image-cleaner
@@ -54,6 +54,8 @@ spec:
           value: /var/lib/docker
         - name: IMAGE_GC_DELAY
           value: {{ $Values.imageCleaner.delay | quote }}
+        - name: IMAGE_GC_THRESHOLD_TYPE
+          value: {{ $Values.imageCleaner.imageGCThresholdType }}
         - name: IMAGE_GC_THRESHOLD_HIGH
           value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
         - name: IMAGE_GC_THRESHOLD_LOW

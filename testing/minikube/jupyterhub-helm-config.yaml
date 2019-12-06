@@ -3,66 +3,22 @@
 
 # the binder apiToken bit requires jupyterhub helm-chart v0.5.x
 
-rbac:
-  enabled: true
+custom:
+  cors:
+    allowOrigin: "*"
+
 hub:
   cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
   db:
     type: "sqlite-memory"
   services:
     binder:
-      admin: true
       apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
   allowNamedServers: false
   extraConfig:
-    binder: |
-      # image & token are set via spawn options
-      from kubespawner import KubeSpawner
-      from tornado import web
-
-      class BinderSpawner(KubeSpawner):
-        def get_args(self):
-            return [
-                '--ip=0.0.0.0',
-                '--port=%i' % self.port,
-                '--NotebookApp.base_url=%s' % self.server.base_url,
-                '--NotebookApp.token=%s' % self.user_options['token'],
-                '--NotebookApp.trust_xheaders=True',
-                '--NotebookApp.allow_origin=*',
-            ] + self.args
-
-        def start(self):
-            if 'token' not in self.user_options:
-              raise web.HTTPError(400, "token required")
-            if 'image' not in self.user_options:
-              raise web.HTTPError(400, "image required")
-
-            self.image_spec = self.user_options['image']
-            return super().start()
-
-      # launch jupyter notebook instead of jupyterhub-singleuser
-      c.JupyterHub.spawner_class = BinderSpawner
-
+    10-binder-customisations: |
       # debug!
       c.JupyterHub.log_level = 10
-
-singleuser:
-  cmd: jupyter-notebook
-  storage:
-    type: none
-  memory:
-    guarantee: null
-auth:
-  type: custom
-  custom:
-    # disable login (users created exclusively via API)
-    className: "nullauthenticator.NullAuthenticator"
-
-prePuller:
-  hook:
-    enabled: false
-  continuous:
-    enabled: false
 
 proxy:
   # Another secret!
