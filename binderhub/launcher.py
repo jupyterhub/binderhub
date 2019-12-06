@@ -36,7 +36,7 @@ class Launcher(LoggingConfigurable):
     hub_url = Unicode(help="The URL of the Hub")
     create_user = Bool(True, help="Create a new Hub user")
     allow_named_servers = Bool(
-        os.getenv('JUPYTERHUB_ALLOW_NAMED_SERVERS', False),
+        os.getenv('JUPYTERHUB_ALLOW_NAMED_SERVERS', "false") == "true",
         config=True,
         help="Named user servers are allowed. This is used only when authentication is enabled and "
              "to set unique names for user servers."
