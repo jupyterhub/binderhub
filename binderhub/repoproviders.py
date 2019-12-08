@@ -322,7 +322,25 @@ class DataverseProvider(RepoProvider):
             major=resp["data"]["latestVersion"]["versionNumber"],
             minor=resp["data"]["latestVersion"]["versionMinorNumber"],
         )
+
+        # NOTE: data.protocol should be potentially prepended here
+        #  {protocol}:{authority}/{identifier}
+        self.resolved_spec = "{authority}/{identifier}".format(
+            authority=resp["data"]["authority"],
+            identifier=resp["data"]["identifier"],
+        )
+        self.resolved_ref_url = resp["data"]["persistentUrl"]
         return self.record_id
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_spec'):
+            await self.get_resolved_ref()
+        return self.resolved_spec
+
+    async def get_resolved_ref_url(self):
+        if not hasattr(self, 'resolved_ref_url'):
+            await self.get_resolved_ref()
+        return self.resolved_ref_url
 
     def get_repo_url(self):
         # While called repo URL, the return value of this function is passed
