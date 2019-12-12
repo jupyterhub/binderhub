@@ -501,7 +501,7 @@ class BuildHandler(BaseHandler):
                 # get logged in user's name
                 user_model = self.hub_auth.get_user(self)
                 username = user_model['name']
-                if self.settings['use_named_servers']:
+                if launcher.allow_named_servers:
                     # user can launch multiple servers, so create a unique server name
                     server_name = launcher.unique_name_from_repo(self.repo_url)
                 else:
