@@ -23,6 +23,7 @@ import tornado.web
 from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
+from jupyterhub.traitlets import Callable
 
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
@@ -158,6 +159,18 @@ class BinderHub(Application):
         if proposal.value and not proposal.value.endswith('/'):
             proposal.value = proposal.value + '/'
         return proposal.value
+
+    launch_host_allowed = Callable(
+        None,
+        config=True,
+        allow_none=True,
+        help="""
+        Callable that checks whether a Binder launch host passed via the
+        X-Binder-Launch-Host header is allowed
+
+        When set to None (default) the header is ignored.
+        """
+    )
 
     auth_enabled = Bool(
         False,
@@ -585,6 +598,7 @@ class BinderHub(Application):
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
             'badge_base_url': self.badge_base_url,
+            'launch_host_allowed': self.launch_host_allowed,
             "static_path": os.path.join(HERE, "static"),
             'static_url_prefix': url_path_join(self.base_url, 'static/'),
             'template_variables': self.template_variables,

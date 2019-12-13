@@ -258,7 +258,14 @@ class BuildHandler(BaseHandler):
         self.ref_url = await provider.get_resolved_ref_url()
         resolved_spec = await provider.get_resolved_spec()
 
-        self.binder_launch_host = self.settings['badge_base_url'] or '{proto}://{host}{base_url}'.format(
+        launch_host = None
+        if self.settings['launch_host_allowed']:
+            launch_host_hdr = self.request.headers.get('X-Binder-Launch-Host', '')
+            if self.settings['launch_host_allowed'](launch_host_hdr):
+                launch_host = launch_host_hdr
+                if launch_host and not launch_host.endswith('/'):
+                    launch_host += '/'
+        self.binder_launch_host = launch_host or self.settings['badge_base_url'] or '{proto}://{host}{base_url}'.format(
             proto=self.request.protocol,
             host=self.request.host,
             base_url=self.settings['base_url'],
