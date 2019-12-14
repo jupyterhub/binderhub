@@ -26,9 +26,12 @@ class MainHandler(BaseHandler):
 
     @authenticated
     def get(self):
+        badge_base_url = self.settings['badge_base_url']
+        if callable(badge_base_url):
+            badge_base_url = badge_base_url(self)
         self.render_template(
             "index.html",
-            badge_base_url=self.settings['badge_base_url'],
+            badge_base_url=badge_base_url,
             base_url=self.settings['base_url'],
             submit=False,
             google_analytics_code=self.settings['google_analytics_code'],
@@ -91,10 +94,13 @@ class ParameterizedMainHandler(BaseHandler):
             if response.code >= 400:
                 nbviewer_url = None
 
+        badge_base_url = self.settings['badge_base_url']
+        if callable(badge_base_url):
+            badge_base_url = badge_base_url(self)
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
-            badge_base_url=self.settings['badge_base_url'],
+            badge_base_url=badge_base_url,
             provider_spec=provider_spec,
             social_desc=social_desc,
             nbviewer_url=nbviewer_url,
