@@ -258,9 +258,7 @@ class BuildHandler(BaseHandler):
         self.ref_url = await provider.get_resolved_ref_url()
         resolved_spec = await provider.get_resolved_spec()
 
-        badge_base_url = self.settings['badge_base_url']
-        if callable(badge_base_url):
-            badge_base_url = badge_base_url(self)
+        badge_base_url = self.get_badge_base_url()
         self.binder_launch_host = badge_base_url or '{proto}://{host}{base_url}'.format(
             proto=self.request.protocol,
             host=self.request.host,
