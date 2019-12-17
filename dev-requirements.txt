@@ -7,4 +7,3 @@ pytest-cov
 requests
 ruamel.yaml>=0.15
 chartpress==0.5.*
-jupyterhub

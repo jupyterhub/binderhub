@@ -141,7 +141,7 @@ all images involved and deploy it locally. Steps to do this:
 1. setup docker to user the minikube dockerd `eval $(minikube docker-env)`
 1. build the helm chart `cd helm-chart && chartpress && cd ..`
 1. install the BinderHub chart with
-```
+```bash
 helm install \
   --name binder-test \
   --namespace binder-test-helm \
@@ -217,7 +217,7 @@ sudo apt install socat
 1. Install BinderHub and its development requirements:
 
     ```bash
-    python3 -m pip install -e . -r dev-requirements.txt
+    python3 -m pip install -e . -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
     ```
 
 1. Install JupyterHub in minikube with helm
