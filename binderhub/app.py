@@ -20,9 +20,10 @@ import tornado.options
 import tornado.log
 from tornado.log import app_log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, default
+from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, Union, default
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
+from jupyterhub.traitlets import Callable
 
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
@@ -147,13 +148,27 @@ class BinderHub(Application):
             proposal.value = proposal.value + '/'
         return proposal.value
 
-    badge_base_url = Unicode(
-        '',
-        help="Base URL to use when generating launch badges",
+    badge_base_url = Union(
+        trait_types=[Unicode(), Callable()],
+        help="""
+        Base URL to use when generating launch badges.
+        Can also be a function that is passed the current handler and returns
+        the badge base URL, or "" for the default.
+
+        For example, you could get the badge_base_url from a custom HTTP
+        header, the Referer header, or from a request parameter
+        """,
         config=True
     )
+
+    @default('badge_base_url')
+    def _badge_base_url_default(self):
+        return '/'
+
     @validate('badge_base_url')
     def _valid_badge_base_url(self, proposal):
+        if callable(proposal.value):
+            return proposal.value
         # add a trailing slash only when a value is set
         if proposal.value and not proposal.value.endswith('/'):
             proposal.value = proposal.value + '/'

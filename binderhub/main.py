@@ -28,7 +28,7 @@ class MainHandler(BaseHandler):
     def get(self):
         self.render_template(
             "index.html",
-            badge_base_url=self.settings['badge_base_url'],
+            badge_base_url=self.get_badge_base_url(),
             base_url=self.settings['base_url'],
             submit=False,
             google_analytics_code=self.settings['google_analytics_code'],
@@ -94,7 +94,7 @@ class ParameterizedMainHandler(BaseHandler):
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
-            badge_base_url=self.settings['badge_base_url'],
+            badge_base_url=self.get_badge_base_url(),
             provider_spec=provider_spec,
             social_desc=social_desc,
             nbviewer_url=nbviewer_url,
