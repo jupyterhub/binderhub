@@ -163,7 +163,7 @@ class BinderHub(Application):
 
     @default('badge_base_url')
     def _badge_base_url_default(self):
-        return '/'
+        return ''
 
     @validate('badge_base_url')
     def _valid_badge_base_url(self, proposal):
