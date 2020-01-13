@@ -16,10 +16,9 @@ install:
   - export PATH=$PWD/bin:$PATH
   - pip install --upgrade pip setuptools
   - ./ci/install.sh
-  - pip install --upgrade -r dev-requirements.txt
+  - pip install --upgrade . -r dev-requirements.txt
   - npm install
   - npm run webpack
-  - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
   - pip freeze
 
 script:
