@@ -7,3 +7,4 @@ pytest-cov
 requests
 ruamel.yaml>=0.15
 chartpress==0.5.*
+-r helm-chart/images/binderhub/requirements.txt

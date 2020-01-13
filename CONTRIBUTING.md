@@ -217,7 +217,7 @@ sudo apt install socat
 1. Install BinderHub and its development requirements:
 
     ```bash
-    python3 -m pip install -e . -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+    python3 -m pip install -e . -r dev-requirements.txt
     ```
 
 1. Install JupyterHub in minikube with helm
