@@ -110,7 +110,7 @@ every day development.
 * Install JupyterHub in minikube with helm `./testing/minikube/install-hub`
 * Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
 * Start BinderHub `python3 -m binderhub -f testing/minikube/binderhub_config.py`
-* Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
+* Visit your BinderHub at [http://localhost:8585](http://localhost:8585)
 
 To execute most of our test suite you need a running minikube cluster.
 It does not need to have anything installed on it though:
