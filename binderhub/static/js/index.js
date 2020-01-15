@@ -59,50 +59,34 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
   return url;
 }
 
+function loadConfig(callback) {
+  var req = new XMLHttpRequest();
+  req.onreadystatechange = function() {
+    if (req.readyState == 4 && req.status == 200)
+      callback(req.responseText)
+  };
+  req.open('GET', BASE_URL + "_config", true);
+  req.send(null);
+}
+
 function updateRepoText() {
-  var text;
-  var provider = $("#provider_prefix").val();
-  var tag_text = "Git ref (branch, tag, or commit)";
-  var placeholder = "HEAD";
-  // first enable branch/ref field, some providers later disable it
-  $("#ref").prop("disabled", false);
-  $("label[for=ref]").prop("disabled", false);
-  if (provider === "gh") {
-    text = "GitHub repository name or URL";
-  } else if (provider === "gl") {
-    text = "GitLab.com repository or URL";
-  }
-  else if (provider === "gist") {
-    text = "Gist ID (username/gistId) or URL";
-    tag_text = "Git commit SHA";
-  }
-  else if (provider === "git") {
-    text = "Arbitrary git repository URL (http://git.example.com/repo)";
-  }
-  else if (provider === "zenodo") {
-    text = "Zenodo DOI (10.5281/zenodo.3242074)";
-    $("#ref").prop("disabled", true);
-    $("label[for=ref]").prop("disabled", true);
-  }
-  else if (provider === "figshare") {
-    text = "Figshare DOI (10.6084/m9.figshare.9782777.v1)";
-    $("#ref").prop("disabled", true);
-    $("label[for=ref]").prop("disabled", true);
-  }
-  else if (provider === "hydroshare") {
-    text = "Hydroshare resource id or URL";
-    $("#ref").prop("disabled", true);
-    $("label[for=ref]").prop("disabled", true);
-  }
-  else if (provider === "dataverse") {
-    text = "Dataverse DOI (10.7910/DVN/TJCLKP)";
-    $("#ref").prop("disabled", true);
-    $("label[for=ref]").prop("disabled", true);
-  }
-  $("#repository").attr('placeholder', text);
-  $("label[for=repository]").text(text);
-  $("#ref").attr('placeholder', placeholder);
-  $("label[for=ref]").text(tag_text);
+  loadConfig(function(res) {
+    var cfg = JSON.parse(res);
+    var provider = $("#provider_prefix").val();
+
+    var text = cfg[provider]["text"]
+    var tag_text = cfg[provider]["tag_text"]
+    var ref_prop_disabled = cfg[provider]["ref_prop_disabled"]
+    var label_prop_disabled = cfg[provider]["label_prop_disabled"]
+    var placeholder = "HEAD";
+
+    $("#ref").prop("disabled", ref_prop_disabled);
+    $("label[for=ref]").prop("disabled", label_prop_disabled);
+    $("#repository").attr('placeholder', text);
+    $("label[for=repository]").text(text);
+    $("#ref").attr('placeholder', placeholder);
+    $("label[for=ref]").text(tag_text);
+  });
 }
 
 function getBuildFormValues() {

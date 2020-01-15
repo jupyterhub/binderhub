@@ -39,6 +39,7 @@ from jupyterhub.traitlets import Callable
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
+from .config import ConfigHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
@@ -728,6 +729,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
+            (r'/_config', ConfigHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
