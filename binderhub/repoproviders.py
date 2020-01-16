@@ -212,6 +212,13 @@ class ZenodoProvider(RepoProvider):
     """
     name = Unicode("Zenodo")
 
+    labels = {
+        "text": "Zenodo DOI (10.5281/zenodo.3242074)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
+
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
         req = HTTPRequest("https://doi.org/{}".format(self.spec),
@@ -250,6 +257,13 @@ class FigshareProvider(RepoProvider):
     """
     name = Unicode("Figshare")
     url_regex = re.compile(r"(.*)/articles/([^/]+)/([^/]+)/(\d+)(/)?(\d+)?")
+
+    labels = {
+        "text": "Figshare DOI (10.6084/m9.figshare.9782777.v1)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
@@ -291,6 +305,13 @@ class FigshareProvider(RepoProvider):
 
 class DataverseProvider(RepoProvider):
     name = Unicode("Dataverse")
+
+    labels = {
+        "text": "Dataverse DOI (10.7910/DVN/TJCLKP)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
@@ -414,6 +435,13 @@ class GitRepoProvider(RepoProvider):
 
     name = Unicode("Git")
 
+    labels = {
+        "text": "Arbitrary git repository URL (http://git.example.com/repo)",
+        "tag_text": "Git ref (branch, tag, or commit) SHA",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.url, unresolved_ref = self.spec.split('/', 1)
@@ -524,6 +552,13 @@ class GitLabRepoProvider(RepoProvider):
         if self.private_token:
             return r'username=binderhub\npassword={token}'.format(token=self.private_token)
         return ""
+
+    labels = {
+        "text": "GitLab repository name or URL",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -656,6 +691,13 @@ class GitHubRepoProvider(RepoProvider):
             else:
                 return r'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
         return ""
+
+    labels = {
+        "text": "GitHub repository name or URL",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -831,6 +873,13 @@ class GistRepoProvider(GitHubRepoProvider):
         config=True,
         help="Flag for allowing usages of secret Gists.  The default behavior is to disallow secret gists.",
     )
+
+    labels = {
+        "text": "Gist ID (username/gistId) or URL",
+        "tag_text": "Git commit SHA",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         # We dont need to initialize entirely the same as github
