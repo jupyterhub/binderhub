@@ -235,19 +235,27 @@ class AWSElasticContainerRegistry(DockerRegistry):
         """,
     )
 
-    username = "AWS"
-
-    # fetch password every time as ECR password expires every 12 hours 
-    # and is refreshed by k8s externally
-    @property
-    def password(self):
-        return super()._default_password()
-
     ecr_client = Any()
 
     @default("ecr_client")
     def _get_ecr_client(self):
         return boto3.client("ecr", region_name=self.aws_region)
+
+    # TODO: cache auth if not expired - authorizationData.0.expiresAt
+    def _get_ecr_auth(self):
+        return self.ecr_client.get_authorization_token()["authorizationData"][0]
+
+    username = "AWS"
+
+    @property
+    def password(self):
+        # Fetch password every time as ECR password expires
+        auth = self._get_ecr_auth()
+        return base64.b64decode(auth['authorizationToken']).decode("utf-8").split(':')[1]
+
+    @default("url")
+    def _default_url(self):
+        return self._get_ecr_auth()["proxyEndpoint"]
 
     async def get_image_manifest(self, image, tag):
         try:
