@@ -232,8 +232,8 @@ below. For more information and examples see `Identity and Access Management for
             "Version": "2012-10-17"
         }
 
-If you are using AWS EC2, EKS, etc. to set up your Kubernetes cluster you can
-add this policy to the IAM Role assumed by the nodes of the cluster, e.g.
+If you used AWS services like EC2 or EKS to set up your Kubernetes cluster you
+can add this policy to the IAM Role assumed by the nodes of the cluster, e.g.
 ``nodes.<somename>.k8s.local`` if you followed `Zero to JupyterHub with Kubernetes <https://zero-to-jupyterhub.readthedocs.io/>`_
 and used kops. The IAM permissions policy will need to accompanied with an IAM
 trust policy to allow it to be assumed. An example for EC2 is provided below.
