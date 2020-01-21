@@ -209,13 +209,14 @@ Container Registry (ECR), then your `config.yaml` file will look as follows::
       BinderHub:
         use_registry: true
         registry_class: binderhub.registry.AWSElasticContainerRegistry
-        image_prefix: "<prefix>-"
+        image_prefix: "<ACCOUNT_NUMBER>.dkr.ecr.<REGION>.amazonaws.com/<prefix>-"
       AWSElasticContainerRegistry:
-        aws_region: <region>
+        aws_region: <REGION>
 
 where:
 
-* ``<region>`` is the AWS region of the ECR registry, e.g. ``us-east-1``.
+* ``<ACCOUNT_NUMBER>`` is the identifier of your AWS account
+* ``<REGION>`` is the AWS region of the ECR registry, e.g. ``us-east-1``.
 * ``<prefix>`` can be any string, and will be prepended to image names. We
   recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
   (ending with a `-` is useful).
