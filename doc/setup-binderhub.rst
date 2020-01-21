@@ -116,6 +116,22 @@ where:
 * `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment,
 * `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal.
 
+If you are using Amazon Elastic Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update `secret.yaml` to include the following::
+
+    registry:
+      url: https://<ACCOUNT_NUMBER>.dkr.ecr.<REGION>.amazonaws.com
+
+where:
+
+* ``<ACCOUNT_NUMBER>`` is the identifier of your AWS account
+* ``<REGION>`` is the AWS region of the ECR registry, e.g. ``us-east-1``
+
+As ECR uses AWS IAM for authorization, specifying ``username`` and ``password``
+is not necessary.
+
 Create ``config.yaml``
 ----------------------
 
@@ -182,6 +198,37 @@ where:
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
   Suggestions for `<project-name>` could be `ACR_NAME` or the name you give your BinderHub.
+
+If you are using Amazon Elastic Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want your BinderHub to push and pull images from an Amazon Elastic
+Container Registry (ECR), then your `config.yaml` file will look as follows::
+
+    config:
+      BinderHub:
+        use_registry: true
+        registry_class: binderhub.registry.AWSElasticContainerRegistry
+        image_prefix: "<prefix>-"
+      AWSElasticContainerRegistry:
+        aws_region: <region>
+
+where:
+
+* ``<region>`` is the AWS region of the ECR registry, e.g. ``us-east-1``.
+* ``<prefix>`` can be any string, and will be prepended to image names. We
+  recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+  (ending with a `-` is useful).
+
+If you opted to use an IAM User with programmatic access instead of assuming
+the role in the previous step you will additionally need to add the following
+to your `config.yaml`::
+
+    extraEnv:
+    - name: AWS_ACCESS_KEY_ID
+      value: "xxx"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "yyy"
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

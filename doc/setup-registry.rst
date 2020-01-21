@@ -137,6 +137,97 @@ where:
        SERVICE_PRINCIPAL_PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
        SERVICE_PRINCIPAL_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
 
+.. _use-ecr:
+
+Set up Amazon Elastic Container Registry
+----------------------------------------
+
+To use Amazon Elastic Container Registry (ECR), you'll need to use AWS IAM to
+authorize the machine or pod running BinderHub so it can push images. There
+are a number of options on how to do this with IAM and Kubernetes, but we
+will highlight two: assume IAM role and IAM user with programmatic access.
+
+Start by creating an IAM policy that grants access to create repositories and
+read/write images from them. An example IAM permissions policy is provided
+below. For more information and examples see `Identity and Access Management for Amazon Elastic Container Registry <https://docs.aws.amazon.com/AmazonECR/latest/userguide/security-iam.html>`_.
+
+.. code-block:: json
+
+        {
+            "Statement": [
+                {
+                    "Action": [
+                        "ecr:ListImages"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "arn:aws:ecr:<REGION>:<ACCOUNT_NUMBER>:<prefix>-*",
+                    "Sid": "ListImagesInRepository"
+                },
+                {
+                    "Action": [
+                        "ecr:GetAuthorizationToken"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "*",
+                    "Sid": "GetAuthorizationToken"
+                },
+                {
+                    "Action": [
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:GetRepositoryPolicy",
+                        "ecr:DescribeRepositories",
+                        "ecr:ListImages",
+                        "ecr:DescribeImages",
+                        "ecr:BatchGetImage",
+                        "ecr:InitiateLayerUpload",
+                        "ecr:UploadLayerPart",
+                        "ecr:CompleteLayerUpload",
+                        "ecr:PutImage"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "arn:aws:ecr:<REGION>:<ACCOUNT_NUMBER>:<prefix>-*",
+                    "Sid": "ManageRepositoryContents"
+                },
+                {
+                    "Action": [
+                        "ecr:CreateRepository"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": "arn:aws:ecr:<REGION>:<ACCOUNT_NUMBER>:<prefix>-*",
+                    "Sid": "CreateRepository"
+                },
+            ],
+            "Version": "2012-10-17"
+        }
+
+If you are using AWS EC2, EKS, etc. to set up your Kubernetes cluster you can
+add this policy to the IAM Role assumed by the nodes of the cluster, e.g.
+``nodes.<somename>.k8s.local`` if you followed `Zero to JupyterHub with Kubernetes <https://zero-to-jupyterhub.readthedocs.io/>`_
+and used kops. The IAM permissions policy will need to accompanied with an IAM
+trust policy to allow it to be assumed. An example for EC2 is provided below.
+For more information see `Granting a User Permissions to Pass a Role to an AWS Service <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html>`_.
+This is the recommended method if your Kubernetes cluster is provisioned on
+AWS.
+
+.. code-block:: json
+
+        {
+            "Version": "2012-10-17",
+            "Statement": {
+                "Sid": "TrustPolicyStatementThatAllowsEC2ServiceToAssumeTheAttachedRole",
+                "Effect": "Allow",
+                "Principal": { "Service": "ec2.amazonaws.com" },
+            "Action": "sts:AssumeRole"
+            }
+        }
+
+Alternatively, you can create an IAM user with programmatic access (see
+`Creating an IAM User in Your AWS Account <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html>`_)
+and specify the ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment
+variables in the following step.
+
 Next step
 ---------
 
