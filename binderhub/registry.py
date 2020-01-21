@@ -7,6 +7,8 @@ import os
 from urllib.parse import urlparse
 
 import boto3
+import kubernetes.client
+import kubernetes.config
 from tornado import gen, httpclient
 from tornado.httputil import url_concat
 from traitlets import default, Dict, Unicode, Any
@@ -241,9 +243,12 @@ class AWSElasticContainerRegistry(DockerRegistry):
     def _get_ecr_client(self):
         return boto3.client("ecr", region_name=self.aws_region)
 
-    # TODO: cache auth if not expired - authorizationData.0.expiresAt
+    # TODO: cache auth if not expired - authorizationData[i]["expiresAt"]
     def _get_ecr_auth(self):
-        return self.ecr_client.get_authorization_token()["authorizationData"][0]
+        auths = self.ecr_client.get_authorization_token()["authorizationData"]
+        auth = next(x for x in auths if x["proxyEndpoint"] == self.url)
+        self._patch_docker_config_secret(auth)
+        return auth
 
     username = "AWS"
 
@@ -253,10 +258,6 @@ class AWSElasticContainerRegistry(DockerRegistry):
         auth = self._get_ecr_auth()
         return base64.b64decode(auth['authorizationToken']).decode("utf-8").split(':')[1]
 
-    @default("url")
-    def _default_url(self):
-        return self._get_ecr_auth()["proxyEndpoint"]
-
     async def get_image_manifest(self, image, tag):
         try:
             repo_name = image.split("/", 1)[1]
@@ -265,3 +266,18 @@ class AWSElasticContainerRegistry(DockerRegistry):
         except self.ecr_client.exceptions.RepositoryAlreadyExistsException:
             self.log.info("ECR repo {} already exists".format(repo_name))
         return await super().get_image_manifest(repo_name, tag)
+
+    kubernetes.config.load_incluster_config()
+    kube_client = kubernetes.client.CoreV1Api()
+    
+    def _patch_docker_config_secret(self, auth):
+        """Patch binder-push-secret"""
+        secret_data = {"auths": {self.url: {"auth": auth["authorizationToken"]}}}
+        secret_data = base64.b64encode(json.dumps(secret_data).encode("utf8")).decode(
+            "utf8"
+        )
+        with open("/var/run/secrets/kubernetes.io/serviceaccount/namespace") as f:
+            namespace = f.read()
+        self.kube_client.patch_namespaced_secret(
+            "binder-push-secret", namespace, {"data": {"config.json": secret_data}}
+        )
