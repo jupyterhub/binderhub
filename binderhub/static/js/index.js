@@ -94,6 +94,11 @@ function updateRepoText() {
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
+  else if (provider === "dataverse") {
+    text = "Dataverse DOI (10.7910/DVN/TJCLKP)";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
+  }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
   $("#ref").attr('placeholder', tag_text);
@@ -117,7 +122,8 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'hydroshare') {
+  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
+      providerPrefix === 'hydroshare') {
     ref = "";
   }
   var path = $('#filepath').val().trim();

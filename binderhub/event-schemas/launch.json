@@ -13,7 +13,8 @@
                 "Git",
                 "Zenodo",
                 "Figshare",
-                "Hydroshare"
+                "Hydroshare",
+                "Dataverse"
             ],
             "description": "Provider for the repository being launched"
         },

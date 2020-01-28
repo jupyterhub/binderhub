@@ -15,13 +15,14 @@ import urllib.parse
 import re
 import subprocess
 
+import escapism
 from prometheus_client import Gauge
 
 from tornado import gen
 from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, Bool, default, List, observe
+from traitlets import Dict, Unicode, Bool, default, List
 from traitlets.config import LoggingConfigurable
 
 from .utils import Cache
@@ -294,9 +295,64 @@ class FigshareProvider(RepoProvider):
         return "figshare-{}".format(self.record_id)
 
 
+class DataverseProvider(RepoProvider):
+    name = Unicode("Dataverse")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+
+        search_url = urllib.parse.urlunparse(
+            urllib.parse.urlparse(r.effective_url)._replace(
+                path="/api/datasets/:persistentId"
+            )
+        )
+        req = HTTPRequest(search_url, user_agent="BinderHub")
+        r = yield client.fetch(req)
+        resp = json.loads(r.body)
+
+        assert resp["status"] == "OK"
+
+        self.identifier = resp["data"]["identifier"]
+        self.record_id = "{datasetId}.v{major}.{minor}".format(
+            datasetId=resp["data"]["id"],
+            major=resp["data"]["latestVersion"]["versionNumber"],
+            minor=resp["data"]["latestVersion"]["versionMinorNumber"],
+        )
+
+        # NOTE: data.protocol should be potentially prepended here
+        #  {protocol}:{authority}/{identifier}
+        self.resolved_spec = "{authority}/{identifier}".format(
+            authority=resp["data"]["authority"],
+            identifier=resp["data"]["identifier"],
+        )
+        self.resolved_ref_url = resp["data"]["persistentUrl"]
+        return self.record_id
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_spec'):
+            await self.get_resolved_ref()
+        return self.resolved_spec
+
+    async def get_resolved_ref_url(self):
+        if not hasattr(self, 'resolved_ref_url'):
+            await self.get_resolved_ref()
+        return self.resolved_ref_url
+
+    def get_repo_url(self):
+        # While called repo URL, the return value of this function is passed
+        # as argument to repo2docker, hence we return the spec as is.
+        return self.spec
+
+    def get_build_slug(self):
+        return "dataverse-" + escapism.escape(self.identifier, escape_char="-").lower()
+
+
 class HydroshareProvider(RepoProvider):
     """Provide contents of a Hydroshare resource
-
     Users must provide a spec consisting of the Hydroshare resource id.
     """
     name = Unicode("Hydroshare")

@@ -102,6 +102,8 @@ spec:
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
+        - name: JUPYTERHUB_ALLOW_NAMED_SERVERS
+          value: {{ .Values.jupyterhub.hub.allowNamedServers | quote }}
         {{- end }}
         {{ if .Values.extraEnv }}
 {{ toYaml .Values.extraEnv | indent 8 }}

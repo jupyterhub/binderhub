@@ -18,3 +18,10 @@
   funded_by_link: https://www.gesis.org/en/home
   run_by: The GESIS Notebooks Team
   run_by_link: https://notebooks.gesis.org/about/
+
+- url_binderhub: https://turing.mybinder.org
+  logo: https://www.turing.ac.uk/sites/default/files/inline-images/Turing%20logo_0.png
+  funded_by: The Alan Turing Institute
+  funded_by_link: https://turing.ac.uk
+  run_by: The Turing Way team led by Sarah Gibson
+  run_by_link: https://www.turing.ac.uk/research/research-projects/turing-way-handbook-reproducible-data-science#organisers

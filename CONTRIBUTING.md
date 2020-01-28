@@ -190,7 +190,6 @@ sudo apt install socat
    starts a local kubernetes cluster inside a virtual machine. This command
    assumes that you have already installed one of the VM drivers: virtualbox,
    xhyve or KVM2.
-
 1. Install helm to manage installing JupyterHub and BinderHub on your cluster,
 
    ```bash
@@ -279,6 +278,13 @@ using a GitHub API token before running tests
 in order to avoid hitting your API limit. Steps to do so are outlined in
 the [BinderHub documentation](https://binderhub.readthedocs.io/en/latest/setup-binderhub.html#increase-your-github-api-limit).
 
+### Tip: Start Minikube with more memory
+
+By default, `minikube start` allocates 2GiB of main memory to the
+underlying VM, which might be too low to run the builder successfully.
+   
+You may run `minikube start --memory 8192` to start Minikube with a 8GiB
+VM underneath.
 
 ## Common maintainer tasks
 

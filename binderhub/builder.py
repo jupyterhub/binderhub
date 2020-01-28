@@ -258,7 +258,8 @@ class BuildHandler(BaseHandler):
         self.ref_url = await provider.get_resolved_ref_url()
         resolved_spec = await provider.get_resolved_spec()
 
-        self.binder_launch_host = self.settings['badge_base_url'] or '{proto}://{host}{base_url}'.format(
+        badge_base_url = self.get_badge_base_url()
+        self.binder_launch_host = badge_base_url or '{proto}://{host}{base_url}'.format(
             proto=self.request.protocol,
             host=self.request.host,
             base_url=self.settings['base_url'],
@@ -501,7 +502,7 @@ class BuildHandler(BaseHandler):
                 # get logged in user's name
                 user_model = self.hub_auth.get_user(self)
                 username = user_model['name']
-                if self.settings['use_named_servers']:
+                if launcher.allow_named_servers:
                     # user can launch multiple servers, so create a unique server name
                     server_name = launcher.unique_name_from_repo(self.repo_url)
                 else:

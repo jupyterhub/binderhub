@@ -25,6 +25,10 @@
    :target: https://gitter.im/jupyterhub/binder
    :alt: Gitter
 
+.. image:: https://img.shields.io/badge/I_want_to_contribute!-grey?logo=jupyter
+  :target: https://github.com/jupyterhub/binderhub/blob/master/CONTRIBUTING.md
+  :alt: Contribute
+
 What is BinderHub?
 ------------------
 

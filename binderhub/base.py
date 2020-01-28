@@ -52,6 +52,12 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         return providers[provider_prefix](
             config=self.settings['traitlets_config'], spec=spec)
 
+    def get_badge_base_url(self):
+        badge_base_url = self.settings['badge_base_url']
+        if callable(badge_base_url):
+            badge_base_url = badge_base_url(self)
+        return badge_base_url
+
     def render_template(self, name, **extra_ns):
         """Render an HTML page"""
         ns = {}

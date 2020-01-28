@@ -23,6 +23,7 @@ you need to add the following into ``config.yaml``:
         redirectToServer: false
         services:
           binder:
+            oauth_no_confirm: true
             oauth_redirect_uri: "http://<binderhub_url>/oauth_callback"
             oauth_client_id: "binder-oauth-client-test"
 
@@ -65,9 +66,6 @@ you have to enable named servers on JupyterHub:
 
 .. code:: yaml
 
-    config:
-      BinderHub:
-        use_named_servers: true
     jupyterhub:
       hub:
         allowNamedServers: true
