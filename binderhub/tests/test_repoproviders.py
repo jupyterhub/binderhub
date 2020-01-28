@@ -111,6 +111,10 @@ async def test_hydroshare():
     assert slug == 'hydroshare-142c59757ed54de1816777828c9716e7.v1545934606'
     repo_url = provider.get_repo_url()
     assert repo_url == spec
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == repo_url
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == repo_url
 
 
 async def test_hydroshare_doi():
@@ -125,6 +129,10 @@ async def test_hydroshare_doi():
     assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565445792'
     repo_url = provider.get_repo_url()
     assert repo_url ==  'https://www.hydroshare.org/resource/b8f6eae9d89241cf8b5904033460af61'
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == repo_url
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == repo_url
 
 
 @pytest.mark.github_api

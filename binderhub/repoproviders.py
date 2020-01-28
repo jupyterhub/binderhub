@@ -331,6 +331,14 @@ class HydroshareProvider(RepoProvider):
         self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
         return self.record_id
 
+    async def get_resolved_spec(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
+    async def get_resolved_ref_url(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
     def get_repo_url(self):
         self.resource_id = self._parse_resource_id(self.spec)
         return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
