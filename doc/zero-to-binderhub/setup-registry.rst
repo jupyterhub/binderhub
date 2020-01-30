@@ -203,7 +203,6 @@ below. For more information and examples see `Identity and Access Management for
                 },
                 {
                     "Action": [
-                        "ecr:GetAuthorizationToken",
                         "ecr:BatchCheckLayerAvailability",
                         "ecr:GetDownloadUrlForLayer",
                         "ecr:GetRepositoryPolicy",
