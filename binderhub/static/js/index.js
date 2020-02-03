@@ -89,6 +89,11 @@ function updateRepoText() {
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
+  else if (provider === "hydroshare") {
+    text = "Hydroshare resource id or URL";
+    $("#ref").prop("disabled", true);
+    $("label[for=ref]").prop("disabled", true);
+  }
   else if (provider === "dataverse") {
     text = "Dataverse DOI (10.7910/DVN/TJCLKP)";
     $("#ref").prop("disabled", true);
@@ -117,7 +122,8 @@ function getBuildFormValues() {
   }
 
   var ref = $('#ref').val().trim() || 'master';
-  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse') {
+  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
+      providerPrefix === 'hydroshare') {
     ref = "";
   }
   var path = $('#filepath').val().trim();

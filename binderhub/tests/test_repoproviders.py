@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 from binderhub.repoproviders import (
     tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
     GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider,
-    DataverseProvider
+    HydroshareProvider, DataverseProvider
 )
 
 
@@ -98,6 +98,41 @@ async def test_figshare(spec, resolved_spec, resolved_ref, resolved_ref_url, bui
     spec = await provider.get_resolved_spec()
     assert spec == resolved_spec
 
+
+async def test_hydroshare():
+    spec = 'https://www.hydroshare.org/resource/142c59757ed54de1816777828c9716e7'
+
+    provider = HydroshareProvider(spec=spec)
+
+    ref = await provider.get_resolved_ref()
+    assert ref == '142c59757ed54de1816777828c9716e7.v1545934606'
+
+    slug = provider.get_build_slug()
+    assert slug == 'hydroshare-142c59757ed54de1816777828c9716e7.v1545934606'
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
+    ref_url = await provider.get_resolved_ref_url()
+    assert ref_url == repo_url
+    resolved_spec = await provider.get_resolved_spec()
+    assert resolved_spec == repo_url
+
+
+async def test_hydroshare_doi():
+    spec = '10.4211/hs.b8f6eae9d89241cf8b5904033460af61'
+
+    provider = HydroshareProvider(spec=spec)
+
+    ref = await provider.get_resolved_ref()
+    assert ref == 'b8f6eae9d89241cf8b5904033460af61.v1565445792'
+
+    slug = provider.get_build_slug()
+    assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565445792'
+    repo_url = provider.get_repo_url()
+    assert repo_url ==  'https://www.hydroshare.org/resource/b8f6eae9d89241cf8b5904033460af61'
+    ref_url = await provider.get_resolved_ref_url()
+    assert ref_url == repo_url
+    resolved_spec = await provider.get_resolved_spec()
+    assert resolved_spec == repo_url
 
 @pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
     ['10.7910/DVN/TJCLKP',

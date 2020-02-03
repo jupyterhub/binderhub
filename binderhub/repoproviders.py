@@ -7,7 +7,7 @@ control services and providers.
 .. note:: When adding a new repo provider, add it to the allowed values for
           repo providers in event-schemas/launch.json.
 """
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 import json
 import os
 import time
@@ -349,6 +349,58 @@ class DataverseProvider(RepoProvider):
 
     def get_build_slug(self):
         return "dataverse-" + escapism.escape(self.identifier, escape_char="-").lower()
+
+
+class HydroshareProvider(RepoProvider):
+    """Provide contents of a Hydroshare resource
+    Users must provide a spec consisting of the Hydroshare resource id.
+    """
+    name = Unicode("Hydroshare")
+    url_regex = re.compile(r".*([0-9a-f]{32}).*")
+
+    def _parse_resource_id(self, spec):
+        match = self.url_regex.match(spec)
+        if not match:
+            raise ValueError("The specified Hydroshare resource id was not recognized.")
+        resource_id = match.groups()[0]
+        return resource_id
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        self.resource_id = self._parse_resource_id(self.spec)
+        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+        def parse_date(json_body):
+            json_response = json.loads(json_body)
+            date = next(
+                item for item in json_response["dates"] if item["type"] == "modified"
+            )["start_date"]
+            # Hydroshare timestamp always returns the same timezone, so strip it
+            date = date.split(".")[0]
+            parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+            epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
+            # truncate the timestamp
+            return str(int(epoch))
+        # date last updated is only good for the day... probably need something finer eventually
+        self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
+        return self.record_id
+
+    async def get_resolved_spec(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
+    async def get_resolved_ref_url(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
+    def get_repo_url(self):
+        self.resource_id = self._parse_resource_id(self.spec)
+        return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
+
+    def get_build_slug(self):
+        return "hydroshare-{}".format(self.record_id)
 
 
 class GitRepoProvider(RepoProvider):

@@ -34,7 +34,7 @@ from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
-                            ZenodoProvider, FigshareProvider,
+                            ZenodoProvider, FigshareProvider, HydroshareProvider,
                             DataverseProvider)
 from .metrics import MetricsHandler
 
@@ -404,6 +404,7 @@ class BinderHub(Application):
             'gl': GitLabRepoProvider,
             'zenodo': ZenodoProvider,
             'figshare': FigshareProvider,
+            'hydroshare': HydroshareProvider,
             'dataverse': DataverseProvider,
         },
         config=True,
