@@ -42,7 +42,7 @@ class Launcher(LoggingConfigurable):
              "to set unique names for user servers."
     )
     named_server_limit_per_user = Integer(
-        os.getenv('JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER', 0),
+        int(os.getenv('JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER', 0)),
         config=True,
         help="""Maximum number of concurrent named servers that can be created by a user at a time."""
     )
