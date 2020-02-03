@@ -106,7 +106,7 @@ spec:
         - name: JUPYTERHUB_ALLOW_NAMED_SERVERS
           value: "true"
         - name: JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER
-          value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser }}
+          value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser | quote  }}
         {{- end }}
         {{- end }}
         {{ if .Values.extraEnv }}
