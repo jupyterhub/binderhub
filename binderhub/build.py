@@ -15,7 +15,97 @@ from tornado.log import app_log
 from .utils import rendezvous_rank
 
 
-class Build:
+class BuildWatcher:
+    """Represents what is needed to watch the progress of a build"""
+    def __init__(self, q, api, name, namespace='default', log_tail_lines=100):
+        self.q = q
+        self.api = api
+        self.name = name
+        self.namespace = namespace
+        self.log_tail_lines = log_tail_lines
+
+        self.main_loop = IOLoop.current()
+        self.stop_event = threading.Event()
+
+    def progress(self, kind, obj):
+        """Put the current action item into the queue for execution."""
+        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
+
+    def watch(self):
+        app_log.info("Watching build pod %s", self.name)
+        while not self.stop_event.is_set():
+            w = watch.Watch()
+            try:
+                for f in w.stream(
+                        self.api.list_namespaced_pod,
+                        self.namespace,
+                        label_selector="name={}".format(self.name),
+                        timeout_seconds=30,
+                ):
+                    if f['type'] == 'DELETED':
+                        self.progress('pod.phasechange', 'Deleted')
+                        return
+                    self.pod = f['object']
+                    if not self.stop_event.is_set():
+                        self.progress('pod.phasechange', self.pod.status.phase)
+                    if self.pod.status.phase == 'Succeeded':
+                        self.cleanup()
+                    elif self.pod.status.phase == 'Failed':
+                        self.cleanup()
+            except Exception:
+                app_log.exception("Error in watch stream for %s", self.name)
+                raise
+            finally:
+                w.stop()
+            if self.stop_event.is_set():
+                app_log.info("Stopping watch of %s", self.name)
+                return
+
+    def stream_logs(self):
+        """Stream a pod's logs"""
+        app_log.info("Watching logs of %s", self.name)
+        for line in self.api.read_namespaced_pod_log(
+                self.name,
+                self.namespace,
+                follow=True,
+                tail_lines=self.log_tail_lines,
+                _preload_content=False):
+            if self.stop_event.is_set():
+                app_log.info("Stopping logs of %s", self.name)
+                return
+            # verify that the line is JSON
+            line = line.decode('utf-8')
+            try:
+                json.loads(line)
+            except ValueError:
+                # log event wasn't JSON.
+                # use the line itself as the message with unknown phase.
+                # We don't know what the right phase is, use 'unknown'.
+                # If it was a fatal error, presumably a 'failure'
+                # message will arrive shortly.
+                app_log.error("log event not json: %r", line)
+                line = json.dumps({
+                    'phase': 'unknown',
+                    'message': line,
+                })
+
+            self.progress('log', line)
+        else:
+            app_log.info("Finished streaming logs of %s", self.name)
+
+    def stop(self):
+        """Stop watching a build"""
+        self.stop_event.set()
+
+    def cleanup(self):
+        """Cleanup is called when watch notices that a pod stops
+
+        No-op for BuildWatcher, Build actually removes the pod
+        """
+        pass
+
+
+class Build(BuildWatcher):
     """Represents a build of a git repository into a docker image.
 
     This ultimately maps to a single pod on a kubernetes cluster. Many
@@ -39,25 +129,19 @@ class Build:
     def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
                  appendix='', log_tail_lines=100, sticky_builds=False):
-        self.q = q
-        self.api = api
+
+        super().__init__(q=q, api=api, name=name, namespace=namespace)
         self.repo_url = repo_url
         self.ref = ref
-        self.name = name
-        self.namespace = namespace
         self.image_name = image_name
         self.push_secret = push_secret
         self.build_image = build_image
-        self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.docker_host = docker_host
         self.node_selector = node_selector
         self.appendix = appendix
         self.log_tail_lines = log_tail_lines
-
-        self.stop_event = threading.Event()
         self.git_credentials = git_credentials
-
         self.sticky_builds = sticky_builds
 
         self._component_label = "binderhub-build"
@@ -88,6 +172,20 @@ class Build:
         cmd.append(self.repo_url)
 
         return cmd
+
+    def cleanup(self):
+        """Delete a kubernetes pod."""
+        try:
+            self.api.delete_namespaced_pod(
+                name=self.name,
+                namespace=self.namespace,
+                body=client.V1DeleteOptions(grace_period_seconds=0))
+        except client.rest.ApiException as e:
+            if e.status == 404:
+                # Is ok, someone else has already deleted it
+                pass
+            else:
+                raise
 
     @classmethod
     def cleanup_builds(cls, kube, namespace, max_age):
@@ -145,10 +243,6 @@ class Build:
         if deleted:
             app_log.info("Deleted %i/%i build pods", deleted, len(builds))
         app_log.debug("Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1))
-
-    def progress(self, kind, obj):
-        """Put the current action item into the queue for execution."""
-        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
     def get_affinity(self):
         """Determine the affinity term for the build pod.
@@ -284,7 +378,7 @@ class Build:
         )
 
         try:
-            ret = self.api.create_namespaced_pod(self.namespace, self.pod)
+            self.api.create_namespaced_pod(self.namespace, self.pod)
         except client.rest.ApiException as e:
             if e.status == 409:
                 # Someone else created it!
@@ -295,84 +389,6 @@ class Build:
         else:
             app_log.info("Started build %s", self.name)
 
-        app_log.info("Watching build pod %s", self.name)
-        while not self.stop_event.is_set():
-            w = watch.Watch()
-            try:
-                for f in w.stream(
-                        self.api.list_namespaced_pod,
-                        self.namespace,
-                        label_selector="name={}".format(self.name),
-                        timeout_seconds=30,
-                ):
-                    if f['type'] == 'DELETED':
-                        self.progress('pod.phasechange', 'Deleted')
-                        return
-                    self.pod = f['object']
-                    if not self.stop_event.is_set():
-                        self.progress('pod.phasechange', self.pod.status.phase)
-                    if self.pod.status.phase == 'Succeeded':
-                        self.cleanup()
-                    elif self.pod.status.phase == 'Failed':
-                        self.cleanup()
-            except Exception as e:
-                app_log.exception("Error in watch stream for %s", self.name)
-                raise
-            finally:
-                w.stop()
-            if self.stop_event.is_set():
-                app_log.info("Stopping watch of %s", self.name)
-                return
-
-    def stream_logs(self):
-        """Stream a pod's logs"""
-        app_log.info("Watching logs of %s", self.name)
-        for line in self.api.read_namespaced_pod_log(
-                self.name,
-                self.namespace,
-                follow=True,
-                tail_lines=self.log_tail_lines,
-                _preload_content=False):
-            if self.stop_event.is_set():
-                app_log.info("Stopping logs of %s", self.name)
-                return
-            # verify that the line is JSON
-            line = line.decode('utf-8')
-            try:
-                json.loads(line)
-            except ValueError:
-                # log event wasn't JSON.
-                # use the line itself as the message with unknown phase.
-                # We don't know what the right phase is, use 'unknown'.
-                # If it was a fatal error, presumably a 'failure'
-                # message will arrive shortly.
-                app_log.error("log event not json: %r", line)
-                line = json.dumps({
-                    'phase': 'unknown',
-                    'message': line,
-                })
-
-            self.progress('log', line)
-        else:
-            app_log.info("Finished streaming logs of %s", self.name)
-
-    def cleanup(self):
-        """Delete a kubernetes pod."""
-        try:
-            self.api.delete_namespaced_pod(
-                name=self.name,
-                namespace=self.namespace,
-                body=client.V1DeleteOptions(grace_period_seconds=0))
-        except client.rest.ApiException as e:
-            if e.status == 404:
-                # Is ok, someone else has already deleted it
-                pass
-            else:
-                raise
-
-    def stop(self):
-        """Stop watching a build"""
-        self.stop_event.set()
 
 class FakeBuild(Build):
     """
