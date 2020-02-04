@@ -292,6 +292,14 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
             image_found = bool(image_manifest)
+            for _ in range(3):
+                try:
+                    image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
+                    image_found = bool(image_manifest)
+                    break
+                except tornado.curl_httpclient.CurlError:
+                    image_found = False
+                    pass
         else:
             # Check if the image exists locally!
             # Assume we're running in single-node mode or all binder pods are assigned to the same node!
