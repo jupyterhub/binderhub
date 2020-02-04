@@ -73,7 +73,7 @@ if auth_enabled:
 # ensure namespace exists
 namespace_exists = namespace in check_output(['kubectl', 'get', 'namespace']).decode('utf8', 'replace').split()
 if not namespace_exists:
-    check_call(['kubecl', 'create', 'namespace', namespace])
+    check_call(['kubectl', 'create', 'namespace', namespace])
 
 is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replace').split()
 if is_running:
