@@ -43,7 +43,7 @@ jupyterhub = get_hub_chart_dependency()
 
 # update the helm repo
 check_call(['helm', 'repo', 'add', 'jupyterhub', jupyterhub['repository']])
-check_call(['helm', 'repo', 'update', 'jupyterhub'])
+check_call(['helm', 'repo', 'update'])
 
 # Deploying BinderHub normally automatically deploys JupyterHub from the same
 # configuration file.
@@ -70,11 +70,17 @@ if auth_enabled:
     auth_conf_file = os.path.join(here, 'jupyterhub-helm-auth-config.yaml')
     args.extend(['-f', auth_conf_file])
 
+# ensure namespace exists
+namespace_exists = namespace in check_output(['kubectl', 'get', 'namespace']).decode('utf8', 'replace').split()
+if not namespace_exists:
+    check_call(['kubecl', 'create', 'namespace', namespace])
+
 is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replace').split()
 if is_running:
     cmd = ['helm', 'upgrade', name]
 else:
-    cmd = ['helm', 'install', f'--name={name}']
+
+    cmd = ['helm', 'install', f'{name}']
 
 cmd.extend(args)
 print("\n    %s\n" % ' '.join(map(pipes.quote, cmd)))
