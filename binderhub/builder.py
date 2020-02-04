@@ -150,9 +150,6 @@ class BuildHandler(EventStreamHandler):
         prefix = '/build/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
 
-        # set up for sending event streams
-        self.set_header('content-type', 'text/event-stream')
-        self.set_header('cache-control', 'no-cache')
 
         # Verify if the provider is valid for EventSource.
         # EventSource cannot handle HTTP errors, so we must validate and send

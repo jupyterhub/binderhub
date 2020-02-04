@@ -190,3 +190,9 @@ class EventStreamHandler(BaseHandler):
         )
         self.write('data: {}\n\n'.format(evt))
         self.finish()
+
+    def set_default_headers(self):
+        super().set_default_headers()
+        self.set_header('content-type', 'text/event-stream')
+        self.set_header('cache-control', 'no-cache')
+
