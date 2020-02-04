@@ -3,23 +3,21 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
 import hashlib
-from http.client import responses
 import json
 import string
 import time
-import escapism
 
 import docker
+import escapism
 from tornado.concurrent import chain_future, Future
 from tornado import gen
-from tornado.web import Finish, authenticated
+from tornado.web import authenticated
 from tornado.queues import Queue
-from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from prometheus_client import Counter, Histogram, Gauge
 
-from .base import BaseHandler
+from .base import EventStreamHandler
 from .build import Build, FakeBuild
 
 # Separate buckets for builds and launches.
@@ -52,70 +50,16 @@ LAUNCH_COUNT = Counter(
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
-
-class BuildHandler(BaseHandler):
+class BuildHandler(EventStreamHandler):
     """A handler for working with GitHub."""
 
-    # emit keepalives every 25 seconds to avoid idle connections being closed
-    KEEPALIVE_INTERVAL = 25
     build = None
 
-    async def emit(self, data):
-        """Emit an eventstream event"""
-        if type(data) is not str:
-            serialized_data = json.dumps(data)
-        else:
-            serialized_data = data
-        try:
-            self.write('data: {}\n\n'.format(serialized_data))
-            await self.flush()
-        except StreamClosedError:
-            app_log.warning("Stream closed while handling %s", self.request.uri)
-            # raise Finish to halt the handler
-            raise Finish()
-
     def on_finish(self):
-        """Stop keepalive when finish has been called"""
-        self._keepalive = False
+        super().on_finish()
         if self.build:
             # if we have a build, tell it to stop watching
             self.build.stop()
-
-    async def keep_alive(self):
-        """Constantly emit keepalive events
-
-        So that intermediate proxies don't terminate an idle connection
-        """
-        self._keepalive = True
-        while True:
-            await gen.sleep(self.KEEPALIVE_INTERVAL)
-            if not self._keepalive:
-                return
-            try:
-                # lines that start with : are comments
-                # and should be ignored by event consumers
-                self.write(':keepalive\n\n')
-                await self.flush()
-            except StreamClosedError:
-                return
-
-    def send_error(self, status_code, **kwargs):
-        """event stream cannot set an error code, so send an error event"""
-        exc_info = kwargs.get('exc_info')
-        message = ''
-        if exc_info:
-            message = self.extract_message(exc_info)
-        if not message:
-            message = responses.get(status_code, 'Unknown HTTP Error')
-
-        # this cannot be async
-        evt = json.dumps({
-            'phase': 'failed',
-            'status_code': status_code,
-            'message': message + '\n',
-        })
-        self.write('data: {}\n\n'.format(evt))
-        self.finish()
 
     def initialize(self):
         super().initialize()
