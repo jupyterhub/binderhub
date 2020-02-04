@@ -2,10 +2,13 @@
 Contains build of a docker image from a git repository.
 """
 
+from asyncio import Future
 from collections import defaultdict
 import datetime
+from functools import partial
 import json
 import threading
+import time
 from urllib.parse import urlparse
 
 from kubernetes import client, watch
@@ -17,6 +20,7 @@ from .utils import rendezvous_rank
 
 class BuildWatcher:
     """Represents what is needed to watch the progress of a build"""
+
     def __init__(self, q, api, name, namespace='default', log_tail_lines=100):
         self.q = q
         self.api = api
@@ -26,21 +30,32 @@ class BuildWatcher:
 
         self.main_loop = IOLoop.current()
         self.stop_event = threading.Event()
+        self.running_future = Future()
+        self.stopped_future = Future()
 
     def progress(self, kind, obj):
         """Put the current action item into the queue for execution."""
         self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
 
+    def _signal_stopped(self, status):
+        if not self.stopped_future.done():
+            self.stopped_future.set_result(self.pod.status.phase)
+
+    def _signal_running(self):
+        if not self.running_future.done():
+            self.running_future.set_result(None)
+
     def watch(self):
         app_log.info("Watching build pod %s", self.name)
+
         while not self.stop_event.is_set():
             w = watch.Watch()
             try:
                 for f in w.stream(
-                        self.api.list_namespaced_pod,
-                        self.namespace,
-                        label_selector="name={}".format(self.name),
-                        timeout_seconds=30,
+                    self.api.list_namespaced_pod,
+                    self.namespace,
+                    label_selector="name={}".format(self.name),
+                    timeout_seconds=30,
                 ):
                     if f['type'] == 'DELETED':
                         self.progress('pod.phasechange', 'Deleted')
@@ -48,9 +63,12 @@ class BuildWatcher:
                     self.pod = f['object']
                     if not self.stop_event.is_set():
                         self.progress('pod.phasechange', self.pod.status.phase)
-                    if self.pod.status.phase == 'Succeeded':
-                        self.cleanup()
-                    elif self.pod.status.phase == 'Failed':
+                    if self.pod.status.phase in {'Running'}:
+                        self.main_loop.add_callback(self._signal_running)
+                    if self.pod.status.phase in {'Succeeded', 'Failed'}:
+                        self.main_loop.add_callback(
+                            partial(self._signal_stopped, self.pod.status.phase)
+                        )
                         self.cleanup()
             except Exception:
                 app_log.exception("Error in watch stream for %s", self.name)
@@ -65,11 +83,12 @@ class BuildWatcher:
         """Stream a pod's logs"""
         app_log.info("Watching logs of %s", self.name)
         for line in self.api.read_namespaced_pod_log(
-                self.name,
-                self.namespace,
-                follow=True,
-                tail_lines=self.log_tail_lines,
-                _preload_content=False):
+            self.name,
+            self.namespace,
+            follow=True,
+            tail_lines=self.log_tail_lines,
+            _preload_content=False,
+        ):
             if self.stop_event.is_set():
                 app_log.info("Stopping logs of %s", self.name)
                 return
@@ -84,10 +103,7 @@ class BuildWatcher:
                 # If it was a fatal error, presumably a 'failure'
                 # message will arrive shortly.
                 app_log.error("log event not json: %r", line)
-                line = json.dumps({
-                    'phase': 'unknown',
-                    'message': line,
-                })
+                line = json.dumps({'phase': 'unknown', 'message': line})
 
             self.progress('log', line)
         else:
@@ -102,6 +118,7 @@ class BuildWatcher:
 
         No-op for BuildWatcher, Build actually removes the pod
         """
+
         pass
 
 
@@ -126,9 +143,26 @@ class Build(BuildWatcher):
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
-                 image_name, push_secret, memory_limit, docker_host, node_selector,
-                 appendix='', log_tail_lines=100, sticky_builds=False):
+
+    def __init__(
+        self,
+        q,
+        api,
+        name,
+        namespace,
+        repo_url,
+        ref,
+        git_credentials,
+        build_image,
+        image_name,
+        push_secret,
+        memory_limit,
+        docker_host,
+        node_selector,
+        appendix='',
+        log_tail_lines=100,
+        sticky_builds=False,
+    ):
 
         super().__init__(q=q, api=api, name=name, namespace=namespace)
         self.repo_url = repo_url
@@ -150,11 +184,17 @@ class Build(BuildWatcher):
         """Get the cmd to run to build the image"""
         cmd = [
             'jupyter-repo2docker',
-            '--ref', self.ref,
-            '--image', self.image_name,
-            '--no-clean', '--no-run', '--json-logs',
-            '--user-name', 'jovyan',
-            '--user-id', '1000',
+            '--ref',
+            self.ref,
+            '--image',
+            self.image_name,
+            '--no-clean',
+            '--no-run',
+            '--json-logs',
+            '--user-name',
+            'jovyan',
+            '--user-id',
+            '1000',
         ]
         if self.appendix:
             cmd.extend(['--appendix', self.appendix])
@@ -179,7 +219,8 @@ class Build(BuildWatcher):
             self.api.delete_namespaced_pod(
                 name=self.name,
                 namespace=self.namespace,
-                body=client.V1DeleteOptions(grace_period_seconds=0))
+                body=client.V1DeleteOptions(grace_period_seconds=0),
+            )
         except client.rest.ApiException as e:
             if e.status == 404:
                 # Is ok, someone else has already deleted it
@@ -191,8 +232,7 @@ class Build(BuildWatcher):
     def cleanup_builds(cls, kube, namespace, max_age):
         """Delete stopped build pods and build pods that have aged out"""
         builds = kube.list_namespaced_pod(
-            namespace=namespace,
-            label_selector='component=binderhub-build',
+            namespace=namespace, label_selector='component=binderhub-build'
         ).items
         phases = defaultdict(int)
         app_log.debug("%i build pods", len(builds))
@@ -232,7 +272,8 @@ class Build(BuildWatcher):
                     kube.delete_namespaced_pod(
                         name=build.metadata.name,
                         namespace=namespace,
-                        body=client.V1DeleteOptions(grace_period_seconds=0))
+                        body=client.V1DeleteOptions(grace_period_seconds=0),
+                    )
                 except client.rest.ApiException as e:
                     if e.status == 404:
                         # Is ok, someone else has already deleted it
@@ -242,7 +283,9 @@ class Build(BuildWatcher):
 
         if deleted:
             app_log.info("Deleted %i/%i build pods", deleted, len(builds))
-        app_log.debug("Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1))
+        app_log.debug(
+            "Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1)
+        )
 
     def get_affinity(self):
         """Determine the affinity term for the build pod.
@@ -258,8 +301,7 @@ class Build(BuildWatcher):
         docker layer cache of previous builds.
         """
         dind_pods = self.api.list_namespaced_pod(
-            self.namespace,
-            label_selector="component=dind,app=binder",
+            self.namespace, label_selector="component=dind,app=binder"
         )
 
         if self.sticky_builds and dind_pods:
@@ -295,11 +337,9 @@ class Build(BuildWatcher):
                             pod_affinity_term=client.V1PodAffinityTerm(
                                 topology_key="kubernetes.io/hostname",
                                 label_selector=client.V1LabelSelector(
-                                    match_labels=dict(
-                                        component=self._component_label
-                                    )
-                                )
-                            )
+                                    match_labels=dict(component=self._component_label)
+                                ),
+                            ),
                         )
                     ]
                 )
@@ -310,35 +350,44 @@ class Build(BuildWatcher):
     def submit(self):
         """Submit a build pod to create the image for the repository."""
         volume_mounts = [
-            client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
+            client.V1VolumeMount(
+                mount_path="/var/run/docker.sock", name="docker-socket"
+            )
         ]
         docker_socket_path = urlparse(self.docker_host).path
-        volumes = [client.V1Volume(
-            name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path=docker_socket_path, type='Socket')
-        )]
+        volumes = [
+            client.V1Volume(
+                name="docker-socket",
+                host_path=client.V1HostPathVolumeSource(
+                    path=docker_socket_path, type='Socket'
+                ),
+            )
+        ]
 
         if self.push_secret:
-            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
-            volumes.append(client.V1Volume(
-                name='docker-push-secret',
-                secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
-            ))
+            volume_mounts.append(
+                client.V1VolumeMount(
+                    mount_path="/root/.docker", name='docker-push-secret'
+                )
+            )
+            volumes.append(
+                client.V1Volume(
+                    name='docker-push-secret',
+                    secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
+                )
+            )
 
         env = []
         if self.git_credentials:
-            env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
+            env.append(
+                client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials)
+            )
 
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
-                labels={
-                    "name": self.name,
-                    "component": self._component_label,
-                },
-                annotations={
-                    "binder-repo": self.repo_url,
-                },
+                labels={"name": self.name, "component": self._component_label},
+                annotations={"binder-repo": self.repo_url},
             ),
             spec=client.V1PodSpec(
                 containers=[
@@ -349,9 +398,9 @@ class Build(BuildWatcher):
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
                             limits={'memory': self.memory_limit},
-                            requests={'memory': self.memory_limit}
+                            requests={'memory': self.memory_limit},
                         ),
-                        env=env
+                        env=env,
                     )
                 ],
                 tolerations=[
@@ -373,8 +422,8 @@ class Build(BuildWatcher):
                 node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never",
-                affinity=self.get_affinity()
-            )
+                affinity=self.get_affinity(),
+            ),
         )
 
         try:
@@ -389,42 +438,37 @@ class Build(BuildWatcher):
         else:
             app_log.info("Started build %s", self.name)
 
+        self.watch()
+
 
 class FakeBuild(Build):
     """
     Fake Building process to be able to work on the UI without a running Minikube.
     """
+
     def submit(self):
         self.progress('pod.phasechange', 'Running')
         return
 
     def stream_logs(self):
-        import time
+
         time.sleep(3)
         for phase in ('Pending', 'Running', 'Succeed', 'Building'):
             if self.stop_event.is_set():
                 app_log.warning("Stopping logs of %s", self.name)
                 return
-            self.progress('log',
-                json.dumps({
-                    'phase': phase,
-                    'message': f"{phase}...\n",
-                })
+            self.progress(
+                'log', json.dumps({'phase': phase, 'message': f"{phase}...\n"})
             )
         for i in range(5):
             if self.stop_event.is_set():
                 app_log.warning("Stopping logs of %s", self.name)
                 return
             time.sleep(1)
-            self.progress('log',
-                json.dumps({
-                    'phase': 'unknown',
-                    'message': f"Step {i+1}/10\n",
-                })
+            self.progress(
+                'log', json.dumps({'phase': 'unknown', 'message': f"Step {i+1}/10\n"})
             )
         self.progress('pod.phasechange', 'Succeeded')
-        self.progress('log', json.dumps({
-                'phase': 'Deleted',
-                'message': f"Deleted...\n",
-             })
+        self.progress(
+            'log', json.dumps({'phase': 'Deleted', 'message': f"Deleted...\n"})
         )

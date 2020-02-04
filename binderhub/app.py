@@ -27,7 +27,7 @@ from jupyterhub.traitlets import Callable
 
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
-from .builder import BuildHandler
+from .v1.handlers import BuildHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .registry import DockerRegistry
