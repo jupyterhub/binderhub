@@ -7,10 +7,11 @@ for testing binderhub
 Gets the jupyterhub chart version from the binderhub helm chart
 to ensure we are testing against a reasonable version.
 """
-import sys
 import os
 import pipes
+import re
 from subprocess import check_call, check_output
+import sys
 import time
 
 from kubernetes import client, config
@@ -40,6 +41,9 @@ def get_hub_chart_dependency():
         )
 
 jupyterhub = get_hub_chart_dependency()
+
+helm_version = check_output(['helm', 'version', '--short']).decode('utf8')
+helm_major = int(re.match(r'v?(\d+)', helm_version).group(1))
 
 # update the helm repo
 check_call(['helm', 'repo', 'add', 'jupyterhub', jupyterhub['repository']])
@@ -79,8 +83,8 @@ is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replac
 if is_running:
     cmd = ['helm', 'upgrade', name]
 else:
-
-    cmd = ['helm', 'install', f'{name}']
+    name_arg = name if helm_version >= 3 else f"--name={name}"
+    cmd = ['helm', 'install', name_arg]
 
 cmd.extend(args)
 print("\n    %s\n" % ' '.join(map(pipes.quote, cmd)))
