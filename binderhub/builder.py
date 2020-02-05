@@ -297,7 +297,6 @@ class BuildHandler(BaseHandler):
                     break
                 except tornado.curl_httpclient.CurlError:
                     image_found = False
-                    pass
         else:
             # Check if the image exists locally!
             # Assume we're running in single-node mode or all binder pods are assigned to the same node!
