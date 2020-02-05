@@ -1,9 +1,12 @@
 """Base classes for request handlers"""
 
+import asyncio
 import json
 
 from http.client import responses
 from tornado import web
+from tornado.log import app_log
+from tornado.iostream import StreamClosedError
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
@@ -103,6 +106,7 @@ class Custom404(BaseHandler):
 
 class AboutHandler(BaseHandler):
     """Serve the about page"""
+
     async def get(self):
         self.render_template(
             "about.html",
@@ -126,3 +130,69 @@ class VersionHandler(BaseHandler):
                 "binderhub": binder_version,
                 }
         ))
+
+
+class EventStreamHandler(BaseHandler):
+    """Base class for event-stream handlers"""
+
+    # emit keepalives every 25 seconds to avoid idle connections being closed
+    KEEPALIVE_INTERVAL = 25
+    build = None
+
+    async def emit(self, data):
+        """Emit an eventstream event"""
+        if type(data) is not str:
+            serialized_data = json.dumps(data)
+        else:
+            serialized_data = data
+        try:
+            self.write('data: {}\n\n'.format(serialized_data))
+            await self.flush()
+        except StreamClosedError:
+            app_log.warning("Stream closed while handling %s", self.request.uri)
+            # raise Finish to halt the handler
+            raise web.Finish()
+
+    def on_finish(self):
+        """Stop keepalive when finish has been called"""
+        self._keepalive = False
+
+    async def keep_alive(self):
+        """Constantly emit keepalive events
+
+        So that intermediate proxies don't terminate an idle connection
+        """
+        self._keepalive = True
+        while True:
+            await asyncio.sleep(self.KEEPALIVE_INTERVAL)
+            if not self._keepalive:
+                return
+            try:
+                # lines that start with : are comments
+                # and should be ignored by event consumers
+                self.write(':keepalive\n\n')
+                await self.flush()
+            except StreamClosedError:
+                return
+
+    def send_error(self, status_code, **kwargs):
+        """event stream cannot set an error code, so send an error event"""
+        exc_info = kwargs.get('exc_info')
+        message = ''
+        if exc_info:
+            message = self.extract_message(exc_info)
+        if not message:
+            message = responses.get(status_code, 'Unknown HTTP Error')
+
+        # this cannot be async
+        evt = json.dumps(
+            {'phase': 'failed', 'status_code': status_code, 'message': message + '\n'}
+        )
+        self.write('data: {}\n\n'.format(evt))
+        self.finish()
+
+    def set_default_headers(self):
+        super().set_default_headers()
+        self.set_header('content-type', 'text/event-stream')
+        self.set_header('cache-control', 'no-cache')
+
