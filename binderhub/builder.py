@@ -12,14 +12,13 @@ import time
 import docker
 import escapism
 from tornado.concurrent import chain_future, Future
-from tornado import gen
 from tornado.queues import Queue
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from traitlets import Dict, HasTraits, Instance, Unicode
 from prometheus_client import Counter, Histogram, Gauge
 
-from .build import Build, BuildWatcher, FakeBuild
+from .build import Build, FakeBuild
 from .events import EventLog
 from .registry import DockerRegistry
 from .repoproviders import RepoProvider
@@ -76,7 +75,7 @@ class Builder(HasTraits):
     provider_prefix = Unicode()
     provider = Instance(RepoProvider)
     spec = Unicode()
-    build = Instance(BuildWatcher)
+    build = Instance(Build)
     origin = Unicode()
 
     def _generate_build_name(self, build_slug, ref, prefix='', limit=63, ref_length=6):
@@ -267,11 +266,11 @@ class Builder(HasTraits):
     async def watch(self, stream_logs=True):
         pool = self.settings['build_pool']
         if self.build is None:
-            BuildWatcherClass = (
-                FakeBuild if self.settings.get('fake_build') else BuildWatcher
+            BuildClass = (
+                FakeBuild if self.settings.get('fake_build') else Build
             )
             q = Queue()
-            self.build = BuildWatcherClass(
+            self.build = Build(
                 q=q,
                 api=self.settings['kubernetes'],
                 name=self.build_name,

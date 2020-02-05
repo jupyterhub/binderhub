@@ -14,115 +14,12 @@ from urllib.parse import urlparse
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
+from tornado.queues import Queue
 
 from .utils import rendezvous_rank
 
 
-class BuildWatcher:
-    """Represents what is needed to watch the progress of a build"""
-
-    def __init__(self, q, api, name, namespace='default', log_tail_lines=100):
-        self.q = q
-        self.api = api
-        self.name = name
-        self.namespace = namespace
-        self.log_tail_lines = log_tail_lines
-
-        self.main_loop = IOLoop.current()
-        self.stop_event = threading.Event()
-        self.running_future = Future()
-        self.stopped_future = Future()
-
-    def progress(self, kind, obj):
-        """Put the current action item into the queue for execution."""
-        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
-
-    def _signal_stopped(self, status):
-        if not self.stopped_future.done():
-            self.stopped_future.set_result(self.pod.status.phase)
-
-    def _signal_running(self):
-        if not self.running_future.done():
-            self.running_future.set_result(None)
-
-    def watch(self):
-        app_log.info("Watching build pod %s", self.name)
-
-        while not self.stop_event.is_set():
-            w = watch.Watch()
-            try:
-                for f in w.stream(
-                    self.api.list_namespaced_pod,
-                    self.namespace,
-                    label_selector="name={}".format(self.name),
-                    timeout_seconds=30,
-                ):
-                    if f['type'] == 'DELETED':
-                        self.progress('pod.phasechange', 'Deleted')
-                        return
-                    self.pod = f['object']
-                    if not self.stop_event.is_set():
-                        self.progress('pod.phasechange', self.pod.status.phase)
-                    if self.pod.status.phase in {'Running'}:
-                        self.main_loop.add_callback(self._signal_running)
-                    if self.pod.status.phase in {'Succeeded', 'Failed'}:
-                        self.main_loop.add_callback(
-                            partial(self._signal_stopped, self.pod.status.phase)
-                        )
-                        self.cleanup()
-            except Exception:
-                app_log.exception("Error in watch stream for %s", self.name)
-                raise
-            finally:
-                w.stop()
-            if self.stop_event.is_set():
-                app_log.info("Stopping watch of %s", self.name)
-                return
-
-    def stream_logs(self):
-        """Stream a pod's logs"""
-        app_log.info("Watching logs of %s", self.name)
-        for line in self.api.read_namespaced_pod_log(
-            self.name,
-            self.namespace,
-            follow=True,
-            tail_lines=self.log_tail_lines,
-            _preload_content=False,
-        ):
-            if self.stop_event.is_set():
-                app_log.info("Stopping logs of %s", self.name)
-                return
-            # verify that the line is JSON
-            line = line.decode('utf-8')
-            try:
-                json.loads(line)
-            except ValueError:
-                # log event wasn't JSON.
-                # use the line itself as the message with unknown phase.
-                # We don't know what the right phase is, use 'unknown'.
-                # If it was a fatal error, presumably a 'failure'
-                # message will arrive shortly.
-                app_log.error("log event not json: %r", line)
-                line = json.dumps({'phase': 'unknown', 'message': line})
-
-            self.progress('log', line)
-        else:
-            app_log.info("Finished streaming logs of %s", self.name)
-
-    def stop(self):
-        """Stop watching a build"""
-        self.stop_event.set()
-
-    def cleanup(self):
-        """Cleanup is called when watch notices that a pod stops
-
-        No-op for BuildWatcher, Build actually removes the pod
-        """
-
-        pass
-
-
-class Build(BuildWatcher):
+class Build:
     """Represents a build of a git repository into a docker image.
 
     This ultimately maps to a single pod on a kubernetes cluster. Many
@@ -146,25 +43,35 @@ class Build(BuildWatcher):
 
     def __init__(
         self,
-        q,
-        api,
+        # all args are keyword-only
+        *,
+        # args used for watching
+        q=None,
         name,
-        namespace,
-        repo_url,
-        ref,
-        git_credentials,
-        build_image,
-        image_name,
-        push_secret,
-        memory_limit,
-        docker_host,
-        node_selector,
+        api=None,
+        namespace='default',
+        # required args for building
+        repo_url=None,
+        ref=None,
+        build_image=None,
+        image_name=None,
+        # fully optional args
+        git_credentials=None,
+        push_secret=None,
+        memory_limit=None,
+        docker_host=None,
+        node_selector=None,
         appendix='',
         log_tail_lines=100,
         sticky_builds=False,
     ):
 
-        super().__init__(q=q, api=api, name=name, namespace=namespace)
+        self.q = q or Queue()
+        self.api = api
+        self.name = name
+        self.namespace = namespace
+        self.log_tail_lines = log_tail_lines
+
         self.repo_url = repo_url
         self.ref = ref
         self.image_name = image_name
@@ -178,7 +85,28 @@ class Build(BuildWatcher):
         self.git_credentials = git_credentials
         self.sticky_builds = sticky_builds
 
+        self.main_loop = IOLoop.current()
+        self.stop_event = threading.Event()
+        self.running_future = Future()
+        self.stopped_future = Future()
+
         self._component_label = "binderhub-build"
+
+    def stop(self):
+        """Stop watching a build"""
+        self.stop_event.set()
+
+    def progress(self, kind, obj):
+        """Put the current action item into the queue for execution."""
+        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
+
+    def _signal_stopped(self, status):
+        if not self.stopped_future.done():
+            self.stopped_future.set_result(self.pod.status.phase)
+
+    def _signal_running(self):
+        if not self.running_future.done():
+            self.running_future.set_result(None)
 
     def get_cmd(self):
         """Get the cmd to run to build the image"""
@@ -439,6 +367,70 @@ class Build(BuildWatcher):
             app_log.info("Started build %s", self.name)
 
         self.watch()
+
+    def watch(self):
+        app_log.info("Watching build pod %s", self.name)
+
+        while not self.stop_event.is_set():
+            w = watch.Watch()
+            try:
+                for f in w.stream(
+                    self.api.list_namespaced_pod,
+                    self.namespace,
+                    label_selector="name={}".format(self.name),
+                    timeout_seconds=30,
+                ):
+                    if f['type'] == 'DELETED':
+                        self.progress('pod.phasechange', 'Deleted')
+                        return
+                    self.pod = f['object']
+                    if not self.stop_event.is_set():
+                        self.progress('pod.phasechange', self.pod.status.phase)
+                    if self.pod.status.phase in {'Running'}:
+                        self.main_loop.add_callback(self._signal_running)
+                    if self.pod.status.phase in {'Succeeded', 'Failed'}:
+                        self.main_loop.add_callback(
+                            partial(self._signal_stopped, self.pod.status.phase)
+                        )
+                        self.cleanup()
+            except Exception:
+                app_log.exception("Error in watch stream for %s", self.name)
+                raise
+            finally:
+                w.stop()
+            if self.stop_event.is_set():
+                app_log.info("Stopping watch of %s", self.name)
+                return
+
+    def stream_logs(self):
+        """Stream a pod's logs"""
+        app_log.info("Watching logs of %s", self.name)
+        for line in self.api.read_namespaced_pod_log(
+            self.name,
+            self.namespace,
+            follow=True,
+            tail_lines=self.log_tail_lines,
+            _preload_content=False,
+        ):
+            if self.stop_event.is_set():
+                app_log.info("Stopping logs of %s", self.name)
+                return
+            # verify that the line is JSON
+            line = line.decode('utf-8')
+            try:
+                json.loads(line)
+            except ValueError:
+                # log event wasn't JSON.
+                # use the line itself as the message with unknown phase.
+                # We don't know what the right phase is, use 'unknown'.
+                # If it was a fatal error, presumably a 'failure'
+                # message will arrive shortly.
+                app_log.error("log event not json: %r", line)
+                line = json.dumps({'phase': 'unknown', 'message': line})
+
+            self.progress('log', line)
+        else:
+            app_log.info("Finished streaming logs of %s", self.name)
 
 
 class FakeBuild(Build):
