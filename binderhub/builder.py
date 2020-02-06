@@ -296,7 +296,7 @@ class BuildHandler(BaseHandler):
                     image_found = bool(image_manifest)
                     break
                 except tornado.curl_httpclient.CurlError:
-                    app_log.warning("Tornado HTTP Timeout error: Failed to get image manifest for %s", image_name)
+                    app_log.exception("Tornado HTTP Timeout error: Failed to get image manifest for %s", image_name)
                     image_found = False
         else:
             # Check if the image exists locally!
