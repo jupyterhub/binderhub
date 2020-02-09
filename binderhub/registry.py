@@ -267,8 +267,12 @@ class AWSElasticContainerRegistry(DockerRegistry):
             self.log.info("ECR repo {} already exists".format(repo_name))
         return await super().get_image_manifest(repo_name, tag)
 
-    kubernetes.config.load_incluster_config()
-    kube_client = kubernetes.client.CoreV1Api()
+    kube_client = Any()
+
+    @default("kube_client")
+    def _get_kube_client(self):
+        kubernetes.config.load_incluster_config()
+        return kubernetes.client.CoreV1Api()
     
     def _patch_docker_config_secret(self, auth):
         """Patch binder-push-secret"""
