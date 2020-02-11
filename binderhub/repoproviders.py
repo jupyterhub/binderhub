@@ -648,21 +648,6 @@ class GitHubRepoProvider(RepoProvider):
     def _access_token_default(self):
         return os.getenv('GITHUB_ACCESS_TOKEN', '')
 
-    auth = Dict(
-        help="""Auth parameters for the GitHub API access
-
-        Populated from client_id, client_secret.
-    """
-    )
-    @default('auth')
-    def _default_auth(self):
-        auth = {}
-        for key in ('client_id', 'client_secret'):
-            value = getattr(self, key)
-            if value:
-                auth[key] = value
-        return auth
-
     @default('git_credentials')
     def _default_git_credentials(self):
         if self.access_token:
@@ -692,9 +677,12 @@ class GitHubRepoProvider(RepoProvider):
     @gen.coroutine
     def github_api_request(self, api_url, etag=None):
         client = AsyncHTTPClient()
-        if self.auth:
-            # Add auth params. After logging!
-            api_url = url_concat(api_url, self.auth)
+
+        request_kwargs = {}
+        if self.client_id and self.client_secret:
+            request_kwargs.update(
+                dict(auth_username=self.client_id, auth_password=self.client_secret)
+            )
 
         headers = {}
         # based on: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
@@ -703,7 +691,9 @@ class GitHubRepoProvider(RepoProvider):
 
         if etag:
             headers['If-None-Match'] = etag
-        req = HTTPRequest(api_url, headers=headers, user_agent="BinderHub")
+        req = HTTPRequest(
+            api_url, headers=headers, user_agent="BinderHub", **request_kwargs
+        )
 
         try:
             resp = yield client.fetch(req)
