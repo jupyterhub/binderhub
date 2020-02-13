@@ -41,6 +41,11 @@ class Launcher(LoggingConfigurable):
         help="Named user servers are allowed. This is used only when authentication is enabled and "
              "to set unique names for user servers."
     )
+    named_server_limit_per_user = Integer(
+        int(os.getenv('JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER', 0)),
+        config=True,
+        help="""Maximum number of concurrent named servers that can be created by a user."""
+    )
     retries = Integer(
         4,
         config=True,
@@ -172,6 +177,19 @@ class Launcher(LoggingConfigurable):
             user_data = await self.get_user_data(username)
             if server_name in user_data['servers']:
                 raise web.HTTPError(409, "User %s already has a running server." % username)
+        elif self.named_server_limit_per_user > 0:
+            # authentication is enabled with named servers
+            # check if user has already reached to the limit of named servers
+            user_data = await self.get_user_data(username)
+            len_named_spawners = len([s for s in user_data['servers'] if s != ''])
+            if self.named_server_limit_per_user <= len_named_spawners:
+                raise web.HTTPError(
+                    409,
+                    "User {} already has the maximum of {} named servers."
+                    "  One must be deleted before a new server can be created".format(
+                        username, self.named_server_limit_per_user
+                    ),
+                )
 
         if self.pre_launch_hook:
             await maybe_future(self.pre_launch_hook(self, image, username, server_name, repo_url))
