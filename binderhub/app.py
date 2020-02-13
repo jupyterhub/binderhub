@@ -210,7 +210,8 @@ class BinderHub(Application):
     registry_class = Type(
         DockerRegistry,
         help="""
-        Registry class implementation, change to define your own
+        Change this to support different Docker container registries.
+        The default works with GCR, ACR and DockerHub. Use `AWSElasticContainerRegistry` for AWS ECR.
         """,
         config=True
     )
