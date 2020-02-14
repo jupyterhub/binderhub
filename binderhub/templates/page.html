@@ -2,19 +2,30 @@
 <html>
 <head>
   <title>{% block title %}Binder{% endblock %}</title>
-  {% block head %}
+
+  {% block meta %}
+  {% endblock meta %}
+
+  {% block favicon %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
-  <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
+  {% endblock %}
+  {% block head %}
+  <link href="{{static_url("dist/styles.css")}}" rel="stylesheet">
   {% endblock head %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
 </head>
 <body>
   {% block body %}
 
+  {% block banner %}
   {% if banner %}
   <div id="banner-container">
     {{ banner | safe }}
   </div>
   {% endif %}
+  {% endblock banner %}
 
   {% block logo %}
   <div class="container">
@@ -37,6 +48,9 @@
   </div>
   {% endblock footer %}
 
+  {% block scripts %}
+  {% endblock scripts %}
+
   {% if google_analytics_code %}
   <script>
     // Only load GA if DNT is not set
@@ -57,6 +71,8 @@
   }
   </script>
   {% endif %}
+
+  {% block extra_footer_scripts %}
   {% if extra_footer_scripts %}
   {% for script in extra_footer_scripts|dictsort %}
   <script>
@@ -64,6 +80,8 @@
   </script>
   {% endfor %}
   {% endif %}
+  {% endblock extra_footer_scripts %}
+
   {% endblock body %}
 </body>
 </html>

@@ -1,8 +1,11 @@
 {% extends "page.html" %}
 
-{% block head %}
+{% block meta %}
+{{ super() }}
 <meta id="base-url" data-url="{{base_url}}">
 <meta id="badge-base-url" data-url="{{badge_base_url}}">
+{% endblock meta %}
+
 <!-- Other OG information in page.html -->
 <meta property="og:title" content="{{social_desc}}">
 <meta property="og:image" content="https://mybinder.org/static/images/logo_square.png">
@@ -12,12 +15,11 @@
 <meta property="og:image:alt" content="The Binder Project Logo" />
 <meta name="twitter:card" content="summary" />
 
+{% block head %}
 {{ super() }}
 <script src="{{static_url("dist/bundle.js")}}"></script>
 <link href="{{static_url("dist/styles.css")}}" rel="stylesheet">
 <link href="{{static_url("loading.css")}}" rel="stylesheet">
-
-
 {% endblock head %}
 
 {% block main %}
@@ -58,7 +60,11 @@ Your binder will open automatically when it is ready.
 {% endblock main %}
 
 {% block footer %}
+{% endblock footer %}
+
+{% block scripts %}
+{{ super() }}
 <script type="text/javascript">
 loadingMain("{{provider_spec}}");
 </script>
-{% endblock footer %}
+{% endblock scripts %}
