@@ -52,7 +52,7 @@ def false_if_raises(f):
     return wrapper
 
 
-def at_most_every(_f=None, *, interval=10):
+def at_most_every(_f=None, *, interval=60):
     """Call the wrapped function at most every `interval` seconds.
 
     Useful when `f` is (very) expensive to compute and you are happy
