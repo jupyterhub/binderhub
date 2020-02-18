@@ -729,7 +729,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
-            (r'/_config', ConfigHandler, {'repo_providers': self.repo_providers}),
+            (r'/_config', ConfigHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
