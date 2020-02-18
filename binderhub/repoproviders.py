@@ -372,6 +372,13 @@ class HydroshareProvider(RepoProvider):
     name = Unicode("Hydroshare")
     url_regex = re.compile(r".*([0-9a-f]{32}).*")
 
+    labels = {
+        "text": "Hydroshare resource id or URL",
+        "tag_text": "Git branch, tag, or commit SHA",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
+
     def _parse_resource_id(self, spec):
         match = self.url_regex.match(spec)
         if not match:
