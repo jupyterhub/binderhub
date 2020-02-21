@@ -3,9 +3,8 @@
 <head>
   <title>{% block title %}Binder{% endblock %}</title>
 
+  {% block head %}
   {% block meta %}
-  {% endblock meta %}
-
   {# Social media previews #}
   {% block meta_social %}
   <meta property="og:title" content="The Binder Project">
@@ -16,11 +15,11 @@
   <meta property="og:image:alt" content="The Binder Project Logo" />
   <meta name="twitter:card" content="summary_large_image">
   {% endblock meta_social %}
+  {% endblock meta %}
 
   {% block favicon %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   {% endblock %}
-  {% block head %}
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet">
   {% endblock head %}
 
