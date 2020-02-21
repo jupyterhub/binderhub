@@ -52,14 +52,9 @@
               <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" id="provider_prefix_sel">
-                <li class="dropdown-item" value="gh"><a href="#">GitHub</a></li>
-                <li class="dropdown-item" value="gist"><a href="#">Gist</a></li>
-                <li class="dropdown-item" value="gl"><a href="#">GitLab.com</a></li>
-                <li class="dropdown-item" value="git"><a href="#">Git repository</a></li>
-                <li class="dropdown-item" value="zenodo"><a href="#">Zenodo DOI</a></li>
-                <li class="dropdown-item" value="figshare"><a href="#">Figshare DOI</a></li>
-                <li class="dropdown-item" value="hydroshare"><a href="#">Hydroshare resource</a></li>
-                <li class="dropdown-item" value="dataverse"><a href="#">Dataverse DOI</a></li>
+                {% for provider_prefix, provider_name in repo_providers.items() %}
+                  <li class="dropdown-item" value={{provider_prefix}}><a href="#">{{provider_name}}</a></li>
+                {% endfor %}
               </ul>
             </div>
             <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>

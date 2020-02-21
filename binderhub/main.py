@@ -35,6 +35,7 @@ class MainHandler(BaseHandler):
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
             extra_footer_scripts=self.settings['extra_footer_scripts'],
+            repo_providers=SPEC_NAMES,
         )
 
 
