@@ -12,6 +12,7 @@ import escapism
 import docker
 from tornado.concurrent import chain_future, Future
 from tornado import gen
+from tornado.httpclient import HTTPClientError
 from tornado.web import Finish, authenticated
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
@@ -295,7 +296,7 @@ class BuildHandler(BaseHandler):
                     image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
                     image_found = bool(image_manifest)
                     break
-                except tornado.curl_httpclient.CurlError:
+                except HTTPClientError:
                     app_log.exception("Tornado HTTP Timeout error: Failed to get image manifest for %s", image_name)
                     image_found = False
         else:
