@@ -11,3 +11,4 @@ python-json-logger
 jupyterhub
 jsonschema
 pycurl
+tornado>=5.1

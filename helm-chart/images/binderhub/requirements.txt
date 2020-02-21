@@ -1,5 +1,5 @@
 pycurl==7.43.0.1
-tornado==5.0.*
+tornado==5.1.*
 kubernetes==9.0.*
 jupyterhub==1.1.0
 jsonschema==2.6.0
