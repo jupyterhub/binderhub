@@ -212,6 +212,8 @@ class ZenodoProvider(RepoProvider):
     """
     name = Unicode("Zenodo")
 
+    display_name = "Zenodo DOI"
+
     labels = {
         "text": "Zenodo DOI (10.5281/zenodo.3242074)",
         "tag_text": "Git ref (branch, tag, or commit)",
@@ -256,6 +258,9 @@ class FigshareProvider(RepoProvider):
     Users must provide a spec consisting of the Figshare DOI.
     """
     name = Unicode("Figshare")
+
+    display_name = "Figshare DOI"
+
     url_regex = re.compile(r"(.*)/articles/([^/]+)/([^/]+)/(\d+)(/)?(\d+)?")
 
     labels = {
@@ -305,6 +310,8 @@ class FigshareProvider(RepoProvider):
 
 class DataverseProvider(RepoProvider):
     name = Unicode("Dataverse")
+
+    display_name = "Dataverse DOI"
 
     labels = {
         "text": "Dataverse DOI (10.7910/DVN/TJCLKP)",
@@ -370,6 +377,9 @@ class HydroshareProvider(RepoProvider):
     Users must provide a spec consisting of the Hydroshare resource id.
     """
     name = Unicode("Hydroshare")
+
+    display_name = "Hydroshare resource"
+
     url_regex = re.compile(r".*([0-9a-f]{32}).*")
 
     labels = {
@@ -442,6 +452,8 @@ class GitRepoProvider(RepoProvider):
 
     name = Unicode("Git")
 
+    display_name = "Git repository"
+
     labels = {
         "text": "Arbitrary git repository URL (http://git.example.com/repo)",
         "tag_text": "Git ref (branch, tag, or commit) SHA",
@@ -511,6 +523,8 @@ class GitLabRepoProvider(RepoProvider):
 
     name = Unicode('GitLab')
 
+    display_name = "GitLab.com"
+
     hostname = Unicode('gitlab.com', config=True,
         help="""The host of the GitLab instance
 
@@ -568,6 +582,7 @@ class GitLabRepoProvider(RepoProvider):
     }
 
     def __init__(self, *args, **kwargs):
+        print("GITLAB contructor")
         super().__init__(*args, **kwargs)
         self.quoted_namespace, unresolved_ref = self.spec.split('/', 1)
         self.namespace = urllib.parse.unquote(self.quoted_namespace)
@@ -625,6 +640,8 @@ class GitLabRepoProvider(RepoProvider):
 class GitHubRepoProvider(RepoProvider):
     """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
+
+    display_name = 'GitHub'
 
     # shared cache for resolved refs
     cache = Cache(1024)
@@ -872,8 +889,11 @@ class GistRepoProvider(GitHubRepoProvider):
     If master or no ref is specified the latest revision will be used.
     """
 
-    name = Unicode('Gist')
-    hostname = Unicode('gist.github.com')
+    name = Unicode("Gist")
+
+    display_name = "Gist"
+
+    hostname = Unicode("gist.github.com")
 
     allow_secret_gist = Bool(
         default_value=False,
