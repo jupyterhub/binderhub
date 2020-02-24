@@ -31,6 +31,7 @@ import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
 var BADGE_BASE_URL = $('#badge-base-url').data().url;
+var config_dict = {"gh": "caca"};
 
 function update_favicon(path) {
     var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
@@ -70,23 +71,20 @@ function loadConfig(callback) {
 }
 
 function updateRepoText() {
-  loadConfig(function(res) {
-    var cfg = JSON.parse(res);
-    var provider = $("#provider_prefix").val();
+ var provider = $("#provider_prefix").val();
 
-    var text = cfg[provider]["text"]
-    var tag_text = cfg[provider]["tag_text"]
-    var ref_prop_disabled = cfg[provider]["ref_prop_disabled"]
-    var label_prop_disabled = cfg[provider]["label_prop_disabled"]
-    var placeholder = "HEAD";
+ var text = config_dict[provider]["text"]
+ var tag_text = config_dict[provider]["tag_text"]
+ var ref_prop_disabled = config_dict[provider]["ref_prop_disabled"]
+ var label_prop_disabled = config_dict[provider]["label_prop_disabled"]
+ var placeholder = "HEAD";
 
-    $("#ref").prop("disabled", ref_prop_disabled);
-    $("label[for=ref]").prop("disabled", label_prop_disabled);
-    $("#repository").attr('placeholder', text);
-    $("label[for=repository]").text(text);
-    $("#ref").attr('placeholder', placeholder);
-    $("label[for=ref]").text(tag_text);
-  });
+ $("#ref").prop("disabled", ref_prop_disabled);
+ $("label[for=ref]").prop("disabled", label_prop_disabled);
+ $("#repository").attr('placeholder', text);
+ $("label[for=repository]").text(text);
+ $("#ref").attr('placeholder', placeholder);
+ $("label[for=ref]").text(tag_text);
 }
 
 function getBuildFormValues() {
@@ -255,6 +253,10 @@ function indexMain() {
 
     // setup badge dropdown and default values.
     updateUrls();
+
+    loadConfig(function(res) {
+      config_dict = JSON.parse(res);
+    });
 
     $("#provider_prefix_sel li").click(function(event){
       event.preventDefault();
