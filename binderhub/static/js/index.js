@@ -72,19 +72,16 @@ function loadConfig(callback) {
 
 function updateRepoText() {
  var provider = $("#provider_prefix").val();
-
  var text = config_dict[provider]["text"]
  var tag_text = config_dict[provider]["tag_text"]
  var ref_prop_disabled = config_dict[provider]["ref_prop_disabled"]
  var label_prop_disabled = config_dict[provider]["label_prop_disabled"]
  var placeholder = "HEAD";
 
- $("#ref").prop("disabled", ref_prop_disabled);
- $("label[for=ref]").prop("disabled", label_prop_disabled);
+ $("#ref").attr('placeholder', placeholder).prop("disabled", ref_prop_disabled);
+ $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
  $("#repository").attr('placeholder', text);
  $("label[for=repository]").text(text);
- $("#ref").attr('placeholder', placeholder);
- $("label[for=ref]").text(tag_text);
 }
 
 function getBuildFormValues() {
