@@ -597,6 +597,12 @@ class GitHubRepoProvider(RepoProvider):
     # shared cache for resolved refs
     cache = Cache(1024)
 
+    # separate cache with max age for 404 results
+    # 404s don't have ETags, so we want them to expire at some point
+    # to avoid caching a 404 forever since e.g. a missing repo or branch
+    # may be created later
+    cache_404 = Cache(1024, max_age=300)
+
     hostname = Unicode('github.com',
         config=True,
         help="""The GitHub hostname to use
@@ -769,10 +775,16 @@ class GitHubRepoProvider(RepoProvider):
             etag = cached['etag']
             self.log.debug("Cache hit for %s: %s", api_url, etag)
         else:
+            cache_404 = self.cache_404.get(api_url)
+            if cache_404:
+                self.log.debug("Cache hit for 404 on %s", api_url)
+                return None
             etag = None
 
         resp = yield self.github_api_request(api_url, etag=etag)
         if resp is None:
+            self.log.debug("Caching 404 on %s", api_url)
+            self.cache_404.set(api_url, True)
             return None
         if resp.code == 304:
             self.log.info("Using cached ref for %s: %s", api_url, cached['sha'])
