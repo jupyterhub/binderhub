@@ -31,7 +31,7 @@ import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
 var BADGE_BASE_URL = $('#badge-base-url').data().url;
-var config_dict = {"gh": "caca"};
+var config_dict = {};
 
 function update_favicon(path) {
     var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
@@ -70,18 +70,29 @@ function loadConfig(callback) {
   req.send(null);
 }
 
-function updateRepoText() {
- var provider = $("#provider_prefix").val();
- var text = config_dict[provider]["text"]
- var tag_text = config_dict[provider]["tag_text"]
- var ref_prop_disabled = config_dict[provider]["ref_prop_disabled"]
- var label_prop_disabled = config_dict[provider]["label_prop_disabled"]
- var placeholder = "HEAD";
+function setLabels() {
+  var provider = $("#provider_prefix").val();
+  var text = config_dict[provider]["text"];
+  var tag_text = config_dict[provider]["tag_text"];
+  var ref_prop_disabled = config_dict[provider]["ref_prop_disabled"];
+  var label_prop_disabled = config_dict[provider]["label_prop_disabled"];
+  var placeholder = "HEAD";
 
- $("#ref").attr('placeholder', placeholder).prop("disabled", ref_prop_disabled);
- $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
- $("#repository").attr('placeholder', text);
- $("label[for=repository]").text(text);
+  $("#ref").attr('placeholder', placeholder).prop("disabled", ref_prop_disabled);
+  $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
+  $("#repository").attr('placeholder', text);
+  $("label[for=repository]").text(text);
+}
+
+function updateRepoText() {
+  if (Object.keys(config_dict).length === 0){
+    loadConfig(function(res) {
+      config_dict = JSON.parse(res);
+      setLabels();
+    });
+  } else {
+    setLabels();
+  }
 }
 
 function getBuildFormValues() {
@@ -250,10 +261,6 @@ function indexMain() {
 
     // setup badge dropdown and default values.
     updateUrls();
-
-    loadConfig(function(res) {
-      config_dict = JSON.parse(res);
-    });
 
     $("#provider_prefix_sel li").click(function(event){
       event.preventDefault();
