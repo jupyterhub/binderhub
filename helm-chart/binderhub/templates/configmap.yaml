@@ -19,3 +19,6 @@ data:
   values.yaml: |
     {{- $values | toYaml | nindent 4 }}
 
+  {{- /* Glob files to allow them to be mounted by the binderhub pod */ -}}
+  {{- /* key=filename: value=content */ -}}
+  {{- (.Files.Glob "files/*").AsConfig | nindent 2 }}
