@@ -38,6 +38,7 @@ class Build:
     """
     def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
                  image_name, push_secret, memory_limit, docker_host, node_selector,
+                 extra_volume_build={}, extra_volume_mount_build={}, init_container_build={},
                  appendix='', log_tail_lines=100, sticky_builds=False):
         self.q = q
         self.api = api
@@ -46,6 +47,9 @@ class Build:
         self.name = name
         self.namespace = namespace
         self.image_name = image_name
+        self.extra_volume_build = extra_volume_build
+        self.extra_volume_mount_build = extra_volume_mount_build
+        self.init_container_build = init_container_build
         self.push_secret = push_secret
         self.build_image = build_image
         self.main_loop = IOLoop.current()
@@ -230,10 +234,32 @@ class Build:
                 name='docker-push-secret',
                 secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
             ))
+        if self.extra_volume_build:
+            volume_mounts.append(client.V1VolumeMount(
+                mount_path=self.extra_volume_mount_build['mountPath'], name=self.extra_volume_mount_build['name']))
+            volumes.append(client.V1Volume(
+                name=self.extra_volume_build['name'],
+                host_path=client.V1HostPathVolumeSource(path=self.extra_volume_build['path'], type='Directory')
+            ))
 
         env = []
         if self.git_credentials:
             env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
+        env.append(client.V1EnvVar(name='REPO_URL', value=self.repo_url))
+
+        init_containers=[]
+        if self.init_container_build:
+                init_containers.append(client.V1Container(
+                            image=self.init_container_build['image'],
+                            name="build-init",
+                            args=self.init_container_build['args'],
+                            volume_mounts=volume_mounts,
+                            resources=client.V1ResourceRequirements(
+                                limits={'memory': self.memory_limit},
+                                requests={'memory': self.memory_limit}
+                            ),
+                            env=env
+                        ))
 
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
@@ -260,6 +286,7 @@ class Build:
                         env=env
                     )
                 ],
+                init_containers=init_containers,
                 tolerations=[
                     client.V1Toleration(
                         key='hub.jupyter.org/dedicated',

@@ -282,6 +282,30 @@ class BinderHub(Application):
         config=True,
     )
 
+    extra_volume_build = Dict(
+        {},
+        config=True,
+        help="""
+        Additionnal volume on build pods.
+        """
+    )
+
+    extra_volume_mount_build = Dict(
+        {},
+        config=True,
+        help="""
+        Additionnal volume mounting configuration on build pods.
+        """
+    )
+
+    init_container_build = Dict(
+        {},
+        config=True,
+        help="""
+        Additionnal container on build pods.
+        """
+    )
+
     push_secret = Unicode(
         'binder-push-secret',
         allow_none=True,
@@ -573,6 +597,9 @@ class BinderHub(Application):
                 self.event_log.register_schema(json.load(f))
 
         self.tornado_settings.update({
+            "extra_volume_build": self.extra_volume_build,
+            "extra_volume_mount_build": self.extra_volume_mount_build,
+            "init_container_build": self.init_container_build,
             "push_secret": self.push_secret,
             "image_prefix": self.image_prefix,
             "debug": self.debug,
