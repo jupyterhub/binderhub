@@ -1,10 +1,6 @@
 {% extends "page.html" %}
 
-{% block head %}
-<meta id="base-url" data-url="{{base_url}}">
-<meta id="badge-base-url" data-url="{{badge_base_url}}">
-<meta id="build-token" data-token="{{ build_token }}">
-<!-- Other OG information in page.html -->
+{% block meta_social %}
 <meta property="og:title" content="{{social_desc}}">
 <meta property="og:image" content="https://mybinder.org/static/images/logo_square.png">
 <meta property="og:description" content="Click to run this interactive environment. From the Binder Project: Reproducible, sharable, interactive computing environments.">
@@ -12,12 +8,15 @@
 <meta property="og:image:height" content="217">
 <meta property="og:image:alt" content="The Binder Project Logo" />
 <meta name="twitter:card" content="summary" />
+{% endblock meta_social %}
 
+{% block head %}
+<meta id="base-url" data-url="{{base_url}}">
+<meta id="badge-base-url" data-url="{{badge_base_url}}">
+<meta id="build-token" data-token="{{ build_token }}">
 {{ super() }}
 <script src="{{static_url("dist/bundle.js")}}"></script>
 <link href="{{static_url("loading.css")}}" rel="stylesheet">
-
-
 {% endblock head %}
 
 {% block main %}
