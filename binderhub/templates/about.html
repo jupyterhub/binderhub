@@ -15,9 +15,11 @@
         <div id="explanation">
           <p>This website is powered by <a href="https://github.com/jupyterhub/binderhub">BinderHub</a> v{{ binder_version }}.
           </p>
+          {% if message %}
           <p>
             {{ message | safe }}
           </p>
+          {% endif %}
         </div>
       </div>
       {% endblock header %}
