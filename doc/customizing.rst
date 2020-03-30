@@ -198,3 +198,53 @@ of 1337 to any repository in the JupyterHub organization.
            - pattern: ^jupyterhub.*
              config:
                 quota: 1337
+
+Pre-built events
+----------------
+Everytime a user launch a repository, Binderhub will create a k8s pod that uses
+`repo2docker <https://github.com/jupyter/repo2docker>`_ to prepare the user's
+environment. You can find more information on the building process `here 
+<https://binderhub.readthedocs.io/en/latest/overview.html#what-happens-when-a-user-clicks-a-binder-link>`_.
+
+It is now possible to specify additionnal events just before ``repo2docker`` using one or multiple 
+`Init Containers <https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_.
+These could be used if you want to run long and intensive jobs directly on the server,
+without impacting user's notebook runtime.
+
+Examples of such events are :
+
+* running costly pipelines using the full ressources from the server
+* building dynamic html objects to be rendered inside the user's notebook
+* pre-pulling data into the server
+
+.. note::
+
+    As for a standard build, the ``Init Containers`` commands are triggered again before
+    ``repo2docker`` when the user make new commits into his repository.
+
+There is also the possibility to provide additionnal `volume
+<https://kubernetes.io/docs/concepts/storage/volumes/>`_ that can be mounted
+inside the build pod.
+
+The following configuration file showcase the use of `repo2data <https://github.com/SIMEXP/Repo2Data>`_ to pull data into the
+server before ``repo2docker`` using a 
+`hostPath volume <https://kubernetes.io/docs/concepts/storage/volumes/#hostpath>`_
+ 
+.. code-block:: yaml
+
+    config:
+      BinderHub:
+        extra_volume_build:
+          - name: extra-volume
+            hostPath:
+              path: /DATA
+              type: Directory
+        init_container_build:
+          - name: init-builder
+          image: conpdev/repo2data
+          args:
+            - -r
+            - $(REPO_URL)
+          volumeMounts:
+            - name: extra-volume
+              mountPath: /data
