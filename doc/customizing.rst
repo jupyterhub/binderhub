@@ -67,7 +67,7 @@ Firstly assume that you have a Git repo ``binderhub_custom_files`` which holds y
 
     binderhub_custom_files/
     ├── static
-    │   └── custom_logo.svg
+    │   └── custom_logo.svg
     └── templates
         └── page.html
 
@@ -199,37 +199,17 @@ of 1337 to any repository in the JupyterHub organization.
              config:
                 quota: 1337
 
-Pre-built events
+Pre-build steps
 ----------------
-Everytime a user launch a repository, Binderhub will create a k8s pod that uses
-`repo2docker <https://github.com/jupyter/repo2docker>`_ to prepare the user's
-environment. You can find more information on the building process `here 
-<https://binderhub.readthedocs.io/en/latest/overview.html#what-happens-when-a-user-clicks-a-binder-link>`_.
 
-It is now possible to specify additionnal events just before ``repo2docker`` using one or multiple 
-`Init Containers <https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_.
-These could be used if you want to run long and intensive jobs directly on the server,
-without impacting user's notebook runtime.
+A Binder ``build`` refers to the process of creating a virtual environment for a git repository. This operation takes place in a `Kubernetes pod <https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod>`_, where a `repo2docker <https://github.com/jupyter/repo2docker>`_ container does the heavy lifting to create the requested environment. 
 
-Examples of such events are :
+If you want the eventual environment to access some additinoal resources without baking them into the built Docker image, you may need to execute some configurations **before** the ``repo2docker`` container is started. In Kubernetes, such priori steps are typically achieved using `init containers <https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_.
 
-* running costly pipelines using the full ressources from the server
-* building dynamic html objects to be rendered inside the user's notebook
-* pre-pulling data into the server
+In the BinderHub configuration, you can specify init containers to run in the build pod before the ``repo2docker`` call via the ``init_container_build`` key.
 
-.. note::
+The `repo2data <https://github.com/SIMEXP/Repo2Data>`_  python package provides a good showcase for the use of ``init_container_build``:
 
-    As for a standard build, the ``Init Containers`` commands are triggered again before
-    ``repo2docker`` when the user make new commits into his repository.
-
-There is also the possibility to provide additionnal `volume
-<https://kubernetes.io/docs/concepts/storage/volumes/>`_ that can be mounted
-inside the build pod.
-
-The following configuration file showcase the use of `repo2data <https://github.com/SIMEXP/Repo2Data>`_ to pull data into the
-server before ``repo2docker`` using a 
-`hostPath volume <https://kubernetes.io/docs/concepts/storage/volumes/#hostpath>`_
- 
 .. code-block:: yaml
 
     config:
@@ -248,3 +228,14 @@ server before ``repo2docker`` using a
           volumeMounts:
             - name: extra-volume
               mountPath: /data
+
+In the configuration above, a ``conpdev/repo2data`` init container is run to:
+
+1. Pull the dataset described by a `data_requirements.json <https://github.com/SIMEXP/Repo2Data#input>`_ to the server 
+2. Set necessary configurations to associate the downloaded data with the corresponding user pod. 
+
+Having the dataset available pripor to the user pod running, this approach does not prolong the time for spawning a user session and keeps the Docker images lean. Note that the use of ``init_container_build`` is not exclusive to the data management purposes. Any process that can be defined as a ``init container`` job can be specified before the ``repo2docker`` container is started in the build pod. 
+
+.. note::
+
+    Commits pushed to the user's git repository will trigger ``init_container_build`` runs.
