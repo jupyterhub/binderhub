@@ -11,7 +11,7 @@ covers one of the aspects of setting up a BinderHub for your users.
 
    BinderHub uses a JupyterHub running on Kubernetes for most of its functionality.
    This guide assumes you have experience with setting up a JupyterHub on Kubernetes.
-   We recommend you follow the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html#customization-guide>`_
+   We recommend you follow the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html>`_
    to familiarize yourself with JupyterHub on Kubernetes before attempting to
    setup a BinderHub.
 
