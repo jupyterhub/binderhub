@@ -193,7 +193,7 @@ internal_redirect_template = """
 <html>
   <head>
     <title>Going to {new_url}</title>
-    <link rel="canonical" href="{new_url}"/>
+    <link rel="canonical" href="{canonical_url}{new_url}"/>
     <meta name="robots" content="noindex">
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta http-equiv="refresh" content="0; url={new_url}"/>
@@ -203,9 +203,14 @@ internal_redirect_template = """
 
 
 def create_internal_redirects(app, docname):
-    if app.builder.name == "html":
+    if app.builder.name in ("html", "readthedocs"):
+        print(app.config['html_context'])
+        canonical_url = app.config['html_context'].get("canonical_url", "")
         for old_name, new in internal_redirects:
-            page = internal_redirect_template.format(new_url=new)
+            page = internal_redirect_template.format(
+                new_url=new,
+                canonical_url=canonical_url,
+            )
 
             target_path = app.outdir + "/" + old_name
             if not os.path.exists(os.path.dirname(target_path)):
