@@ -15,7 +15,7 @@ will assist you in doing so.
 
    BinderHub uses a JupyterHub running on Kubernetes for much of its functionality.
    For information on setting up and customizing your JupyterHub, we recommend reading
-   the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html#customization-guide>`_.
+   the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html>`_.
 
 Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
 --------------------------------------------------------------------

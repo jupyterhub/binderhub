@@ -393,7 +393,7 @@ Previously, the token only needed minimal read-only permissions (the default).
 In order to access private repositories,
 the token must have **full read/write permissions on all your repos** [#permission]_.
 
-.. figure:: _static/images/private-repo-token.png
+.. figure:: private-repo-token.png
 
   Creating a token with the full `repo` scope needed
   in order to clone private repos.
@@ -413,7 +413,7 @@ To access private GitLab repos, create an API token for your binderhub user
 under "User Settings" > "Access tokens". It at least needs the scopes "api" and
 "read_repository".
 
-.. figure:: _static/images/private-gitlab-repo-token.png
+.. figure:: private-gitlab-repo-token.png
 
 Then update ``secret.yaml`` with the following::
 
@@ -452,4 +452,4 @@ for each DinD application::
       hostSocketDir: /var/run/dind/"<name of deployment, e.g. staging>"
 
 
-For next steps, see :doc:`debug` and :doc:`turn-off`.
+For next steps, see :doc:`../debug` and :doc:`turn-off`.
