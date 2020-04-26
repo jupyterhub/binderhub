@@ -20,7 +20,7 @@ covers one of the aspects of setting up a BinderHub for your users.
    :numbered:
    :caption: Zero to BinderHub
 
-   ../create-cloud-resources
-   ../setup-registry
-   ../setup-binderhub
-   ../turn-off
+   create-cloud-resources
+   setup-registry
+   setup-binderhub
+   turn-off
