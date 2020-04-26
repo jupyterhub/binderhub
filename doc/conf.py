@@ -215,10 +215,7 @@ def create_internal_redirects(app, docname):
                 f.write(page)
 
 
-# -- Add custom CSS ----------------------------------------------
 def setup(app):
-    app.add_stylesheet('https://gitcdn.link/repo/jupyterhub/binder/master/doc/_static/custom.css')
-
     app.connect("build-finished", create_internal_redirects)
 
 # -- Run Federation script ----------------------------------------------
