@@ -186,7 +186,7 @@ internal_redirects = [
     ("turn-off.html", "zero-to-binderhub/turn-off.html"),
     ("setup-registry.html", "zero-to-binderhub/setup-registry.html"),
     ("setup-binderhub.html", "zero-to-binderhub/setup-binderhub.html"),
-    ("create-cloud-resources.html", "zero-to-binderhub/create-cloud-resources.html"),
+    ("create-cloud-resources.html", "zero-to-binderhub/setup-prerequisites.html"),
 ]
 internal_redirect_template = """
 <!DOCTYPE html>
