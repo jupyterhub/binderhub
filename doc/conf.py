@@ -180,9 +180,46 @@ texinfo_documents = [
 ]
 
 
+# -- Setup redirects for content that was moved internally
+# each entry represent an `old` path that is now available at a `new` path
+internal_redirects = [
+    ("turn-off.html", "zero-to-binderhub/turn-off.html"),
+    ("setup-registry.html", "zero-to-binderhub/setup-registry.html"),
+    ("setup-binderhub.html", "zero-to-binderhub/setup-binderhub.html"),
+    ("create-cloud-resources.html", "zero-to-binderhub/create-cloud-resources.html"),
+]
+internal_redirect_template = """
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Going to {new_url}</title>
+    <link rel="canonical" href="{new_url}"/>
+    <meta name="robots" content="noindex">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="refresh" content="0; url={new_url}"/>
+  </head>
+</html>
+"""
+
+
+def create_internal_redirects(app, docname):
+    if app.builder.name == "html":
+        for old_name, new in internal_redirects:
+            page = internal_redirect_template.format(new_url=new)
+
+            target_path = app.outdir + "/" + old_name
+            if not os.path.exists(os.path.dirname(target_path)):
+                os.makedirs(os.path.dirname(target_path))
+
+            with open(target_path, "w") as f:
+                f.write(page)
+
+
 # -- Add custom CSS ----------------------------------------------
 def setup(app):
     app.add_stylesheet('https://gitcdn.link/repo/jupyterhub/binder/master/doc/_static/custom.css')
+
+    app.connect("build-finished", create_internal_redirects)
 
 # -- Run Federation script ----------------------------------------------
 from subprocess import run
