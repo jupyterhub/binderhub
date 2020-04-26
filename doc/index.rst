@@ -25,12 +25,6 @@ your BinderHub deployment.
 
 To get started creating your own BinderHub, start with :ref:`zero-to-binderhub`.
 
-.. note::
-
-   BinderHub uses a JupyterHub running on Kubernetes for much of its functionality.
-   For information on setting up and customizing your JupyterHub, we recommend reading
-   the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html#customization-guide>`_.
-
 
 BinderHub Deployments
 =====================

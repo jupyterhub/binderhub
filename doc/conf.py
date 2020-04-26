@@ -179,19 +179,6 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-# -- Custom scripts -------------------------------------------
-
-# Grab the latest version of the k8s and helm install instructions.
-helm_instructions = "https://raw.githubusercontent.com/jupyterhub/zero-to-jupyterhub-k8s/master/doc/source/setup-jupyterhub/setup-helm.rst"
-
-resp = requests.get(helm_instructions)
-with open('./helm.txt', 'w') as ff:
-    # Bump section headers
-    lines = resp.text.split('\n')
-    for ii, ln in enumerate(lines):
-        if ln.startswith('---'):
-            lines[ii] = ln.replace('-', '~')
-    ff.write('\n'.join(lines))
 
 # -- Add custom CSS ----------------------------------------------
 def setup(app):
