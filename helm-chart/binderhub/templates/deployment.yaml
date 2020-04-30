@@ -33,6 +33,9 @@ spec:
         # This lets us autorestart when the configmap changes!
         checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.annotations }}
+        {{- .Values.annotations | toYaml | trimSuffix "\n" | nindent 8 }}
+        {{- end }}
     spec:
       {{ if .Values.initContainers -}}
       initContainers:
