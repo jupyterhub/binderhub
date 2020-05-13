@@ -230,7 +230,7 @@ Container Registry (ECR), then your `config.yaml` file will look as follows::
     config:
       BinderHub:
         use_registry: true
-        registry_class: binderhub.registry.AWSElasticContainerRegistry
+        docker_registry_class: binderhub.registry.AWSElasticContainerRegistry
         image_prefix: "<ACCOUNT_NUMBER>.dkr.ecr.<REGION>.amazonaws.com/<prefix>-"
       AWSElasticContainerRegistry:
         aws_region: <REGION>
