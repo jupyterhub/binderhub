@@ -17,6 +17,7 @@ SPEC_NAMES = {
     "git": "Git repo",
     "zenodo": "Zenodo",
     "figshare": "Figshare",
+    "hydroshare": "Hydroshare",
     "dataverse": "Dataverse",
 }
 

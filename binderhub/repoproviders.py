@@ -7,7 +7,7 @@ control services and providers.
 .. note:: When adding a new repo provider, add it to the allowed values for
           repo providers in event-schemas/launch.json.
 """
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 import json
 import os
 import time
@@ -351,6 +351,58 @@ class DataverseProvider(RepoProvider):
         return "dataverse-" + escapism.escape(self.identifier, escape_char="-").lower()
 
 
+class HydroshareProvider(RepoProvider):
+    """Provide contents of a Hydroshare resource
+    Users must provide a spec consisting of the Hydroshare resource id.
+    """
+    name = Unicode("Hydroshare")
+    url_regex = re.compile(r".*([0-9a-f]{32}).*")
+
+    def _parse_resource_id(self, spec):
+        match = self.url_regex.match(spec)
+        if not match:
+            raise ValueError("The specified Hydroshare resource id was not recognized.")
+        resource_id = match.groups()[0]
+        return resource_id
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        client = AsyncHTTPClient()
+        self.resource_id = self._parse_resource_id(self.spec)
+        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
+                          user_agent="BinderHub")
+        r = yield client.fetch(req)
+        def parse_date(json_body):
+            json_response = json.loads(json_body)
+            date = next(
+                item for item in json_response["dates"] if item["type"] == "modified"
+            )["start_date"]
+            # Hydroshare timestamp always returns the same timezone, so strip it
+            date = date.split(".")[0]
+            parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+            epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
+            # truncate the timestamp
+            return str(int(epoch))
+        # date last updated is only good for the day... probably need something finer eventually
+        self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
+        return self.record_id
+
+    async def get_resolved_spec(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
+    async def get_resolved_ref_url(self):
+        # Hydroshare does not provide a history, resolves to repo url
+        return self.get_repo_url()
+
+    def get_repo_url(self):
+        self.resource_id = self._parse_resource_id(self.spec)
+        return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
+
+    def get_build_slug(self):
+        return "hydroshare-{}".format(self.record_id)
+
+
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 
@@ -545,6 +597,12 @@ class GitHubRepoProvider(RepoProvider):
     # shared cache for resolved refs
     cache = Cache(1024)
 
+    # separate cache with max age for 404 results
+    # 404s don't have ETags, so we want them to expire at some point
+    # to avoid caching a 404 forever since e.g. a missing repo or branch
+    # may be created later
+    cache_404 = Cache(1024, max_age=300)
+
     hostname = Unicode('github.com',
         config=True,
         help="""The GitHub hostname to use
@@ -596,21 +654,6 @@ class GitHubRepoProvider(RepoProvider):
     def _access_token_default(self):
         return os.getenv('GITHUB_ACCESS_TOKEN', '')
 
-    auth = Dict(
-        help="""Auth parameters for the GitHub API access
-
-        Populated from client_id, client_secret.
-    """
-    )
-    @default('auth')
-    def _default_auth(self):
-        auth = {}
-        for key in ('client_id', 'client_secret'):
-            value = getattr(self, key)
-            if value:
-                auth[key] = value
-        return auth
-
     @default('git_credentials')
     def _default_git_credentials(self):
         if self.access_token:
@@ -640,9 +683,12 @@ class GitHubRepoProvider(RepoProvider):
     @gen.coroutine
     def github_api_request(self, api_url, etag=None):
         client = AsyncHTTPClient()
-        if self.auth:
-            # Add auth params. After logging!
-            api_url = url_concat(api_url, self.auth)
+
+        request_kwargs = {}
+        if self.client_id and self.client_secret:
+            request_kwargs.update(
+                dict(auth_username=self.client_id, auth_password=self.client_secret)
+            )
 
         headers = {}
         # based on: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
@@ -651,7 +697,9 @@ class GitHubRepoProvider(RepoProvider):
 
         if etag:
             headers['If-None-Match'] = etag
-        req = HTTPRequest(api_url, headers=headers, user_agent="BinderHub")
+        req = HTTPRequest(
+            api_url, headers=headers, user_agent="BinderHub", **request_kwargs
+        )
 
         try:
             resp = yield client.fetch(req)
@@ -727,10 +775,16 @@ class GitHubRepoProvider(RepoProvider):
             etag = cached['etag']
             self.log.debug("Cache hit for %s: %s", api_url, etag)
         else:
+            cache_404 = self.cache_404.get(api_url)
+            if cache_404:
+                self.log.debug("Cache hit for 404 on %s", api_url)
+                return None
             etag = None
 
         resp = yield self.github_api_request(api_url, etag=etag)
         if resp is None:
+            self.log.debug("Caching 404 on %s", api_url)
+            self.cache_404.set(api_url, True)
             return None
         if resp.code == 304:
             self.log.info("Using cached ref for %s: %s", api_url, cached['sha'])

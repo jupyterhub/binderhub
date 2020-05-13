@@ -5,7 +5,7 @@ sphinx-copybutton
 traitlets
 pandas
 ruamel.yaml
-git+https://github.com/pandas-dev/pandas-sphinx-theme.git@master
+pydata_sphinx_theme
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.

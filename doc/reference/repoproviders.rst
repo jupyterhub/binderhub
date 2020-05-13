@@ -52,6 +52,13 @@ Module: :mod:`binderhub.repoproviders`
     :members:
 
 
+:class:`HydroshareProvider`
+---------------------------
+
+.. autoconfigurable:: HydroshareProvider
+    :members:
+
+
 :class:`DataverseProvider`
 ---------------------------
 

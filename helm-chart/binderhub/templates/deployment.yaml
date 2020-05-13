@@ -102,8 +102,12 @@ spec:
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
           value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
+        {{- if .Values.jupyterhub.hub.allowNamedServers }}
         - name: JUPYTERHUB_ALLOW_NAMED_SERVERS
-          value: {{ .Values.jupyterhub.hub.allowNamedServers | quote }}
+          value: "true"
+        - name: JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER
+          value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser | quote  }}
+        {{- end }}
         {{- end }}
         {{ if .Values.extraEnv }}
 {{ toYaml .Values.extraEnv | indent 8 }}
