@@ -207,7 +207,7 @@ class BinderHub(Application):
         config=True,
     )
 
-    registry_class = Type(
+    docker_registry_class = Type(
         DockerRegistry,
         help="""
         Change this to support different Docker container registries.
@@ -564,7 +564,7 @@ class BinderHub(Application):
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
         if self.use_registry and self.builder_required:
-            registry = self.registry_class(parent=self)
+            registry = self.docker_registry_class(parent=self)
         else:
             registry = None
 
