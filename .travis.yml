@@ -45,7 +45,6 @@ env:
     - TEST=auth
     - TEST=helm
   global:
-    - ASYNC_TEST_TIMEOUT=15
     # minikube version: https://github.com/kubernetes/minikube/releases
     - MINIKUBE_VERSION=1.10.1
     # kubernetes version: https://github.com/kubernetes/kubernetes/releases
