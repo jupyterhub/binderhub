@@ -23,7 +23,6 @@ echo "installing minikube"
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/v${MINIKUBE_VERSION}/minikube-linux-amd64
 chmod +x minikube
 mv minikube bin/
-minikube addons disable dashboard
 
 echo "starting minikube with RBAC"
 sudo CHANGE_MINIKUBE_NONE_USER=true $PWD/bin/minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
