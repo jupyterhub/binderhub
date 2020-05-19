@@ -3,14 +3,11 @@ set -ex
 
 mkdir -p bin
 
-# install gnutls headers for pycurl, socat for helm
+# install conntrack for minikube with k8s 1.18.2
+# install libgnutls28-dev for pycurl
+# install socat for helm2
 sudo apt-get update
-sudo apt-get -y install libgnutls28-dev socat
-
-
-# Workaround for kube 1.10: https://github.com/kubernetes/kubernetes/issues/61058#issuecomment-372764783
-sudo mount --make-rshared /
-sudo mount --make-rshared /run
+sudo apt-get -y install conntrack libgnutls28-dev socat
 
 # install kubectl, minikube
 # based on https://blog.travis-ci.com/2017-10-26-running-kubernetes-on-travis-ci-with-minikube
