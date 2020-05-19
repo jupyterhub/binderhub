@@ -7,7 +7,7 @@ set -ex
 
 # Is there a standard interface name?
 for iface in eth0 ens4 enp0s3; do
-    IP=$(ifconfig $iface | grep 'inet addr' | cut -d: -f2 | awk '{print $1}');
+    IP=$(ifconfig $iface | grep 'inet' | cut -d: -f2 | awk '{print $2}');
     if [ -n "$IP" ]; then
         echo "IP: $IP"
         break
