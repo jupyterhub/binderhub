@@ -1,15 +1,14 @@
-dist: xenial
+dist: bionic
 language: python
 python:
-  - 3.6
+  - 3.7
 git:
   depth: false
 services:
   - docker
-sudo: required
 
 before_install:
-  - nvm install 8; nvm use 8
+  - nvm install 12; nvm use 12
 install:
   # need gnutls headers for pycurl
   - sudo apt-get -yq install libgnutls28-dev
