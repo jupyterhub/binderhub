@@ -19,32 +19,6 @@ from tempfile import NamedTemporaryFile
 
 auth_enabled = '--auth' in sys.argv
 
-namespace = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
-name = 'binder-test-hub'
-
-here = os.path.abspath(os.path.dirname(__file__))
-helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
-requirements_yaml = os.path.join(helm_chart, 'binderhub', 'requirements.yaml')
-values_yaml = os.path.join(helm_chart, 'binderhub', 'values.yaml')
-
-def get_hub_chart_dependency():
-    """Get the JupyterHub chart info from the binderhub chart requirements.yaml"""
-    with open(requirements_yaml) as f:
-        requirements = yaml.safe_load(f)
-    for dep in requirements['dependencies']:
-        if dep['name'] == 'jupyterhub':
-            return dep
-    else:
-        raise ValueError("Couldn't find JupyterHub in %s:\n%s" %
-            (requirements_yaml, requirements)
-        )
-
-jupyterhub = get_hub_chart_dependency()
-
-# update the helm repo
-check_call(['helm', 'repo', 'add', 'jupyterhub', jupyterhub['repository']])
-check_call(['helm', 'repo', 'update', 'jupyterhub'])
-
 # Deploying BinderHub normally automatically deploys JupyterHub from the same
 # configuration file.
 # In the CI tests JupyterHub is configured independently, so extract the
@@ -82,51 +56,5 @@ print("\n    %s\n" % ' '.join(map(pipes.quote, cmd)))
 check_call(cmd)
 
 
-# wait for deployment to be running via kube API
-
-config.load_kube_config()
-kube = client.CoreV1Api()
-
-def wait_for(f, msg, timeout=300):
-    """Wait for f() to return True"""
-    print(f"Waiting until {msg}")
-    for i in range(int(timeout)):
-        if f():
-            break
-        time.sleep(1)
-    else:
-        raise TimeoutError(f"{msg} did not occur in {timeout} seconds")
-    print(msg)
-
-def pods_ready():
-    """
-    Return whether all pods in our test namespace are ready, which is a tougher
-    criteria than running.
-
-    ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions
-    ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#podstatus-v1-core
-    """
-    pods = kube.list_namespaced_pod(namespace).items
-
-    # FIXME: we could perhaps delegate this waiting for readiness to kubernetes
-    # api and do like in z2jh:
-    # https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/5703a8de9017d83242f8d4dd1ac00887c162629b/dev#L261-L266
-    all_pods_ready = True
-    for pod in pods:
-        if not any(
-            condition.type == "Ready" and condition.status == "True"
-            for condition in pod.status.conditions
-        ):
-            all_pods_ready = False
-            print(f"{pod.status.phase}\t{pod.metadata.name}")
-    return all_pods_ready
-
-# wait until all of our pods are running and ready
-try:
-    wait_for(pods_ready, "Hub is up")
-except TimeoutError:
-    # show pods on timeout, in case there's a hint about what's wrong
-    check_call(['kubectl', 'get', 'pod', '--all-namespaces'])
-    raise
 
 os.remove(jupyterhub_values_yaml)

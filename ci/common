@@ -1,0 +1,48 @@
+#!/bin/sh
+# Use https://www.shellcheck.net/ to reduce mistakes if you make changes to this file.
+# This file is a mirrored copy of jupyterhub/zero-to-jupyterhub-k8s's ci/common file.
+
+setup_helm () {
+    echo "setup helm ${HELM_VERSION}"
+    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION=${HELM_VERSION} bash
+}
+
+setup_k3s () {
+    echo "setup k3s ${K3S_VERSION}"
+    # https://rancher.com/docs/k3s/latest/en/installation/install-options/how-to-flags/
+
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${K3S_VERSION} sh -s - \
+        --write-kubeconfig-mode=644 \
+        "${k3s_disable_command:---disable}" metrics-server \
+        "${k3s_disable_command:---disable}" traefik \
+        "${k3s_disable_command:---disable}" local-path-provisioner \
+        --disable-network-policy \
+        --docker \
+    || {
+        echo "Setup of k3s failed!"
+        systemctl status k3s.service
+        journalctl --no-pager --utc | tail -n 100
+        exit 1
+    }
+
+    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+}
+
+await_tls_cert_acquisition() {
+    i=0; while [ $i -ne 60 ]; do
+        kubectl logs deploy/pebble -c pebble | grep "Issued certificate" \
+        && acquired_cert=true && break \
+        || acquired_cert=false && sleep 0.5 && i=$((i + 1))
+    done
+    if [ "$acquired_cert" != "true" ]; then
+        echo "Certificate acquisition failed!"
+        kubectl get service,networkpolicy,configmap,pod
+        kubectl describe pod -l app.kubernetes.io/name=pebble
+        kubectl logs deploy/pebble --all-containers --prefix
+        kubectl describe pod -l app.kubernetes.io/name=pebble-coredns
+        kubectl logs deploy/pebble-coredns --all-containers --prefix
+        kubectl describe pod -l component=autohttps
+        kubectl logs deploy/autohttps --all-containers --prefix
+        exit 1
+    fi
+}

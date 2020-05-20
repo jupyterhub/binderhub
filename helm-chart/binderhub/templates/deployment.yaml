@@ -23,9 +23,9 @@ spec:
         component: binder
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
-        {{ if .Values.deployment.labels -}}
+        {{- with .Values.deployment.labels }}
         # Because toYaml + indent is super flaky
-        {{ range $key, $value := .Values.deployment.labels -}}
+        {{- range $key, $value := . }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
         {{- end }}
@@ -34,11 +34,11 @@ spec:
         checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
-      {{ if .Values.initContainers -}}
+      {{- with .Values.initContainers }}
       initContainers:
-{{ toYaml .Values.initContainers | indent 6 }}
+        {{- . | toYaml | nindent 6 }}
       {{- end }}
-      nodeSelector: {{ toJson .Values.nodeSelector }}
+      nodeSelector: {{ .Values.nodeSelector | toJson }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: binderhub
       {{- end }}
@@ -49,18 +49,18 @@ spec:
       - name: secret-config
         secret:
           secretName: binder-secret
-      {{ if .Values.config.BinderHub.use_registry -}}
+      {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
           secretName: binder-push-secret
-      {{ else -}}
+      {{- else }}
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
       {{- end }}
-      {{ if .Values.extraVolumes }}
-{{ toYaml .Values.extraVolumes | indent 6 }}
-      {{ end }}
+      {{- with .Values.extraVolumes }}
+      {{- . | toYaml | nindent 6 }}
+      {{- end }}
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
@@ -69,19 +69,19 @@ spec:
             name: config
           - mountPath: /etc/binderhub/secret/
             name: secret-config
-          {{ if .Values.config.BinderHub.use_registry -}}
+          {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
             name: docker-secret
             readOnly: true
-          {{ else -}}
+          {{- else }}
           - mountPath: /var/run/docker.sock
             name: docker-socket
           {{- end }}
-          {{ if .Values.extraVolumeMounts }}
-{{ toYaml .Values.extraVolumeMounts | indent 10 }}
-          {{ end }}
+          {{- with .Values.extraVolumeMounts }}
+          {{- . | toYaml | nindent 10 }}
+          {{- end }}
         resources:
-{{ toYaml .Values.resources | indent 12}}
+          {{- .Values.resources | toYaml | nindent 10 }}
         imagePullPolicy: IfNotPresent
         env:
         - name: BUILD_NAMESPACE
@@ -109,15 +109,15 @@ spec:
           value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser | quote  }}
         {{- end }}
         {{- end }}
-        {{ if .Values.extraEnv }}
-{{ toYaml .Values.extraEnv | indent 8 }}
-        {{ end }}
+        {{- with .Values.extraEnv }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
         ports:
           - containerPort: 8585
             name: binder
         livenessProbe:
           httpGet:
-            path: {{ default "/" .Values.config.BinderHub.base_url }}about
+            path: {{ .Values.config.BinderHub.base_url | default "/" }}about
             port: binder
           initialDelaySeconds: 10
           periodSeconds: 5

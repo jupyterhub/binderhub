@@ -27,6 +27,13 @@ RUN python3 setup.py bdist_wheel
 FROM python:3.7-$DIST
 WORKDIR /
 
+# Ensure management of SIGTERM signals coming from `docker stop` and `kubectl
+# delete` so that SIGKILL isn't needed following a timeout of 10 (docker) or 30
+# (kubernetes) seconds.
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT [ "/tini", "--" ]
+
 # Copy the built binderhub python wheel from the build-stage
 # to the current directory within the container.
 COPY --from=build-stage /tmp/binderhub/dist/*.whl .

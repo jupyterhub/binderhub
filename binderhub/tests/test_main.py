@@ -21,7 +21,7 @@ from .utils import async_requests
     ]
 )
 async def test_legacy_redirect(app, old_url, new_url):
-    r = await async_requests.get(app.url + old_url, allow_redirects=False)
+    r = await async_requests.get(app.url + old_url, allow_redirects=False, verify=False)
     assert r.status_code == 302
     assert r.headers['location'] == new_url
 
@@ -54,14 +54,14 @@ def _resolve_url(page_url, url):
 @pytest.mark.remote
 async def test_main_page(app):
     """Check the main page and any links on it"""
-    r = await async_requests.get(app.url)
+    r = await async_requests.get(app.url, verify=False)
     assert r.status_code == 200
     soup = BeautifulSoup(r.text, 'html5lib')
 
     # check src links (style, images)
     for el in soup.find_all(src=True):
         url = _resolve_url(app.url, el['src'])
-        r = await async_requests.get(url)
+        r = await async_requests.get(url, verify=False)
         assert r.status_code == 200, f"{r.status_code} {url}"
 
     # check hrefs
@@ -70,14 +70,14 @@ async def test_main_page(app):
         if href.startswith('#'):
             continue
         url = _resolve_url(app.url, href)
-        r = await async_requests.get(url)
+        r = await async_requests.get(url, verify=False)
         assert r.status_code == 200, f"{r.status_code} {url}"
 
 
 @pytest.mark.remote
 async def test_about_handler(app):
     # Check that the about page loads
-    r = await async_requests.get(app.url + "/about")
+    r = await async_requests.get(app.url + "/about", verify=False)
     assert r.status_code == 200
     assert "This website is powered by" in r.text
     assert binder_version in r.text
@@ -86,7 +86,7 @@ async def test_about_handler(app):
 @pytest.mark.remote
 async def test_versions_handler(app):
     # Check that the about page loads
-    r = await async_requests.get(app.url + "/versions")
+    r = await async_requests.get(app.url + "/versions", verify=False)
     assert r.status_code == 200
 
     data = r.json()
@@ -115,11 +115,11 @@ async def test_loading_page(app, provider_prefix, repo, ref, path, path_type, st
     provider_spec = f'{provider_prefix}/{spec}'
     query = f'{path_type}path={path}' if path else ''
     uri = f'/v2/{provider_spec}?{query}'
-    r = await async_requests.get(app.url + uri)
+    r = await async_requests.get(app.url + uri, verify=False)
     assert r.status_code == status_code, f"{r.status_code} {uri}"
     if status_code == 200:
         soup = BeautifulSoup(r.text, 'html5lib')
         assert soup.find(id='log-container')
         nbviewer_url = soup.find(id='nbviewer-preview').find('iframe').attrs['src']
-        r = await async_requests.get(nbviewer_url)
+        r = await async_requests.get(nbviewer_url, verify=False)
         assert r.status_code == 200, f"{r.status_code} {nbviewer_url}"

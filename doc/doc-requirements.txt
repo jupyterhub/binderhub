@@ -9,7 +9,7 @@ pydata_sphinx_theme
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
-kubernetes==9.0.*
+kubernetes==10.0.*
 escapism
 traitlets
 docker

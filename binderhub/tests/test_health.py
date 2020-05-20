@@ -4,7 +4,7 @@ from .utils import async_requests
 
 
 async def test_basic_health(app):
-    r = await async_requests.get(app.url + "/health")
+    r = await async_requests.get(app.url + "/health", verify=False)
 
     assert r.status_code == 200
     results = r.json()

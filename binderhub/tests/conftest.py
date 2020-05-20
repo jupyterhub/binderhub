@@ -8,6 +8,7 @@ import os
 import time
 from urllib.parse import urlparse
 from unittest import mock
+import warnings
 
 import kubernetes.client
 import kubernetes.config
@@ -20,6 +21,23 @@ from traitlets.config.loader import PyFileConfigLoader
 from ..app import BinderHub
 from .utils import MockAsyncHTTPClient
 
+def pytest_configure(config):
+    # Ignore InsecureRequestWarning associated with https:// web requests
+    config.addinivalue_line(
+        "filterwarnings", "ignore:Unverified HTTPS request"
+    )
+
+    # register our custom markers
+    config.addinivalue_line(
+        "markers", "auth_test: mark test to run only on auth environments"
+    )
+    config.addinivalue_line(
+        "markers", "remote: mark test to run only on remote environments"
+    )
+    config.addinivalue_line(
+        "markers", "github_api: mark test to run only with GitHub API credentials"
+    )
+
 
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
@@ -31,9 +49,10 @@ KUBERNETES_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
 
-# set BINDER_TEST_URL to run tests against an already-running binderhub
+# set BINDER_URL to run tests against an already-running binderhub
 # this will skip launching BinderHub internally in the app fixture
-BINDER_URL = os.environ.get('BINDER_TEST_URL')
+BINDER_URL = os.environ.get('BINDER_URL')
+HUB_URL = os.environ.get('HUB_URL')
 REMOTE_BINDER = bool(BINDER_URL)
 
 
@@ -118,7 +137,7 @@ def _binderhub_config():
 
     # check if Hub is running and ready
     try:
-        requests.get(cfg.BinderHub.hub_url, timeout=5, allow_redirects=False)
+        requests.get(cfg.BinderHub.hub_url, timeout=5, allow_redirects=False, verify=False)
     except Exception as e:
         print(f"JupyterHub not available at {cfg.BinderHub.hub_url}: {e}")
         if ON_TRAVIS:
@@ -167,7 +186,7 @@ def app(request, io_loop, _binderhub_config):
         last_error = None
         while remaining:
             try:
-                requests.get(BINDER_URL, timeout=remaining)
+                requests.get(BINDER_URL, timeout=remaining, verify=False)
             except Exception as e:
                 print(f"Waiting for binder: {e}")
                 last_error = e

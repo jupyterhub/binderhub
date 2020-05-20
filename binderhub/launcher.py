@@ -33,7 +33,8 @@ class Launcher(LoggingConfigurable):
     """Object for encapsulating launching an image for a user"""
 
     hub_api_token = Unicode(help="The API token for the Hub")
-    hub_url = Unicode(help="The URL of the Hub")
+    hub_url = Unicode(help="The browser accessible URL of the Hub")
+    hub_url_local = Unicode(help="The binder accessible URL of Hub")
     create_user = Bool(True, help="Create a new Hub user")
     allow_named_servers = Bool(
         os.getenv('JUPYTERHUB_ALLOW_NAMED_SERVERS', "false") == "true",
@@ -81,7 +82,7 @@ class Launcher(LoggingConfigurable):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
-        hub_api_url = os.getenv('JUPYTERHUB_API_URL', '') or self.hub_url + 'hub/api/'
+        hub_api_url = (self.hub_url_local or self.hub_url) + 'hub/api/'
         request_url = hub_api_url + url
         req = HTTPRequest(request_url, *args, **kwargs)
         retry_delay = self.retry_delay

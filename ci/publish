@@ -1,0 +1,35 @@
+#!/bin/bash
+set -eu
+
+# Decrypt a private SSH key having its public key registered on GitHub. It will
+# be used to establish an identity with rights to push to the git repository
+# hosting our Helm charts: https://github.com/jupyterhub/helm-chart
+openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in ci/publish-id_rsa.enc -out ci/id_rsa -d
+chmod 0400 ci/id_rsa
+
+docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+
+# Activate logging of bash commands now that the sensitive stuff is done
+set -x
+
+# As chartpress uses git to push to our Helm chart repository, we configure
+# git ahead of time to use the identity we decrypted earlier.
+export GIT_SSH_COMMAND="ssh -i ${PWD}/ci/id_rsa"
+
+if [ "${TRAVIS_TAG:-}" == "" ]; then
+    # Using --long, we are ensured to get a build suffix, which ensures we don't
+    # build the same tag twice. The --extra-message influences the additional
+    # text to the commit message on the gh-pages branch of
+    # jupyterhub/helm-chart.
+    #
+    # ref: https://github.com/jupyterhub/helm-chart
+    (cd ./helm-chart && chartpress --push --publish-chart --long --extra-message "${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')")
+else
+    # Setting a tag explicitly enforces a rebuild if this tag had already been
+    # built and we wanted to override it.
+    (cd ./helm-chart && chartpress --push --publish-chart --tag "${TRAVIS_TAG}")
+fi
+
+# Let us log the changes chartpress did, it should include replacements for
+# fields in values.yaml, such as what tag for various images we are using.
+git --no-pager diff

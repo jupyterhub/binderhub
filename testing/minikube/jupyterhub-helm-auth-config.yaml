@@ -1,5 +1,3 @@
-cull:
-  users: false
 hub:
   services:
     binder:
@@ -8,10 +6,6 @@ hub:
       oauth_client_id: "binder-oauth-client-test"
 custom:
   binderauth_enabled: true
-
-singleuser:
-  # to make notebook servers aware of hub
-  cmd: jupyterhub-singleuser
 
 auth:
   type: dummy

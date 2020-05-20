@@ -28,7 +28,7 @@ def use_session():
 @pytest.mark.auth_test
 async def test_auth(app, path, authenticated, use_session):
     url = f'{app.url}{path}'
-    r = await async_requests.get(url)
+    r = await async_requests.get(url, verify=False)
     assert r.status_code == 200, f"{r.status_code} {url}"
     if not authenticated:
         # not authenticated, we should get the page and be done
@@ -37,7 +37,7 @@ async def test_auth(app, path, authenticated, use_session):
 
     # submit login form
     assert "/hub/login" in urlparse(r.url).path
-    r2 = await async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'})
+    r2 = await async_requests.post(r.url, data={'username': 'dummy', 'password': 'dummy'}, verify=False)
     assert r2.status_code == 200, f"{r2.status_code} {r.url}"
     # verify that we landed at the destination after auth
     assert r2.url == url

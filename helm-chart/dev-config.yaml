@@ -1,0 +1,106 @@
+cors: &cors
+  allowOrigin: '*'
+
+service:
+  # we don't access this directly with autohttps, but instead go through the
+  # autohttps proxy pod behind the proxy-public service.
+  type: NodePort
+  nodePort: 30081
+
+config:
+  BinderHub:
+    # binder needs this to be locally accessible without https...
+    # external pytest needs this to be with a public url...
+    hub_url: https://hub.local.jovyan.org:30443
+    hub_url_local: http://hub:8081
+    hub_api_token: ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+    use_registry: false
+    log_level: 10
+
+jupyterhub:
+  custom:
+    cors: *cors
+
+  hub:
+    cookieSecret: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    db:
+      type: sqlite-memory
+    services:
+      binder:     
+        apiToken: ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+  proxy:
+    secretToken: pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+    service:
+      type: NodePort
+      nodePorts:
+        http: 30080
+        https: 30443
+    https:
+      enabled: true
+      type: letsencrypt
+      # We use Z2JH's autohttps system to request certs for the binder domain as
+      # well, and then configure traefik running in the autohttps pod to route
+      # traffic to the binder domain to the binder k8s service.
+      hosts:
+        - local.jovyan.org
+        - hub.local.jovyan.org
+      letsencrypt:
+        contactEmail: 'jovyan@irrelevant.test'
+        acmeServer: https://pebble/dir
+    traefik:
+      extraDynamicConfig:
+        http:
+          # Add routing to the binder service for the binder domain
+          routers:
+            binder:
+              entrypoints:
+                - "https"
+              middlewares:
+                - "hsts"
+                - "scheme"
+              rule: Host(`local.jovyan.org`)
+              service: binder
+              tls:
+                certResolver: default
+                domains:
+                  - main: local.jovyan.org
+                options: default
+          # Define the binder service as a target to route to
+          services:
+            binder:
+              loadBalancer:
+                servers:
+                  - url: 'http://binder/'
+      extraVolumes:
+        - name: pebble-root-cert
+          configMap:
+            name: pebble
+      extraVolumeMounts:
+        - name: pebble-root-cert
+          subPath: root-cert.pem
+          mountPath: /etc/pebble/root-cert.pem
+      extraEnv:
+        - name: LEGO_CA_CERTIFICATES
+          value: /etc/pebble/root-cert.pem
+
+  singleuser:
+    storage:
+      type: none
+    memory:
+      guarantee: null
+
+  prePuller:
+    hook:
+      enabled: false
+
+  debug:
+    enabled: true
+
+# A few values for the Pebble Helm chart, allowing us to fool Pebble to resolve
+# all .test domains to our proxy-public service.
+coredns:
+  corefileSegment: |-
+    template ANY ANY test {
+      answer "{{ .Name }} 60 IN CNAME proxy-public.{$PEBBLE_NAMESPACE}.svc.cluster.local"
+    }

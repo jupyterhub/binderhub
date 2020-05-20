@@ -1,6 +1,6 @@
 # When you change this file please also update `doc/doc-requirements.txt`
 # which needs to be kept in sync manually.
-kubernetes==9.0.*
+kubernetes==10.0.*
 escapism
 traitlets
 docker

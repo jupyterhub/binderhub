@@ -26,7 +26,7 @@ def build_binder(repo,
     """
     print("Building binder for {repo}@{ref}".format(repo=repo, ref=ref))
     url = binder_url + '/build/gh/{repo}/{ref}'.format(repo=repo, ref=ref)
-    r = requests.get(url, stream=True)
+    r = requests.get(url, stream=True, verify=False)
     r.raise_for_status()
     for line in r.iter_lines():
         line = line.decode('utf8', 'replace')

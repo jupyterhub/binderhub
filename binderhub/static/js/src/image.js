@@ -8,9 +8,11 @@ export default function BinderImage(providerSpec) {
 
 BinderImage.prototype.fetch = function() {
   var apiUrl = BASE_URL + "build/" + this.providerSpec;
+  console.log("fetch called: ", apiUrl);
   this.eventSource = new EventSource(apiUrl);
   var that = this;
   this.eventSource.onerror = function(err) {
+    console.error("that.eventSource", that.eventSource);
     console.error("Failed to construct event stream", err);
     that.changeState("failed", {
       message: "Failed to connect to event stream\n"

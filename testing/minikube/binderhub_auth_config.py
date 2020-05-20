@@ -1,3 +1,5 @@
+# CAN BECOME PART OF EXTRA_CONFIG
+
 from urllib.parse import urlparse
 import os
 here = os.path.abspath(os.path.dirname(__file__))

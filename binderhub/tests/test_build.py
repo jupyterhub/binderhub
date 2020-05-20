@@ -1,6 +1,8 @@
 """Test building repos"""
 
 import json
+import os
+import re
 import sys
 from collections import namedtuple
 from unittest import mock
@@ -32,7 +34,7 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     if slug.startswith('gh/') and "not github_api" in pytestconfig.getoption('markexpr'):
         pytest.skip("Skipping GitHub API test")
     build_url = f"{app.url}/build/{slug}"
-    r = await async_requests.get(build_url, stream=True)
+    r = await async_requests.get(build_url, stream=True, verify=False)
     r.raise_for_status()
     events = []
     async for line in async_requests.iter_lines(r):
@@ -49,9 +51,12 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     assert 'url' in final
     assert 'token' in final
     print(final['url'])
-    r = await async_requests.get(url_concat(final['url'], {'token': final['token']}))
+    public_url = final['url']
+    if os.environ.get('HUB_URL'):
+        public_url = re.sub(r'http://hub:8081', os.environ.get('HUB_URL'), public_url)
+    r = await async_requests.get(url_concat(public_url, {'token': final['token']}), verify=False)
     r.raise_for_status()
-    assert r.url.startswith(final['url'])
+    assert r.url.startswith(public_url)
 
 
 def test_default_affinity():
