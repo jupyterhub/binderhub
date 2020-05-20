@@ -899,3 +899,76 @@ class GistRepoProvider(GitHubRepoProvider):
 
     def get_build_slug(self):
         return self.gist_id
+
+
+
+# For Bitbucket
+
+class BitbucketRepoProvider(RepoProvider):
+    """Repo provider for Bitbucket sevices.
+
+    Users must provide a spec that matches the following form.
+
+    [https://bitbucket.org/]<repository>[/<ref>]
+
+    <url-escaped-namespace>/<unresolved_ref>
+    <url-escaped-namespace>/<resolved_ref>
+
+    The ref is optional, valid values are
+        - a full sha1 of a ref in the history
+        - master
+
+    If master or no ref is specified the latest revision will be used.
+    """
+
+    name = Unicode("Bitbucket")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.url, unresolved_ref = self.spec.split('/', 1)
+        self.repo = urllib.parse.unquote(self.url)
+        self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
+        if not self.unresolved_ref:
+            raise ValueError("`unresolved_ref` must be specified as a query parameter for Bitbucket provider")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        try:
+            # Check if the reference is a valid SHA hash
+            self.sha1_validate(self.unresolved_ref)
+        except ValueError:
+            # The ref is a head/tag and we resolve it using `git ls-remote`
+            command = ["git", "ls-remote", self.repo, self.unresolved_ref]
+            result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode:
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(result.stderr))
+            if not result.stdout:
+                raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
+                                .format(self.unresolved_ref))
+            resolved_ref = result.stdout.split(None, 1)[0]
+            self.sha1_validate(resolved_ref)
+            self.resolved_ref = resolved_ref
+        else:
+            # The ref already was a valid SHA hash
+            self.resolved_ref = self.unresolved_ref
+
+        return self.resolved_ref
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, 'resolved_ref'):
+            self.resolved_ref = await self.get_resolved_ref()
+        return f"{self.url}/{self.resolved_ref}"
+
+    def get_repo_url(self):
+        return self.repo
+
+    async def get_resolved_ref_url(self):
+        # not possible to construct ref url
+        return self.get_repo_url()
+
+    def get_build_slug(self):
+        return self.repo
+
