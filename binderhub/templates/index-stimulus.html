@@ -1,0 +1,139 @@
+{% extends "page.html" %}
+
+{% block head %}
+<meta id="base-url" data-url="{{base_url}}">
+<meta id="badge-base-url" data-url="{{badge_base_url}}">
+<script src="{{static_url("dist/bundle.js")}}"></script>
+
+
+<!-- Social media previews -->
+<meta property="og:title" content="The Binder Project">
+<meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
+<meta property="og:description" content="Reproducible, sharable, interactive computing environments.">
+<meta property="og:image:width" content="1334">
+<meta property="og:image:height" content="700">
+<meta property="og:image:alt" content="The Binder Project Logo" />
+<meta name="twitter:card" content="summary_large_image">
+
+{{ super() }}
+{% endblock head %}
+
+{% block main %}
+<div id="main" class="container">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1">
+      {% block header %}
+      <div id="header" class="text-center">
+        <h3>Turn a Git repo into a collection of interactive notebooks</h3>
+        <div id="explanation">
+          Have a repository full of Jupyter notebooks? With Binder, open those notebooks in an executable environment, making your code immediately reproducible by anyone, anywhere.
+        </div>
+      </div>
+      {% endblock header %}
+
+      {% block form %}
+      <form id="launch-form" class="form jumbotron" data-controller="launch">
+        <h4 id="form-header" class='row'>Build and launch a repository</h4>
+        <div class="form-group row">
+          <label for="repository">Git repository URL (github.com, gitlab.com or self-hosted)</label>
+          <div class="input-group">
+            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link" data-target="launch.url">
+          </div>
+        </div>
+        <div class="form-row row">
+          <div class="form-group col-md-2">
+            <div class="btn-group" id="launch-button">
+              <button id="submit" class="btn-submit" data-action="click->launch#launch">launch</button>
+            </div>
+          </div>
+        </div>
+
+        <h1 data-controller="inplace-editing"
+            data-action="pointerenter->inplace-editing#doubleClick"
+            data-target="inplace-editing.editable">Here is a header</h1>
+
+        <div class="editor" data-controller="markdown-editor">
+          <textarea data-action="input->markdown-editor#convertToMarkdown"></textarea>
+          <div data-target="markdown-editor.viewer"></div>
+        </div>
+
+        <!--url section-->
+        <div class="url row">
+            <div class="dropdownmenu">
+              <label>Copy the URL below and share your Binder with others:</label>
+            </div>
+            <div class="url-row">
+              <pre id="basic-url-snippet" data-default="Fill in the fields to see a URL for sharing your Binder."></pre>
+              <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}" data-clipboard-target="#basic-url-snippet" alt="Copy to clipboard">
+            </div>
+        </div>
+
+        <div class="badges row">
+            <div class="dropdownmenu" id="toggle-badge-snippet">
+              <label>Copy the text below, then paste into your README to show a binder badge: <img id="badge" src="{{static_url("images/badge_logo.svg")}}"></label>
+              <a id="badge-link"></a>
+              <a href="#" title="show badge snippets"><span id="badge-snippet-caret" class="glyphicon glyphicon-triangle-right"></span></a>
+            </div>
+            <div id="badge-snippets" class="hidden">
+              <!--Markdown section-->
+              <div  class="badge-snippet-row">
+                 <pre id="markdown-badge-snippet" data-default="Fill in the fields to see the markdown badge snippet."></pre>
+                 <img class="icon" src="{{static_url("images/markdown-icon.svg")}}">
+                 <img class="icon clipboard"
+                    src="{{static_url("images/copy-icon-black.svg")}}"
+                    data-clipboard-target="#markdown-badge-snippet"
+                    alt="Copy markdown link to clipboard">
+              </div>
+              <!--RST section-->
+              <div  class="badge-snippet-row">
+                  <pre id="rst-badge-snippet" data-default="Fill in the fields to see the rST badge snippet."></pre>
+                  <img class="icon" src="{{static_url("images/rst-icon.svg")}}">
+                  <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}"
+                    data-clipboard-target="#rst-badge-snippet"
+                    alt="Copy rst link to clipboard">
+              </div>
+            </div>
+        </div>
+      </form>
+      {% endblock form %}
+    </div>
+  </div>
+  {% block how_it_works %}
+  <div id="how-it-works">
+    <h3 class="text-center">How it works</h3>
+
+    <div class="row">
+      <div class="col-md-1 col-md-offset-2 point-container">
+        <span class="point point-orange">1</span>
+      </div>
+      <div class="col-md-7 front">
+        <span class="front-em">Enter your repository information</span><br />Provide in the above form a URL or a GitHub repository that contains Jupyter notebooks, as well as a branch, tag, or commit hash. Launch will build your Binder repository. If you specify a path to a notebook file, the notebook will be opened in your browser after building.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-1 col-md-offset-2 point-container">
+        <span class="point point-red">2</span>
+      </div>
+      <div class="col-md-7 front">
+        <span class="front-em">We build a Docker image of your repository</span><br />Binder will search for a dependency file, such as requirements.txt or environment.yml, in the repository's root directory (<a href="http://mybinder.readthedocs.io/en/latest/using.html#preparing-a-repository-for-binder">more details on more complex dependencies in documentation</a>). The dependency files will be used to build a Docker image. If an image has already been built for the given repository, it will not be rebuilt. If a new commit has been made, the image will automatically be rebuilt.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-1 col-md-offset-2 point-container">
+        <span class="point point-blue">3</span>
+      </div>
+      <div class="col-md-7 front">
+        <span class="front-em">Interact with your notebooks in a live environment!</span><br />A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> server will host your repository's contents. We offer you a reusable link and badge to your live repository that you can easily share with others.
+      </div>
+    </div>
+  </div>
+  {% endblock how_it_works %}
+
+</div>
+{% endblock main %}
+
+{% block footer %}
+{{ super () }}
+{% endblock footer %}

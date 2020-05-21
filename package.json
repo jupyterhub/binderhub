@@ -33,5 +33,7 @@
     "url": "https://github.com/jupyterhub/binderhub/issues"
   },
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
-  "dependencies": {}
+  "dependencies": {
+    "marked": "^1.1.0"
+  }
 }
