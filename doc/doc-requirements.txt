@@ -21,4 +21,3 @@ jsonschema
 tornado>=5.1
 #pycurl Do not install for docs as it breaks the RTD build. Its primary use is for mocks in testing .
 bs4
-pytest

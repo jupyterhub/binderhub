@@ -12,5 +12,4 @@ jsonschema
 pycurl
 tornado>=5.1
 bs4
-pytest
 
