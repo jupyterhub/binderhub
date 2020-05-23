@@ -648,7 +648,7 @@ class BinderHub(Application):
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url}),
             (r'/', MainHandler),
-            (r'/index-stimulus', LaunchFormHandler),
+            (r'/beta', LaunchFormHandler),
             (r'.*', Custom404),
         ]
         handlers = self.add_url_prefix(self.base_url, handlers)

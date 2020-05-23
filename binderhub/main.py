@@ -44,7 +44,7 @@ class LaunchFormHandler(BaseHandler):
     @authenticated
     def get(self):
         self.render_template(
-            "index-stimulus.html",
+            "beta.html",
             badge_base_url=self.get_badge_base_url(),
             base_url=self.settings['base_url'],
             submit=False,
