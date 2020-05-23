@@ -2,11 +2,14 @@
 # main test script: runs the basic Python tests,
 # with JupyterHub launched via helm
 
-set -ex
 # The tests do not do well if there are pods from a previous test run.
 # The 'helm delete' line at the end of this script is not guaranteed
 # to execute if there are failures. So do it here too just to be sure.
-helm delete --purge binder-test-hub
+x=$(helm ls --namespace binder-test-hub)
+if [ ! -z "$x" ]; then
+       	helm delete --purge binder-test-hub
+fi
+set -ex
 ./testing/minikube/install-hub
 # DEBUG: give the hub a chance to wake up
 sleep 10
