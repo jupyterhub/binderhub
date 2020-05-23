@@ -2,7 +2,6 @@
 # which needs to be kept in sync manually.
 kubernetes==9.0.*
 escapism
-tornado
 traitlets
 docker
 jinja2
@@ -12,3 +11,4 @@ jupyterhub
 jsonschema
 pycurl
 tornado>=5.1
+
