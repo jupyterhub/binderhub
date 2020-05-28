@@ -163,7 +163,7 @@ function build(providerSpec, log, path, pathType) {
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
-    $('div#loader-text p.launching').text("Starting repository: " + spec)
+    $('div#loader-text p.launching').text("Starting repository: " + decodeURIComponent(spec))
   }
 
   $('#build-progress .progress-bar').addClass('hidden');
