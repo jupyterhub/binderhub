@@ -67,7 +67,7 @@ Firstly assume that you have a Git repo ``binderhub_custom_files`` which holds y
 
     binderhub_custom_files/
     ├── static
-    │   └── custom_logo.svg
+    │   └── custom_logo.svg
     └── templates
         └── page.html
 
@@ -198,3 +198,70 @@ of 1337 to any repository in the JupyterHub organization.
            - pattern: ^jupyterhub.*
              config:
                 quota: 1337
+
+Pre-build steps
+----------------
+
+A `Binder build 
+<https://binderhub.readthedocs.io/en/latest/overview.html#what-happens-when-a-user-clicks-a-binder-link>`_
+refers to the process of creating a virtual environment for a git repository. This operation takes
+place in a `Kubernetes pod <https://kubernetes.io/docs/concepts/workloads/pods/pod/#what-is-a-pod>`_,
+where a `repo2docker <https://github.com/jupyter/repo2docker>`_ container does the heavy lifting
+to create the requested environment. 
+
+If you want the environment to access some additionnal resources without baking them
+into the built Docker image, you may need to execute some configurations **before** the ``repo2docker``
+container is started using `Init Containers
+<https://kubernetes.io/docs/concepts/workloads/pods/init-containers/>`_.
+Some example use cases could include:
+
+* Building HTML content with sizable interactive visualization objects instead of relying on static hosting
+* Creation of pre-calculated data during the build time in a user defined environment instead of retrieving
+  them from elsewhere
+* Pulling a dataset into a server and linking it to a user pod, so that the data volume is made easily
+  available to the runtime environment without inflating the built Docker image
+
+Using the ``init_container_build`` field in the BinderHub configuration, you can specify ``Init Containers`` 
+to be run in the build pod before ``repo2docker``. Mounting additional `volumes
+<https://kubernetes.io/docs/concepts/storage/volumes/>`_ to this init container is also possible with
+the ``extra_volume_build`` field.
+
+.. note::
+
+    Multiple init containers and volumes can be specified under the ``init_container_build`` and 
+    ``extra_volume_build`` fields.
+
+The `repo2data <https://github.com/SIMEXP/Repo2Data>`_ python package provides a good showcase for
+the use of ``init_container_build``:
+
+.. code-block:: yaml
+
+    config:
+      BinderHub:
+        extra_volume_build:
+          - name: repo2data-volume
+            hostPath:
+              path: /DATA
+              type: Directory
+        init_container_build:
+          - name: init-builder
+            image: conpdev/repo2data
+            args:
+              - -r
+              - $(REPO_URL)
+            volumeMounts:
+              - name: repo2data-volume
+                mountPath: /data
+
+In the configuration above:
+
+1. An additionnal volume ``repo2data-volume`` is associated with the init container
+2. The ``conpdev/repo2data`` init container pull the dataset described by a `data_requirements.json
+   <https://github.com/SIMEXP/Repo2Data#github-repo-url-as-input>`_ into ``repo2data-volume``
+
+Having the dataset available prior to the user pod running, this approach does not prolong the time
+for spawning a user session and keeps the Docker images lean.
+
+.. note::
+
+    Commits pushed to the user's git repository will trigger ``init_container_build`` commands.
