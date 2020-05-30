@@ -212,11 +212,10 @@ repository and the ml-training repository from launching.
 
 .. code-block:: yaml
 
-    config:
-        GitHubRepoProvider:
-          # Add banned repositories to the list below
-          # They should be strings that will match "^<org-name>/<repo-name>.*"
-          banned_specs:
-            - ^ines/spacy-binder.*
-            - ^aschen/ml-training.*
-
+   config:
+     GitHubRepoProvider:
+       # Add banned repositories to the list below
+       # They should be strings that will match "^<org-name>/<repo-name>.*"
+       banned_specs:
+         - ^ines/spacy-binder.*
+         - ^aschen/ml-training.*
