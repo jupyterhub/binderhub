@@ -198,3 +198,24 @@ of 1337 to any repository in the JupyterHub organization.
            - pattern: ^jupyterhub.*
              config:
                 quota: 1337
+
+
+Banning specific repositories
+----------------------------------------------
+
+You may want to exclude certain repositories from your BinderHub instance.
+You can do this by providing a list of **banned_spec** patterns.
+BinderHub will not accept URLs matching any of the banned patterns.
+
+For example, the following configuration will prevent notebooks in the spacy-binder
+repository and the ml-training repository from launching.
+
+.. code-block:: yaml
+
+   config:
+     GitHubRepoProvider:
+       # Add banned repositories to the list below
+       # They should be strings that will match "^<org-name>/<repo-name>.*"
+       banned_specs:
+         - ^ines/spacy-binder.*
+         - ^aschen/ml-training.*
