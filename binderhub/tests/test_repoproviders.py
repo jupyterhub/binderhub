@@ -303,7 +303,7 @@ class TestSpecErrorHandling(TestCase):
 
     def test_too_short_spec(self):
         spec = "nothing_to_split"
-        with self.assertRaisesRegexp(ValueError, "Spec is not of the form"):
+        with self.assertRaisesRegex(ValueError, "Spec is not of the form"):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
     def test_long_spec(self):
@@ -315,13 +315,13 @@ class TestSpecErrorHandling(TestCase):
     def test_spec_with_no_suggestion(self):
         spec = "short/master"
         error = "^((?!Did you mean).)*$".format(spec)  # negative match
-        with self.assertRaisesRegexp(ValueError, error):
+        with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
     def test_spec_with_suggestion(self):
         spec = "short/suggestion"
         error = "Did you mean \"{}/master\"?".format(spec)
-        with self.assertRaisesRegexp(ValueError, error):
+        with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
 
