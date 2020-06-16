@@ -1,6 +1,6 @@
 {
     "$id": "binderhub.jupyter.org/launch",
-    "version": 3,
+    "version": 4,
     "title": "BinderHub Launch Events",
     "description": "BinderHub emits this event whenever a new repo is launched",
     "type": "object",
@@ -21,6 +21,10 @@
         "spec": {
             "type": "string",
             "description": "Provider specification for the repo being launched. Usually, <reponame>/<commit-specification>"
+        },
+        "ref": {
+            "type": "string",
+            "description": "Resolved reference to the repo when it is being launched"
         },
         "status": {
             "enum": ["success", "failure"],
