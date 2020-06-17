@@ -24,7 +24,7 @@
         },
         "ref": {
             "type": "string",
-            "description": "Resolved reference to the repo when it is being launched"
+            "description": "Resolved reference for the repo at the time of launch"
         },
         "status": {
             "enum": ["success", "failure"],
