@@ -322,9 +322,10 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
                 'provider': provider.name,
                 'spec': spec,
+                'ref': ref,
                 'status': 'success',
                 'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
@@ -428,9 +429,10 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
                 'provider': provider.name,
                 'spec': spec,
+                'ref': ref,
                 'status': 'success',
                 'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
