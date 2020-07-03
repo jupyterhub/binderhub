@@ -116,6 +116,23 @@ where:
 * `<SERVICE_PRINCIPAL_ID>` is the AppID of the Service Principal with AcrPush role assignment,
 * `<SERVICE_PRINCIPAL_PASSWORD>` is the password for the Service Principal.
 
+If you are using OVH Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update `secret.yaml` to include the following::
+
+    registry:
+      url: https://<hash>.<region>.container-registry.ovh.net
+      username: <harbor-username>
+      password: <harbor-password>
+
+where:
+
+* `<hash>` is the hash of the registry
+* `<region>` is the region of the registry
+* `<harbor-username>` is the Harbor username
+* `<harbor-password>` is the Harbor password
+
 Create ``config.yaml``
 ----------------------
 
@@ -182,6 +199,24 @@ where:
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
   Suggestions for `<project-name>` could be `ACR_NAME` or the name you give your BinderHub.
+
+If you are using OVH Container Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want your BinderHub to push and pull images from an OVH Container Registry, then the `config.yaml` file will look the following::
+
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: <hash>.<region>.container-registry.ovh.net/<prefix>-
+      DockerRegistry:
+        url: https://<hash>.<region>.container-registry.ovh.net
+        token_url: https://<hash>.<region>.container-registry.ovh.net/service/token?service=harbor-registry
+
+where:
+
+* `<hash>` is the hash of the registry
+* `<region>` is the region of the registry
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
