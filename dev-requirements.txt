@@ -1,6 +1,7 @@
 beautifulsoup4
 chartpress==0.6.*
 codecov
+escapism
 html5lib
 jupyterhub
 kubernetes
