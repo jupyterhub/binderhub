@@ -42,7 +42,7 @@ install:
   - helm repo update
 
   # Install a local ACME server
-  - helm install pebble jupyterhub/pebble --values dev-config-pebble.yaml
+  - helm install pebble jupyterhub/pebble --values ./helm-chart/dev-config-pebble.yaml
 
   # Install dependencies for testing
   - pip install --no-cache-dir -r dev-requirements.txt
