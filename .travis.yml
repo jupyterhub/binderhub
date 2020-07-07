@@ -18,69 +18,51 @@ stages:
   - name: publish
     if: tag IS present OR ( branch IN (master) AND type IN (push) )
 
-# before_install:
-# - python dependencies to test
-# - kubernetes cluster with k3s
-# - ACME server with pebble
+
 before_install:
   # Exit immediately if a command exits with a non-zero status.
   - set -e
   - . ci/common
 
-  # Install python development dependencies
-  - sudo apt-get update && sudo apt-get -y install libgnutls28-dev # pycurl dependency
-  - pip install --upgrade pip setuptools
-  - pip install --upgrade -r dev-requirements.txt
-  - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
-  - pip freeze
 
-  # Apply fix to avoid rebuilding images already built
-  - ./ci/travis-docker-fix
+# install - k8s + ready for jupyterhub install
+# - 1. Fix docker rebuilding issue
+# - 2. Install k8s
+# - 3. Install ACME server into k8s (pebble)
+# - 4. Install Python dependencies
+# - 5. Await readiness
+install:
+  # Fix to avoid rebuilding images already built
+  - remove_docker_mirror_on_travis
 
   # Setup our k3s based Kubernetes cluster and use its kubectl as well
   - setup_k3s
-
-  # Install the helm binary
   - setup_helm
-
-  # Install the ACME server we use instead of Let's Encrypt
   - helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
   - helm repo update
-  - helm install pebble jupyterhub/pebble --values ./helm-chart/dev-config.yaml
 
-  # Provide general purpose info
-  - kubectl get all --all-namespaces
-  - kubectl get events --all-namespaces
-# install:
-# - jupyterhub accepting traffic on:
-#   - proxy-public service -> autohttps pod (https://hub.local.jovyan.org) -> proxy-http service -> proxy pod
-#   - proxy-public service -> autohttps pod (https://local.jovyan.org)     -> binder service -> binder pod
-install:
-  # Build our images if needed and update values.yaml with the tags
-  - (cd ./helm-chart && chartpress)
+  # Install a local ACME server
+  - helm install pebble jupyterhub/pebble --values dev-config-pebble.yaml
 
-  # Await the ACME server and DNS server
-  - kubectl rollout status --watch --timeout 300s deployment/pebble
-  - kubectl rollout status --watch --timeout 300s deployment/pebble-coredns
-  - kubectl rollout status --watch --timeout 300s deployment/coredns -n kube-system
+  # Install dependencies for testing
+  - pip install --no-cache-dir -r dev-requirements.txt
+  - pip freeze
 
-  # Install BinderHub
-  - helm dependency update ./helm-chart/binderhub
-  - |-
-      helm install binderhub ./helm-chart/binderhub \
-        --values ./helm-chart/dev-config.yaml \
-        --set-string config.GitHubRepoProvider.access_token=${GITHUB_ACCESS_TOKEN}
-  - kubectl rollout status --watch --timeout 300s deployment/binder
+  # Install dependencies for testing with BinderHub running outside the k8s cluster
+  # TODO: Make this conditional
+  # - sudo apt-get update && sudo apt-get -y install libgnutls28-dev # pycurl dependency
+  # - pip install --upgrade pip setuptools
+  # - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
+  # - nvm install 12; nvm use 12
+  # - npm install
+  # - npm run webpack
+  # - pip freeze
 
-  # Await autohttps startup and its TLS certificate acquisition
-  - kubectl rollout status --watch --timeout 300s deployment/autohttps
-  - await_tls_cert_acquisition
-
-# after_install:
-#   # Outside of Kubernetes use of binderhub
-#   - nvm install 12; nvm use 12
-#   - npm install
-#   - npm run webpack
+  # Pre-install BinderHub
+  - await_dns     # part of k3s, jupyterhub needs it while referencing https://pebble/dir
+  - await_calico  # installed with setup_k3s, enforces netpol
+  - await_pebble  # jupyterhub's autohttps communicates with it as the ACME server
+  
 
 after_failure:
   - |
@@ -96,9 +78,9 @@ after_success:
 env:
   global:
     # k3s versions:  https://github.com/rancher/k3s/releases
-    - K3S_VERSION=v1.18.2+k3s1
+    - K3S_VERSION=v1.18.4+k3s1
     # helm versions: https://github.com/helm/helm/releases
-    - HELM_VERSION=v3.2.1
+    - HELM_VERSION=v3.2.4
 
 
 jobs:
@@ -113,27 +95,36 @@ jobs:
   include:
     # - stage: test
     #   name: python-package
-    #   install:
-    #     # outside k8s install of binderhub dependencies
-    #     - nvm install 12; nvm use 12
-    #     - npm install
-    #     - npm run webpack
     #   script:
     #     - pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
+    #   env:
+    #     - INSTALL_BINDERHUB_OUTSIDE_K8S=1
   
     # - stage: test
     #   name: python-package-auth
-    #   install:
-    #     # outside k8s install of binderhub dependencies
-    #     - nvm install 12; nvm use 12
-    #     - npm install
-    #     - npm run webpack
     #   script:
     #     - pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
+    #   env:
+    #     - INSTALL_BINDERHUB_OUTSIDE_K8S=1
 
     - stage: test
-      name: chart
+      name: helm-chart
       script:
+        # Build our images if needed and update values.yaml with the tags
+        - (cd ./helm-chart && chartpress)
+
+        # Install BinderHub
+        - helm dependency update ./helm-chart/binderhub
+        - |-
+            helm install binderhub ./helm-chart/binderhub \
+              --values ./helm-chart/dev-config.yaml \
+              --set-string config.GitHubRepoProvider.access_token=${GITHUB_ACCESS_TOKEN}
+
+        # Await jupyterhub, autohttps setup, and binderhub
+        - await_jupyterhub
+        - await_autohttps_tls_cert_acquisition
+        - await_binderhub
+
         - pytest -m "remote" --log-cli-level=10 -vsx --cov binderhub
       env:
         # PyTest tests running on the VM needs these

@@ -96,11 +96,3 @@ jupyterhub:
 
   debug:
     enabled: true
-
-# A few values for the Pebble Helm chart, allowing us to fool Pebble to resolve
-# all .test domains to our proxy-public service.
-coredns:
-  corefileSegment: |-
-    template ANY ANY test {
-      answer "{{ .Name }} 60 IN CNAME proxy-public.{$PEBBLE_NAMESPACE}.svc.cluster.local"
-    }

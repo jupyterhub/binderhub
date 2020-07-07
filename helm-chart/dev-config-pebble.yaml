@@ -1,0 +1,7 @@
+# This configuration is meant to map lookups of local.jovyan.org to the
+# ClusterIP of JupyterHub's proxy-public service
+coredns:
+  corefileSegment: |-
+    template ANY ANY local.jovyan.org {
+      answer "{{ .Name }} 60 IN CNAME proxy-public.{$PEBBLE_NAMESPACE}.svc.cluster.local"
+    }
