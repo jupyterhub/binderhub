@@ -157,6 +157,14 @@ To use the OVH Container Registry, log in to the `OVH Control Panel <https://www
 
 5. Then click on **Harbor API** to retrieve the URL of the registry
 
+6. Log in to the Harbor Interface using the identification details, and create a new project:
+
+.. figure:: ovh/new_project.png
+
+  Create a new Harbor project.
+
+7. The name of the project will be used when setting up the registry config in the next section
+
 For more information about these steps, check out the `OVH Documentation <https://docs.ovh.com/gb/en/private-registry/creating-a-private-registry>`_
 
 Next step

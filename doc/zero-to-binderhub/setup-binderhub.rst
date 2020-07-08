@@ -217,6 +217,19 @@ where:
 
 * `<hash>` is the hash of the registry
 * `<region>` is the region of the registry
+* `<prefix>` corresponds to the image prefix. If you created a new project called ``myproject`` in the previous section,
+  then ``<prefix>`` should start with ``myproject/``
+
+As an example, the config should look like the following::
+
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: abcde.gra7.container-registry.ovh.net/myproject/binder-
+      DockerRegistry:
+        url: https://abcde.gra7.container-registry.ovh.net
+        token_url: https://abcde.gra7.container-registry.ovh.net/service/token?service=harbor-registry
+
 
 If you are using a custom registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
