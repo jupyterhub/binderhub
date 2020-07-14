@@ -532,12 +532,12 @@ class BuildHandler(BaseHandler):
                                                     server_name=server_name,
                                                     repo_url=self.repo_url,
                                                     extra_args=extra_args)
-                LAUNCH_TIME.labels(
-                    status='success', retries=i,
-                ).observe(time.perf_counter() - launch_starttime)
+                duration = time.perf_counter() - launch_starttime
+                LAUNCH_TIME.labels(status="success", retries=i).observe(duration)
                 LAUNCH_COUNT.labels(
                     status='success', **self.repo_metric_labels,
                 ).inc()
+                app_log.info("Launched %s in %.0fs", self.repo_url, duration)
 
             except Exception as e:
                 if i + 1 == launcher.retries:
@@ -560,11 +560,21 @@ class BuildHandler(BaseHandler):
                     raise
 
                 # not the last attempt, try again
-                app_log.error("Retrying launch after error: %s", e)
-                await self.emit({
-                    'phase': 'launching',
-                    'message': 'Launch attempt {} failed, retrying...\n'.format(i + 1),
-                })
+                app_log.error(
+                    "Retrying launch of %s after error (duration=%.0fs, attempt=%s): %r",
+                    self.repo_url,
+                    duration,
+                    i + 1,
+                    e,
+                )
+                await self.emit(
+                    {
+                        "phase": "launching",
+                        "message": "Launch attempt {} failed, retrying...\n".format(
+                            i + 1
+                        ),
+                    }
+                )
                 await gen.sleep(retry_delay)
                 # exponential backoff for consecutive failures
                 retry_delay *= 2
