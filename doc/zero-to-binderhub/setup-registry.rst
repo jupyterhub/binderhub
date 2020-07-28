@@ -7,7 +7,7 @@ BinderHub will build Docker images out of Git repositories, and then push
 them to a Docker registry so that JupyterHub can launch user servers based
 on these images. You can use any registry that
 you like, though this guide covers how to properly configure several popular
-registries. The next step, :doc:`setup-binderhub`, explains how you can 
+registries. The next step, :doc:`setup-binderhub`, explains how you can
 properly configure BinderHub to use one of these registries.
 
 .. _use-gcr:
@@ -136,6 +136,36 @@ where:
 
        SERVICE_PRINCIPAL_PASSWORD=$(az ad sp create-for-rbac --name <SP_NAME> --role AcrPush --scopes <ACR_ID> --query password --output tsv)
        SERVICE_PRINCIPAL_ID=$(az ad sp show --id http://<SP_NAME> --query appId --output tsv)
+
+Set up the OVH Container Registry
+---------------------------------
+
+To use the OVH Container Registry, log in to the `OVH Control Panel <https://www.ovh.com/manager/public-cloud>`_.
+
+1. Click on **Managed Private Registry**
+
+2. Click on the **Create a private registry** button
+
+3. Select a **Region**, a **Name** for the registry and a **Plan**.
+
+4. Generate the **Harbor identification details** to connect to the registry
+
+.. figure:: ovh/generate_id_details.png
+
+  Generate the identification details to connect to
+  the registry.
+
+5. Then click on **Harbor API** to retrieve the URL of the registry
+
+6. Log in to the Harbor Interface using the identification details, and create a new project:
+
+.. figure:: ovh/new_project.png
+
+  Create a new Harbor project.
+
+7. The name of the project will be used when setting up the registry config in the next section
+
+For more information about these steps, check out the `OVH Documentation <https://docs.ovh.com/gb/en/private-registry/creating-a-private-registry>`_
 
 Next step
 ---------
