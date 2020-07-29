@@ -54,6 +54,61 @@ BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in pr
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
 
+def _generate_build_name(build_slug, ref, prefix='', limit=63, ref_length=6):
+    """Generate a unique build name with a limited character length.
+
+    Guaranteed (to acceptable level) to be unique for a given user, repo,
+    and ref.
+
+    We really, *really* care that we always end up with the same
+    'build_name' for a particular repo + ref, but the default max
+    character limit for build names is 63. To meet this constraint, we
+    include a prefixed hash of the user / repo in all build names and do
+    some length limiting :)
+
+    Note that ``build`` names only need to be unique over a shorter period
+    of time, while ``image`` names need to be unique for longer. Hence,
+    different strategies are used.
+
+    We also ensure that the returned value is DNS safe, by only using
+    ascii lowercase + digits. everything else is escaped
+    """
+    # escape parts that came from providers (build slug, ref)
+    # build names are case-insensitive `.lower()` is called at the end
+    build_slug = _safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
+    ref = _safe_build_slug(ref, limit=ref_length, hash_length=2)
+
+    return '{prefix}{safe_slug}-{ref}'.format(
+        prefix=prefix,
+        safe_slug=build_slug,
+        ref=ref[:ref_length],
+    ).lower()
+
+
+def _safe_build_slug(build_slug, limit, hash_length=6):
+    """Create a unique-ish name from a slug.
+
+    This function catches a bug where a build slug may not produce a valid
+    image name (e.g. arepo name ending with _, which results in image name
+    ending with '-' which is invalid). This ensures that the image name is
+    always safe, regardless of build slugs returned by providers
+    (rather than requiring all providers to return image-safe build slugs
+    below a certain length).
+
+    Since this changes the image name generation scheme, all existing cached
+    images will be invalidated.
+    """
+    build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
+    safe_chars = set(string.ascii_letters + string.digits)
+    def escape(s):
+        return escapism.escape(s, safe=safe_chars, escape_char='-')
+    build_slug = escape(build_slug)
+    return '{name}-{hash}'.format(
+        name=build_slug[:limit - hash_length - 1],
+        hash=build_slug_hash[:hash_length],
+    ).lower()
+
+
 class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
 
@@ -124,63 +179,6 @@ class BuildHandler(BaseHandler):
             self.registry = self.settings['registry']
 
         self.event_log = self.settings['event_log']
-
-    def _generate_build_name(self, build_slug, ref, prefix='', limit=63, ref_length=6):
-        """
-        Generate a unique build name with a limited character length..
-
-        Guaranteed (to acceptable level) to be unique for a given user, repo,
-        and ref.
-
-        We really, *really* care that we always end up with the same
-        'build_name' for a particular repo + ref, but the default max
-        character limit for build names is 63. To meet this constraint, we
-        include a prefixed hash of the user / repo in all build names and do
-        some length limiting :)
-
-        Note that ``build`` names only need to be unique over a shorter period
-        of time, while ``image`` names need to be unique for longer. Hence,
-        different strategies are used.
-
-        We also ensure that the returned value is DNS safe, by only using
-        ascii lowercase + digits. everything else is escaped
-        """
-
-        # escape parts that came from providers (build slug, ref)
-        # only build_slug *really* needs this (refs should be sha1 hashes)
-        # build names are case-insensitive because ascii_letters are allowed,
-        # and `.lower()` is called at the end
-        safe_chars = set(string.ascii_letters + string.digits)
-        def escape(s):
-            return escapism.escape(s, safe=safe_chars, escape_char='-')
-
-        build_slug = self._safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
-        ref = escape(ref)
-
-        return '{prefix}{safe_slug}-{ref}'.format(
-            prefix=prefix,
-            safe_slug=build_slug,
-            ref=ref[:ref_length],
-        ).lower()
-
-    def _safe_build_slug(self, build_slug, limit, hash_length=6):
-        """
-        This function catches a bug where build slug may not produce a valid image name
-        (e.g. repo name ending with _, which results in image name ending with '-' which is invalid).
-        This ensures that the image name is always safe, regardless of build slugs returned by providers
-        (rather than requiring all providers to return image-safe build slugs below a certain length).
-        Since this changes the image name generation scheme, all existing cached images will be invalidated.
-        """
-        build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
-        safe_chars = set(string.ascii_letters + string.digits)
-        def escape(s):
-            return escapism.escape(s, safe=safe_chars, escape_char='-')
-        build_slug = escape(build_slug)
-        return '{name}-{hash}'.format(
-            name=build_slug[:limit - hash_length - 1],
-            hash=build_slug_hash[:hash_length],
-        ).lower()
-
 
     async def fail(self, message):
         await self.emit({
@@ -280,9 +278,9 @@ class BuildHandler(BaseHandler):
         image_prefix = self.settings['image_prefix']
 
         # Enforces max 255 characters before image
-        safe_build_slug = self._safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
+        safe_build_slug = _safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
 
-        build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
+        build_name = _generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
         image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=image_prefix,
