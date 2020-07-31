@@ -134,12 +134,18 @@ async def test_hydroshare_doi():
     resolved_spec = await provider.get_resolved_spec()
     assert resolved_spec == repo_url
 
+
 @pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
     ['10.7910/DVN/TJCLKP',
      '10.7910/DVN/TJCLKP',
      '3035124.v3.0',
      'https://doi.org/10.7910/DVN/TJCLKP',
      'dataverse-dvn-2ftjclkp'],
+    ['10.25346/S6/DE95RT',
+     '10.25346/S6/DE95RT',
+     '20460.v1.0',
+     'https://doi.org/10.25346/S6/DE95RT',
+     'dataverse-s6-2fde95rt']
 ])
 async def test_dataverse(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = DataverseProvider(spec=spec)

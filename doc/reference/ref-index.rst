@@ -7,6 +7,7 @@ Configuration and Source Code Reference
    app
    build
    builder
+   launcher
    main
    registry
    repoproviders

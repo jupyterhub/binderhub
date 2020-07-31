@@ -1,4 +1,4 @@
-from collections import Mapping
+from collections.abc import Mapping
 import os
 from functools import lru_cache
 from urllib.parse import urlparse
