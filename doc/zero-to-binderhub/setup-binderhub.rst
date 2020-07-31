@@ -219,6 +219,7 @@ If you are using OVH Container Registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you want your BinderHub to push and pull images from an OVH Container Registry, then the `config.yaml` file will look the following::
+
     config:
       BinderHub:
         use_registry: true
