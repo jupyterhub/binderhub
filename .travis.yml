@@ -17,6 +17,7 @@ install:
   - npm install
   - npm run webpack
   - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
+  - pip install -U "docker~=4.2.0"
   - pip freeze
 
 script:
