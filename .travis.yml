@@ -17,6 +17,10 @@ install:
   - npm install
   - npm run webpack
   - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
+  # NOTE: The latest docker python package (4.3.0) requires a more modern docker
+  #       version (newer than 18.06.0-ce / API version: 1.38) which is not yet
+  #       available on travis.
+  #       ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1743
   - pip install -U "docker~=4.2.0"
   - pip freeze
 
