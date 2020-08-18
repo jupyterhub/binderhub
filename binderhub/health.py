@@ -151,7 +151,12 @@ class HealthHandler(BaseHandler):
         }
         return usage
 
-    async def get(self):
+    async def check_all(self):
+        """Runs all health checks and returns a tuple (overall, checks).
+
+        `overall` is a bool representing the overall status of the service
+        `checks` contains detailed information on each check's result
+        """
         checks = []
         check_futures = []
 
@@ -176,7 +181,15 @@ class HealthHandler(BaseHandler):
         overall = all(
             check["ok"] for check in checks if check["service"] != "Pod quota"
         )
+        return overall, checks
+
+    async def get(self):
+        overall, checks = await self.check_all()
         if not overall:
             self.set_status(503)
-
         self.write({"ok": overall, "checks": checks})
+
+    async def head(self):
+        overall, checks = await self.check_all()
+        if not overall:
+            self.set_status(503)
