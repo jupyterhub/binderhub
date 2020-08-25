@@ -36,9 +36,28 @@ class Build:
         API instead of having to invent our own locking code.
 
     """
-    def __init__(self, q, api, name, namespace, repo_url, ref, git_credentials, build_image,
-                 image_name, push_secret, memory_limit, docker_host, node_selector,
-                 appendix='', log_tail_lines=100, sticky_builds=False):
+
+    def __init__(
+        self,
+        q,
+        api,
+        name,
+        *,
+        namespace,
+        repo_url,
+        ref,
+        build_image,
+        docker_host,
+        image_name,
+        git_credentials=None,
+        push_secret=None,
+        memory_limit=0,
+        memory_request=0,
+        node_selector=None,
+        appendix="",
+        log_tail_lines=100,
+        sticky_builds=False,
+    ):
         self.q = q
         self.api = api
         self.repo_url = repo_url
@@ -50,6 +69,7 @@ class Build:
         self.build_image = build_image
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
+        self.memory_request = memory_request
         self.docker_host = docker_host
         self.node_selector = node_selector
         self.appendix = appendix
@@ -255,7 +275,7 @@ class Build:
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
                             limits={'memory': self.memory_limit},
-                            requests={'memory': self.memory_limit}
+                            requests={'memory': self.memory_request},
                         ),
                         env=env
                     )
