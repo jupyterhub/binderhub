@@ -357,6 +357,7 @@ class BuildHandler(BaseHandler):
             push_secret=push_secret,
             build_image=self.settings['build_image'],
             memory_limit=self.settings['build_memory_limit'],
+            memory_request=self.settings['build_memory_request'],
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,

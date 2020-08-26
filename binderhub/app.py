@@ -306,6 +306,21 @@ class BinderHub(Application):
         config=True
     )
 
+    build_memory_request = ByteSpecification(
+        0,
+        help="""
+        Amount of memory to request when scheduling a build
+
+        0 reserves no memory.
+
+        This is used as the request for the pod that is spawned to do the building,
+        even though the pod itself will not be using that much memory
+        since the docker building is happening outside the pod.
+        However, it makes kubernetes aware of the resources being used,
+        and lets it schedule more intelligently.
+        """,
+        config=True,
+    )
     build_memory_limit = ByteSpecification(
         0,
         help="""
@@ -313,13 +328,12 @@ class BinderHub(Application):
 
         0 sets no limit.
 
-        This is used as both the memory limit & request for the pod
-        that is spawned to do the building, even though the pod itself
-        will not be using that much memory since the docker building is
-        happening outside the pod. However, it makes kubernetes aware of
-        the resources being used, and lets it schedule more intelligently.
+        This is applied to the docker build itself via repo2docker,
+        though it is also applied to our pod that submits the build,
+        even though that pod will rarely consume much memory.
+        Still, it makes it easier to see the resource limits in place via kubernetes.
         """,
-        config=True
+        config=True,
     )
 
     debug = Bool(
@@ -598,6 +612,7 @@ class BinderHub(Application):
             'extra_footer_scripts': self.extra_footer_scripts,
             'jinja2_env': jinja_env,
             'build_memory_limit': self.build_memory_limit,
+            'build_memory_request': self.build_memory_request,
             'build_docker_host': self.build_docker_host,
             'base_url': self.base_url,
             'badge_base_url': self.badge_base_url,
