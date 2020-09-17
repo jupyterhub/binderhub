@@ -27,3 +27,7 @@ async def test_basic_health(app):
         quota_check["total_pods"]
         == quota_check["build_pods"] + quota_check["user_pods"]
     )
+
+    # HEAD requests should work as well
+    r = await async_requests.head(app.url + "/health")
+    assert r.status_code == 200

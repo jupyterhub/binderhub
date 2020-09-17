@@ -357,6 +357,7 @@ class BuildHandler(BaseHandler):
             push_secret=push_secret,
             build_image=self.settings['build_image'],
             memory_limit=self.settings['build_memory_limit'],
+            memory_request=self.settings['build_memory_request'],
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,
@@ -530,14 +531,8 @@ class BuildHandler(BaseHandler):
                                                     server_name=server_name,
                                                     repo_url=self.repo_url,
                                                     extra_args=extra_args)
-                duration = time.perf_counter() - launch_starttime
-                LAUNCH_TIME.labels(status="success", retries=i).observe(duration)
-                LAUNCH_COUNT.labels(
-                    status='success', **self.repo_metric_labels,
-                ).inc()
-                app_log.info("Launched %s in %.0fs", self.repo_url, duration)
-
             except Exception as e:
+                duration = time.perf_counter() - launch_starttime
                 if i + 1 == launcher.retries:
                     status = 'failure'
                 else:
@@ -579,6 +574,12 @@ class BuildHandler(BaseHandler):
                 continue
             else:
                 # success
+                duration = time.perf_counter() - launch_starttime
+                LAUNCH_TIME.labels(status="success", retries=i).observe(duration)
+                LAUNCH_COUNT.labels(
+                    status='success', **self.repo_metric_labels,
+                ).inc()
+                app_log.info("Launched %s in %.0fs", self.repo_url, duration)
                 break
         event = {
             'phase': 'ready',
