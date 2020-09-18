@@ -227,7 +227,7 @@ An example IAM permissions policy is provided below. For more information and ex
                     "Effect": "Allow",
                     "Resource": "arn:aws:ecr:<REGION>:<ACCOUNT_NUMBER>:<prefix>-*",
                     "Sid": "CreateRepository"
-                },
+                }
             ],
             "Version": "2012-10-17"
         }
