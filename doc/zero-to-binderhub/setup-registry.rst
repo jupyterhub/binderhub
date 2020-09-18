@@ -177,7 +177,7 @@ authorize the machine or pod running BinderHub so it can push images. There
 are a number of options on how to do this with IAM and Kubernetes, but we
 will highlight two: define and assign an IAM role, or assume an IAM user with programmatic access.
 
-Start by creating an IAM policy that grants access to create repositories and
+For the former, start by creating an IAM policy that grants access to create repositories and
 read/write images from them. You can create policies using the AWS console, CLI 
 or API as detailed in the documentation `Creating IAM policies <https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html>`_. 
 An example IAM permissions policy is provided below. For more information and examples see `Identity and Access Management for Amazon Elastic Container Registry <https://docs.aws.amazon.com/AmazonECR/latest/userguide/security-iam.html>`_.
