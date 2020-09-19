@@ -175,11 +175,12 @@ Set up Amazon Elastic Container Registry
 To use Amazon Elastic Container Registry (ECR), you'll need to use AWS IAM to
 authorize the machine or pod running BinderHub so it can push images. There
 are a number of options on how to do this with IAM and Kubernetes, but we
-will highlight two: assume IAM role and IAM user with programmatic access.
+will highlight two: define and assign an IAM role, or assume an IAM user with programmatic access.
 
-Start by creating an IAM policy that grants access to create repositories and
-read/write images from them. An example IAM permissions policy is provided
-below. For more information and examples see `Identity and Access Management for Amazon Elastic Container Registry <https://docs.aws.amazon.com/AmazonECR/latest/userguide/security-iam.html>`_.
+For the former, start by creating an IAM policy that grants access to create repositories and
+read/write images from them. You can create policies using the AWS console, CLI 
+or API as detailed in the documentation `Creating IAM policies <https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html>`_. 
+An example IAM permissions policy is provided below. For more information and examples see `Identity and Access Management for Amazon Elastic Container Registry <https://docs.aws.amazon.com/AmazonECR/latest/userguide/security-iam.html>`_.
 
 .. code-block:: json
 
@@ -226,7 +227,7 @@ below. For more information and examples see `Identity and Access Management for
                     "Effect": "Allow",
                     "Resource": "arn:aws:ecr:<REGION>:<ACCOUNT_NUMBER>:<prefix>-*",
                     "Sid": "CreateRepository"
-                },
+                }
             ],
             "Version": "2012-10-17"
         }
@@ -234,11 +235,13 @@ below. For more information and examples see `Identity and Access Management for
 If you used AWS services like EC2 or EKS to set up your Kubernetes cluster you
 can add this policy to the IAM Role assumed by the nodes of the cluster, e.g.
 ``nodes.<somename>.k8s.local`` if you followed `Zero to JupyterHub with Kubernetes <https://zero-to-jupyterhub.readthedocs.io/>`_
-and used kops. The IAM permissions policy will need to accompanied with an IAM
-trust policy to allow it to be assumed. An example for EC2 is provided below.
-For more information see `Granting a User Permissions to Pass a Role to an AWS Service <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html>`_.
-This is the recommended method if your Kubernetes cluster is provisioned on
-AWS.
+and used kops. One way to do this from the AWS Console is to navigate to the IAM service and click "Roles" in the side bar, 
+then find and select the IAM Role assumed by the nodes of your cluster, click "Permissions" and then "Attach policies" to attach 
+the IAM Policy we just created. The IAM permissions policy will need to accompanied with an IAM
+trust policy to allow it to be assumed. A suitable trust policy may already be defined for your node's IAM Role, 
+you can view and edit the trust policy by clicking the "Trust relationships" tab is next to the "Permissions" tab in the AWS console. 
+An example trust policy for EC2 is provided below. For more information see `Granting a User Permissions to Pass a Role to an AWS Service <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html>`_.
+This is the recommended method if your Kubernetes cluster is provisioned on AWS.
 
 .. code-block:: json
 
@@ -252,7 +255,7 @@ AWS.
             }
         }
 
-Alternatively, you can create an IAM user with programmatic access (see
+Alternatively to the above steps, you can create an IAM user with programmatic access (see
 `Creating an IAM User in Your AWS Account <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html>`_)
 and specify the ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment
 variables in the following step.
