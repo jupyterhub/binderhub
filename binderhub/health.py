@@ -82,6 +82,10 @@ def at_most_every(_f=None, *, interval=60):
 class HealthHandler(BaseHandler):
     """Serve health status"""
 
+    # demote logging of 200 responses to debug-level
+    # to avoid flooding logs with health checks
+    log_success_debug = True
+
     def initialize(self, hub_url=None):
         self.hub_url = hub_url
 
