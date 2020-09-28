@@ -30,6 +30,7 @@ from .build import Build
 from .builder import BuildHandler
 from .health import HealthHandler
 from .launcher import Launcher
+from .log import log_request
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
@@ -586,44 +587,47 @@ class BinderHub(Application):
             with open(schema_file) as f:
                 self.event_log.register_schema(json.load(f))
 
-        self.tornado_settings.update({
-            "push_secret": self.push_secret,
-            "image_prefix": self.image_prefix,
-            "debug": self.debug,
-            'launcher': self.launcher,
-            'appendix': self.appendix,
-            "build_namespace": self.build_namespace,
-            "build_image": self.build_image,
-            'build_node_selector': self.build_node_selector,
-            'build_pool': self.build_pool,
-            "sticky_builds": self.sticky_builds,
-            'log_tail_lines': self.log_tail_lines,
-            'pod_quota': self.pod_quota,
-            'per_repo_quota': self.per_repo_quota,
-            'per_repo_quota_higher': self.per_repo_quota_higher,
-            'repo_providers': self.repo_providers,
-            'use_registry': self.use_registry,
-            'registry': registry,
-            'traitlets_config': self.config,
-            'google_analytics_code': self.google_analytics_code,
-            'google_analytics_domain': self.google_analytics_domain,
-            'about_message': self.about_message,
-            'banner_message': self.banner_message,
-            'extra_footer_scripts': self.extra_footer_scripts,
-            'jinja2_env': jinja_env,
-            'build_memory_limit': self.build_memory_limit,
-            'build_memory_request': self.build_memory_request,
-            'build_docker_host': self.build_docker_host,
-            'base_url': self.base_url,
-            'badge_base_url': self.badge_base_url,
-            "static_path": os.path.join(HERE, "static"),
-            'static_url_prefix': url_path_join(self.base_url, 'static/'),
-            'template_variables': self.template_variables,
-            'executor': self.executor,
-            'auth_enabled': self.auth_enabled,
-            'event_log': self.event_log,
-            'normalized_origin': self.normalized_origin
-        })
+        self.tornado_settings.update(
+            {
+                "log_function": log_request,
+                "push_secret": self.push_secret,
+                "image_prefix": self.image_prefix,
+                "debug": self.debug,
+                "launcher": self.launcher,
+                "appendix": self.appendix,
+                "build_namespace": self.build_namespace,
+                "build_image": self.build_image,
+                "build_node_selector": self.build_node_selector,
+                "build_pool": self.build_pool,
+                "sticky_builds": self.sticky_builds,
+                "log_tail_lines": self.log_tail_lines,
+                "pod_quota": self.pod_quota,
+                "per_repo_quota": self.per_repo_quota,
+                "per_repo_quota_higher": self.per_repo_quota_higher,
+                "repo_providers": self.repo_providers,
+                "use_registry": self.use_registry,
+                "registry": registry,
+                "traitlets_config": self.config,
+                "google_analytics_code": self.google_analytics_code,
+                "google_analytics_domain": self.google_analytics_domain,
+                "about_message": self.about_message,
+                "banner_message": self.banner_message,
+                "extra_footer_scripts": self.extra_footer_scripts,
+                "jinja2_env": jinja_env,
+                "build_memory_limit": self.build_memory_limit,
+                "build_memory_request": self.build_memory_request,
+                "build_docker_host": self.build_docker_host,
+                "base_url": self.base_url,
+                "badge_base_url": self.badge_base_url,
+                "static_path": os.path.join(HERE, "static"),
+                "static_url_prefix": url_path_join(self.base_url, "static/"),
+                "template_variables": self.template_variables,
+                "executor": self.executor,
+                "auth_enabled": self.auth_enabled,
+                "event_log": self.event_log,
+                "normalized_origin": self.normalized_origin,
+            }
+        )
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
 

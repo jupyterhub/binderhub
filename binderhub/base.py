@@ -118,6 +118,10 @@ class AboutHandler(BaseHandler):
 
 class VersionHandler(BaseHandler):
     """Serve information about versions running"""
+
+    # demote logging of 200 responses to debug-level
+    log_success_debug = True
+
     async def get(self):
         self.set_header("Content-type", "application/json")
         self.write(json.dumps(
