@@ -50,7 +50,9 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
 
         return providers[provider_prefix](
-            config=self.settings['traitlets_config'], spec=spec)
+            config=self.settings['traitlets_config'], 
+            spec=spec,
+            handler=self)
 
     def get_badge_base_url(self):
         badge_base_url = self.settings['badge_base_url']
