@@ -12,3 +12,4 @@ in the community have done.
    ../customizing
    ../authentication
    ../https
+   ../cors
