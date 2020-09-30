@@ -83,6 +83,6 @@ For example, if you're following on from the previous section
 Once you've adjusted ``config.yaml`` to enable CORS, apply your changes 
 with::
 
-  helm upgrade <namespace> jupyterhub/binderhub --version=<version>  -f secret.yaml -f config.yaml
+    helm upgrade <namespace> jupyterhub/binderhub --version=<version>  -f secret.yaml -f config.yaml
 
 It may take ~10 minutes for the changes to take effect.
