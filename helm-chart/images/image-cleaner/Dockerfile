@@ -1,5 +1,5 @@
-ARG DIST=slim-buster
-FROM python:3.7-$DIST
+ARG DIST=3.8-slim-buster
+FROM python:$DIST
 
 ADD requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
