@@ -1,4 +1,4 @@
-ARG DIST=buster
+ARG DIST=slim-buster
 FROM python:3.7-$DIST
 
 ADD requirements.txt /tmp/requirements.txt

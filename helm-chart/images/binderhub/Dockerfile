@@ -1,8 +1,8 @@
 # Using multi-stage builds
-ARG DIST=buster
+ARG DIST=slim-buster
 FROM buildpack-deps:$DIST as build-stage
 # ARG has to occur twice to be used in both contents and FROM
-ARG DIST=buster
+ARG DIST=slim-buster
 
 RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
