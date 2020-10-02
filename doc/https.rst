@@ -105,7 +105,7 @@ with the following sections and apply it using ``helm upgrade ...``.
     jupyterhub:
       proxy:
         service:
-        type: ClusterIP
+          type: ClusterIP
       ingress:
         enabled: true
         hosts:
