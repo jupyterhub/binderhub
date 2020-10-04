@@ -1,5 +1,4 @@
 # documentation specific extra packages
-sphinx>=1.7
 myst-parser
 sphinx-copybutton
 traitlets
