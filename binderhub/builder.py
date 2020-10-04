@@ -2,6 +2,7 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
+import aiobotocore
 import hashlib
 from http.client import responses
 import json
@@ -428,8 +429,7 @@ class BuildHandler(BaseHandler):
 
         templogfile.close()
         app_log.debug(templogfile.name)
-        with open(templogfile.name) as f:
-            app_log.debug(f.read())
+        await self.upload_log(templogfile.name, 'repo2docker.log')
         os.remove(templogfile.name)
 
         # Launch after building an image
@@ -455,6 +455,33 @@ class BuildHandler(BaseHandler):
         # The duration of this shouldn't matter because
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
+
+    async def upload_log(self, logfile, destname):
+        if (self.settings["s3_logs_endpoint"] and
+            self.settings["s3_logs_access_key"] and
+            self.settings["s3_logs_secret_key"] and
+            self.settings["s3_logs_bucket"]
+        ):
+            dest = f"buildlogs/{self.image_name}/{destname}"
+            app_log.info(f'Uploading log to %s/%s/%s',
+                self.settings["s3_logs_endpoint"],
+                self.settings["s3_logs_bucket"],
+                dest
+            )
+            async with aiobotocore.get_session().create_client(
+                "s3",
+                endpoint_url=self.settings["s3_logs_endpoint"],
+                aws_access_key_id=self.settings["s3_logs_access_key"],
+                aws_secret_access_key=self.settings["s3_logs_secret_key"],
+                region_name=self.settings["s3_logs_region"],
+            ) as client:
+                with open(logfile, 'rb') as fh:
+                    r = await client.put_object(
+                        Bucket=self.settings["s3_logs_bucket"],
+                        Key=dest,
+                        ContentType='text/plain',
+                        Body=fh)
+                    return r
 
     async def launch(self, kube, provider):
         """Ask JupyterHub to launch the image."""

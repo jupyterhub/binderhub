@@ -457,6 +457,12 @@ class BinderHub(Application):
         """
     )
 
+    s3_logs_endpoint = Unicode("", help="S3 endpoint", config=True)
+    s3_logs_access_key = Unicode("", help="S3 access key ", config=True)
+    s3_logs_secret_key = Unicode("", help="S3 secret key", config=True)
+    s3_logs_bucket = Unicode("", help="S3 bucket", config=True)
+    s3_logs_region = Unicode("", help="S3 region", config=True)
+
     # FIXME: Come up with a better name for it?
     builder_required = Bool(
         True,
@@ -626,6 +632,11 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
+                "s3_logs_endpoint": self.s3_logs_endpoint,
+                "s3_logs_access_key": self.s3_logs_access_key,
+                "s3_logs_secret_key": self.s3_logs_secret_key,
+                "s3_logs_bucket": self.s3_logs_bucket,
+                "s3_logs_region": self.s3_logs_region,
             }
         )
         if self.auth_enabled:

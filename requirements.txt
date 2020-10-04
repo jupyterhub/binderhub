@@ -3,6 +3,7 @@
 kubernetes==9.0.*
 escapism
 traitlets
+aiobotocore
 docker
 jinja2
 prometheus_client
