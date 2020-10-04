@@ -5,7 +5,9 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 import hashlib
 from http.client import responses
 import json
+import os
 import string
+from tempfile import NamedTemporaryFile
 import time
 import escapism
 
@@ -366,6 +368,7 @@ class BuildHandler(BaseHandler):
             sticky_builds=self.settings['sticky_builds'],
         )
 
+        templogfile = NamedTemporaryFile(mode='wt', delete=False)
         with BUILDS_INPROGRESS.track_inprogress():
             build_starttime = time.perf_counter()
             pool = self.settings['build_pool']
@@ -419,8 +422,15 @@ class BuildHandler(BaseHandler):
                         failed = True
                         BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
                         BUILD_COUNT.labels(status='failure', **self.repo_metric_labels).inc()
-
+                    templogfile.write(payload.get("message"))
+                    app_log.debug(f'log: {payload.get("message")}')
                 await self.emit(event)
+
+        templogfile.close()
+        app_log.debug(templogfile.name)
+        with open(templogfile.name) as f:
+            app_log.debug(f.read())
+        os.remove(templogfile.name)
 
         # Launch after building an image
         if not failed:
