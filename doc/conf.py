@@ -110,6 +110,7 @@ html_theme = 'pydata_sphinx_theme'
 # documentation.
 #
 html_theme_options = {
+  "use_edit_page_button": True,
   "github_url": "https://github.com/jupyterhub/binderhub",
   "twitter_url": "https://twitter.com/mybinderteam",
 }
