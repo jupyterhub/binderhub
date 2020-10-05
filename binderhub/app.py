@@ -35,7 +35,7 @@ from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
                             ZenodoProvider, FigshareProvider, HydroshareProvider,
-                            DataverseProvider)
+                            DataverseProvider, MercurialRepoProvider)
 from .metrics import MetricsHandler
 
 from .utils import ByteSpecification, url_path_join
@@ -420,6 +420,7 @@ class BinderHub(Application):
             'figshare': FigshareProvider,
             'hydroshare': HydroshareProvider,
             'dataverse': DataverseProvider,
+            'hg': MercurialRepoProvider,
         },
         config=True,
         help="""

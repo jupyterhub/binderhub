@@ -899,3 +899,46 @@ class GistRepoProvider(GitHubRepoProvider):
 
     def get_build_slug(self):
         return self.gist_id
+
+
+class MercurialRepoProvider(GitRepoProvider):
+    """Bare bones Mercurial repo provider.
+
+    Users must provide a spec of the following form.
+
+    <url-escaped-namespace>/<unresolved_ref>
+    <url-escaped-namespace>/<resolved_ref>
+
+    eg:
+    https://foss.heptapod.net/pypy/pypy/release-pypy3.7-v7.3.2rc3
+    https://foss.heptapod.net/graphics/plot-covid19-fr/8e29b5b0064d
+
+    """
+
+    name = Unicode("Mercurial")
+
+    @gen.coroutine
+    def get_resolved_ref(self):
+        if hasattr(self, 'resolved_ref'):
+            return self.resolved_ref
+
+        try:
+            # Check if the reference is a valid SHA hash
+            self.sha1_validate(self.unresolved_ref)
+        except ValueError:
+            # The ref is a head/tag and we resolve it using `hg identify`
+            command = ["hg", "identify", self.repo, "-r", self.unresolved_ref, "-T", "{id}"]
+            result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode:
+                raise RuntimeError("Unable to run hg identify to get the `resolved_ref`: {}".format(result.stderr))
+            if not result.stdout:
+                raise ValueError("The specified branch, tag or commit SHA ('{}') was not found on the remote repository."
+                                .format(self.unresolved_ref))
+            resolved_ref = result.stdout.strip()
+            self.sha1_validate(resolved_ref)
+            self.resolved_ref = resolved_ref
+        else:
+            # The ref already was a valid SHA hash
+            self.resolved_ref = self.unresolved_ref
+
+        return self.resolved_ref

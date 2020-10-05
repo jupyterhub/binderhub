@@ -99,6 +99,10 @@ function updateRepoText() {
     $("#ref").prop("disabled", true);
     $("label[for=ref]").prop("disabled", true);
   }
+  else if (provider === "hg") {
+    text = "Arbitrary Mercurial repository URL (http://hg.example.com/repo)";
+    tag_text = "Mercurial branch, tag, topic or commit SHA";
+  }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
   $("#ref").attr('placeholder', tag_text);
