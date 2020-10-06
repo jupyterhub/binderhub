@@ -425,6 +425,7 @@ class BuildHandler(BaseHandler):
                         failed = True
                         BUILD_TIME.labels(status='failure').observe(time.perf_counter() - build_starttime)
                         BUILD_COUNT.labels(status='failure', **self.repo_metric_labels).inc()
+                        done = True
                     templogfile.write(payload.get("message"))
                     app_log.debug(f'log: {payload.get("message")}')
                 await self.emit(event)
