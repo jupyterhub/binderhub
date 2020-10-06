@@ -2,7 +2,9 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
-import aiobotocore
+import boto3
+from botocore import UNSIGNED
+from botocore.config import Config
 import hashlib
 from http.client import responses
 import json
@@ -429,7 +431,12 @@ class BuildHandler(BaseHandler):
 
         templogfile.close()
         app_log.debug(templogfile.name)
-        await self.upload_log(templogfile.name, 'repo2docker.log')
+        loglink = await self.upload_log(templogfile.name, 'repo2docker.log')
+        if loglink:
+            await self.emit({
+                'phase': 'built',
+                'message': f'Build log: {loglink}\n',
+            })
         os.remove(templogfile.name)
 
         # Launch after building an image
@@ -456,6 +463,39 @@ class BuildHandler(BaseHandler):
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
 
+    def _s3_upload(self, logfile, destkey):
+        s3 = boto3.resource(
+            "s3",
+            endpoint_url=self.settings["s3_logs_endpoint"],
+            aws_access_key_id=self.settings["s3_logs_access_key"],
+            aws_secret_access_key=self.settings["s3_logs_secret_key"],
+            region_name=self.settings["s3_logs_region"],
+            config=Config(signature_version="s3v4"),
+        )
+        s3.Bucket(self.settings["s3_logs_bucket"]).upload_file(
+            logfile,
+            destkey,
+            ExtraArgs={"ContentType": "text/plain"},
+        )
+        # For simple S3 servers you can easily build the canonical URL
+        # For AWS S3 this can be more complicated depending on which region your bucket is in
+        # boto3 doesn't have a way to just get the public URL, so instead we create a pre-signed
+        # URL but discard the parameters since the object is public
+        s3unsigned = boto3.client(
+            "s3",
+            endpoint_url=self.settings["s3_logs_endpoint"],
+            aws_access_key_id=self.settings["s3_logs_access_key"],
+            aws_secret_access_key=self.settings["s3_logs_secret_key"],
+            region_name=self.settings["s3_logs_region"],
+            config=Config(UNSIGNED)
+        )
+        link = s3unsigned.generate_presigned_url(
+            'get_object', ExpiresIn=0, Params={
+                'Bucket': self.settings["s3_logs_bucket"],
+                'Key': destkey,
+            })
+        return link.split('?', 1)[0]
+
     async def upload_log(self, logfile, destname):
         if (self.settings["s3_logs_endpoint"] and
             self.settings["s3_logs_access_key"] and
@@ -463,25 +503,18 @@ class BuildHandler(BaseHandler):
             self.settings["s3_logs_bucket"]
         ):
             dest = f"buildlogs/{self.image_name}/{destname}"
-            app_log.info(f'Uploading log to %s/%s/%s',
+            app_log.debug(f'Uploading log to %s/%s/%s',
                 self.settings["s3_logs_endpoint"],
                 self.settings["s3_logs_bucket"],
                 dest
             )
-            async with aiobotocore.get_session().create_client(
-                "s3",
-                endpoint_url=self.settings["s3_logs_endpoint"],
-                aws_access_key_id=self.settings["s3_logs_access_key"],
-                aws_secret_access_key=self.settings["s3_logs_secret_key"],
-                region_name=self.settings["s3_logs_region"],
-            ) as client:
-                with open(logfile, 'rb') as fh:
-                    r = await client.put_object(
-                        Bucket=self.settings["s3_logs_bucket"],
-                        Key=dest,
-                        ContentType='text/plain',
-                        Body=fh)
-                    return r
+            # Since we only need one method wrap the sync boto3 library instead of using
+            # aioboto3 which depends on some compiled dependencies
+            loop = IOLoop.current()
+            link = await loop.run_in_executor(
+                self.settings['executor'], self._s3_upload, logfile, dest)
+            app_log.info('Log is available at %s', link)
+            return link
 
     async def launch(self, kube, provider):
         """Ask JupyterHub to launch the image."""
