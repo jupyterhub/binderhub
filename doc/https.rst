@@ -99,8 +99,13 @@ with the following sections and apply it using ``helm upgrade ...``.
     config:
       BinderHub:
         hub_url: https://<jupyterhub-URL>
+    service:
+      type: ClusterIP
 
     jupyterhub:
+      proxy:
+        service:
+          type: ClusterIP
       ingress:
         enabled: true
         hosts:
