@@ -64,10 +64,6 @@ spec:
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
-        command:
-          - python3
-          - -m
-          - binderhub
         args:
           - --config
           - /etc/binderhub/config/binderhub_config.py

@@ -38,6 +38,7 @@ RUN pip install --no-cache-dir \
         *.whl \
         -r requirements.txt
 
-CMD ["python3", "-m", "binderhub", "--config", "/etc/binderhub/config/binderhub_config.py"]
+ENTRYPOINT ["python3", "-m", "binderhub"]
+CMD ["--config", "/etc/binderhub/config/binderhub_config.py"]
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8585
