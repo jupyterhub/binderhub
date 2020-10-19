@@ -25,7 +25,7 @@ Setting up a Kubernetes cluster
    BinderHub is built to be cloud agnostic, and can run on various cloud
    providers (as well as bare metal). If you would like to help with adding
    instructions for other cloud providers or improving the current instructions,
-   `please contact us <https://github.com/jupyterhub/binderhub/issues>`_!
+   `please contact us <https://github.com/jupyterhub/zero-to-jupyterhub-k8s/issues>`_!
 
 First, deploy a Kubernetes cluster by following the
 `instructions in the Zero to JupyterHub guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/create-k8s-cluster.html>`_.
