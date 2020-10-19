@@ -105,10 +105,10 @@ async def test_hydroshare():
     provider = HydroshareProvider(spec=spec)
 
     ref = await provider.get_resolved_ref()
-    assert ref == '142c59757ed54de1816777828c9716e7.v1545934606'
+    assert '142c59757ed54de1816777828c9716e7.v' in ref
 
     slug = provider.get_build_slug()
-    assert slug == 'hydroshare-142c59757ed54de1816777828c9716e7.v1545934606'
+    assert 'hydroshare-142c59757ed54de1816777828c9716e7.v' in slug
     repo_url = provider.get_repo_url()
     assert repo_url == spec
     ref_url = await provider.get_resolved_ref_url()
@@ -123,10 +123,10 @@ async def test_hydroshare_doi():
     provider = HydroshareProvider(spec=spec)
 
     ref = await provider.get_resolved_ref()
-    assert ref == 'b8f6eae9d89241cf8b5904033460af61.v1565445792'
+    assert 'b8f6eae9d89241cf8b5904033460af61.v' in ref
 
     slug = provider.get_build_slug()
-    assert slug == 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v1565445792'
+    assert 'hydroshare-b8f6eae9d89241cf8b5904033460af61.v' in slug
     repo_url = provider.get_repo_url()
     assert repo_url ==  'https://www.hydroshare.org/resource/b8f6eae9d89241cf8b5904033460af61'
     ref_url = await provider.get_resolved_ref_url()
@@ -134,12 +134,18 @@ async def test_hydroshare_doi():
     resolved_spec = await provider.get_resolved_spec()
     assert resolved_spec == repo_url
 
+
 @pytest.mark.parametrize('spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug', [
     ['10.7910/DVN/TJCLKP',
      '10.7910/DVN/TJCLKP',
      '3035124.v3.0',
      'https://doi.org/10.7910/DVN/TJCLKP',
      'dataverse-dvn-2ftjclkp'],
+    ['10.25346/S6/DE95RT',
+     '10.25346/S6/DE95RT',
+     '20460.v1.0',
+     'https://doi.org/10.25346/S6/DE95RT',
+     'dataverse-s6-2fde95rt']
 ])
 async def test_dataverse(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
     provider = DataverseProvider(spec=spec)
@@ -303,7 +309,7 @@ class TestSpecErrorHandling(TestCase):
 
     def test_too_short_spec(self):
         spec = "nothing_to_split"
-        with self.assertRaisesRegexp(ValueError, "Spec is not of the form"):
+        with self.assertRaisesRegex(ValueError, "Spec is not of the form"):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
     def test_long_spec(self):
@@ -315,13 +321,13 @@ class TestSpecErrorHandling(TestCase):
     def test_spec_with_no_suggestion(self):
         spec = "short/master"
         error = "^((?!Did you mean).)*$".format(spec)  # negative match
-        with self.assertRaisesRegexp(ValueError, error):
+        with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
     def test_spec_with_suggestion(self):
         spec = "short/suggestion"
         error = "Did you mean \"{}/master\"?".format(spec)
-        with self.assertRaisesRegexp(ValueError, error):
+        with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
 

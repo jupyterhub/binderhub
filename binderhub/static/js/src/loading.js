@@ -10,7 +10,9 @@ const help_messages = [
     'The tool that powers this page is called <a target="_blank" href="https://binderhub.readthedocs.io">BinderHub</a>. It is an open source tool that you can deploy yourself.',
     'The Binder team has <a target="_blank" href="https://mybinder-sre.readthedocs.io/en/latest/">a site reliability guide</a> that talks about what it is like to run a BinderHub.',
     'You can connect with the Binder community in the <a target="_blank" href="https://discourse.jupyter.org/c/binder">Jupyter community forum</a>.',
+    'Empty log? Notebook not loading? Maybe your ad blocker is interfering. Consider adding this site to the list of trusted sources.',
     'Your launch may take longer the first few times a repository is used. This is because our machine needs to create your environment.',
+    'Read our <a target="_blank" href="https://discourse.jupyter.org/t/how-to-reduce-mybinder-org-repository-startup-time/4956">advice for speeding up your Binder launch</a>.',
 ]
 
 // Set a launch timeout beyond-which we'll stop cycling messages

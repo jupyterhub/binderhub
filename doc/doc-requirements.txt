@@ -5,13 +5,12 @@ sphinx-copybutton
 traitlets
 pandas
 ruamel.yaml
-https://github.com/pandas-dev/pandas-sphinx-theme/archive/ade576c92cfe46a372b6783fb83f45c44fc67976.zip
+pydata_sphinx_theme
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
 kubernetes==9.0.*
 escapism
-tornado
 traitlets
 docker
 jinja2
@@ -19,4 +18,5 @@ prometheus_client
 python-json-logger
 jupyterhub
 jsonschema
+tornado>=5.1
 #pycurl Do not install for docs as it breaks the RTD build. Its primary use is for mocks in testing .

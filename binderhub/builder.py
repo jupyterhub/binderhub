@@ -54,6 +54,61 @@ BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in pr
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
 
 
+def _generate_build_name(build_slug, ref, prefix='', limit=63, ref_length=6):
+    """Generate a unique build name with a limited character length.
+
+    Guaranteed (to acceptable level) to be unique for a given user, repo,
+    and ref.
+
+    We really, *really* care that we always end up with the same
+    'build_name' for a particular repo + ref, but the default max
+    character limit for build names is 63. To meet this constraint, we
+    include a prefixed hash of the user / repo in all build names and do
+    some length limiting :)
+
+    Note that ``build`` names only need to be unique over a shorter period
+    of time, while ``image`` names need to be unique for longer. Hence,
+    different strategies are used.
+
+    We also ensure that the returned value is DNS safe, by only using
+    ascii lowercase + digits. everything else is escaped
+    """
+    # escape parts that came from providers (build slug, ref)
+    # build names are case-insensitive `.lower()` is called at the end
+    build_slug = _safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
+    ref = _safe_build_slug(ref, limit=ref_length, hash_length=2)
+
+    return '{prefix}{safe_slug}-{ref}'.format(
+        prefix=prefix,
+        safe_slug=build_slug,
+        ref=ref[:ref_length],
+    ).lower()
+
+
+def _safe_build_slug(build_slug, limit, hash_length=6):
+    """Create a unique-ish name from a slug.
+
+    This function catches a bug where a build slug may not produce a valid
+    image name (e.g. arepo name ending with _, which results in image name
+    ending with '-' which is invalid). This ensures that the image name is
+    always safe, regardless of build slugs returned by providers
+    (rather than requiring all providers to return image-safe build slugs
+    below a certain length).
+
+    Since this changes the image name generation scheme, all existing cached
+    images will be invalidated.
+    """
+    build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
+    safe_chars = set(string.ascii_letters + string.digits)
+    def escape(s):
+        return escapism.escape(s, safe=safe_chars, escape_char='-')
+    build_slug = escape(build_slug)
+    return '{name}-{hash}'.format(
+        name=build_slug[:limit - hash_length - 1],
+        hash=build_slug_hash[:hash_length],
+    ).lower()
+
+
 class BuildHandler(BaseHandler):
     """A handler for working with GitHub."""
 
@@ -124,63 +179,6 @@ class BuildHandler(BaseHandler):
             self.registry = self.settings['registry']
 
         self.event_log = self.settings['event_log']
-
-    def _generate_build_name(self, build_slug, ref, prefix='', limit=63, ref_length=6):
-        """
-        Generate a unique build name with a limited character length..
-
-        Guaranteed (to acceptable level) to be unique for a given user, repo,
-        and ref.
-
-        We really, *really* care that we always end up with the same
-        'build_name' for a particular repo + ref, but the default max
-        character limit for build names is 63. To meet this constraint, we
-        include a prefixed hash of the user / repo in all build names and do
-        some length limiting :)
-
-        Note that ``build`` names only need to be unique over a shorter period
-        of time, while ``image`` names need to be unique for longer. Hence,
-        different strategies are used.
-
-        We also ensure that the returned value is DNS safe, by only using
-        ascii lowercase + digits. everything else is escaped
-        """
-
-        # escape parts that came from providers (build slug, ref)
-        # only build_slug *really* needs this (refs should be sha1 hashes)
-        # build names are case-insensitive because ascii_letters are allowed,
-        # and `.lower()` is called at the end
-        safe_chars = set(string.ascii_letters + string.digits)
-        def escape(s):
-            return escapism.escape(s, safe=safe_chars, escape_char='-')
-
-        build_slug = self._safe_build_slug(build_slug, limit=limit - len(prefix) - ref_length - 1)
-        ref = escape(ref)
-
-        return '{prefix}{safe_slug}-{ref}'.format(
-            prefix=prefix,
-            safe_slug=build_slug,
-            ref=ref[:ref_length],
-        ).lower()
-
-    def _safe_build_slug(self, build_slug, limit, hash_length=6):
-        """
-        This function catches a bug where build slug may not produce a valid image name
-        (e.g. repo name ending with _, which results in image name ending with '-' which is invalid).
-        This ensures that the image name is always safe, regardless of build slugs returned by providers
-        (rather than requiring all providers to return image-safe build slugs below a certain length).
-        Since this changes the image name generation scheme, all existing cached images will be invalidated.
-        """
-        build_slug_hash = hashlib.sha256(build_slug.encode('utf-8')).hexdigest()
-        safe_chars = set(string.ascii_letters + string.digits)
-        def escape(s):
-            return escapism.escape(s, safe=safe_chars, escape_char='-')
-        build_slug = escape(build_slug)
-        return '{name}-{hash}'.format(
-            name=build_slug[:limit - hash_length - 1],
-            hash=build_slug_hash[:hash_length],
-        ).lower()
-
 
     async def fail(self, message):
         await self.emit({
@@ -280,9 +278,9 @@ class BuildHandler(BaseHandler):
         image_prefix = self.settings['image_prefix']
 
         # Enforces max 255 characters before image
-        safe_build_slug = self._safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
+        safe_build_slug = _safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
 
-        build_name = self._generate_build_name(provider.get_build_slug(), ref, prefix='build-')
+        build_name = _generate_build_name(provider.get_build_slug(), ref, prefix='build-')
 
         image_name = self.image_name = '{prefix}{build_slug}:{ref}'.format(
             prefix=image_prefix,
@@ -322,9 +320,10 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
                 'provider': provider.name,
                 'spec': spec,
+                'ref': ref,
                 'status': 'success',
                 'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
@@ -358,6 +357,7 @@ class BuildHandler(BaseHandler):
             push_secret=push_secret,
             build_image=self.settings['build_image'],
             memory_limit=self.settings['build_memory_limit'],
+            memory_request=self.settings['build_memory_request'],
             docker_host=self.settings['build_docker_host'],
             node_selector=self.settings['build_node_selector'],
             appendix=appendix,
@@ -428,9 +428,10 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 3, {
+            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
                 'provider': provider.name,
                 'spec': spec,
+                'ref': ref,
                 'status': 'success',
                 'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
             })
@@ -530,14 +531,8 @@ class BuildHandler(BaseHandler):
                                                     server_name=server_name,
                                                     repo_url=self.repo_url,
                                                     extra_args=extra_args)
-                LAUNCH_TIME.labels(
-                    status='success', retries=i,
-                ).observe(time.perf_counter() - launch_starttime)
-                LAUNCH_COUNT.labels(
-                    status='success', **self.repo_metric_labels,
-                ).inc()
-
             except Exception as e:
+                duration = time.perf_counter() - launch_starttime
                 if i + 1 == launcher.retries:
                     status = 'failure'
                 else:
@@ -558,17 +553,33 @@ class BuildHandler(BaseHandler):
                     raise
 
                 # not the last attempt, try again
-                app_log.error("Retrying launch after error: %s", e)
-                await self.emit({
-                    'phase': 'launching',
-                    'message': 'Launch attempt {} failed, retrying...\n'.format(i + 1),
-                })
+                app_log.error(
+                    "Retrying launch of %s after error (duration=%.0fs, attempt=%s): %r",
+                    self.repo_url,
+                    duration,
+                    i + 1,
+                    e,
+                )
+                await self.emit(
+                    {
+                        "phase": "launching",
+                        "message": "Launch attempt {} failed, retrying...\n".format(
+                            i + 1
+                        ),
+                    }
+                )
                 await gen.sleep(retry_delay)
                 # exponential backoff for consecutive failures
                 retry_delay *= 2
                 continue
             else:
                 # success
+                duration = time.perf_counter() - launch_starttime
+                LAUNCH_TIME.labels(status="success", retries=i).observe(duration)
+                LAUNCH_COUNT.labels(
+                    status='success', **self.repo_metric_labels,
+                ).inc()
+                app_log.info("Launched %s in %.0fs", self.repo_url, duration)
                 break
         event = {
             'phase': 'ready',

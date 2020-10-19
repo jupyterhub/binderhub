@@ -1,25 +1,27 @@
-dist: xenial
+dist: bionic
 language: python
 python:
-  - 3.6
+  - 3.7
 git:
   depth: false
 services:
   - docker
-sudo: required
 
 before_install:
-  - nvm install 8; nvm use 8
-install:
-  # need gnutls headers for pycurl
-  - sudo apt-get -yq install libgnutls28-dev
-  - export PATH=$PWD/bin:$PATH
+  - nvm install 12; nvm use 12
   - pip install --upgrade pip setuptools
+install:
+  - export PATH=$PWD/bin:$PATH
   - ./ci/install.sh
   - pip install --upgrade -r dev-requirements.txt
   - npm install
   - npm run webpack
   - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
+  # NOTE: The latest docker python package (4.3.0) requires a more modern docker
+  #       version (newer than 18.06.0-ce / API version: 1.38) which is not yet
+  #       available on travis.
+  #       ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1743
+  - pip install -U "docker~=4.2.0"
   - pip freeze
 
 script:
@@ -46,11 +48,12 @@ env:
     - TEST=auth
     - TEST=helm
   global:
-    - ASYNC_TEST_TIMEOUT=15
-    - MINIKUBE_VERSION=0.33.1
-    - KUBE_VERSION=1.13.2
-    - HELM_VERSION=2.13.0
-    - CHANGE_MINIKUBE_NONE_USER=true
+    # minikube version: https://github.com/kubernetes/minikube/releases
+    - MINIKUBE_VERSION=1.10.1
+    # kubernetes version: https://github.com/kubernetes/kubernetes/releases
+    - KUBE_VERSION=1.18.2
+    # helm version: https://github.com/helm/helm/releases
+    - HELM_VERSION=2.16.7
     - secure: BuO4oUz5YZvWhH919Tk8h3McM60NybLImIwB+0C4cmcDC/Z4uS1Jh8R8UbD3vIkJyjPgd+WuoaYGzzgJfCiS5i5TZZfi5yI0URu67fc044vaS7zSegZWsuN40mP4QNYTb+VdYniav8pqqyPyUpKNbOQ+/YJ+BWrC/ncqSL+P+UR6PE9T3TQ4XDuB45z0B2hhfDWBMpP6KtGae7YOWstIPi8ufiS76jjRzE4ziLqsOSwJRGhRbjJXqdcZeH2d54jUJSzCEGMSo5lxrFL27YOJ6Vuzr0V208AiQe60CyxtAzyiamVoE9U8pYOnv9KRDMeROSdz2HJkGetedNgCHpf0mNUWLZzQ6udzXtKeG2pxKeLDYKSm8Y3GGGa87nWRaWS1dYwCTHLe1r6Jwt6QwuBqqIa0oOMujStTEgbUOLLw5e80kSWqTxb52XnDi5SgOMGNzcylAYJLHFCL5U9ShAyZWGRAy0p7tFycXy44/k7RiqXr6Xur7NuB9bzXkmsDa7qS1t2DXoUA8FlpxfvqaSqVuFSrN16JHQeBOZGEYondQ2NPvi2vNT68Us4saWUxBf8oxF5pctbJYDDOxWpYFq/pza2+Elset9dv5KjCb61qtotLpo4PER4zgvde5/5HRa1CAOJlVfZB1Au3+b1NoVWNnPcwlb2UGut1+bcaDWyPf20=
     - secure: uqQrm6T6oGloQIHs1tLtQm3iIZFUtv1lNgtT+oCfYw3MC1CJ5AkKRaClAcVlFVOoCAE1GeCbnkob0i+LkwE+FQ1uw0fH9QyGx0PiEBrT3ilOXtkHvLXzcB/8PqPnIRR+vQnqigX2wsfiy0po99gBeaKiQjfybZ8UVp03M7+peQ4Y/Dxoj0G0nYZPsCo4F5plfdalJQX+ZVi1QlkglTotVxvb8QjrxXUrJ3OgXyVgW5fmkrRY6rWlb7RkSPlxmOhOZ7KM0BghMvox2VAD2jTatW/IEjqqaek8VqyKe1Dhw8wRUwQIwAH0VV1tUslHGcPcpbosGTPsfH7pTSUIa6ZRWd2dymMCpp7NwmFPm38QOZS/psiYNFPM6FvQnyqmtiUiU9MfcwMNJxiAUyTSslficd1Lt/aTTgBJQnK9Zd+/J6uuSc1aMGSgVNaM6eXxyNITXqz067zn8apCJm6UUEVM5FFs5SdfNXycJeV7qBwT8oe2+lvC4YzB2bHVGlnynK4IBPZsSFiBxPTBhcHVZp2FIMoC7cm/2dKW0gKPMho2Glhb7Zxn0mFej7XrT+IllD4yCjYSuSG2hpNMgE0+pc/89F2eLtey+oRAH0p4+K8DXsVCHsb7rSq+i7WDtFhFR0DBRWPG8B//CyLSbr4UoKumShbXYCI1dpSYzATmVyphQc8=
     - secure: ugOe1mIyit6BmzuTLtzVM7+edswAES1TfAnGST0EkYv341z0NnqRGdRJYtH1q1rRoZ6ciSnjHdVe8zmentxDwRJSi50888ro8EG7NnvAjG31cdwEgm7Vdv4sEbt7Dp8gYxKb5kWtt9w4IxPdMocpWPeNBmjctX+7QWwvIJZstWDjOtt8BhDufiTTHeiZR3FTNy5ykJXnFXn/WMsZoxI/a3GAgSzV4wKu0OzZYYk3GY20inJKUwxwWgyNbzQXecWlup6REd+YYrq0h4hJESyrtTQwHsijssCuy+mH8fxPpPZuF2WtHAqej0zGVKyUU/xmpCgdIHbjsheIyEE1leYn+USuoWqiHf0gjx2sYvBJP4HizJNPgj67UUNcUfGXzjegy6cDZE8iXW5clDRDkmWgx53VFlVgWV0TgdxtmOFK3IpQVOoaWc4q0e4T+/38rmUiBFnbbEep2q1wwjZojYhyaIrsEG9jOhtLW2rTADc5fdXURYqfPpubM1SCTseT43T86sRfOH3x8o9MSDnVejZ317oPfoZyqrL/FwpW45M68v/RAfvb6mY/5vM7Jw+70trgz4RhLQS55nuqnZ7NwK8ooX27YnvVnx3YisADz1Cf/A/bNixj8pVkJ7TTw/TnR/gTzat2wfsgPTWRtC8hhOyLSFnZh3J5OyeHQQMmdPspilE=

@@ -1,7 +1,7 @@
 # Contributing to BinderHub
 
 Welcome! As a [Jupyter](https://jupyter.org) project, we follow the
-[Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributor/content-contributor.html).
+[Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributing/content-contributor.html).
 
 There are several different setups for developing BinderHub, depending on which
 parts of it you want to change: the [documentation](#documentation-changes),
@@ -282,7 +282,7 @@ the [BinderHub documentation](https://binderhub.readthedocs.io/en/latest/setup-b
 
 By default, `minikube start` allocates 2GiB of main memory to the
 underlying VM, which might be too low to run the builder successfully.
-   
+
 You may run `minikube start --memory 8192` to start Minikube with a 8GiB
 VM underneath.
 
