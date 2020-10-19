@@ -38,11 +38,7 @@ RUN pip install --no-cache-dir \
         *.whl \
         -r requirements.txt
 
-# Copy the binderhub configuration to use.
-# FUTURE: Follow the approach taken in Z2JH:
-#         https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1478
-COPY helm-chart/images/binderhub/binderhub_config.py .
-
-CMD ["python3", "-m", "binderhub"]
+ENTRYPOINT ["python3", "-m", "binderhub"]
+CMD ["--config", "/etc/binderhub/config/binderhub_config.py"]
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8585

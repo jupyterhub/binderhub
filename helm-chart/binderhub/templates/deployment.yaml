@@ -64,6 +64,9 @@ spec:
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        args:
+          - --config
+          - /etc/binderhub/config/binderhub_config.py
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
