@@ -11,29 +11,16 @@ BinderHub
    :target: https://discourse.jupyter.org/c/binder/binderhub
 
 
-Getting started
-===============
-
-The primary goal of BinderHub is creating custom computing environments that
-can be used by many remote users. BinderHub enables an end user to easily
-specify a desired computing environment from a Git repo. BinderHub then
-serves the custom computing environment at a URL which users can access
-remotely.
+BinderHub is a kubernetes-based cloud service that allows users to share
+reproducible interactive computing environments from code repositories. It is
+the primary technology behind `mybinder.org <https://mybinder.org>`_.
 
 This guide assists you, an administrator, through the process of setting up
 your BinderHub deployment.
 
+.. tip:: For information about **using a BinderHub**, see `the binder user documentation <https://docs.mybinder.org>`_.
+
 To get started creating your own BinderHub, start with :ref:`zero-to-binderhub`.
-
-
-BinderHub Deployments
-=====================
-
-Our directory of BinderHubs is published at :doc:`known-deployments`.
-
-If your BinderHub deployment is not listed, please
-`open an issue <https://github.com/jupyterhub/binderhub/issues>`_
-to discuss adding it.
 
 Zero to BinderHub
 =================
@@ -67,8 +54,8 @@ A more detailed overview of the BinderHub design, architecture, and functionalit
 
    developer/index
 
-The BinderHub community
-=======================
+Contributing to BinderHub 
+=========================
 
 The BinderHub community includes members of organizations deploying their own BinderHubs,
 as well as members of the broader Jupyter and Binder communities.
@@ -78,4 +65,4 @@ This section contains a collection of resources for and about the BinderHub comm
 .. toctree::
    :maxdepth: 2
 
-   community/index
+   contribute

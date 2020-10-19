@@ -1,5 +1,5 @@
-Administrators and developers
-=============================
+Technical Reference
+===================
 
 A more detailed overview of the BinderHub design, architecture, and functionality.
 
