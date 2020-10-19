@@ -17,19 +17,18 @@ will assist you in doing so.
    For information on setting up and customizing your JupyterHub, we recommend reading
    the `Zero to JupyterHub Guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/index.html>`_.
 
-Setting up Kubernetes on `Google Cloud <https://cloud.google.com/>`_
---------------------------------------------------------------------
+Setting up a Kubernetes cluster
+-------------------------------
 
 .. note::
 
    BinderHub is built to be cloud agnostic, and can run on various cloud
-   providers (as well as bare metal). However, here we only provide
-   instructions for Google Cloud as it has been the most extensively-tested.
-   If you would like to help with adding instructions for other cloud
-   providers, `please contact us <https://github.com/jupyterhub/binderhub/issues>`_!
+   providers (as well as bare metal). If you would like to help with adding
+   instructions for other cloud providers or improving the current instructions,
+   `please contact us <https://github.com/jupyterhub/zero-to-jupyterhub-k8s/issues>`_!
 
-First, install Kubernetes by following the
-`instructions in the Zero to JupyterHub guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/google/step-zero-gcp.html>`_.
+First, deploy a Kubernetes cluster by following the
+`instructions in the Zero to JupyterHub guide <https://zero-to-jupyterhub.readthedocs.io/en/latest/create-k8s-cluster.html>`_.
 When you're done, move on to the next section.
 
 
