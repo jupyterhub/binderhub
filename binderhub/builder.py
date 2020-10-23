@@ -254,16 +254,12 @@ class BuildHandler(BaseHandler):
         if ref is None:
             error_message = ["Could not resolve ref for %s. Double check your URL." % key]
 
-            split_key = key.split("/")
-            repo_provider = split_key[0].split(":")[0]
-            resolved_branch = split_key[-1]
-
-            if repo_provider == "gh":
+            if provider.name == "GitHub":
                 error_message.append('GitHub recently changed default branches from "master" to "main".')
 
-                if resolved_branch == "master":
+                if provider.unresolved_ref == "master":
                     error_message.append('Did you mean the "main" branch?')
-                elif resolved_branch == "main":
+                elif provider.unresolved_ref == "main":
                     error_message.append('Did you mean the "master" branch?')
 
             else:
