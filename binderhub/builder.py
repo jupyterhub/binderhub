@@ -250,8 +250,22 @@ class BuildHandler(BaseHandler):
         except Exception as e:
             await self.fail("Error resolving ref for %s: %s" % (key, e))
             return
+
         if ref is None:
-            await self.fail("Could not resolve ref for %s. Double check your URL." % key)
+            error_message = ["Could not resolve ref for %s. Double check your URL." % key]
+
+            if provider.name == "GitHub":
+                error_message.append('GitHub recently changed default branches from "master" to "main".')
+
+                if provider.unresolved_ref == "master":
+                    error_message.append('Did you mean the "main" branch?')
+                elif provider.unresolved_ref == "main":
+                    error_message.append('Did you mean the "master" branch?')
+
+            else:
+                error_message.append("Is your repo public?")
+
+            await self.fail(" ".join(error_message))
             return
 
         self.ref_url = await provider.get_resolved_ref_url()
