@@ -101,7 +101,7 @@ function updateRepoText() {
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
-  $("#ref").attr('placeholder', tag_text);
+  $("#ref").attr('placeholder', 'main');
   $("label[for=ref]").text(tag_text);
 }
 
@@ -121,7 +121,7 @@ function getBuildFormValues() {
     repo = encodeURIComponent(repo);
   }
 
-  var ref = $('#ref').val().trim() || 'main';
+  var ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
   if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
       providerPrefix === 'hydroshare') {
     ref = "";
