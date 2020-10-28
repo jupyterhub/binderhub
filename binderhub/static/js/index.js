@@ -121,7 +121,7 @@ function getBuildFormValues() {
     repo = encodeURIComponent(repo);
   }
 
-  var ref = $('#ref').val().trim() || 'master';
+  var ref = $('#ref').val().trim() || 'main';
   if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
       providerPrefix === 'hydroshare') {
     ref = "";
