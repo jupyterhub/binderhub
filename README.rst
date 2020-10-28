@@ -1,12 +1,12 @@
 `BinderHub`_
 ============
 
-.. image:: https://travis-ci.org/jupyterhub/binderhub.svg?branch=master
-   :target: https://travis-ci.org/jupyterhub/binderhub
+.. image:: https://img.shields.io/travis/com/jupyterhub/binderhub/master?logo=travis
+   :target: https://travis-ci.com/jupyterhub/binderhub
    :alt: travis status
 
-.. image:: https://readthedocs.org/projects/binderhub/badge/?version=latest
-   :target: https://binderhub.readthedocs.io/en/latest/?badge=latest
+.. image:: https://img.shields.io/readthedocs/binderhub?logo=read-the-docs
+   :target: https://binderhub.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/dynamic/json.svg?label=latest&url=https://jupyterhub.github.io/helm-chart/info.json&query=$.binderhub.latest&colorB=orange
