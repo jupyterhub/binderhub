@@ -1,4 +1,4 @@
-{{ if .Values.dind.enabled -}}
+{{- if .Values.dind.enabled -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -27,22 +27,22 @@ spec:
         key: hub.jupyter.org_dedicated
         operator: Equal
         value: user
-      nodeSelector: {{ (default (dict) .Values.config.BinderHub.build_node_selector) | toJson  }}
-      {{ if .Values.dind.initContainers -}}
+      nodeSelector: {{ .Values.config.BinderHub.build_node_selector | default dict | toJson }}
+      {{- with .Values.dind.initContainers }}
       initContainers:
-{{ toYaml .Values.dind.initContainers | indent 10 }}
+        {{- . | toYaml | nindent 8 }}
       {{- end }}
       containers:
       - name: dind
         image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
         resources:
-{{ toYaml .Values.dind.resources | indent 10}}
+          {{- .Values.dind.resources | toYaml | nindent 10 }}
         args:
           - dockerd
           - --storage-driver={{ .Values.dind.storageDriver }}
           - -H unix://{{ .Values.dind.hostSocketDir }}/docker.sock
-          {{- if .Values.dind.daemonset.extraArgs }}
-{{ toYaml .Values.dind.daemonset.extraArgs | indent 10 }}
+          {{- with .Values.dind.daemonset.extraArgs }}
+          {{- . | toYaml | nindent 10 }}
           {{- end }}
         securityContext:
           privileged: true

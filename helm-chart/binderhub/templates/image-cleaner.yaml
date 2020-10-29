@@ -1,4 +1,4 @@
-{{ if .Values.imageCleaner.enabled -}}
+{{- if .Values.imageCleaner.enabled -}}
 {{- $Values := .Values -}}
 apiVersion: apps/v1
 kind: DaemonSet
@@ -28,7 +28,7 @@ spec:
         key: hub.jupyter.org_dedicated
         operator: Equal
         value: user
-      nodeSelector: {{ toJson .Values.config.BinderHub.build_node_selector  }}
+      nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
@@ -55,7 +55,7 @@ spec:
         - name: IMAGE_GC_DELAY
           value: {{ $Values.imageCleaner.delay | quote }}
         - name: IMAGE_GC_THRESHOLD_TYPE
-          value: {{ $Values.imageCleaner.imageGCThresholdType }}
+          value: {{ $Values.imageCleaner.imageGCThresholdType | quote }}
         - name: IMAGE_GC_THRESHOLD_HIGH
           value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
         - name: IMAGE_GC_THRESHOLD_LOW
@@ -81,5 +81,4 @@ spec:
           path: {{ .Values.dind.hostSocketDir }}/docker.sock
           type: Socket
       {{- end }}
-
 {{- end }}
