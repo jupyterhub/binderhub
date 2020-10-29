@@ -124,17 +124,18 @@ def freeze(build, upgrade, upgrade_package):
             "--rm", "-it",
             "-e", "CUSTOM_COMPILE_COMMAND=./dependencies freeze --upgrade",
             "--volume", f"{here}:/io",
-            "--volume", f"{root_dir}/requirements.txt:/io/requirements.in",
+            "--volume", f"{root_dir}/requirements.txt:/io/binderhub.in",
             "--workdir", "/io",
             "--entrypoint", "",
             dependencies_image,
             # run the following within the image
-            "pip-compile",
+            "pip-compile", "requirements.in", "binderhub.in",
+            "--output-file", "requirements.txt",
         ]
         + upgrade_args
     )
     # remove remnant empty file
-    os.remove("requirements.in")
+    os.remove("binderhub.in")
 
 
 cli.add_command(freeze)

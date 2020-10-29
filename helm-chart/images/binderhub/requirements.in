@@ -1,0 +1,6 @@
+# The dependencies in this file, together with binderhub's dependencies, can be
+# used to update requirements.txt for this Docker image:
+#
+#    ./dependencies freeze --upgrade
+#
+google-cloud-logging
