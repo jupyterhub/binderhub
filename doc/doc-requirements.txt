@@ -8,25 +8,27 @@
 # first. This is only relevant if sphinx==1.* is already installed in the
 # environment, which it is on ReadTheDocs.
 
-# documentation specific extra packages
+# Documentation specific packages
 myst-parser
 pydata-sphinx-theme
 sphinx-copybutton
-traitlets
-pandas
-ruamel.yaml
 
-# install BinderHub dependencies. We manually list them here because some
-# dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
-# needed to build the docs.
-kubernetes
-escapism
-traitlets
+# sphinx.ext.autodoc as configured in conf.py and autodo_traits.py is
+# automatically building documentation based on inspection of the binderhub
+# package, which means we need to install it on RTD so it is available for
+# inspection.
+#
+# The binderhub package dependencies include pycurl though, and pycurl cannot be
+# installed on RTD, so due to that we maintain a copy of binderhub's
+# requirements.txt where we comment out pyrcurl.
 docker
+escapism
 jinja2
-prometheus_client
-python-json-logger
-jupyterhub
 jsonschema
+jupyterhub
+kubernetes
+prometheus_client
+#pycurl
+python-json-logger
 tornado>=5.1
-#pycurl Do not install for docs as it breaks the RTD build. Its primary use is for mocks in testing .
+traitlets
