@@ -1,7 +1,0 @@
-name: binderhub
-type: sphinx
-build:
-  image: latest
-requirements_file: doc/doc-requirements.txt
-python:
-  version: 3
