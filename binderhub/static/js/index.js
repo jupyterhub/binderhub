@@ -101,7 +101,12 @@ function updateRepoText() {
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
-  $("#ref").attr('placeholder', 'main');
+  if (provider === "gh") {
+    $("#ref").attr('placeholder', 'main');
+  }
+  else {
+    $("#ref").attr('placeholder', tag_text);
+  }
   $("label[for=ref]").text(tag_text);
 }
 
