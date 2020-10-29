@@ -4,7 +4,7 @@ FROM buildpack-deps:$DIST as build-stage
 # ARG has to occur twice to be used in both contents and FROM
 ARG DIST=buster
 
-RUN echo "deb http://deb.nodesource.com/node_12.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
+RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 
 RUN apt-get update && \
@@ -24,7 +24,7 @@ RUN python3 setup.py bdist_wheel
 
 # The final stage
 # ---------------
-FROM python:3.7-$DIST
+FROM python:3.8-$DIST
 WORKDIR /
 
 # Copy the built binderhub python wheel from the build-stage
