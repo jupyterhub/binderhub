@@ -63,6 +63,10 @@ function updateRepoText() {
   var text;
   var provider = $("#provider_prefix").val();
   var tag_text = "Git branch, tag, or commit";
+  var placeholder = "master";
+  if (provider === "gh") {
+    placeholder = "main";
+  }
   // first enable branch/ref field, some providers later disable it
   $("#ref").prop("disabled", false);
   $("label[for=ref]").prop("disabled", false);
@@ -101,7 +105,7 @@ function updateRepoText() {
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
-  $("#ref").attr('placeholder', tag_text);
+  $("#ref").attr('placeholder', placeholder);
   $("label[for=ref]").text(tag_text);
 }
 
@@ -121,7 +125,7 @@ function getBuildFormValues() {
     repo = encodeURIComponent(repo);
   }
 
-  var ref = $('#ref').val().trim() || 'master';
+  var ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
   if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
       providerPrefix === 'hydroshare') {
     ref = "";
