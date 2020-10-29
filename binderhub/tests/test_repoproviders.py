@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 from binderhub.repoproviders import (
     tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
     GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider,
-    HydroshareProvider, DataverseProvider
+    HydroshareProvider, DataverseProvider, MercurialRepoProvider
 )
 
 
@@ -404,3 +404,29 @@ def test_gist_secret():
 
     provider = GistRepoProvider(spec=spec, allow_secret_gist=True)
     assert IOLoop().run_sync(provider.get_resolved_ref) is not None
+
+
+@pytest.mark.parametrize('url,unresolved_ref,resolved_ref', [
+    ['https://foss.heptapod.net/graphics/plot-covid19-fr',
+     '3f1209cb613a',
+     '3f1209cb613a1286e555d8cabe722c1be2a6f123'],
+    ['https://foss.heptapod.net/pypy/pypy',
+     'release-pypy3.7-v7.3.2rc3',
+     '87875bf2dfd8fe682a49e010f6636a871b1308e6']
+])
+def test_mercurial_ref(url, unresolved_ref, resolved_ref):
+    spec = '{}/{}'.format(
+        quote(url, safe=''),
+        quote(unresolved_ref)
+    )
+    provider = MercurialRepoProvider(spec=spec)
+    slug = provider.get_build_slug()
+    assert slug == url
+    full_url = provider.get_repo_url()
+    assert full_url == url
+    ref = IOLoop().run_sync(provider.get_resolved_ref)
+    assert ref == resolved_ref
+    ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
+    assert ref_url == full_url
+    resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
+    assert resolved_spec == quote(url, safe='') + f'/{resolved_ref}'

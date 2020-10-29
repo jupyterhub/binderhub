@@ -71,3 +71,10 @@ Module: :mod:`binderhub.repoproviders`
 
 .. autoconfigurable:: GitRepoProvider
     :members:
+
+
+:class:`MercurialRepoProvider`
+---------------------------
+
+.. autoconfigurable:: MercurialRepoProvider
+    :members:
