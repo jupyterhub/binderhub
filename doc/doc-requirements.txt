@@ -1,15 +1,14 @@
 # documentation specific extra packages
 myst-parser
+pydata-sphinx-theme
 sphinx-copybutton
 traitlets
 pandas
 ruamel.yaml
-pydata_sphinx_theme
-sphinx>=1.7
 # install BinderHub dependencies. We manually list them here because some
 # dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
 # needed to build the docs.
-kubernetes==9.0.*
+kubernetes
 escapism
 traitlets
 docker
