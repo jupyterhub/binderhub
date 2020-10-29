@@ -27,9 +27,7 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
       annotations:
-        # This lets us autorestart when the configmap changes!
-        checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
@@ -44,9 +42,6 @@ spec:
       {{- end }}
       volumes:
       - name: config
-        configMap:
-          name: binder-config
-      - name: secret-config
         secret:
           secretName: binder-secret
       {{- if .Values.config.BinderHub.use_registry }}
@@ -74,8 +69,7 @@ spec:
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
-          - mountPath: /etc/binderhub/secret/
-            name: secret-config
+            readOnly: true
           {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
             name: docker-secret
