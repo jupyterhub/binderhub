@@ -63,6 +63,10 @@ function updateRepoText() {
   var text;
   var provider = $("#provider_prefix").val();
   var tag_text = "Git branch, tag, or commit";
+  var placeholder = "master";
+  if (provider === "gh") {
+    placeholder = "main";
+  }
   // first enable branch/ref field, some providers later disable it
   $("#ref").prop("disabled", false);
   $("label[for=ref]").prop("disabled", false);
@@ -101,12 +105,7 @@ function updateRepoText() {
   }
   $("#repository").attr('placeholder', text);
   $("label[for=repository]").text(text);
-  if (provider === "gh") {
-    $("#ref").attr('placeholder', 'main');
-  }
-  else {
-    $("#ref").attr('placeholder', tag_text);
-  }
+  $("#ref").attr('placeholder', placeholder);
   $("label[for=ref]").text(tag_text);
 }
 
