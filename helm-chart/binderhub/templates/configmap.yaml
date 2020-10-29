@@ -3,9 +3,11 @@ apiVersion: v1
 metadata:
   name: binder-config
 data:
-  # FIXME: Stop splitting up parts into configmap/secret as it adds complexity,
-  #        instead only use a secret. For the equivalent PR in z2jh, see:
-  #        https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1682
+  {{- /*
+  FIXME: Stop splitting up parts into configmap/secret as it adds complexity,
+         instead only use a secret. For the equivalent PR in z2jh, see:
+         https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1682
+  */}}
   {{- /* Important: only pick relevant subset of values. Including too much here can trigger unnecessary binderhub pod restarts */}}
   {{- $values := pick .Values "config" "cors" "dind" "extraConfig" }}
   {{- /* make a copy to avoid modifying the original */ -}}
