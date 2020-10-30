@@ -98,7 +98,7 @@ spec:
               key: "binder.hub-token"
         {{- if .Values.config.BinderHub.auth_enabled }}
         - name: JUPYTERHUB_API_URL
-          value: {{ (print (.Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
+          value: {{ (print (.Values.config.BinderHub.hub_url_local | default .Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
         - name: JUPYTERHUB_BASE_URL
           value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
         - name: JUPYTERHUB_CLIENT_ID
