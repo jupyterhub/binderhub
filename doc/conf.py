@@ -110,7 +110,7 @@ html_context = {
     "github_user": "jupyterhub",
     "github_repo": "binderhub",
     "github_version": "master",
-    "doc_path":"doc",
+    "doc_path": "doc",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

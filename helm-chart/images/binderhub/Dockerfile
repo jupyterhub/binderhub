@@ -38,9 +38,11 @@ RUN pip install --no-cache-dir \
         *.whl \
         -r requirements.txt
 
-# when building the dependencies image
-# add pip-tools necessary for computing dependencies
-# this is not done in production builds by chartpress
+# when building the image used to compute the "frozen"
+# dependencies we add `pip-tools` which is for computing
+# the dependencies.
+# It is not added when chartpress builds the image used by
+# the helm chart when deploying BinderHub
 ARG PIP_TOOLS=
 RUN test -z "$PIP_TOOLS" || pip install --no-cache pip-tools==$PIP_TOOLS
 
