@@ -34,7 +34,7 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
-    hub_url_public = Unicode(help="The public URL of the Hub if different")
+    hub_url_local = Unicode(help="The internal URL of the Hub if different")
     create_user = Bool(True, help="Create a new Hub user")
     allow_named_servers = Bool(
         os.getenv('JUPYTERHUB_ALLOW_NAMED_SERVERS', "false") == "true",
@@ -241,5 +241,5 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = (self.hub_url_public or self.hub_url) + 'user/%s/%s' % (username, server_name)
+        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
         return data

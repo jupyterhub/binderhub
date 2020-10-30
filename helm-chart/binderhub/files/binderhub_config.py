@@ -84,8 +84,7 @@ if os.getenv('BUILD_NAMESPACE'):
     c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
 if c.BinderHub.auth_enabled:
-    hub_url = urlparse(c.BinderHub.hub_url_public if 'hub_url_public' in c.BinderHub
-                       else c.BinderHub.hub_url)
+    hub_url = urlparse(c.BinderHub.hub_url)
     c.HubOAuth.hub_host = '{}://{}'.format(hub_url.scheme, hub_url.netloc)
     if 'base_url' in c.BinderHub:
         c.HubOAuth.base_url = c.BinderHub.base_url
