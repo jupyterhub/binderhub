@@ -37,7 +37,25 @@ BINDER_URL = os.environ.get('BINDER_TEST_URL')
 REMOTE_BINDER = bool(BINDER_URL)
 
 
+def pytest_configure(config):
+    """This function has meaning to pytest, for more information, see:
+    https://docs.pytest.org/en/stable/reference.html#pytest.hookspec.pytest_configure
+    """
+    # register our custom markers
+    config.addinivalue_line(
+        "markers", "auth_test: mark test to run only on auth environments"
+    )
+    config.addinivalue_line(
+        "markers", "remote: mark test to run only on remote environments"
+    )
+    config.addinivalue_line(
+        "markers", "github_api: mark test to run only with GitHub API credentials"
+    )
+
 def pytest_terminal_summary(terminalreporter, exitstatus):
+    """This function has meaning to pytest, for more information, see:
+    https://docs.pytest.org/en/stable/reference.html#pytest.hookspec.pytest_terminal_summary
+    """
     if not MockAsyncHTTPClient.records:
         return
     hosts = defaultdict(dict)
