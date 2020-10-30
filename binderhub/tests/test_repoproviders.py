@@ -441,20 +441,43 @@ def test_gitlab_ref(unresolved_ref, resolved_ref):
 
 
 @pytest.mark.github_api
-def test_gist_ref():
-    spec = '{}/{}'.format('mariusvniekerk', '8a658f7f63b13768d1e75fa2464f5092')
+@pytest.mark.parametrize(
+    "owner, gist_id, unresolved_ref, resolved_ref",
+    [
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "", True),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "HEAD", True),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "master", True),
+        (
+            "mariusvniekerk",
+            "8a658f7f63b13768d1e75fa2464f5092",
+            "7daa381aae8409bfe28193e2ed8f767c26371237",
+            "7daa381aae8409bfe28193e2ed8f767c26371237",
+        ),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "nosuchref", None),
+    ],
+)
+def test_gist_ref(owner, gist_id, unresolved_ref, resolved_ref):
+    spec = f"{owner}/{gist_id}/{unresolved_ref}"
 
     provider = GistRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == '8a658f7f63b13768d1e75fa2464f5092'
+    assert slug == gist_id
     full_url = provider.get_repo_url()
-    assert full_url == f'https://gist.github.com/{spec}.git'
+    assert full_url == f"https://gist.github.com/{owner}/{gist_id}.git"
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
+    if resolved_ref == True:
+        # True means it should resolve, but don't check value
+        assert ref is not None
+        sha1_validate(ref)
+    else:
+        assert ref == resolved_ref
+    if not resolved_ref:
+        # we are done here if we don't expect to resolve
+        return
     ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
-    assert ref_url == f'https://gist.github.com/{spec}/{ref}'
+    assert ref_url == f"https://gist.github.com/{owner}/{gist_id}/{ref}"
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
-    assert resolved_spec == f'{spec}/{ref}'
+    assert resolved_spec == f"{owner}/{gist_id}/{ref}"
 
 
 @pytest.mark.github_api

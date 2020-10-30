@@ -881,7 +881,7 @@ class GistRepoProvider(GitHubRepoProvider):
                              "'GistRepoProvider.allow_secret_gist = True'")
 
         all_versions = [e['version'] for e in ref_info['history']]
-        if (len(self.unresolved_ref) == 0) or (self.unresolved_ref == 'master'):
+        if self.unresolved_ref in {"", "HEAD", "master"}:
             self.resolved_ref = all_versions[0]
         else:
             if self.unresolved_ref not in all_versions:
