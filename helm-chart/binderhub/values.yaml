@@ -197,4 +197,4 @@ initContainers: []
 extraVolumes: []
 extraVolumeMounts: []
 extraEnv: []
-annotations: {}
+podAnnotations: {}
