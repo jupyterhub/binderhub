@@ -38,9 +38,17 @@ fi
 #
 # ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/.travis.yml
 if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
-  openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in travis.enc -out travis -d
-  chmod 0400 travis
-  export GIT_SSH_COMMAND="ssh -i ${PWD}/travis"
+  # Decrypt a private SSH key having its public key registered on GitHub. It will
+  # be used to establish an identity with rights to push to the git repository
+  # hosting our Helm charts: https://github.com/jupyterhub/helm-chart
+  openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in ci/publish-id_rsa.enc -out ci/id_rsa -d
+  chmod 0400 ci/id_rsa
+  # As chartpress uses git to push to our Helm chart repository, we configure
+  # git ahead of time to use the identity we decrypted earlier.
+  export GIT_SSH_COMMAND="ssh -i ${PWD}/ci/id_rsa"
+
+  # As chartpress will push images to docker hub we need to authenticate
+  # ourselves.
   docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
 
   if [ "${TRAVIS_TAG:-}" == "" ]; then
