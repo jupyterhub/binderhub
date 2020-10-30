@@ -681,7 +681,7 @@ class BinderHub(Application):
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
-            (r'/health', HealthHandler, {'hub_url': self.hub_url}),
+            (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]
