@@ -1,14 +1,23 @@
 from unittest import TestCase
-
 from urllib.parse import quote
+
 import pytest
 from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
-    tokenize_spec, strip_suffix, GitHubRepoProvider, GitRepoProvider,
-    GitLabRepoProvider, GistRepoProvider, ZenodoProvider, FigshareProvider,
-    HydroshareProvider, DataverseProvider
+    DataverseProvider,
+    FigshareProvider,
+    GistRepoProvider,
+    GitHubRepoProvider,
+    GitLabRepoProvider,
+    GitRepoProvider,
+    HydroshareProvider,
+    ZenodoProvider,
+    strip_suffix,
+    tokenize_spec,
 )
+
+sha1_validate = GitRepoProvider.sha1_validate
 
 
 # General string processing
@@ -165,20 +174,44 @@ async def test_dataverse(spec, resolved_spec, resolved_ref, resolved_ref_url, bu
 
 
 @pytest.mark.github_api
-def test_github_ref():
-    namespace = 'jupyterhub/zero-to-jupyterhub-k8s'
-    spec = f'{namespace}/v0.4'
+@pytest.mark.parametrize(
+    "repo,unresolved_ref,resolved_ref",
+    [
+        (
+            "jupyterhub/zero-to-jupyterhub-k8s",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+        ),
+        (
+            "jupyterhub/zero-to-jupyterhub-k8s",
+            "0.9.1",
+            "38e50c71130fcf56655685f0992f4f125bef3879",
+        ),
+        ("jupyterhub/zero-to-jupyterhub-k8s", "HEAD", True),
+        ("jupyterhub/zero-to-jupyterhub-k8s", "nosuchref", None),
+    ],
+)
+def test_github_ref(repo, unresolved_ref, resolved_ref):
+    spec = f"{repo}/{unresolved_ref}"
     provider = GitHubRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == 'jupyterhub-zero-to-jupyterhub-k8s'
+    assert slug == repo.replace("/", "-")
     full_url = provider.get_repo_url()
-    assert full_url == f'https://github.com/{namespace}'
+    assert full_url == f"https://github.com/{repo}"
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == 'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'
+    if resolved_ref == True:
+        # True means it should resolve, but don't check value
+        assert ref is not None
+        sha1_validate(ref)
+    else:
+        assert ref == resolved_ref
+    if not resolved_ref:
+        # we are done here if we don't expect to resolve
+        return
     ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
-    assert ref_url == f'https://github.com/{namespace}/tree/{ref}'
+    assert ref_url == f"https://github.com/{repo}/tree/{ref}"
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
-    assert resolved_spec == f'{namespace}/{ref}'
+    assert resolved_spec == f"{repo}/{ref}"
 
 
 def test_not_banned():
@@ -331,14 +364,23 @@ class TestSpecErrorHandling(TestCase):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
 
-@pytest.mark.parametrize('url,unresolved_ref,resolved_ref', [
-    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s',
-     'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603',
-     'f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603'],
-    ['https://github.com/jupyterhub/zero-to-jupyterhub-k8s',
-     '0.8.0',
-     'ada2170a2181ae1760d85eab74e5264d0c6bb67f']
-])
+@pytest.mark.parametrize(
+    "url,unresolved_ref,resolved_ref",
+    [
+        (
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+        ),
+        (
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+            "0.8.0",
+            "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+        ),
+        ("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "HEAD", True),
+        ("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "nosuchref", None),
+    ],
+)
 def test_git_ref(url, unresolved_ref, resolved_ref):
     spec = '{}/{}'.format(
         quote(url, safe=''),
@@ -351,26 +393,47 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     full_url = provider.get_repo_url()
     assert full_url == url
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == resolved_ref
+    if resolved_ref == True:
+        # True means it should resolve, but don't check value
+        assert ref is not None
+        sha1_validate(ref)
+    else:
+        assert ref == resolved_ref
+    if not resolved_ref:
+        # we are done here if we don't expect to resolve
+        return
     ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == full_url
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
-    assert resolved_spec == quote(url, safe='') + f'/{resolved_ref}'
+    assert resolved_spec == quote(url, safe="") + f"/{ref}"
 
 
-def test_gitlab_ref():
-    namespace = 'gitlab-org/gitlab-foss'
-    spec = '{}/{}'.format(
-        quote(namespace, safe=''),
-        quote('v10.0.6')
-    )
+@pytest.mark.parametrize(
+    "unresolved_ref, resolved_ref",
+    [
+        ("v10.0.6", "b3344b7f17c335a817c5d7608c5e47fd7cabc023"),
+        ("HEAD", True),
+        ("nosuchref", None),
+    ],
+)
+def test_gitlab_ref(unresolved_ref, resolved_ref):
+    namespace = "gitlab-org/gitlab-foss"
+    spec = "{}/{}".format(quote(namespace, safe=""), quote(unresolved_ref))
     provider = GitLabRepoProvider(spec=spec)
     slug = provider.get_build_slug()
     assert slug == 'gitlab_-org-gitlab_-foss'
     full_url = provider.get_repo_url()
     assert full_url == f'https://gitlab.com/{namespace}.git'
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == 'b3344b7f17c335a817c5d7608c5e47fd7cabc023'
+    if resolved_ref == True:
+        # True means it should resolve, but don't check value
+        assert ref is not None
+        sha1_validate(ref)
+    else:
+        assert ref == resolved_ref
+    if not resolved_ref:
+        # we are done here if we don't expect to resolve
+        return
     ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
     assert ref_url == f'https://gitlab.com/{namespace}/tree/{ref}'
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
@@ -378,20 +441,43 @@ def test_gitlab_ref():
 
 
 @pytest.mark.github_api
-def test_gist_ref():
-    spec = '{}/{}'.format('mariusvniekerk', '8a658f7f63b13768d1e75fa2464f5092')
+@pytest.mark.parametrize(
+    "owner, gist_id, unresolved_ref, resolved_ref",
+    [
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "", True),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "HEAD", True),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "master", True),
+        (
+            "mariusvniekerk",
+            "8a658f7f63b13768d1e75fa2464f5092",
+            "7daa381aae8409bfe28193e2ed8f767c26371237",
+            "7daa381aae8409bfe28193e2ed8f767c26371237",
+        ),
+        ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "nosuchref", None),
+    ],
+)
+def test_gist_ref(owner, gist_id, unresolved_ref, resolved_ref):
+    spec = f"{owner}/{gist_id}/{unresolved_ref}"
 
     provider = GistRepoProvider(spec=spec)
     slug = provider.get_build_slug()
-    assert slug == '8a658f7f63b13768d1e75fa2464f5092'
+    assert slug == gist_id
     full_url = provider.get_repo_url()
-    assert full_url == f'https://gist.github.com/{spec}.git'
+    assert full_url == f"https://gist.github.com/{owner}/{gist_id}.git"
     ref = IOLoop().run_sync(provider.get_resolved_ref)
-    assert ref == '7daa381aae8409bfe28193e2ed8f767c26371237'
+    if resolved_ref == True:
+        # True means it should resolve, but don't check value
+        assert ref is not None
+        sha1_validate(ref)
+    else:
+        assert ref == resolved_ref
+    if not resolved_ref:
+        # we are done here if we don't expect to resolve
+        return
     ref_url = IOLoop().run_sync(provider.get_resolved_ref_url)
-    assert ref_url == f'https://gist.github.com/{spec}/{ref}'
+    assert ref_url == f"https://gist.github.com/{owner}/{gist_id}/{ref}"
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
-    assert resolved_spec == f'{spec}/{ref}'
+    assert resolved_spec == f"{owner}/{gist_id}/{ref}"
 
 
 @pytest.mark.github_api

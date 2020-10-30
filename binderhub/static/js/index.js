@@ -62,11 +62,8 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
 function updateRepoText() {
   var text;
   var provider = $("#provider_prefix").val();
-  var tag_text = "Git branch, tag, or commit";
-  var placeholder = "master";
-  if (provider === "gh") {
-    placeholder = "main";
-  }
+  var tag_text = "Git ref (branch, tag, or commit)";
+  var placeholder = "HEAD";
   // first enable branch/ref field, some providers later disable it
   $("#ref").prop("disabled", false);
   $("label[for=ref]").prop("disabled", false);
@@ -81,7 +78,6 @@ function updateRepoText() {
   }
   else if (provider === "git") {
     text = "Arbitrary git repository URL (http://git.example.com/repo)";
-    tag_text = "Git branch, tag, or commit SHA";
   }
   else if (provider === "zenodo") {
     text = "Zenodo DOI (10.5281/zenodo.3242074)";
