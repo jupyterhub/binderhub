@@ -100,19 +100,17 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
 html_theme = 'pydata_sphinx_theme'
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
 html_theme_options = {
   "use_edit_page_button": True,
   "github_url": "https://github.com/jupyterhub/binderhub",
   "twitter_url": "https://twitter.com/mybinderteam",
+}
+html_context = {
+    "github_user": "jupyterhub",
+    "github_repo": "binderhub",
+    "github_version": "master",
+    "doc_path": "doc",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""automatically manage requirements.txt dependencies with pip-tools
+
+This is an adjusted script from z2jh by @minrk to mount the binderhub python
+package requirements.txt file as a requirements.in file to freeze it to
+requirements.txt in helm-chart/images/binderhub.
+
+See
+
+    ./dependencies --help for commands and arguments
+
+How it works:
+
+- the image used in the helm chart installs a frozen environment from
+  requirements.txt
+- `pip-compile` is used to generate frozen `requirements.txt` from our actual
+  requirements in /requirements.txt next to setup.py for the binderhub package.
+- `pip list --outdated` is used to report available updates for packages in the
+  frozen environment
+- pip-compile etc. are run *inside the image* to ensure consistent behavior,
+  rather than running on host systems, which can vary.
+- When building the image to be used for running dependency-management commands,
+  chartpress configuration is loaded to ensure the environment is the same as
+  when chartpress builds the tagged image to be published.
+"""
+
+import json
+import os
+from functools import lru_cache
+from subprocess import check_call, check_output
+
+import click
+from ruamel.yaml import YAML
+
+yaml = YAML()
+here = os.path.dirname(os.path.abspath(__file__))
+chartpress_yaml = os.path.join(here, os.pardir, os.pardir, "chartpress.yaml")
+values_yaml = os.path.join(here, os.pardir, os.pardir, "jupyterhub", "values.yaml")
+root_dir = os.path.join(here, os.pardir, os.pardir, os.pardir)
+dependencies_image = 'binderhub-dependencies'
+pip_tools_version="5.*"
+
+
+@lru_cache()
+def build_args(image_name='binderhub'):
+    """retrieve docker build arguments from chartpress.yaml config file
+
+    Args:
+
+    image_name (str):
+        the name of the image to be built in chartpress.yaml
+    """
+    with open(chartpress_yaml) as f:
+        chartpress_config = yaml.load(f)
+    chart = chartpress_config['charts'][0]
+    image_config = chart['images'][image_name]
+    return image_config.get('buildArgs', {})
+
+
+def build_image():
+    """Build the docker image used for computing dependencies
+
+    This runs the chartpress build of the current image
+    with the addition of pip-tools, used for computing dependencies.
+
+    The image is built with the current frozen environment in requirements.txt
+    and pip-tools commands are available for updating requirements.txt from requirements.in.
+    """
+    click.echo(f"Building docker image {dependencies_image}")
+    build_arg_dict = build_args()
+    build_arg_list = ["--build-arg", f"PIP_TOOLS={pip_tools_version}"]
+    for key in sorted(build_arg_dict):
+        value = build_arg_dict[key]
+        build_arg_list.append("--build-arg")
+        build_arg_list.append(f"{key}={value}")
+    check_call(["docker", "build", "-t", dependencies_image, "-f", here + "/Dockerfile"] + build_arg_list + [root_dir])
+
+
+@click.group()
+def cli():
+    """Manage the Python dependencies in this image."""
+    pass
+
+
+@click.command()
+@click.option(
+    '--build/--no-build',
+    help="add --no-build to skip building the dependencies image prior to upgrading",
+    default=True,
+)
+@click.option(
+    '--upgrade/--no-upgrade',
+    help="--upgrade to upgrade all dependencies within the range specified in requirements.in",
+    default=False,
+)
+@click.option(
+    '--upgrade-package',
+    help="specify individual packages to upgrade within the range specified in requirements.in",
+    multiple=True,
+)
+def freeze(build, upgrade, upgrade_package):
+    """Freeze the environment, updating requirements.txt from requirements.in
+
+    Individual packages can be updated, or the whole environment.
+
+    This command:
+
+    1. builds the image with the current frozen environment
+    2. runs pip-compile in the image to update requirements.txt from requirements.in,
+       passing through additional arguments to pip-compile
+    """
+    if build:
+        build_image()
+    click.echo("freezing dependencies with pip-compile")
+    upgrade_args = []
+    if upgrade:
+        upgrade_args.append("--upgrade")
+    for pkg in upgrade_package:
+        upgrade_args.append("--upgrade-package")
+        upgrade_args.append(pkg)
+    check_call(
+        [
+            "docker", "run",
+            "--rm", "-it",
+            "-e", "CUSTOM_COMPILE_COMMAND=./dependencies freeze --upgrade",
+            "--volume", f"{here}:/io",
+            "--volume", f"{root_dir}/requirements.txt:/io/binderhub.in",
+            "--workdir", "/io",
+            "--entrypoint", "",
+            dependencies_image,
+            # run the following within the image
+            "pip-compile", "requirements.in", "binderhub.in",
+            "--output-file", "requirements.txt",
+        ]
+        + upgrade_args
+    )
+    # remove remnant empty file
+    os.remove("binderhub.in")
+
+
+cli.add_command(freeze)
+
+
+@click.command()
+@click.option('--build/--no-build', default=True)
+def outdated(build):
+    """Check for outdated dependencies with pip.
+
+    This command:
+
+    1. builds the image with the current frozen environment
+    2. runs `pip list --outdated` to report any outdated packages
+       that could be candidates for upgrade
+    """
+    if build:
+        build_image()
+    click.echo("Checking for outdated dependencies with pip.")
+    outdated_json = check_output(
+        [
+            "docker", "run",
+            "--rm", "-it",
+            dependencies_image,
+            # run the following within the image
+            "pip", "list",
+            "--outdated",
+            "--format=json",
+        ]
+    ).decode("utf8")
+    outdated = json.loads(outdated_json)
+    have_outdated = False
+    for pkg in outdated:
+        name = pkg['name']
+        # ignore some common packages that aren't relevant to our requirements.txt
+        if name in {'pip', 'setuptools', 'wheel'}:
+            continue
+        have_outdated = True
+        version = pkg['version']
+        latest = pkg['latest_version']
+        # TODO: parser requirements.in to check if latest is in-range?
+        # If they are in-range, running freeze again is enough,
+        # but if they are outside the range, requirements.in needs to be updated
+        # first to pick them up
+        # for now, print as much so humans can decide
+        print(f"Have {name}=={version}, latest is {name}=={latest}")
+
+    if have_outdated:
+        print("There are outdated dependencies!")
+        print(
+            "To pick up any versions outside the range(s) specified in requirements.in,"
+        )
+        print("update the pinning(s) in that file.")
+        print(
+            "To update the whole environment within the given ranges, run `./dependencies freeze --upgrade`"
+        )
+        print(
+            "To update one or more specific packages, run `./dependencies freeze --upgrade-package pkg1 [--upgrade-package pkg2]`"
+        )
+    else:
+        print("Everything appears to be up-to-date!")
+
+
+cli.add_command(outdated)
+
+
+if __name__ == '__main__':
+    cli()

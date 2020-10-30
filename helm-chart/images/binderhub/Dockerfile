@@ -4,7 +4,7 @@ FROM buildpack-deps:$DIST as build-stage
 # ARG has to occur twice to be used in both contents and FROM
 ARG DIST=buster
 
-RUN echo "deb http://deb.nodesource.com/node_12.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
+RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 
 RUN apt-get update && \
@@ -24,7 +24,7 @@ RUN python3 setup.py bdist_wheel
 
 # The final stage
 # ---------------
-FROM python:3.7-$DIST
+FROM python:3.8-$DIST
 WORKDIR /
 
 # Copy the built binderhub python wheel from the build-stage
@@ -37,6 +37,14 @@ COPY helm-chart/images/binderhub/requirements.txt .
 RUN pip install --no-cache-dir \
         *.whl \
         -r requirements.txt
+
+# when building the image used to compute the "frozen"
+# dependencies we add `pip-tools` which is for computing
+# the dependencies.
+# It is not added when chartpress builds the image used by
+# the helm chart when deploying BinderHub
+ARG PIP_TOOLS=
+RUN test -z "$PIP_TOOLS" || pip install --no-cache pip-tools==$PIP_TOOLS
 
 ENTRYPOINT ["python3", "-m", "binderhub"]
 CMD ["--config", "/etc/binderhub/config/binderhub_config.py"]
