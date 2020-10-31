@@ -108,7 +108,7 @@ After having setup minikube and helm once, these are the tasks you need for
 every day development.
 
 * Start and stop minikube with `minikube start` and `minikube stop`.
-* Install JupyterHub in minikube with helm `./testing/local-binder-k8s-hub/install-hub`
+* Install JupyterHub in minikube with helm `./testing/local-binder-k8s-hub/install-jupyterhub-chart`
 * Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
 * Start BinderHub `python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py`
 * Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
@@ -222,7 +222,7 @@ sudo apt install socat
 1. Install JupyterHub in minikube with helm
 
    ```bash
-   ./testing/local-binder-k8s-hub/install-hub
+   ./testing/local-binder-k8s-hub/install-jupyterhub-chart
    ```
 
 1. Before starting your local deployment run:

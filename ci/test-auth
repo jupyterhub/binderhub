@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ex
-./testing/local-binder-k8s-hub/install-hub --auth
+./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
 # DEBUG: give the hub a chance to wake up
 sleep 30
 pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub

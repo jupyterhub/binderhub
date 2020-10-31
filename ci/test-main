@@ -10,7 +10,7 @@ if [ ! -z "$x" ]; then
        	helm delete --purge binderhub-test
 fi
 set -ex
-./testing/local-binder-k8s-hub/install-hub
+./testing/local-binder-k8s-hub/install-jupyterhub-chart
 # DEBUG: give the hub a chance to wake up
 sleep 10
 pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
