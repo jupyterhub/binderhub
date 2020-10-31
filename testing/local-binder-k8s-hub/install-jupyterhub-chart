@@ -127,7 +127,7 @@ except TimeoutError:
         '--no-headers',
         '--field-selector=status.phase!=Running',
         '--output=jsonpath={.items[*].metadata.name}',
-    ]).split(" ")
+    ], text=True).split(" ")
 
     # try print logs of not running pods
     for not_running_pod in not_running_pods:
