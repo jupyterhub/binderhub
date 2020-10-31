@@ -18,7 +18,7 @@ if [ -z "$IP" ]; then
     ifconfig -a
     exit 2
 fi
-export BINDER_TEST_URL=http://$IP:30901
+export BINDER_URL=http://$IP:30901
 export HUB_URL=http://$IP:30902
 
 cat <<EOF > helm-chart/travis-binder.yaml
@@ -104,14 +104,14 @@ kubectl --namespace=$BINDER_TEST_NAMESPACE get deployment -o name | xargs -L1 ku
 
 
 echo "waiting for servers to become responsive"
-until curl --fail $BINDER_TEST_URL > /dev/null; do
+until curl --fail $BINDER_URL > /dev/null; do
   sleep 1
 done
 until curl --fail $HUB_URL> /dev/null; do
   sleep 1
 done
 
-echo "running tests against $BINDER_TEST_URL"
+echo "running tests against $BINDER_URL"
 # run a few tests again, this time against the helm-installed binder
 sleep 10
 export ASYNC_TEST_TIMEOUT=15

@@ -31,9 +31,9 @@ KUBERNETES_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
 
-# set BINDER_TEST_URL to run tests against an already-running binderhub
+# set BINDER_URL to run tests against an already-running binderhub
 # this will skip launching BinderHub internally in the app fixture
-BINDER_URL = os.environ.get('BINDER_TEST_URL')
+BINDER_URL = os.environ.get('BINDER_URL')
 REMOTE_BINDER = bool(BINDER_URL)
 
 
