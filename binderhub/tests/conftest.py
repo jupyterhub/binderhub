@@ -24,7 +24,7 @@ from .utils import MockAsyncHTTPClient
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
-minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
+minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config_auth_additions.py')
 
 K8S_NAMESPACE = os.environ.get('K8S_NAMESPACE', 'binderhub-test')
 K8S_AVAILABLE = False
