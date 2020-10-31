@@ -1,12 +1,4 @@
-rbac:
-  enabled: true
-
-resources:
-  requests:
-    cpu: 0.2
-    memory: 100Mi
-
-cors: &cors
+cors:
   allowOrigin: '*'
 
 service:
@@ -19,25 +11,27 @@ config:
     use_registry: false
     log_level: 10
 
+# NOTE: This is a mirror of the jupyterhub section in
+#       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
+#       two files synced please.
 jupyterhub:
-  custom:
-    cors: *cors
-  rbac:
+  debug:
     enabled: true
+
+  custom:
+    cors:
+      allowOrigin: "*"
+
   hub:
-    resources:
-      requests:
-        cpu: 0.2
-        memory: 100Mi
-    cookieSecret: dummy-hub-cookie-secret
+    cookieSecret: "dummy-cookie-secret-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
     db:
-      type: sqlite-memory
+      type: "sqlite-memory"
     services:
       binder:
-        apiToken: dummy-binder-secret-token
+        apiToken: "dummy-binder-secret-token-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
 
   proxy:
-    secretToken: dummy-proxy-secret-token
+    secretToken: "dummy-proxy-secret-token-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
     service:
       type: NodePort
       nodePorts:

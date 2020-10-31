@@ -190,6 +190,7 @@ sudo apt install socat
    starts a local kubernetes cluster inside a virtual machine. This command
    assumes that you have already installed one of the VM drivers: virtualbox,
    xhyve or KVM2.
+
 1. Install helm to manage installing JupyterHub and BinderHub on your cluster,
 
    ```bash
