@@ -10,6 +10,8 @@ services:
 before_install:
   # Exit immediately if a command exits with a non-zero status.
   - set -e
+  # Install node/npm which the BinderHub Python package use as a build step to
+  # generate static HTML/JS to serve.
   - nvm install 14; nvm use 14
   - pip install --upgrade pip setuptools
 install:
@@ -46,6 +48,7 @@ after_success:
 
 env:
   matrix:
+    # The TEST environment variable influence "./ci/test-$TEST" in "script"
     - TEST=main
     - TEST=auth
     - TEST=helm
