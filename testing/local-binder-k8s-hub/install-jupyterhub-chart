@@ -82,7 +82,7 @@ check_call(cmd)
 config.load_kube_config()
 kube = client.CoreV1Api()
 
-def wait_for(f, msg, timeout=300):
+def wait_for(f, msg, timeout=120):
     """Wait for f() to return True"""
     print(f"Waiting until {msg}")
     for i in range(int(timeout)):
@@ -122,6 +122,19 @@ try:
 except TimeoutError:
     # show pods on timeout, in case there's a hint about what's wrong
     check_call(['kubectl', 'get', 'pod', '--all-namespaces'])
+    not_running_pods = check_output([
+        'kubectl', 'get', 'pods',
+        '--no-headers',
+        '--field-selector=status.phase!=Running',
+        '--output=jsonpath={.items[*].metadata.name}',
+    ]).split(" ")
+
+    # try print logs of not running pods
+    for not_running_pod in not_running_pods:
+        print()
+        print(f"Logs for not running pod: {not_running_pod}")
+        check_call(['kubectl', 'logs', not_running_pod, '--all-namespaces'])
+
     raise
 
 os.remove(jupyterhub_values_yaml)
