@@ -378,7 +378,22 @@ class BinderHub(Application):
         """,
         config=True,
     )
-    @validate('hub_url')
+
+    hub_url_local = Unicode(
+        help="""
+        The base URL of the JupyterHub instance for local/internal traffic
+
+        If local/internal network connections from the BinderHub process should access
+        JupyterHub using a different URL than public/external traffic set this, default
+        is hub_url
+        """,
+        config=True,
+    )
+    @default('hub_url_local')
+    def _default_hub_url_local(self):
+        return self.hub_url
+
+    @validate('hub_url', 'hub_url_local')
     def _add_slash(self, proposal):
         """trait validator to ensure hub_url ends with a trailing slash"""
         if proposal.value is not None and not proposal.value.endswith('/'):
@@ -577,6 +592,7 @@ class BinderHub(Application):
         self.launcher = Launcher(
             parent=self,
             hub_url=self.hub_url,
+            hub_url_local=self.hub_url_local,
             hub_api_token=self.hub_api_token,
             create_user=not self.auth_enabled,
         )
@@ -665,7 +681,7 @@ class BinderHub(Application):
                 tornado.web.StaticFileHandler,
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
-            (r'/health', HealthHandler, {'hub_url': self.hub_url}),
+            (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]

@@ -14,7 +14,7 @@ from tornado.log import app_log
 from tornado import web, gen
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
 from traitlets.config import LoggingConfigurable
-from traitlets import Integer, Unicode, Bool
+from traitlets import Integer, Unicode, Bool, default
 from jupyterhub.traitlets import Callable
 from jupyterhub.utils import maybe_future
 
@@ -34,6 +34,10 @@ class Launcher(LoggingConfigurable):
 
     hub_api_token = Unicode(help="The API token for the Hub")
     hub_url = Unicode(help="The URL of the Hub")
+    hub_url_local = Unicode(help="The internal URL of the Hub if different")
+    @default('hub_url_local')
+    def _default_hub_url_local(self):
+        return self.hub_url
     create_user = Bool(True, help="Create a new Hub user")
     allow_named_servers = Bool(
         os.getenv('JUPYTERHUB_ALLOW_NAMED_SERVERS', "false") == "true",
@@ -81,7 +85,7 @@ class Launcher(LoggingConfigurable):
         """Make an API request to JupyterHub"""
         headers = kwargs.setdefault('headers', {})
         headers.update({'Authorization': 'token %s' % self.hub_api_token})
-        hub_api_url = os.getenv('JUPYTERHUB_API_URL', '') or self.hub_url + 'hub/api/'
+        hub_api_url = os.getenv('JUPYTERHUB_API_URL', '') or self.hub_url_local + 'hub/api/'
         request_url = hub_api_url + url
         req = HTTPRequest(request_url, *args, **kwargs)
         retry_delay = self.retry_delay
