@@ -26,7 +26,7 @@ root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
 minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
 
-TEST_NAMESPACE = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
+K8S_NAMESPACE = os.environ.get('BINDER_NAMESPACE') or 'binder-test'
 KUBERNETES_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
@@ -120,7 +120,7 @@ def _binderhub_config():
     so that it can have a different scope (only once per session).
     """
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
-    cfg.BinderHub.build_namespace = TEST_NAMESPACE
+    cfg.BinderHub.build_namespace = K8S_NAMESPACE
     global KUBERNETES_AVAILABLE
     try:
         kubernetes.config.load_kube_config()
@@ -269,7 +269,7 @@ def cleanup_binder_pods(request):
         return
 
     def cleanup():
-        return cleanup_pods(TEST_NAMESPACE,
+        return cleanup_pods(K8S_NAMESPACE,
                             {'component': 'singleuser-server'})
     cleanup()
     request.addfinalizer(cleanup)
@@ -290,7 +290,7 @@ def cleanup_build_pods(request):
     kube = kubernetes.client.CoreV1Api()
     try:
         kube.create_namespace(
-            kubernetes.client.V1Namespace(metadata={'name': TEST_NAMESPACE})
+            kubernetes.client.V1Namespace(metadata={'name': K8S_NAMESPACE})
         )
     except kubernetes.client.rest.ApiException as e:
         # ignore 409: already exists
@@ -298,7 +298,7 @@ def cleanup_build_pods(request):
             raise
 
     def cleanup():
-        return cleanup_pods(TEST_NAMESPACE,
+        return cleanup_pods(K8S_NAMESPACE,
                             {'component': 'binderhub-build'})
     cleanup()
     request.addfinalizer(cleanup)

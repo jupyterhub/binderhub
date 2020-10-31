@@ -19,7 +19,7 @@ from tempfile import NamedTemporaryFile
 
 auth_enabled = '--auth' in sys.argv
 
-namespace = os.environ.get('BINDER_TEST_NAMESPACE') or 'binder-test'
+namespace = os.environ.get('K8S_NAMESPACE') or 'binder-test'
 name = 'binder-test-hub'
 
 here = os.path.abspath(os.path.dirname(__file__))

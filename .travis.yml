@@ -25,16 +25,16 @@ install:
   - pip freeze
 
 script:
-  - export BINDER_TEST_NAMESPACE=binder-test-$TEST
+  - export K8S_NAMESPACE=binder-test-$TEST
   - ./ci/test-$TEST
 
 after_failure:
   - |
     # get pod logs
     kubectl get pod --all-namespaces
-    for pod in $(kubectl get pod --no-headers --namespace=$BINDER_TEST_NAMESPACE | awk '{print $1}'); do
+    for pod in $(kubectl get pod --no-headers --namespace=$K8S_NAMESPACE | awk '{print $1}'); do
       echo $pod
-      kubectl logs --namespace=$BINDER_TEST_NAMESPACE $pod || echo 'no logs'
+      kubectl logs --namespace=$K8S_NAMESPACE $pod || echo 'no logs'
     done
 after_success:
   # make sure we are back at the top of the checkout directory no matter

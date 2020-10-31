@@ -97,10 +97,10 @@ helm install \
 echo "waiting for pods to become ready"
 for i in {1..100}; do
     kubectl get pod --all-namespaces
-    kubectl --namespace=$BINDER_TEST_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$BINDER_TEST_NAMESPACE rollout status && break
+    kubectl --namespace=$K8S_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$K8S_NAMESPACE rollout status && break
     sleep 3
 done
-kubectl --namespace=$BINDER_TEST_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$BINDER_TEST_NAMESPACE rollout status
+kubectl --namespace=$K8S_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$K8S_NAMESPACE rollout status
 
 
 echo "waiting for servers to become responsive"
