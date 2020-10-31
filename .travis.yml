@@ -8,6 +8,8 @@ services:
   - docker
 
 before_install:
+  # Exit immediately if a command exits with a non-zero status.
+  - set -e
   - nvm install 14; nvm use 14
   - pip install --upgrade pip setuptools
 install:
