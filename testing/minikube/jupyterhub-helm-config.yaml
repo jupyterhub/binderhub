@@ -1,7 +1,5 @@
-# This has secrets! Do not use this config for anything but local testing
-# with minikube.
-
-# the binder apiToken bit requires jupyterhub helm-chart v0.5.x
+debug:
+  enabled: true
 
 custom:
   cors:
@@ -14,11 +12,6 @@ hub:
   services:
     binder:
       apiToken: "dummy-binder-secret-token"
-  allowNamedServers: false
-  extraConfig:
-    10-binder-customisations: |
-      # debug!
-      c.JupyterHub.log_level = 10
 
 proxy:
   secretToken: "dummy-proxy-secret-token"
