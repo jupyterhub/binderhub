@@ -114,7 +114,6 @@ done
 echo "running tests against $BINDER_URL"
 # run a few tests again, this time against the helm-installed binder
 sleep 10
-export ASYNC_TEST_TIMEOUT=15
 mark="remote"
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
   mark="$mark and not github_api"
