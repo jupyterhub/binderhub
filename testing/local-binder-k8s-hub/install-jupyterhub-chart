@@ -42,8 +42,8 @@ def get_hub_chart_dependency():
 jupyterhub = get_hub_chart_dependency()
 
 # update the helm repo
-check_call(['helm', 'repo', 'add', 'jupyterhub', jupyterhub['repository']])
-check_call(['helm', 'repo', 'update', 'jupyterhub'])
+check_call(['helm', 'repo', 'add', '--force-update', 'jupyterhub', jupyterhub['repository']])
+check_call(['helm', 'repo', 'update'])
 
 # Deploying BinderHub normally automatically deploys JupyterHub from the same
 # configuration file.
