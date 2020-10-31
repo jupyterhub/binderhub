@@ -1,5 +1,5 @@
-debug:
-  enabled: true
+# A JupyterHub Helm chart config containing only auth relevant config, and is
+# meant to be used alongside another configuration.
 
 custom:
   binderauth_enabled: true

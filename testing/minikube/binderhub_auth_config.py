@@ -1,3 +1,11 @@
+# A development config to test a BinderHub deployment that is relying on
+# JupyterHub's as an OAuth2 based Identity Provider (IdP) for Authentication and
+# Authorization. JupyterHub is configured with its own Authenticator.
+
+# Deployment assumptions:
+# - BinderHub:  standalone local installation
+# - JupyterHub: standalone k8s installation
+
 import os
 from urllib.parse import urlparse
 

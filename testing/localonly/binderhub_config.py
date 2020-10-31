@@ -1,3 +1,11 @@
+# A development config to test BinderHub's UI. The image building or the
+# subsequent launching of the built image in a JupyterHub is mocked so that
+# users get stuck forever waiting for a build to complete.
+
+# Deployment assumptions:
+# - BinderHub:  standalone local installation
+# - JupyterHub: mocked
+
 from binderhub.repoproviders import FakeProvider
 
 c.BinderHub.use_registry = False

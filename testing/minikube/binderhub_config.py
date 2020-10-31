@@ -1,4 +1,10 @@
-# config file for testing with minikube-config.yaml
+# A development config to test a BinderHub deployment generally. It can be
+# combined with with the auth specific config.
+
+# Deployment assumptions:
+# - BinderHub:  standalone local installation
+# - JupyterHub: standalone k8s installation
+
 import os
 import subprocess
 try:

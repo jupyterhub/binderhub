@@ -1,3 +1,6 @@
+# A JupyterHub Helm chart config for use whenever JupyterHub is deployed by
+# itself.
+
 debug:
   enabled: true
 

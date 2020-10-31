@@ -72,8 +72,9 @@ to have a modern version of [Python](https://www.python.org/) and
    ```bash
    npm run webpack
    ```
-  Note: you need to run this every time you make a change to the CSS or JS
-  for it to take effect.
+
+   Note: you need to run this every time you make a change to the CSS or JS for
+   it to take effect.
 
 1. Run it!
 
