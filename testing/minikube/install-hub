@@ -63,11 +63,11 @@ args = [
     f'--version={jupyterhub["version"]}',
     f'--namespace={namespace}',
     '-f', jupyterhub_values_yaml,
-    '-f', os.path.join(here, 'jupyterhub-helm-config.yaml'),
+    '-f', os.path.join(here, 'jupyterhub-chart-config.yaml'),
 ]
 if auth_enabled:
     print('\nAuthentication is enabled')
-    auth_conf_file = os.path.join(here, 'jupyterhub-helm-auth-config.yaml')
+    auth_conf_file = os.path.join(here, 'jupyterhub-chart-config-auth-additions.yaml')
     args.extend(['-f', auth_conf_file])
 
 cmd = ['helm', 'upgrade', '--install', helm_release_name]
