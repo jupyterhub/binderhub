@@ -46,8 +46,3 @@ helm init --service-account tiller
 
 echo "waiting for tiller"
 kubectl --namespace=kube-system rollout status --watch deployment/tiller-deploy
-
-echo "installing git-crypt"
-curl -L https://github.com/minrk/git-crypt-bin/releases/download/0.5.0/git-crypt > bin/git-crypt
-echo "46c288cc849c23a28239de3386c6050e5c7d7acd50b1d0248d86e6efff09c61b  bin/git-crypt" | shasum -a 256 -c -
-chmod +x bin/git-crypt

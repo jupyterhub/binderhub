@@ -15,6 +15,7 @@ before_install:
   - nvm install 14; nvm use 14
   - pip install --upgrade pip setuptools
 install:
+  # ./ci/install.sh install helm etc within the bin directory
   - export PATH=$PWD/bin:$PATH
   - ./ci/install.sh
   - pip install --upgrade -r dev-requirements.txt
