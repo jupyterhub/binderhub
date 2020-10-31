@@ -12,15 +12,16 @@ custom:
     allowOrigin: "*"
 
 hub:
-  cookieSecret: "dummy-cookie-secret-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+  # cookieSecret must be a hex encoded even length string
+  cookieSecret: "cccccccccc"
   db:
     type: "sqlite-memory"
   services:
     binder:
-      apiToken: "dummy-binder-secret-token-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+      apiToken: "dummy-binder-secret-token"
 
 proxy:
-  secretToken: "dummy-proxy-secret-token-fillerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+  secretToken: "dummy-proxy-secret-token"
   service:
     type: NodePort
     nodePorts:

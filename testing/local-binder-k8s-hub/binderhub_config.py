@@ -8,7 +8,7 @@
 import os
 import subprocess
 try:
-    minikube_ip = subprocess.check_output(['minikube', 'ip']).decode('utf-8').strip()
+    minikube_ip = subprocess.check_output(['minikube', 'ip'], text=True).strip()
 except (subprocess.SubprocessError, FileNotFoundError):
     minikube_ip = '192.168.1.100'
 
