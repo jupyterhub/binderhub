@@ -8,12 +8,12 @@ custom:
     allowOrigin: "*"
 
 hub:
-  cookieSecret: "36091e950f98f033aeae2520e2fe4c8599bc391598f910e510ad670765fbc1ff"
+  cookieSecret: "dummy-hub-cookie-secret"
   db:
     type: "sqlite-memory"
   services:
     binder:
-      apiToken: "aec7d32df938c0f55e54f09244a350cb29ea612907ed4f07be13d9553d18a8e4"
+      apiToken: "dummy-binder-secret-token"
   allowNamedServers: false
   extraConfig:
     10-binder-customisations: |
@@ -21,8 +21,7 @@ hub:
       c.JupyterHub.log_level = 10
 
 proxy:
-  # Another secret!
-  secretToken: "443fa28905c209eaf5803f911de7748f443c78062767d9d28d514dc4fbefd843"
+  secretToken: "dummy-proxy-secret-token"
   service:
     type: NodePort
     nodePorts:
