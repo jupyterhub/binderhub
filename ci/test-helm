@@ -89,7 +89,7 @@ cat helm-chart/travis-binder.yaml
 helm upgrade --install binderhub-test \
   --namespace $K8S_NAMESPACE \
   helm-chart/binderhub \
-  -f helm-chart/minikube-binder.yaml \
+  -f testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
   -f helm-chart/travis-binder.yaml
 
 # wait for helm deploy to come up

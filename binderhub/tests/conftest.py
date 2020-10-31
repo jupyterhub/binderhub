@@ -23,8 +23,8 @@ from .utils import MockAsyncHTTPClient
 
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)
-minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
-minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config_auth_additions.py')
+binderhub_config_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config.py')
+binderhub_config_auth_additions_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config_auth_additions.py')
 
 K8S_NAMESPACE = os.environ.get('K8S_NAMESPACE', 'binderhub-test')
 K8S_AVAILABLE = False
@@ -119,7 +119,7 @@ def _binderhub_config():
     Currently separate from the app fixture
     so that it can have a different scope (only once per session).
     """
-    cfg = PyFileConfigLoader(minikube_testing_config).load_config()
+    cfg = PyFileConfigLoader(binderhub_config_path).load_config()
     cfg.BinderHub.build_namespace = K8S_NAMESPACE
     global K8S_AVAILABLE
     try:
@@ -202,7 +202,7 @@ def app(request, io_loop, _binderhub_config):
 
     if hasattr(request, 'param') and request.param is True:
         # load conf for auth test
-        cfg = PyFileConfigLoader(minikube_testing_auth_config).load_config()
+        cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
         _binderhub_config.merge(cfg)
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])

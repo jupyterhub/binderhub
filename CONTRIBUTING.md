@@ -79,7 +79,7 @@ to have a modern version of [Python](https://www.python.org/) and
 1. Run it!
 
    ```bash
-   python3 -m binderhub -f testing/localonly/binderhub_config.py
+   python3 -m binderhub -f testing/local-binder-mocked-hub/binderhub_config.py
    ```
 
 1. Visit http://localhost:8585 to see it in action.
@@ -108,9 +108,9 @@ After having setup minikube and helm once, these are the tasks you need for
 every day development.
 
 * Start and stop minikube with `minikube start` and `minikube stop`.
-* Install JupyterHub in minikube with helm `./testing/minikube/install-hub`
+* Install JupyterHub in minikube with helm `./testing/local-binder-k8s-hub/install-hub`
 * Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
-* Start BinderHub `python3 -m binderhub -f testing/minikube/binderhub_config.py`
+* Start BinderHub `python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py`
 * Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
 
 To execute most of our test suite you need a running minikube cluster.
@@ -146,7 +146,7 @@ all images involved and deploy it locally. Steps to do this:
 helm upgrade --install binderhub-test \
   --namespace binderhub-test \
   helm-chart/binderhub \
-  -f helm-chart/minikube-binder.yaml
+  -f helm-chart/k8s-binder-k8s-hub/binderhub-chart-config.yaml
 ```
 
 You can now access your BinderHub at: `http://192.168.99.100:30901`. If your
@@ -222,7 +222,7 @@ sudo apt install socat
 1. Install JupyterHub in minikube with helm
 
    ```bash
-   ./testing/minikube/install-hub
+   ./testing/local-binder-k8s-hub/install-hub
    ```
 
 1. Before starting your local deployment run:
@@ -243,7 +243,7 @@ sudo apt install socat
 1. Start BinderHub with the testing config file:
 
     ```bash
-    python3 -m binderhub -f testing/minikube/binderhub_config.py
+    python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py
     ```
 
 1. Visit [http://localhost:8585](http://localhost:8585)
@@ -255,7 +255,7 @@ All features should work, including building and launching of repositories.
 
 BinderHub runs repo2docker in a container.
 For testing the combination of an unreleased repo2docker feature with BinderHub, you can use a locally build repo2docker image.
-You can configure the image in the file `testing/minikube/binderhub_config.py` with the following line:
+You can configure the image in the file `testing/local-binder-k8s-hub/binderhub_config.py` with the following line:
 
 ```python
 c.BinderHub.build_image = 'jupyter-repo2docker:my_image_tag'
@@ -265,7 +265,7 @@ c.BinderHub.build_image = 'jupyter-repo2docker:my_image_tag'
 
 ### Tip: Enable debug logging
 
-In the file `testing/minikube/binderhub_config.py` add the following line:
+In the file `testing/local-binder-k8s-hub/binderhub_config.py` add the following line:
 
 ```python
 c.BinderHub.debug = True
