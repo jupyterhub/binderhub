@@ -7,11 +7,6 @@ git:
 services:
   - docker
 env:
-  matrix:
-    # The TEST environment variable influence "./ci/test-$TEST" in "script"
-    - TEST=main
-    - TEST=auth
-    - TEST=helm
   global:
     # Version of CI dependencies to be installed
     - MINIKUBE_VERSION=1.14.2   # https://github.com/kubernetes/minikube/releases
@@ -68,8 +63,30 @@ install:
 before_script:
   - export K8S_NAMESPACE=binder-test-$TEST
 
-script:
-  - ./ci/test-$TEST
+jobs:
+  ## don't wait for the jobs that are allowed to fail to report success
+  ##
+  ## ref: https://docs.travis-ci.com/user/customizing-the-build/#rows-that-are-allowed-to-fail
+  ## ref: https://docs.travis-ci.com/user/customizing-the-build/#fast-finishing
+  ##
+  allow_failures: []
+  fast_finish: true
+
+  ## define individual jobs that can rely on defaults from above
+  include:
+    - stage: test
+      name: main
+      script:
+        - ./ci/test-main
+    - stage: test
+      name: auth
+      script:
+        - ./ci/test-auth
+    # This step includes publishing currently
+    - stage: test
+      name: helm
+      script:
+        - ./ci/test-helm
 
 after_failure:
   - |
