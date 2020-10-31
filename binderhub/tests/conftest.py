@@ -26,7 +26,7 @@ root = os.path.join(here, os.pardir, os.pardir)
 minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_config.py')
 minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
 
-K8S_NAMESPACE = os.environ.get('BINDER_NAMESPACE') or 'binder-test'
+K8S_NAMESPACE = os.environ.get('K8S_NAMESPACE', 'binderhub-test')
 K8S_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')

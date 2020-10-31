@@ -142,9 +142,8 @@ all images involved and deploy it locally. Steps to do this:
 1. build the helm chart `cd helm-chart && chartpress && cd ..`
 1. install the BinderHub chart with
 ```
-helm install \
-  --name binder-test \
-  --namespace binder-test-helm \
+helm upgrade --install binderhub-test \
+  --namespace binderhub-test \
   helm-chart/binderhub \
   -f helm-chart/minikube-binder.yaml
 ```
@@ -155,7 +154,7 @@ have to use that IP in two places. Add `--set config.BinderHub.hub_url: http://$
 to your `helm install` command and access your BinderHub at `http://$IP:30901`.
 Replace `$IP` with the output of `minikube ip`.
 
-To remove the deployment again: `helm delete --purge binder-test`.
+To remove the deployment again: `helm delete --purge binderhub-test`.
 
 
 ### One-time installation

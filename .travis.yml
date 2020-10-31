@@ -61,7 +61,7 @@ install:
   - pip freeze
 
 before_script:
-  - export K8S_NAMESPACE=binder-test-$TEST
+  - export K8S_NAMESPACE=binderhub-test
 
 jobs:
   ## don't wait for the jobs that are allowed to fail to report success

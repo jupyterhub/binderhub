@@ -19,8 +19,8 @@ from tempfile import NamedTemporaryFile
 
 auth_enabled = '--auth' in sys.argv
 
-namespace = os.environ.get('K8S_NAMESPACE') or 'binder-test'
-name = 'binder-test-hub'
+namespace = os.environ.get('K8S_NAMESPACE', 'binderhub-test')
+helm_release_name = 'binderhub-test'
 
 here = os.path.abspath(os.path.dirname(__file__))
 helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
@@ -70,12 +70,7 @@ if auth_enabled:
     auth_conf_file = os.path.join(here, 'jupyterhub-helm-auth-config.yaml')
     args.extend(['-f', auth_conf_file])
 
-is_running = name in check_output(['helm', 'list', '-q']).decode('utf8', 'replace').split()
-if is_running:
-    cmd = ['helm', 'upgrade', name]
-else:
-    cmd = ['helm', 'install', f'--name={name}']
-
+cmd = ['helm', 'upgrade', '--install', helm_release_name]
 cmd.extend(args)
 print("\n    %s\n" % ' '.join(map(pipes.quote, cmd)))
 

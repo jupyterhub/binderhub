@@ -86,9 +86,8 @@ echo "installing binderhub helm chart"
 
 cat helm-chart/travis-binder.yaml
 
-helm install \
-  --name binder-test \
-  --namespace binder-test-helm \
+helm upgrade --install binderhub-test \
+  --namespace $K8S_NAMESPACE \
   helm-chart/binderhub \
   -f helm-chart/minikube-binder.yaml \
   -f helm-chart/travis-binder.yaml
@@ -119,4 +118,4 @@ if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
   mark="$mark and not github_api"
 fi
 pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
-helm delete --purge binder-test
+helm delete --purge binderhub-test
