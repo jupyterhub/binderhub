@@ -27,7 +27,7 @@ minikube_testing_config = os.path.join(root, 'testing', 'minikube', 'binderhub_c
 minikube_testing_auth_config = os.path.join(root, 'testing', 'minikube', 'binderhub_auth_config.py')
 
 K8S_NAMESPACE = os.environ.get('BINDER_NAMESPACE') or 'binder-test'
-KUBERNETES_AVAILABLE = False
+K8S_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
 
@@ -121,16 +121,16 @@ def _binderhub_config():
     """
     cfg = PyFileConfigLoader(minikube_testing_config).load_config()
     cfg.BinderHub.build_namespace = K8S_NAMESPACE
-    global KUBERNETES_AVAILABLE
+    global K8S_AVAILABLE
     try:
         kubernetes.config.load_kube_config()
     except Exception:
         cfg.BinderHub.builder_required = False
-        KUBERNETES_AVAILABLE = False
+        K8S_AVAILABLE = False
         if ON_TRAVIS:
             pytest.fail("Kubernetes should be available on Travis")
     else:
-        KUBERNETES_AVAILABLE = True
+        K8S_AVAILABLE = True
     if REMOTE_BINDER:
         return
 
@@ -264,7 +264,7 @@ def cleanup_binder_pods(request):
 
     Fires at beginning and end of session
     """
-    if not KUBERNETES_AVAILABLE:
+    if not K8S_AVAILABLE:
         # kubernetes not available, nothing to do
         return
 
@@ -284,7 +284,7 @@ def needs_launch(app, cleanup_binder_pods):
 
 @pytest.fixture(scope='session')
 def cleanup_build_pods(request):
-    if not KUBERNETES_AVAILABLE:
+    if not K8S_AVAILABLE:
         # kubernetes not available, nothing to do
         return
     kube = kubernetes.client.CoreV1Api()
