@@ -10,23 +10,36 @@ services:
 before_install:
   # Exit immediately if a command exits with a non-zero status.
   - set -e
+
   # Install node/npm which the BinderHub Python package use as a build step to
   # generate static HTML/JS to serve.
   - nvm install 14; nvm use 14
   - pip install --upgrade pip setuptools
+
 install:
-  # ./ci/install.sh install helm etc within the bin directory
+  # ./ci/install.sh install minikube/helm etc within the bin directory
   - export PATH=$PWD/bin:$PATH
   - ./ci/install.sh
-  - pip install --upgrade -r dev-requirements.txt
+
+  # Install NodeJS dependencies and build HTML/CSS/JS in binderhub/static into
+  # distributable dist/bundle.js in as static resource required by the binderhub
+  # Python package.
   - npm install
   - npm run webpack
-  - pip install --upgrade . -r helm-chart/images/binderhub/requirements.txt
+
+  # Install development requirements, package requirements, and frozen image
+  # requirements, with an increasing priority.
+  - pip install --upgrade -r dev-requirements.txt
+  - pip install --upgrade .
+  - pip install --upgrade -r helm-chart/images/binderhub/requirements.txt
+
   # NOTE: The latest docker python package (4.3.0) requires a more modern docker
   #       version (newer than 18.06.0-ce / API version: 1.38) which is not yet
   #       available on travis.
   #       ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/pull/1743
   - pip install -U "docker~=4.2.0"
+
+  # Print information about the Pyton environment
   - pip freeze
 
 script:
