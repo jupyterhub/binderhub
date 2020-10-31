@@ -6,11 +6,7 @@
 # - BinderHub:  standalone local installation
 # - JupyterHub: standalone k8s installation
 
-import os
 from urllib.parse import urlparse
-
-here = os.path.abspath(os.path.dirname(__file__))
-load_subconfig(os.path.join(here, 'binderhub_config.py'))
 
 c.BinderHub.auth_enabled = True
 parsed_hub_url = urlparse(c.BinderHub.hub_url)
