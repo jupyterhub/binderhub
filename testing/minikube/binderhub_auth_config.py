@@ -1,13 +1,12 @@
-from urllib.parse import urlparse
 import os
+from urllib.parse import urlparse
+
 here = os.path.abspath(os.path.dirname(__file__))
 load_subconfig(os.path.join(here, 'binderhub_config.py'))
 
-c.BinderHub.base_url = '/'
 c.BinderHub.auth_enabled = True
-# configuration for authentication
-hub_url = urlparse(c.BinderHub.hub_url)
-c.HubOAuth.hub_host = '{}://{}'.format(hub_url.scheme, hub_url.netloc)
+parsed_hub_url = urlparse(c.BinderHub.hub_url)
+c.HubOAuth.hub_host = '{}://{}'.format(parsed_hub_url.scheme, parsed_hub_url.netloc)
 c.HubOAuth.api_token = c.BinderHub.hub_api_token
 c.HubOAuth.api_url = c.BinderHub.hub_url + '/hub/api/'
 c.HubOAuth.base_url = c.BinderHub.base_url
