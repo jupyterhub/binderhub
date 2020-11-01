@@ -2,16 +2,8 @@
 # main test script: runs the basic Python tests,
 # with JupyterHub launched via helm
 
-# The tests do not do well if there are pods from a previous test run.
-# The 'helm delete' line at the end of this script is not guaranteed
-# to execute if there are failures. So do it here too just to be sure.
-x=$(helm ls --namespace $K8S_NAMESPACE)
-if [ ! -z "$x" ]; then
-       	helm delete --namespace=$K8S_NAMESPACE binderhub-test
-fi
-set -ex
 ./testing/local-binder-k8s-hub/install-jupyterhub-chart
-# DEBUG: give the hub a chance to wake up
-sleep 10
+await_jupyterhub
+
 pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
 helm delete --namespace=$K8S_NAMESPACE binderhub-test

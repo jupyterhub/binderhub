@@ -2,7 +2,7 @@
 
 set -ex
 ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
-# DEBUG: give the hub a chance to wake up
-sleep 30
+await_jupyterhub
+
 pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
 helm delete --namespace=$K8S_NAMESPACE binderhub-test

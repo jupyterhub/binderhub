@@ -34,54 +34,17 @@ if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
 EOF
 fi
 
-# FIXME: Move to a dedicated build stage in travis like in z2jh
-#
-# ref: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/.travis.yml
-if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then
-  # Decrypt a private SSH key having its public key registered on GitHub. It will
-  # be used to establish an identity with rights to push to the git repository
-  # hosting our Helm charts: https://github.com/jupyterhub/helm-chart
-  openssl aes-256-cbc -K $encrypted_d8355cc3d845_key -iv $encrypted_d8355cc3d845_iv -in ci/publish-id_rsa.enc -out ci/id_rsa -d
-  chmod 0400 ci/id_rsa
-  # As chartpress uses git to push to our Helm chart repository, we configure
-  # git ahead of time to use the identity we decrypted earlier.
-  export GIT_SSH_COMMAND="ssh -i ${PWD}/ci/id_rsa"
-
-  # As chartpress will push images to docker hub we need to authenticate
-  # ourselves.
-  docker login -u ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
-
-  if [ "${TRAVIS_TAG:-}" == "" ]; then
-    # Using --long, we are ensured to get a build suffix, which ensures we don't
-    # build the same tag twice. The --extra-message influences the additional
-    # text to the commit message on the gh-pages branch of
-    # jupyterhub/helm-chart.
-    #
-    # ref: https://github.com/jupyterhub/helm-chart
-    PUSH="--push --publish-chart --long --extra-message \"${TRAVIS_REPO_SLUG}$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')\""
-  else
-    # Setting a tag explicitly enforces a rebuild if this tag had already been
-    # built and we wanted to override it.
-    PUSH="--push --publish-chart --tag ${TRAVIS_TAG}"
-  fi
-else
-  PUSH=""
-fi
-
-
-
 echo "building helm chart"
 cd helm-chart
 helm repo add --force-update jupyterhub https://jupyterhub.github.io/helm-chart
 helm dependency update ./binderhub
-chartpress ${PUSH}
+chartpress
 cd ..
 # git diff will show us the result of the chartpress render.
 # This should only include the tags for chartpress images.
-git diff
+git --no-pager diff
 docker images | sort
 
-# smoke test helm install
 echo "installing binderhub helm chart"
 
 cat helm-chart/travis-binder.yaml
@@ -91,15 +54,7 @@ helm upgrade --install --create-namespace binderhub-test \
   helm-chart/binderhub \
   -f testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
   -f helm-chart/travis-binder.yaml
-
-# wait for helm deploy to come up
-echo "waiting for pods to become ready"
-for i in {1..100}; do
-    kubectl get pod --all-namespaces
-    kubectl --namespace=$K8S_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$K8S_NAMESPACE rollout status && break
-    sleep 3
-done
-kubectl --namespace=$K8S_NAMESPACE get deployment -o name | xargs -L1 kubectl --namespace=$K8S_NAMESPACE rollout status
+await_binderhub
 
 
 echo "waiting for servers to become responsive"
