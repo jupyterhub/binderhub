@@ -12,7 +12,7 @@ import sys
 from ruamel import yaml
 from tempfile import NamedTemporaryFile
 
-here = os.path.abspath("/home/erik/dev/jupyterhub/binderhub/testing/local-binder-k8s-hub")
+here = os.path.abspath(os.path.dirname(__file__))
 helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
 
 
@@ -27,7 +27,7 @@ def _get_jupyterhub_dependency_version():
         requirements = yaml.safe_load(f)
     for dep in requirements['dependencies']:
         if dep['name'] == 'jupyterhub':
-            return dep
+            return dep['version']
     else:
         raise ValueError(f"JupyterHub as a Helm chart dependency not found in {requirements_yaml}:\n{requirements}")
 
