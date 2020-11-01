@@ -6,4 +6,3 @@
 await_jupyterhub
 
 pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
-helm delete --namespace=$K8S_NAMESPACE binderhub-test

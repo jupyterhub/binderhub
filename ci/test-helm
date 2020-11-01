@@ -56,21 +56,9 @@ helm upgrade --install --create-namespace binderhub-test \
   -f helm-chart/travis-binder.yaml
 await_binderhub
 
-
-echo "waiting for servers to become responsive"
-until curl --fail $BINDER_URL > /dev/null; do
-  sleep 1
-done
-until curl --fail $HUB_URL> /dev/null; do
-  sleep 1
-done
-
 echo "running tests against $BINDER_URL"
-# run a few tests again, this time against the helm-installed binder
-sleep 10
 mark="remote"
 if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
   mark="$mark and not github_api"
 fi
 pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
-helm delete --namespace=$K8S_NAMESPACE binderhub-test

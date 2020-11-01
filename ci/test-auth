@@ -5,4 +5,3 @@ set -ex
 await_jupyterhub
 
 pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
-helm delete --namespace=$K8S_NAMESPACE binderhub-test
