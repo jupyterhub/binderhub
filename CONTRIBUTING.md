@@ -15,7 +15,7 @@ Work on the documentation requires the least amount of setup. You will need
 to have a modern version of [Python](https://www.python.org/). The documentation
 uses the [reStructuredText markup language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
-1. Clone the BinderHub repository to your local computer and ```cd``` into it.
+1. Clone the BinderHub repository to your local computer and `cd` into it.
    ```bash
    git clone https://github.com/jupyterhub/binderhub
    cd binderhub
@@ -49,7 +49,7 @@ Work on the user interface requires a medium amount of setup. You will need
 to have a modern version of [Python](https://www.python.org/) and
 [npm](https://www.npmjs.com) installed.
 
-1. Clone the BinderHub repository to your local computer and ```cd``` into it.
+1. Clone the BinderHub repository to your local computer and `cd` into it.
    ```bash
    git clone https://github.com/jupyterhub/binderhub
    cd binderhub
@@ -142,20 +142,22 @@ all images involved and deploy it locally. Steps to do this:
 1. setup docker to user the minikube dockerd `eval $(minikube docker-env)`
 1. build the helm chart `cd helm-chart && chartpress && cd ..`
 1. install the BinderHub chart with
-```
-helm upgrade --install binderhub-test \
-  --namespace binderhub-test \
-  helm-chart/binderhub \
-  -f helm-chart/k8s-binder-k8s-hub/binderhub-chart-config.yaml
-```
+
+   ```
+   helm upgrade --install --create-namespace binderhub-test \
+      --namespace binderhub-test \
+      helm-chart/binderhub \
+      -f testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml
+   ```
 
 You can now access your BinderHub at: `http://192.168.99.100:30901`. If your
-minikube instance has a different IP use `minikube ip` to find it. You will
-have to use that IP in two places. Add `--set config.BinderHub.hub_url: http://$IP:30902`
-to your `helm install` command and access your BinderHub at `http://$IP:30901`.
-Replace `$IP` with the output of `minikube ip`.
+minikube instance has a different IP use `minikube ip` to find it. You will have
+to use that IP in two places. Add `--set config.BinderHub.hub_url:
+http://$IP:30902` to your `helm install` command and access your BinderHub at
+`http://$IP:30901`. Replace `$IP` with the output of `minikube ip`.
 
-To remove the deployment again: `helm delete --purge binderhub-test`.
+To remove the deployment again: `helm delete --namespace=binderhub-test
+binderhub-test`.
 
 
 ### One-time installation
@@ -166,18 +168,20 @@ All the steps are given as command-line commands for Ubuntu systems. They are
 used as a common denominator that can be translated into the correct commands
 on your local system.
 
-Before you begin, there are a few utilities that need to be installed:
+Before you begin, there are a few utilities that need to be installed.
+
 ```bash
 sudo apt install python3 python3-pip npm curl
 ```
 
-If you a on linux, you may additionally need to install socat for port forwarding:
+If you a on linux, you may additionally need to install socat for port forwarding.
 
 ```bash
 sudo apt install socat
 ```
 
-1. Clone the binderhub repository to your local computer and ```cd``` into it.
+1. Clone the binderhub repository to your local computer and `cd` into it.
+
    ```bash
    git clone https://github.com/jupyterhub/binderhub
    cd binderhub
@@ -191,26 +195,19 @@ sudo apt install socat
    assumes that you have already installed one of the VM drivers: virtualbox,
    xhyve or KVM2.
 
-1. Install helm to manage installing JupyterHub and BinderHub on your cluster,
+1. Install helm to manage installing JupyterHub and BinderHub on your cluster.
 
    ```bash
-   curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+   curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
    ```
 
-   [Alternative methods](https://docs.helm.sh/using_helm/#installing-the-helm-client)
+   [Alternative methods](https://helm.sh/docs/intro/install/)
    for helm installation exist if you prefer installing without using the script.
-
-1. Initialize helm in minikube. This command initializes the local CLI and
-   installs Tiller on your kubernetes cluster in one step:
-
-   ```bash
-   helm init
-   ```
 
 1. Add the JupyterHub helm charts repo:
 
    ```bash
-   helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+   helm repo add --force-update jupyterhub https://jupyterhub.github.io/helm-chart/
    helm repo update
    ```
 
@@ -232,10 +229,10 @@ sudo apt install socat
    eval $(minikube docker-env)
    ```
 
-  This command sets up `docker` to use the same Docker daemon as your minikube
-  cluster does. This means images you build are directly available to the
-  cluster. Note: when you no longer wish to use the minikube host, you can
-  undo this change by running:
+   This command sets up `docker` to use the same Docker daemon as your minikube
+   cluster does. This means images you build are directly available to the
+   cluster. Note: when you no longer wish to use the minikube host, you can
+   undo this change by running:
 
    ```bash
    eval $(minikube docker-env -u)
@@ -243,9 +240,9 @@ sudo apt install socat
 
 1. Start BinderHub with the testing config file:
 
-    ```bash
-    python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py
-    ```
+   ```bash
+   python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py
+   ```
 
 1. Visit [http://localhost:8585](http://localhost:8585)
 
@@ -254,23 +251,16 @@ All features should work, including building and launching of repositories.
 
 ### Tip: Use local repo2docker version
 
-BinderHub runs repo2docker in a container.
-For testing the combination of an unreleased repo2docker feature with BinderHub, you can use a locally build repo2docker image.
-You can configure the image in the file `testing/local-binder-k8s-hub/binderhub_config.py` with the following line:
+BinderHub runs repo2docker in a container. For testing the combination of an
+unreleased repo2docker feature with BinderHub, you can use a locally build
+repo2docker image. You can configure the image in the file
+`testing/local-binder-k8s-hub/binderhub_config.py` with the following line:
 
 ```python
 c.BinderHub.build_image = 'jupyter-repo2docker:my_image_tag'
 ```
 
 **Important**: the image must be build using the same Docker daemon as the minikube cluster, otherwise you get an error _"Failed to pull image [...]  repository does not exist or may require 'docker login'"_.
-
-### Tip: Enable debug logging
-
-In the file `testing/local-binder-k8s-hub/binderhub_config.py` add the following line:
-
-```python
-c.BinderHub.debug = True
-```
 
 ### Tip: Increase your GitHub API limit
 
@@ -298,14 +288,10 @@ BinderHub uses the [JupyterHub Helm Chart](https://jupyterhub.github.io/helm-cha
 to install the proper version of JupyterHub. The version that is used is specified
 in the BinderHub Meta Chart, `helm-chart/binderhub/requirements.yaml`.
 
-To bump the version of JupyterHub that BinderHub uses, go to the [JupyterHub Helm Chart](https://jupyterhub.github.io/helm-chart/) version page, find the release
-hash that you want (e.g. `0.6.0-2c53640`) and update the following field in
-the `requirements.yaml` file:
-
-   ```yaml
-   dependencies:
-     version: "<helm-chart-version>"
-   ```
+To bump the version of JupyterHub that BinderHub uses, go to the [JupyterHub
+Helm Chart](https://jupyterhub.github.io/helm-chart/) version page, find the
+release hash that you want (e.g. `0.10.0`) and update the following field in the
+`requirements.yaml` file.
 
 **Make sure to double-check that there are no breaking changes in JupyterHub**.
 Sometimes JupyterHub introduces breaking changes to its helm chart (such as the

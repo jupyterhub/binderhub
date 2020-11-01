@@ -24,7 +24,7 @@ mv kubectl bin/
 
 echo "installing helm ${HELM_VERSION}"
 curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
-  | DESIRED_VERSION=${HELM_VERSION} bash
+  | DESIRED_VERSION=v${HELM_VERSION} bash
 
 echo "waiting for kubernetes"
 JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'

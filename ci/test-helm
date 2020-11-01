@@ -73,7 +73,7 @@ fi
 echo "building helm chart"
 cd helm-chart
 helm repo add --force-update jupyterhub https://jupyterhub.github.io/helm-chart
-helm dependency update
+helm dependency update ./binderhub
 chartpress ${PUSH}
 cd ..
 # git diff will show us the result of the chartpress render.
@@ -118,4 +118,4 @@ if [[ -z "$GITHUB_ACCESS_TOKEN" ]]; then
   mark="$mark and not github_api"
 fi
 pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
-helm delete binderhub-test
+helm delete --namespace=$K8S_NAMESPACE binderhub-test

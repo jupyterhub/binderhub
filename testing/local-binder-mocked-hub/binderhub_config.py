@@ -8,6 +8,7 @@
 
 from binderhub.repoproviders import FakeProvider
 
+c.BinderHub.debug = True
 c.BinderHub.use_registry = False
 c.BinderHub.builder_required = False
 c.BinderHub.repo_providers = {'gh': FakeProvider}
