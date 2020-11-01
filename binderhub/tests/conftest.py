@@ -5,6 +5,7 @@ from collections import defaultdict
 import inspect
 import json
 import os
+import subprocess
 import time
 from urllib.parse import urlparse
 from unittest import mock
@@ -26,8 +27,9 @@ root = os.path.join(here, os.pardir, os.pardir)
 binderhub_config_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config.py')
 binderhub_config_auth_additions_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config_auth_additions.py')
 
+# These are automatically determined
 K8S_AVAILABLE = False
-
+K8S_NAMESPACE = ""
 ON_TRAVIS = os.environ.get('TRAVIS')
 
 # set BINDER_URL to run tests against an already-running binderhub
@@ -120,6 +122,7 @@ def _binderhub_config():
     """
     cfg = PyFileConfigLoader(binderhub_config_path).load_config()
     global K8S_AVAILABLE
+    global K8S_NAMESPACE
     try:
         kubernetes.config.load_kube_config()
     except Exception:
@@ -131,6 +134,11 @@ def _binderhub_config():
         K8S_AVAILABLE = True
     if REMOTE_BINDER:
         return
+
+    # get the current context's namespace or assume it is "default"
+    K8S_NAMESPACE = subprocess.check_output([
+        "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
+    ], text=True).strip() or "default"
 
     # check if Hub is running and ready
     try:
@@ -226,7 +234,7 @@ def cleanup_pods(labels):
     def get_pods():
         """Return list of pods matching given labels"""
         return [
-            pod for pod in kube.list_namespaced_pod().items
+            pod for pod in kube.list_namespaced_pod(namespace=K8S_NAMESPACE).items
             if all(
                 pod.metadata.labels.get(key) == value
                 for key, value in labels.items()
@@ -238,6 +246,7 @@ def cleanup_pods(labels):
         print(f"deleting pod {pod.metadata.name}")
         try:
             kube.delete_namespaced_pod(
+                namespace=K8S_NAMESPACE,
                 name=pod.metadata.name,
                 body=kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
             )
