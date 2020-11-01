@@ -3,24 +3,30 @@
 Welcome! As a [Jupyter](https://jupyter.org) project, we follow the
 [Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributing/content-contributor.html).
 
-There are several different setups for developing BinderHub, depending on which
-parts of it you want to change: the [documentation](#documentation-changes),
-the [user interface](#user-innterface-changes), or the
-[kubernetes integration](#Kubernetes-integration-changes).
+Depending on what you want to develop, you can setup BinderHub in different ways.
+- [Develop documentation](#).
+- [Develop user interface](#). A BinderHub webserver is running locally and
+  JupyterHub is mocked, this setup doesn't involve Kubernetes.
+- [Develop Kubernetes integration](#). A BinderHub webserver is running locally,
+  and JupyterHub is installed in a Kubernetes cluster.
+- [Develop Helm chart](#) - The BinderHub Helm chart with JupyterHub as a
+  dependency is installed in a Kubernetes cluster.
 
 
-## Documentation changes
+## Develop documentation
 
-Work on the documentation requires the least amount of setup. You will need
-to have a modern version of [Python](https://www.python.org/). The documentation
-uses the [reStructuredText markup language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
+You are assumed to have a modern version of [Python](https://www.python.org/).
+The documentation uses the [reStructuredText markup
+language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
 1. Clone the BinderHub repository to your local computer and `cd` into it.
+
    ```bash
    git clone https://github.com/jupyterhub/binderhub
    cd binderhub
    ```
-1. 1. Install BinderHub and the documentation tools:
+
+1. Install BinderHub and the documentation tools:
 
    ```bash
    python3 -m pip install -r doc/doc-requirements.txt
@@ -43,78 +49,78 @@ uses the [reStructuredText markup language](http://www.sphinx-doc.org/en/master/
    terminal with `open _build/html/index.html`.
 
 
-## User interface changes
+## Develop user interface
 
-Work on the user interface requires a medium amount of setup. You will need
-to have a modern version of [Python](https://www.python.org/) and
-[npm](https://www.npmjs.com) installed.
+Developing BinderHub's user interface can be done both without Kubernetes and
+JupyterHub by mocking that interaction. You are assumed to have a modern version
+of [Python](https://www.python.org/) and [node / npm](https://nodejs.org/)
+installed.
 
-1. Clone the BinderHub repository to your local computer and `cd` into it.
+1. Clone the BinderHub git repository to your local computer and `cd` into it.
+
    ```bash
    git clone https://github.com/jupyterhub/binderhub
    cd binderhub
    ```
 
-1. Install BinderHub:
+1. Install BinderHub, the Python package.
 
    ```bash
    python3 -m pip install -e .
    ```
 
-1. Install the JavaScript dependencies:
+1. Install the NodeJS dependencies from package.json.
 
    ```bash
    npm install
    ```
 
-1. Create the JS and CSS bundles with:
+1. Create the JS and CSS bundles BinderHub serves as a webserver to visitors.
+   Repeat this step if you change the source JS or CSS.
 
    ```bash
    npm run webpack
    ```
 
-   Note: you need to run this every time you make a change to the CSS or JS for
-   it to take effect.
-
-1. Run it!
+1. Start the BinderHub webserver locally.
 
    ```bash
    python3 -m binderhub -f testing/local-binder-mocked-hub/binderhub_config.py
    ```
 
-1. Visit http://localhost:8585 to see it in action.
+1. Visit the BinderHub werbserver at http://localhost:8585.
 
 Building and launching repositories will not work. You can still work on the
-user interface of those parts as BinderHub is configured to fake those
-actions. You can tell you are using the fake builder and launcher from the fact
-that the build will never complete.
+user interface of those parts as BinderHub is configured to fake those actions.
+You can tell you are using the fake builder and launcher from the fact that the
+build will never complete.
 
 To learn how to set yourself with a BinderHub development environment that
 lets you modify the builder and launcher refer to
 [Kubernetes integration changes](#Kubernetes-integration-changes).
 
 
-## Kubernetes integration changes
+## Develop Kubernetes integration
 
-Setting yourself up to make changes to the kubernetes integration of BinderHub
-requires a few one-time setup steps. These steps are described in the
-"One-time installation" section below. Follow those first then return here for
-day to day development procedures.
+Setting yourself up to develop the Kubernetes integration requires a few
+one-time setup steps. These steps are described in the "One-time installation"
+section below. Follow those first then return here for day to day development
+procedures.
 
 
 ### Day to day development tasks
 
-After having setup minikube and helm once, these are the tasks you need for
+After having setup `minikube` and `helm` once, these are the tasks you need for
 every day development.
 
 * Start and stop minikube with `minikube start` and `minikube stop`.
-* Install JupyterHub in minikube with helm `./testing/local-binder-k8s-hub/install-jupyterhub-chart`
+* Install JupyterHub in `minikube` with helm `./testing/local-binder-k8s-hub/install-jupyterhub-chart`
 * Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
 * Start BinderHub `python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py`
 * Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
 
-To execute most of our test suite you need a running minikube cluster.
-It does not need to have anything installed on it though:
+To execute most of our test suite you need a running minikube cluster. It does
+not need to have anything installed on it though:
 
 ```bash
 minikube start
@@ -162,11 +168,11 @@ binderhub-test`.
 
 ### One-time installation
 
-To run the full BinderHub it needs to have access to a kubernetes cluster
-with a JupyterHub installed on it. This is what we will setup in this section.
-All the steps are given as command-line commands for Ubuntu systems. They are
-used as a common denominator that can be translated into the correct commands
-on your local system.
+To run the full BinderHub it needs to have access to a kubernetes cluster with a
+JupyterHub installed on it. This is what we will setup in this section. All the
+steps are given as command-line commands for Ubuntu systems. They are used as a
+common denominator that can be translated into the correct commands on your
+local system.
 
 Before you begin, there are a few utilities that need to be installed.
 
@@ -174,7 +180,8 @@ Before you begin, there are a few utilities that need to be installed.
 sudo apt install python3 python3-pip npm curl
 ```
 
-If you a on linux, you may additionally need to install socat for port forwarding.
+If you a on linux, you may additionally need to install socat for port
+forwarding.
 
 ```bash
 sudo apt install socat
@@ -187,43 +194,45 @@ sudo apt install socat
    cd binderhub
    ```
 
-1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
-   to run Kubernetes locally.
+1. [Install Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 
-   To start your minikube cluster , run the command: `minikube start`. This
-   starts a local kubernetes cluster inside a virtual machine. This command
-   assumes that you have already installed one of the VM drivers: virtualbox,
-   xhyve or KVM2.
+1. Start a minikube Kubernetes cluster inside a virtual machine.
 
-1. Install helm to manage installing JupyterHub and BinderHub on your cluster.
+   ```bash
+   # This require you have either virtualbox, xhyve, or KVM2 installed.
+   minikube start
+   ```
+
+1. Install `helm` - the Kubernetes package manager.
 
    ```bash
    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
    ```
 
-   [Alternative methods](https://helm.sh/docs/intro/install/)
-   for helm installation exist if you prefer installing without using the script.
+   [Alternative installation options](https://helm.sh/docs/intro/install/) are
+   available.
 
-1. Add the JupyterHub helm charts repo:
+1. Let `helm` know about the official JupyterHub Helm chart repository.
 
    ```bash
    helm repo add --force-update jupyterhub https://jupyterhub.github.io/helm-chart/
    helm repo update
    ```
 
-1. Install BinderHub and its development requirements:
+1. Locally install BinderHub as a Python package and its development
+   requirements locally.
 
-    ```bash
-    python3 -m pip install -e . -r dev-requirements.txt
-    ```
+   ```bash
+   python3 -m pip install -e . -r dev-requirements.txt
+   ```
 
-1. Install JupyterHub in minikube with helm
+1. Install the JupyterHub Helm chart by itself into your Kubernetes cluster.
 
    ```bash
    ./testing/local-binder-k8s-hub/install-jupyterhub-chart
    ```
 
-1. Before starting your local deployment run:
+1. Before running BinderHub locally, do the following.
 
    ```bash
    eval $(minikube docker-env)
@@ -231,14 +240,15 @@ sudo apt install socat
 
    This command sets up `docker` to use the same Docker daemon as your minikube
    cluster does. This means images you build are directly available to the
-   cluster. Note: when you no longer wish to use the minikube host, you can
-   undo this change by running:
+   cluster.
+
+   To undo this step, you can run the following.
 
    ```bash
    eval $(minikube docker-env -u)
    ```
 
-1. Start BinderHub with the testing config file:
+1. Start BinderHub with the testing config file.
 
    ```bash
    python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py
@@ -246,7 +256,8 @@ sudo apt install socat
 
 1. Visit [http://localhost:8585](http://localhost:8585)
 
-All features should work, including building and launching of repositories.
+With this setup, all features should work, including building and launching of
+repositories.
 
 
 ### Tip: Use local repo2docker version
