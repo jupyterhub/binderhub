@@ -16,7 +16,7 @@ remove_docker_mirror_on_travis() {
 
 setup_kubectl () {
     echo "setup kubectl"
-    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubectl
+    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v"${KUBE_VERSION}"/bin/linux/amd64/kubectl
     chmod +x kubectl
     sudo mv kubectl /usr/local/bin/
 }
@@ -33,28 +33,28 @@ setup_minikube () {
     sudo apt-get -y install conntrack libgnutls28-dev
 
     echo "setup minikube"
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v${MINIKUBE_VERSION}/minikube-linux-amd64
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v"${MINIKUBE_VERSION}"/minikube-linux-amd64
     chmod +x minikube
     sudo mv minikube /usr/local/bin/
 
     echo "start minikube"
-    sudo CHANGE_MINIKUBE_NONE_USER=true minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
+    sudo CHANGE_MINIKUBE_NONE_USER=true minikube start --vm-driver=none --kubernetes-version=v"${KUBE_VERSION}"
     minikube update-context
 }
 
 await_jupyterhub() {
-    kubectl rollout status --watch --timeout 300s deployment/proxy --namespace ${K8S_NAMESPACE:-binderhub-test} \
- && kubectl rollout status --watch --timeout 300s deployment/hub --namespace ${K8S_NAMESPACE:-binderhub-test} \
+    kubectl rollout status --watch --timeout 300s deployment/proxy --namespace "${K8S_NAMESPACE:-binderhub-test}" \
+ && kubectl rollout status --watch --timeout 300s deployment/hub --namespace "${K8S_NAMESPACE:-binderhub-test}" \
  && (
-        if kubectl get deploy/autohttps --namespace ${K8S_NAMESPACE:-binderhub-test} &> /dev/null; then
-            kubectl rollout status --watch --timeout 300s deployment/autohttps --namespace ${K8S_NAMESPACE:-binderhub-test} || exit 1
+        if kubectl get deploy/autohttps --namespace "${K8S_NAMESPACE:-binderhub-test}" > /dev/null 2>&1; then
+            kubectl rollout status --watch --timeout 300s deployment/autohttps --namespace "${K8S_NAMESPACE:-binderhub-test}" || exit 1
         fi
     )
 }
 
 await_binderhub() {
     await_jupyterhub
-    kubectl rollout status --watch --timeout 300s deployment/binder --namespace ${K8S_NAMESPACE:-binderhub-test}
+    kubectl rollout status --watch --timeout 300s deployment/binder --namespace "${K8S_NAMESPACE:-binderhub-test}"
 }
 
 generate_binderhub_chart_config_remote () {
@@ -62,7 +62,7 @@ generate_binderhub_chart_config_remote () {
     echo "config:" > $file
     echo "  BinderHub:" >> $file
     echo "    hub_url: http://$(minikube ip):30902" >> $file
-    if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
+    if [ -n "$GITHUB_ACCESS_TOKEN" ]; then
     echo "  GitHubRepoProvider:" >> $file
     echo "    access_token: $GITHUB_ACCESS_TOKEN" >> $file
     fi
@@ -70,14 +70,14 @@ generate_binderhub_chart_config_remote () {
 
 full_namespace_report () {
     # list config (secret,configmap)
-    kubectl get secret,cm --namespace ${K8S_NAMESPACE:-binderhub-test}
+    kubectl get secret,cm --namespace "${K8S_NAMESPACE:-binderhub-test}"
     # list networking (service,ingress)
-    kubectl get svc,ing --namespace ${K8S_NAMESPACE:-binderhub-test}
+    kubectl get svc,ing --namespace "${K8S_NAMESPACE:-binderhub-test}"
     # list workloads (deployment,statefulset,daemonset,pod)
-    kubectl get deploy,sts,ds,pod --namespace ${K8S_NAMESPACE:-binderhub-test}
+    kubectl get deploy,sts,ds,pod --namespace "${K8S_NAMESPACE:-binderhub-test}"
 
     # if any pod has any non-ready -> show its containers' logs
-    kubectl get pods -o json --namespace ${K8S_NAMESPACE:-binderhub-test} \
+    kubectl get pods -o json --namespace "${K8S_NAMESPACE:-binderhub-test}" \
     | jq '
         .items[]
         | select(
@@ -90,7 +90,7 @@ full_namespace_report () {
     # if any pods that should be scheduled by the user-scheduler are pending ->
     # show user-scheduler's logs
     (
-        kubectl get pods -l "component in (user-placeholder,singleuser-server)" -o json --namespace ${K8S_NAMESPACE:-binderhub-test} \
+        kubectl get pods -l "component in (user-placeholder,singleuser-server)" -o json --namespace "${K8S_NAMESPACE:-binderhub-test}" \
         | jq -r '
             .items[]
             | select(.status.phase == "Pending")
