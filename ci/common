@@ -61,7 +61,7 @@ generate_binderhub_chart_config_remote () {
     file=testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml
     echo "config:" > $file
     echo "  BinderHub:" >> $file
-    echo "    hub_url: http://$(minikube ip):30902"
+    echo "    hub_url: http://$(minikube ip):30902" >> $file
     if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
     echo "  GitHubRepoProvider:" >> $file
     echo "    access_token: $GITHUB_ACCESS_TOKEN" >> $file

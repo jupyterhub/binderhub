@@ -104,12 +104,13 @@ package-lock.json
 # Built files
 binderhub/static/dist
 helm-chart/binderhub/charts
+helm-chart/binderhub/requirements.lock
+testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml
+ci/id_rsa
 
 # Instructions we download
 k8s.txt
 helm.txt
-travis
-helm-chart/travis-binder.yaml
 
 # Federation data page
 doc/federation/data-federation.txt
