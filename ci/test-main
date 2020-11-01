@@ -7,11 +7,11 @@
 # to execute if there are failures. So do it here too just to be sure.
 x=$(helm ls --namespace $K8S_NAMESPACE)
 if [ ! -z "$x" ]; then
-       	helm delete --purge binderhub-test
+       	helm delete binderhub-test
 fi
 set -ex
 ./testing/local-binder-k8s-hub/install-jupyterhub-chart
 # DEBUG: give the hub a chance to wake up
 sleep 10
 pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
-helm delete --purge binderhub-test
+helm delete binderhub-test

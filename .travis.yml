@@ -11,7 +11,7 @@ env:
     # Version of CI dependencies to be installed
     - MINIKUBE_VERSION=1.14.2   # https://github.com/kubernetes/minikube/releases
     - KUBE_VERSION=1.19.3       # https://github.com/kubernetes/kubernetes/releases
-    - HELM_VERSION=2.16.12      # https://github.com/helm/helm/releases
+    - HELM_VERSION=3.4.0        # https://github.com/helm/helm/releases
 
     # Secure env vars, not available in PR
     # ------------------------------------
