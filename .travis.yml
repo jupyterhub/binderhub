@@ -36,9 +36,6 @@ before_install:
   # Fix to avoid rebuilding images already built
   - remove_docker_mirror_on_travis
 
-  # Explicitly set a namespace to use
-  - export K8S_NAMESPACE=binderhub-test
-
 
 install:
   # Setup our minikube based Kubernetes cluster
@@ -105,7 +102,7 @@ jobs:
         - echo "Installing local BinderHub Helm chart with JupyterHub as a dependency into k8s cluster"
         - generate_binderhub_chart_config_remote
         - |
-          helm upgrade --install --create-namespace --namespace $K8S_NAMESPACE \
+          helm upgrade --install \
               binderhub-test helm-chart/binderhub \
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml

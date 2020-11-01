@@ -12,12 +12,15 @@ import sys
 from ruamel import yaml
 from tempfile import NamedTemporaryFile
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = os.path.abspath("/home/erik/dev/jupyterhub/binderhub/testing/local-binder-k8s-hub")
 helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
 
 
-def get_jupyterhub_dependency_version():
-    """Get the JupyterHub chart info from the binderhub chart requirements.yaml"""
+def _get_jupyterhub_dependency_version():
+    """
+    Extract JupyterHub Helm chart version from the BinderHub chart's
+    requirements.yaml
+    """
     requirements_yaml = os.path.join(helm_chart, 'binderhub', 'requirements.yaml')
 
     with open(requirements_yaml) as f:
@@ -29,16 +32,15 @@ def get_jupyterhub_dependency_version():
         raise ValueError(f"JupyterHub as a Helm chart dependency not found in {requirements_yaml}:\n{requirements}")
 
 
-with NamedTemporaryFile() as tmp_file:
+with NamedTemporaryFile(mode="w") as tmp:
     with open(os.path.join(helm_chart, 'binderhub', 'values.yaml')) as values_in:
-        yaml.safe_dump(yaml.safe_load(values_in)['jupyterhub'], tmp_file)
+        yaml.safe_dump(yaml.safe_load(values_in)['jupyterhub'], tmp.file)
 
-    cmd = ['helm', 'upgrade', '--install', '--create-namespace', 'binderhub-test']
+    cmd = ['helm', 'upgrade', '--install', 'binderhub-test']
     cmd.extend([
         'jupyterhub/jupyterhub',
-        f'--version={get_jupyterhub_dependency_version()}',
-        f'--namespace={os.environ.get("K8S_NAMESPACE", "binderhub-test")}',
-        f'--values={tmp_file}',
+        f'--version={_get_jupyterhub_dependency_version()}',
+        f'--values={tmp.name}',
         f'--values={os.path.join(here, "jupyterhub-chart-config.yaml")}',
     ])
     if '--auth' in sys.argv:

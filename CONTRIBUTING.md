@@ -150,8 +150,7 @@ all images involved and deploy it locally. Steps to do this:
 1. install the BinderHub chart with
 
    ```
-   helm upgrade --install --create-namespace binderhub-test \
-      --namespace binderhub-test \
+   helm upgrade --install binderhub-test \
       helm-chart/binderhub \
       -f testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml
    ```
@@ -162,8 +161,7 @@ to use that IP in two places. Add `--set config.BinderHub.hub_url:
 http://$IP:30902` to your `helm install` command and access your BinderHub at
 `http://$IP:30901`. Replace `$IP` with the output of `minikube ip`.
 
-To remove the deployment again: `helm delete --namespace=binderhub-test
-binderhub-test`.
+To remove the deployment again: `helm delete binderhub-test`.
 
 
 ### One-time installation

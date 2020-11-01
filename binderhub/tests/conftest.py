@@ -26,7 +26,6 @@ root = os.path.join(here, os.pardir, os.pardir)
 binderhub_config_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config.py')
 binderhub_config_auth_additions_path = os.path.join(root, 'testing/local-binder-k8s-hub/binderhub_config_auth_additions.py')
 
-K8S_NAMESPACE = os.environ.get('K8S_NAMESPACE', 'binderhub-test')
 K8S_AVAILABLE = False
 
 ON_TRAVIS = os.environ.get('TRAVIS')
@@ -120,7 +119,6 @@ def _binderhub_config():
     so that it can have a different scope (only once per session).
     """
     cfg = PyFileConfigLoader(binderhub_config_path).load_config()
-    cfg.BinderHub.build_namespace = K8S_NAMESPACE
     global K8S_AVAILABLE
     try:
         kubernetes.config.load_kube_config()
@@ -221,14 +219,14 @@ def app(request, io_loop, _binderhub_config):
     return bhub
 
 
-def cleanup_pods(namespace, labels):
-    """Cleanup pods in a namespace that match the given labels"""
+def cleanup_pods(labels):
+    """Cleanup pods in current namespace that match the given labels"""
     kube = kubernetes.client.CoreV1Api()
 
     def get_pods():
-        """Return  list of pods matching given labels"""
+        """Return list of pods matching given labels"""
         return [
-            pod for pod in kube.list_namespaced_pod(namespace).items
+            pod for pod in kube.list_namespaced_pod().items
             if all(
                 pod.metadata.labels.get(key) == value
                 for key, value in labels.items()
@@ -241,7 +239,6 @@ def cleanup_pods(namespace, labels):
         try:
             kube.delete_namespaced_pod(
                 name=pod.metadata.name,
-                namespace=namespace,
                 body=kubernetes.client.V1DeleteOptions(grace_period_seconds=0),
             )
         except kubernetes.client.rest.ApiException as e:
@@ -260,17 +257,22 @@ def cleanup_pods(namespace, labels):
 
 @pytest.fixture(scope='session')
 def cleanup_binder_pods(request):
-    """Cleanup running binders.
-
-    Fires at beginning and end of session
-    """
+    """Cleanup running user sessions at the beginning and end of a session."""
     if not K8S_AVAILABLE:
-        # kubernetes not available, nothing to do
         return
-
     def cleanup():
-        return cleanup_pods(K8S_NAMESPACE,
-                            {'component': 'singleuser-server'})
+        return cleanup_pods({'component': 'singleuser-server'})
+    cleanup()
+    request.addfinalizer(cleanup)
+
+
+@pytest.fixture(scope='session')
+def cleanup_build_pods(request):
+    """Cleanup running build pods at the beginning and end of a session."""
+    if not K8S_AVAILABLE:
+        return
+    def cleanup():
+        return cleanup_pods({'component': 'binderhub-build'})
     cleanup()
     request.addfinalizer(cleanup)
 
@@ -280,28 +282,6 @@ def needs_launch(app, cleanup_binder_pods):
     """Fixture to skip tests if launch is unavailable"""
     if not BINDER_URL and not app.hub_url:
         raise pytest.skip("test requires launcher (jupyterhub)")
-
-
-@pytest.fixture(scope='session')
-def cleanup_build_pods(request):
-    if not K8S_AVAILABLE:
-        # kubernetes not available, nothing to do
-        return
-    kube = kubernetes.client.CoreV1Api()
-    try:
-        kube.create_namespace(
-            kubernetes.client.V1Namespace(metadata={'name': K8S_NAMESPACE})
-        )
-    except kubernetes.client.rest.ApiException as e:
-        # ignore 409: already exists
-        if e.status != 409:
-            raise
-
-    def cleanup():
-        return cleanup_pods(K8S_NAMESPACE,
-                            {'component': 'binderhub-build'})
-    cleanup()
-    request.addfinalizer(cleanup)
 
 
 @pytest.fixture

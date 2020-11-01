@@ -43,18 +43,18 @@ setup_minikube () {
 }
 
 await_jupyterhub() {
-    kubectl rollout status --watch --timeout 300s deployment/proxy --namespace "${K8S_NAMESPACE:-binderhub-test}" \
- && kubectl rollout status --watch --timeout 300s deployment/hub --namespace "${K8S_NAMESPACE:-binderhub-test}" \
+    kubectl rollout status --watch --timeout 300s deployment/proxy \
+ && kubectl rollout status --watch --timeout 300s deployment/hub \
  && (
-        if kubectl get deploy/autohttps --namespace "${K8S_NAMESPACE:-binderhub-test}" > /dev/null 2>&1; then
-            kubectl rollout status --watch --timeout 300s deployment/autohttps --namespace "${K8S_NAMESPACE:-binderhub-test}" || exit 1
+        if kubectl get deploy/autohttps > /dev/null 2>&1; then
+            kubectl rollout status --watch --timeout 300s deployment/autohttps || exit 1
         fi
     )
 }
 
 await_binderhub() {
     await_jupyterhub
-    kubectl rollout status --watch --timeout 300s deployment/binder --namespace "${K8S_NAMESPACE:-binderhub-test}"
+    kubectl rollout status --watch --timeout 300s deployment/binder
 }
 
 generate_binderhub_chart_config_remote () {
@@ -70,14 +70,14 @@ generate_binderhub_chart_config_remote () {
 
 full_namespace_report () {
     # list config (secret,configmap)
-    kubectl get secret,cm --namespace "${K8S_NAMESPACE:-binderhub-test}"
+    kubectl get secret,cm
     # list networking (service,ingress)
-    kubectl get svc,ing --namespace "${K8S_NAMESPACE:-binderhub-test}"
+    kubectl get svc,ing
     # list workloads (deployment,statefulset,daemonset,pod)
-    kubectl get deploy,sts,ds,pod --namespace "${K8S_NAMESPACE:-binderhub-test}"
+    kubectl get deploy,sts,ds,pod
 
     # if any pod has any non-ready -> show its containers' logs
-    kubectl get pods -o json --namespace "${K8S_NAMESPACE:-binderhub-test}" \
+    kubectl get pods -o json \
     | jq '
         .items[]
         | select(
@@ -85,17 +85,17 @@ full_namespace_report () {
         )
         | .metadata.name' \
     | xargs --max-args 1 --no-run-if-empty \
-    sh -c 'printf "\nPod with non-ready container detected\n - Logs of $0:\n"; kubectl logs --all-containers $0 --namespace ${K8S_NAMESPACE:-binderhub-test}'
+    sh -c 'printf "\nPod with non-ready container detected\n - Logs of $0:\n"; kubectl logs --all-containers $0'
 
     # if any pods that should be scheduled by the user-scheduler are pending ->
     # show user-scheduler's logs
     (
-        kubectl get pods -l "component in (user-placeholder,singleuser-server)" -o json --namespace "${K8S_NAMESPACE:-binderhub-test}" \
+        kubectl get pods -l "component in (user-placeholder,singleuser-server)" -o json \
         | jq -r '
             .items[]
             | select(.status.phase == "Pending")
             | .metadata.name
         '
     ) | xargs --max-args 1 --no-run-if-empty --max-lines \
-    sh -c 'printf "\nPending user pod detected ($0)\n - Logs of deploy/user-scheduler:\n"; kubectl logs --all-containers deploy/user-scheduler --namespace ${K8S_NAMESPACE:-binderhub-test}'
+    sh -c 'printf "\nPending user pod detected ($0)\n - Logs of deploy/user-scheduler:\n"; kubectl logs --all-containers deploy/user-scheduler'
 }
