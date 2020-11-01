@@ -1,8 +1,0 @@
-#!/bin/bash
-# main test script: runs the basic Python tests,
-# with JupyterHub launched via helm
-
-./testing/local-binder-k8s-hub/install-jupyterhub-chart
-await_jupyterhub
-
-pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub

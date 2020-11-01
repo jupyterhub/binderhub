@@ -33,13 +33,14 @@ before_install:
   #       available on travis.
   - pip install "docker~=4.2.0"
 
+  # Fix to avoid rebuilding images already built
+  - remove_docker_mirror_on_travis
+
+  # Explicitly set a namespace to use
   - export K8S_NAMESPACE=binderhub-test
 
 
 install:
-  # Fix to avoid rebuilding images already built
-  - remove_docker_mirror_on_travis
-
   # Setup our minikube based Kubernetes cluster
   - setup_minikube
   - setup_kubectl
@@ -80,23 +81,49 @@ jobs:
     - stage: test
       name: main
       script:
-        - ./ci/test-main
+        - ./testing/local-binder-k8s-hub/install-jupyterhub-chart
+        - await_jupyterhub
+        - pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
+
     - stage: test
       name: auth
       script:
-        - ./ci/test-auth
+        - ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
+        - await_jupyterhub
+        - pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
+
     - stage: test
       name: helm
       script:
-        - ./ci/test-helm
+        # Prepare
+        - echo "Preparing local BinderHub Helm chart"
+        - helm dependency update ./helm-chart/binderhub
+        - (cd helm-chart && chartpress)
+        - git --no-pager diff
+
+        # Install
+        - echo "Installing local BinderHub Helm chart with JupyterHub as a dependency into k8s cluster"
+        - generate_binderhub_chart_config_remote
+        - |
+          helm upgrade --install --create-namespace --namespace $K8S_NAMESPACE \
+              binderhub-test helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml
+        - await_binderhub
+
+        # Test
+        - export BINDER_URL=http://$(minikube ip):30901
+        - echo "Running tests against $BINDER_URL"
+        - mark="remote${GITHUB_ACCESS_TOKEN:+ and not github_api}"
+        - pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
+
 
     - stage: publish
       name: publish:helm-chart
-      install:
-        - remove_docker_mirror_on_travis
+      install:  # overrides default
         - setup_helm
         - pip install chartpress
-      script:
+      script:   # overrides default
         - ./ci/publish
       after_failure:
         - echo "Required dummy override of default 'after_failure' in .travis.yml."

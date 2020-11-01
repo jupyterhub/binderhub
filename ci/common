@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Use https://www.shellcheck.net/ to reduce mistakes if you make changes to this file.
 
 remove_docker_mirror_on_travis() {
@@ -13,7 +13,6 @@ remove_docker_mirror_on_travis() {
     sudo systemctl restart docker
     docker ps -a
 }
-export -f remove_docker_mirror_on_travis
 
 setup_kubectl () {
     echo "setup kubectl"
@@ -21,13 +20,11 @@ setup_kubectl () {
     chmod +x kubectl
     sudo mv kubectl /usr/local/bin/
 }
-export -f setup_kubectl
 
 setup_helm () {
     echo "setup helm ${HELM_VERSION}"
     curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION=v${HELM_VERSION} bash
 }
-export -f setup_helm
 
 setup_minikube () {
     # install conntrack for minikube with k8s 1.18.2
@@ -44,7 +41,6 @@ setup_minikube () {
     sudo CHANGE_MINIKUBE_NONE_USER=true minikube start --vm-driver=none --kubernetes-version=v${KUBE_VERSION}
     minikube update-context
 }
-export -f setup_minikube
 
 await_jupyterhub() {
     kubectl rollout status --watch --timeout 300s deployment/proxy --namespace ${K8S_NAMESPACE:-binderhub-test} \
@@ -55,13 +51,22 @@ await_jupyterhub() {
         fi
     )
 }
-export -f await_jupyterhub
 
 await_binderhub() {
     await_jupyterhub
     kubectl rollout status --watch --timeout 300s deployment/binder --namespace ${K8S_NAMESPACE:-binderhub-test}
 }
-export -f await_binderhub
+
+generate_binderhub_chart_config_remote () {
+    file=testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml
+    echo "config:" > $file
+    echo "  BinderHub:" >> $file
+    echo "    hub_url: http://$(minikube ip):30902"
+    if [[ ! -z "$GITHUB_ACCESS_TOKEN" ]]; then
+    echo "  GitHubRepoProvider:" >> $file
+    echo "    access_token: $GITHUB_ACCESS_TOKEN" >> $file
+    fi
+}
 
 full_namespace_report () {
     # list config (secret,configmap)
@@ -94,4 +99,3 @@ full_namespace_report () {
     ) | xargs --max-args 1 --no-run-if-empty --max-lines \
     sh -c 'printf "\nPending user pod detected ($0)\n - Logs of deploy/user-scheduler:\n"; kubectl logs --all-containers deploy/user-scheduler --namespace ${K8S_NAMESPACE:-binderhub-test}'
 }
-export -f full_namespace_report
