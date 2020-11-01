@@ -6,11 +6,20 @@
 # - BinderHub:  standalone local installation
 # - JupyterHub: standalone k8s installation
 
+import os
 from urllib.parse import urlparse
 
+# As this config file reference traitlet values (c.BinderHub.hub_api_token,
+# c.BinderHub.hub_url) set in the more general config file, it must load the
+# more general config file first.
+here = os.path.abspath(os.path.dirname(__file__))
+load_subconfig(os.path.join(here, 'binderhub_config.py'))
+
+# Additional auth related configuration
+c.BinderHub.base_url = '/'
 c.BinderHub.auth_enabled = True
-parsed_hub_url = urlparse(c.BinderHub.hub_url)
-c.HubOAuth.hub_host = '{}://{}'.format(parsed_hub_url.scheme, parsed_hub_url.netloc)
+url = urlparse(c.BinderHub.hub_url)
+c.HubOAuth.hub_host = f'{url.scheme}://{url.netloc}'
 c.HubOAuth.api_token = c.BinderHub.hub_api_token
 c.HubOAuth.api_url = c.BinderHub.hub_url + '/hub/api/'
 c.HubOAuth.base_url = c.BinderHub.base_url
