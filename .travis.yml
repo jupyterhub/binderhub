@@ -80,39 +80,47 @@ jobs:
       script:
         - ./testing/local-binder-k8s-hub/install-jupyterhub-chart
         - await_jupyterhub
-        - pytest -m "not auth_test" --log-cli-level=10 -vsx --cov binderhub
+        - pytest -m "not auth" --log-cli-level=10 -vsx --cov binderhub
 
     - stage: test
       name: auth
       script:
         - ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
         - await_jupyterhub
-        - pytest -m "auth_test" --log-cli-level=10 -vsx --cov binderhub
+        - pytest -m "auth" --log-cli-level=10 -vsx --cov binderhub
 
     - stage: test
       name: helm
       script:
-        # Prepare
+        # Prepare:  builds images and updates default values.yaml to reference
+        #           the images
         - echo "Preparing local BinderHub Helm chart"
         - helm dependency update ./helm-chart/binderhub
         - (cd helm-chart && chartpress)
         - git --no-pager diff
 
-        # Install
-        - echo "Installing local BinderHub Helm chart with JupyterHub as a dependency into k8s cluster"
-        - generate_binderhub_chart_config_remote
+        # Validate: renders Helm chart templates and validates the rendered k8s
+        #           manifests against the k8s api-server.
         - |
-          helm upgrade --install \
-              binderhub-test helm-chart/binderhub \
+          helm template --validate binderhub-test helm-chart/binderhub \
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-              --values testing/k8s-binder-k8s-hub/binderhub-chart-config-remote.yaml
+              --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
+              --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+
+        # Install:  installs the local BinderHub Helm chart and await it to
+        #           become ready.
+        - echo "Installing local BinderHub Helm chart with JupyterHub as a dependency into k8s cluster"
+        - |
+          helm upgrade --install binderhub-test helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
+              --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
         - await_binderhub
 
         # Test
         - export BINDER_URL=http://$(minikube ip):30901
         - echo "Running tests against $BINDER_URL"
-        - mark="remote${GITHUB_ACCESS_TOKEN:+ and not github_api}"
-        - pytest -vsx -m "$mark" --log-cli-level=10 --cov binderhub
+        - pytest -vsx -m "remote" --log-cli-level=10 --cov binderhub
 
 
     - stage: publish

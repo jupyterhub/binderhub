@@ -29,7 +29,11 @@ binderhub_config_auth_additions_path = os.path.join(root, 'testing/local-binder-
 
 # These are automatically determined
 K8S_AVAILABLE = False
-K8S_NAMESPACE = ""
+
+# get the current context's namespace or assume it is "default"
+K8S_NAMESPACE = subprocess.check_output([
+    "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
+], text=True).strip() or "default"
 ON_TRAVIS = os.environ.get('TRAVIS')
 
 # set BINDER_URL to run tests against an already-running binderhub
@@ -44,7 +48,7 @@ def pytest_configure(config):
     """
     # register our custom markers
     config.addinivalue_line(
-        "markers", "auth_test: mark test to run only on auth environments"
+        "markers", "auth: mark test to run only on auth environments"
     )
     config.addinivalue_line(
         "markers", "remote: mark test to run only on remote environments"
@@ -122,7 +126,6 @@ def _binderhub_config():
     """
     cfg = PyFileConfigLoader(binderhub_config_path).load_config()
     global K8S_AVAILABLE
-    global K8S_NAMESPACE
     try:
         kubernetes.config.load_kube_config()
     except Exception:
@@ -134,11 +137,6 @@ def _binderhub_config():
         K8S_AVAILABLE = True
     if REMOTE_BINDER:
         return
-
-    # get the current context's namespace or assume it is "default"
-    K8S_NAMESPACE = subprocess.check_output([
-        "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
-    ], text=True).strip() or "default"
 
     # check if Hub is running and ready
     try:

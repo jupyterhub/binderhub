@@ -151,6 +151,12 @@ continue.
    helm delete binderhub-test
    ```
 
+1. To stop running the Kubernetes cluster...
+
+   ```bash
+   minikube stop
+   ```
+
 ## Develop Helm chart
 
 This requires `helm` and a functional Kubernetes cluster. Please do preliminary
@@ -189,7 +195,8 @@ continue.
    ```bash
    helm template --validate binderhub-test helm-chart/binderhub \
       --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-      --set config.BinderHub.hub_url=http://$(minikube ip):30902
+      --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
+      --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
    ```
 
    If the validation succeeds, go ahead and upgrade/install the Helm chart.
@@ -197,7 +204,8 @@ continue.
    ```bash
    helm upgrade --install binderhub-test helm-chart/binderhub \
       --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-      --set config.BinderHub.hub_url=http://$(minikube ip):30902
+      --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
+      --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
 
    echo "BinderHub inside the Minikube based Kubernetes cluster is starting up at http://$(minikube ip):30901"
    ```
@@ -210,6 +218,12 @@ continue.
 
    ```bash
    helm delete binderhub-test
+   ```
+
+1. To stop running the Kubernetes cluster...
+
+   ```bash
+   minikube stop
    ```
 
 ## Kubernetes setup
@@ -301,36 +315,26 @@ VM underneath.
 
 
 
-### Day to day development tasks
+## Running tests
 
-* Start and stop minikube with `minikube start` and `minikube stop`.
-* Install JupyterHub in `minikube` with helm `./testing/local-binder-k8s-hub/install-jupyterhub-chart`
-* Setup `docker` to use the same Docker daemon as your minikube cluster `eval $(minikube docker-env)`
-* Start BinderHub `python3 -m binderhub -f testing/local-binder-k8s-hub/binderhub_config.py`
-* Visit your BinderHub at[http://localhost:8585](http://localhost:8585)
+This git repository contains `pytest` based tests that you can run locally.
+Depending on your development setup, you may want to run different kind of
+tests. You can get some hints on what tests to run and how by inspecting
+`.travis.yaml`.
 
-To execute most of our test suite you need a running minikube cluster. It does
-not need to have anything installed on it though:
+### Environment variables influencing tests
+- `BINDER_URL`: An address of an already running BinderHub as reachable from the
+  tests. If this is set, the test suite will not start temporary local BinderHub
+  servers but instead interact with the remote BinderHub.
+- `GITHUB_ACCESS_TOKEN`: A GitHub access token to help avoid quota limitations
+  for anonymous users. It is used to enable certain tests making many calls to
+  GitHub API.
 
-```bash
-minikube start
-pytest -vxs -m "not auth_test"
-```
-
-The tests should generate familiar pytest like output and complete in a few
-seconds.
-
-To execute all the main tests use `./ci/test-main` which will setup a
-JupyterHub on minikube for you. These tests will generate a lot of output and
-take a few minutes to run. The tests will attempt to clean up after themselves
-on your minikube cluster.
-
-To execute the tests related to authentication use `./ci/test-auth` which will
-setup a JupyterHub on minikube for you and use configuration files to configure
-your BinderHub to require authentication. These tests will generate a lot of
-output and take a few minutes to run. The tests will attempt to clean up after
-themselves on your minikube cluster.
-
+### Pytest marks labelling tests
+- `remote`: Tests for them the BinderHub is already running somewhere.
+- `github_api`: Tests that communicate with the GitHub API a lot.
+- `auth`: Tests related to BinderHub's usage of JupyterHub as an OAuth2 Identity
+  Provider (IdP) for non public access.
 
 
 ## Common maintainer tasks
