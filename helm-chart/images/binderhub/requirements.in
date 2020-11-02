@@ -4,3 +4,10 @@
 #    ./dependencies freeze --upgrade
 #
 google-cloud-logging
+
+# pins for our image
+# kubernetes is pinned to 9 because we have observed a performance issue in 12
+# where listing pods took ~6s instead of ~1s
+kubernetes==9.*
+# jupyterhub is pinned to match the JupyterHub Helm chart's version of jupyterhub
+jupyterhub==1.1.*
