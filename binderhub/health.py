@@ -46,6 +46,7 @@ def false_if_raises(f):
         try:
             res = await f(*args, **kwargs)
         except Exception as e:
+            app_log.exception(f"Error checking {f.__name__}")
             res = False
         return res
 
@@ -185,6 +186,9 @@ class HealthHandler(BaseHandler):
         overall = all(
             check["ok"] for check in checks if check["service"] != "Pod quota"
         )
+        if not overall:
+            unhealthy = [check for check in checks if not check["ok"]]
+            app_log.warning(f"Unhealthy services: {unhealthy}")
         return overall, checks
 
     async def get(self):

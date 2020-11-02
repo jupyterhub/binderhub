@@ -5,6 +5,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import json
+import logging
 import traceback
 from http.cookies import SimpleCookie
 from urllib.parse import urlparse
@@ -78,6 +79,8 @@ def log_request(handler):
     """
     status = handler.get_status()
     request = handler.request
+    request_time = 1000.0 * request.request_time()  # seconds to milliseconds
+
     if status == 304 or (
         status < 300
         and (
@@ -86,18 +89,20 @@ def log_request(handler):
         )
     ):
         # static-file success and 304 Found are debug-level
-        log_method = access_log.debug
+        log_level = logging.DEBUG
     elif status < 400:
-        log_method = access_log.info
+        log_level = logging.INFO
     elif status < 500:
-        log_method = access_log.warning
+        log_level = logging.WARNING
     else:
-        log_method = access_log.error
+        log_level = logging.ERROR
+
+    if request_time >= 1000 and log_level < logging.INFO:
+        # slow responses are always logged at least INFO-level
+        log_level = logging.INFO
 
     uri = _scrub_uri(request.uri)
     headers = _scrub_headers(request.headers)
-
-    request_time = 1000.0 * handler.request.request_time()
 
     try:
         user = handler.current_user
@@ -124,7 +129,7 @@ def log_request(handler):
     )
     msg = "{status} {method} {uri}{location} ({user}@{ip}) {request_time:.2f}ms"
     if status >= 500 and status not in {502, 503}:
-        log_method(json.dumps(headers, indent=2))
+        access_log.log(log_level, json.dumps(headers, indent=2))
     elif status in {301, 302}:
         # log redirect targets
         # FIXME: _headers is private, but there doesn't appear to be a public way
@@ -132,4 +137,4 @@ def log_request(handler):
         location = handler._headers.get("Location")
         if location:
             ns["location"] = " -> {}".format(_scrub_uri(location))
-    log_method(msg.format(**ns))
+    access_log.log(log_level, msg.format(**ns))
