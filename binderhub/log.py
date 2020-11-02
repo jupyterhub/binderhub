@@ -78,6 +78,7 @@ def log_request(handler):
     """
     status = handler.get_status()
     request = handler.request
+    request_time = 1000.0 * request.request_time()  # seconds to milliseconds
     if status == 304 or (
         status < 300
         and (
@@ -96,8 +97,6 @@ def log_request(handler):
 
     uri = _scrub_uri(request.uri)
     headers = _scrub_headers(request.headers)
-
-    request_time = 1000.0 * handler.request.request_time()
 
     try:
         user = handler.current_user
