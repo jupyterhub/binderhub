@@ -154,7 +154,7 @@ def _binderhub_config():
 class RemoteBinderHub(object):
     """Mock class for the app fixture when Binder is remote
 
-    Has a URL for the binder location and a configured BinnderHub instance
+    Has a URL for the binder location and a configured BinderHub instance
     so tests can look at the configuration of the hub.
 
     Note: this only gives back the default configuration. It could be that the

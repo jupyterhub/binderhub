@@ -4,13 +4,16 @@ Welcome! As a [Jupyter](https://jupyter.org) project, we follow the
 [Jupyter contributor guide](https://jupyter.readthedocs.io/en/latest/contributing/content-contributor.html).
 
 Depending on what you want to develop, you can setup BinderHub in different ways.
-- [Develop documentation](#).
-- [Develop user interface](#). A BinderHub webserver is running locally and
+- [Develop documentation](#develop-documentation).
+- [Develop user interface](#develop-user-interface). A BinderHub webserver is running locally and
   JupyterHub is mocked, this setup doesn't involve Kubernetes.
-- [Develop Kubernetes integration](#). A BinderHub webserver is running locally,
+- [Develop Kubernetes integration](#develop-kubernetes-integration). A BinderHub webserver is running locally,
   and JupyterHub is installed in a Kubernetes cluster.
-- [Develop Helm chart](#) - The BinderHub Helm chart with JupyterHub as a
+- [Develop Helm chart](#develop-helm-chart) - The BinderHub Helm chart with JupyterHub as a
   dependency is installed in a Kubernetes cluster.
+ 
+ This document also contains information on [how to run tests](#running-tests) and
+ [common maintainer tasks](#common-maintainer-tasks).
 
 
 ## Develop documentation
@@ -76,10 +79,9 @@ installed.
    ```
 
 1. Create the JS and CSS bundles BinderHub serves as a webserver to visitors.
-   Repeat this step if you change the source JS or CSS.
 
    ```bash
-   npm run webpack
+   npm run webpack:watch
    ```
 
 1. Start the BinderHub webserver locally.
@@ -88,21 +90,23 @@ installed.
    python3 -m binderhub -f testing/local-binder-mocked-hub/binderhub_config.py
    ```
 
-1. Visit the BinderHub werbserver at http://localhost:8585.
+1. Visit the BinderHub webserver at http://localhost:8585.
 
 Building and launching repositories will not work. You can still work on the
 user interface of those parts as BinderHub is configured to fake those actions.
 You can tell you are using the fake builder and launcher from the fact that the
 build will never complete.
 
-To learn how to set yourself with a BinderHub development environment that
-lets you modify the builder and launcher refer to
-[Kubernetes integration changes](#Kubernetes-integration-changes).
+To learn how to set yourself with a BinderHub development environment that lets
+you modify the builder and launcher refer to [Develop Kubernetes
+integration](#develop-kubernetes-integration) or [Develop Helm
+chart](#develop-helm-chart).
 
 ## Develop Kubernetes integration
 
-This requires `helm` and a functional Kubernetes cluster. Please do preliminary
-Kubernetes setup if you haven't already before continuing here.
+This requires `helm` and a functional Kubernetes cluster. Please do
+[preliminary Kubernetes setup](#kubernetes-setup) if you haven't already
+before continuing here.
 
 With a Kubernetes cluster running, as you verify with `kubectl version`, you can
 continue.
@@ -145,6 +149,9 @@ continue.
    you change. You can also start running `pytest` tests to verify the
    Deployment functions as it should.
 
+
+### Cleanup resources
+
 1. To cleanup the JupyterHub Helm chart you have installed in Kubernetes...
 
    ```bash
@@ -159,8 +166,9 @@ continue.
 
 ## Develop Helm chart
 
-This requires `helm` and a functional Kubernetes cluster. Please do preliminary
-Kubernetes setup if you haven't already before continuing here.
+This requires `helm` and a functional Kubernetes cluster. Please do
+[preliminary Kubernetes setup](#kubernetes-setup) if you haven't already
+before continuing here.
 
 With a Kubernetes cluster running, as you verify with `kubectl version`, you can
 continue.
@@ -213,6 +221,8 @@ continue.
 1. Congratulations, you can now make changes and run the step above again to see
    how they influence the deployment. You can also start running `pytest` tests
    to verify the Deployment functions as it should.
+
+### Cleanup resources
 
 1. To cleanup resources you have installed and start fresh...
 

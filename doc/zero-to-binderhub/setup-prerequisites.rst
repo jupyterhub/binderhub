@@ -26,9 +26,9 @@ for: installing, upgrading and managing applications on a Kubernetes cluster.
 Helm packages are called *charts*. We will be installing and managing JupyterHub
 on our Kubernetes cluster using a Helm chart.
 
-A Helm *chart* are mostly Helm *templates* and default *values* that are used to
+A Helm *chart* is mostly Helm *templates* and default *values* that are used to
 render the templates into valid k8s resources. Each installation of a chart is
-called a *releases*, and each version of the release is called a *revision*.
+called a *release*, and each version of the release is called a *revision*.
 
 Several `methods to install Helm
 <https://github.com/helm/helm/blob/master/docs/install.md>`_ exist, the simplest
