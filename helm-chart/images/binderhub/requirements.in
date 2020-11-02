@@ -4,3 +4,7 @@
 #    ./dependencies freeze --upgrade
 #
 google-cloud-logging
+
+# pins for our image
+kubernetes==9.*
+jupyterhub==1.1.*

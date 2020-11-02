@@ -27,8 +27,8 @@ ipython-genutils==0.2.0   # via traitlets
 jinja2==2.11.2            # via -r binderhub.in, jupyterhub
 jsonschema==3.2.0         # via -r binderhub.in, jupyter-telemetry
 jupyter-telemetry==0.1.0  # via jupyterhub
-jupyterhub==1.2.0         # via -r binderhub.in
-kubernetes==12.0.0        # via -r binderhub.in
+jupyterhub==1.1.0         # via -r binderhub.in, -r requirements.in
+kubernetes==9.0.1         # via -r binderhub.in, -r requirements.in
 mako==1.1.3               # via alembic
 markupsafe==1.1.1         # via jinja2, mako
 oauthlib==3.1.0           # via jupyterhub, requests-oauthlib
