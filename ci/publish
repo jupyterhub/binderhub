@@ -18,11 +18,11 @@ docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
 # Activate logging of bash commands now that the sensitive stuff is done
 set -x
 
-cd helm-chart
-
 # As chartpress uses git to push to our Helm chart repository, we configure
 # git ahead of time to use the identity we decrypted earlier.
 export GIT_SSH_COMMAND="ssh -i ${PWD}/ci/id_rsa"
+
+cd helm-chart
 
 if [ "${TRAVIS_TAG:-}" == "" ]; then
     # Using --long, we are ensured to get a build suffix, which ensures we don't
