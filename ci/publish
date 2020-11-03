@@ -22,17 +22,31 @@ set -x
 # git ahead of time to use the identity we decrypted earlier.
 export GIT_SSH_COMMAND="ssh -i ${PWD}/ci/id_rsa"
 
+# Run chartpress from the folder where chartpress.yaml is
 cd helm-chart
-
 if [ "${TRAVIS_TAG:-}" == "" ]; then
     # Using --long, we are ensured to get a build suffix, which ensures we don't
     # build the same tag twice. Using --extra-message, we help automation like
     # henchbot to submit update PRs to jupyterhub/mybinder.org-deploy.
     #
-    # ref: https://github.com/jupyterhub/chartpress#usage
-    # ref: https://github.com/henchbot/mybinder.org-upgrades
-    LATEST_COMMIT_TITLE=$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/')
-    chartpress --push --publish-chart --long --extra-message "${TRAVIS_REPO_SLUG}${LATEST_COMMIT_TITLE}"
+    # ref: https://github.com/jupyterhub/chartpress#usage ref:
+    # https://github.com/henchbot/mybinder.org-upgrades
+    #
+    # NOTE: By crafting a smart commit message for the publication commit to
+    #       jupyterhub/helm-chart, we can make GitHub help us mention the
+    #       publication commit in the PR or commit. This helps users realize
+    #       what version they need to upgrade to etc in order to be able to
+    #       benefit from the merged PR in a development release.
+    #
+    #       GitHub merge commits contain a PR reference like #123. `sed` looks
+    #       to extract either a PR reference like #123 or fall back to create a
+    #       commit hash reference like @123abcd. Combined with TRAVIS_REPO_SLUG
+    #       we craft a commit message like jupyterhub/binderhub#123 or
+    #       jupyterhub/binderhub@123abcd which will be understood as a reference
+    #       by GitHub.
+    PR_OR_HASH=$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/' | sed 's/^\([0-9a-f]*\)-.*/@\1/')
+    EXTRA_MESSAGE="${TRAVIS_REPO_SLUG}${PR_OR_HASH}"
+    chartpress --push --publish-chart --long --extra-message "${EXTRA_MESSAGE}"
 else
     # Setting a tag explicitly enforces a rebuild if this tag had already been
     # built and we wanted to override it.
