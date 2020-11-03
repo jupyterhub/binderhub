@@ -1,0 +1,34 @@
+# A JupyterHub Helm chart config for use whenever JupyterHub is deployed by
+# itself.
+
+# NOTE: This is a mirror of the jupyterhub section in
+#       binderhub-chart-config.yaml in testing/k8s-binder-k8s-hub, keep these
+#       two files synced please.
+debug:
+  enabled: true
+
+custom:
+  cors:
+    allowOrigin: "*"
+
+hub:
+  # cookieSecret must be a hex encoded even length string
+  cookieSecret: "cccccccccc"
+  db:
+    type: "sqlite-memory"
+  services:
+    binder:
+      apiToken: "dummy-binder-secret-token"
+
+proxy:
+  secretToken: "dummy-proxy-secret-token"
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30902
+
+singleuser:
+  storage:
+    type: none
+  memory:
+    guarantee: null

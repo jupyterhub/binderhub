@@ -1,5 +1,5 @@
 beautifulsoup4
-chartpress==0.6.*
+chartpress==0.7.*
 click
 codecov
 html5lib

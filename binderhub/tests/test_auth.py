@@ -25,7 +25,7 @@ def use_session():
     ],
     indirect=['app']  # send param True to app fixture, so that it loads authentication configuration
 )
-@pytest.mark.auth_test
+@pytest.mark.auth
 async def test_auth(app, path, authenticated, use_session):
     url = f'{app.url}{path}'
     r = await async_requests.get(url)

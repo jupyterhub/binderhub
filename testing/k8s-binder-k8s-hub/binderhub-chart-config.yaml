@@ -1,0 +1,45 @@
+cors:
+  allowOrigin: '*'
+
+service:
+  type: NodePort
+  nodePort: 30901
+
+config:
+  BinderHub:
+    hub_url: http://192.168.99.100:30902
+    use_registry: false
+    log_level: 10
+
+# NOTE: This is a mirror of the jupyterhub section in
+#       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
+#       two files synced please.
+jupyterhub:
+  debug:
+    enabled: true
+
+  custom:
+    cors:
+      allowOrigin: "*"
+
+  hub:
+    # cookieSecret must be a hex encoded even length string
+    cookieSecret: "cccccccccc"
+    db:
+      type: "sqlite-memory"
+    services:
+      binder:
+        apiToken: "dummy-binder-secret-token"
+
+  proxy:
+    secretToken: "dummy-proxy-secret-token"
+    service:
+      type: NodePort
+      nodePorts:
+        http: 30902
+
+  singleuser:
+    storage:
+      type: none
+    memory:
+      guarantee: null
