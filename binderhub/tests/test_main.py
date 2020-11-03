@@ -80,7 +80,6 @@ async def test_about_handler(app):
     r = await async_requests.get(app.url + "/about")
     assert r.status_code == 200
     assert "This website is powered by" in r.text
-    assert binder_version in r.text
 
 
 @pytest.mark.remote
