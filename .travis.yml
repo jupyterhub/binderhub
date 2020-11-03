@@ -80,14 +80,14 @@ jobs:
       script:
         - ./testing/local-binder-k8s-hub/install-jupyterhub-chart
         - await_jupyterhub
-        - pytest -m "not auth" --log-cli-level=10 -vsx --cov binderhub
+        - pytest -m "not auth" -vx --cov binderhub
 
     - stage: test
       name: auth
       script:
         - ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
         - await_jupyterhub
-        - pytest -m "auth" --log-cli-level=10 -vsx --cov binderhub
+        - pytest -m "auth" -vx --cov binderhub
 
     - stage: test
       name: helm
@@ -120,7 +120,7 @@ jobs:
         # Test
         - export BINDER_URL=http://$(minikube ip):30901
         - echo "Running tests against $BINDER_URL"
-        - pytest -vsx -m "remote" --log-cli-level=10 --cov binderhub
+        - pytest -m "remote" -vx --cov binderhub
 
 
     - stage: publish
