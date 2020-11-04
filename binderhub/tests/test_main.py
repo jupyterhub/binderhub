@@ -80,6 +80,7 @@ async def test_about_handler(app):
     r = await async_requests.get(app.url + "/about")
     assert r.status_code == 200
     assert "This website is powered by" in r.text
+    assert binder_version.split("+")[0] in r.text
 
 
 @pytest.mark.remote
@@ -90,7 +91,7 @@ async def test_versions_handler(app):
 
     data = r.json()
     assert data['builder'] == app.build_image
-    assert data['binderhub'] == binder_version
+    assert data['binderhub'].split("+")[0] == binder_version.split("+")[0]
 
 
 @pytest.mark.parametrize(
