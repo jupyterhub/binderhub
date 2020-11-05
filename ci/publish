@@ -45,7 +45,7 @@ if [ "${TRAVIS_TAG:-}" == "" ]; then
     #       jupyterhub/binderhub@123abcd which will be understood as a reference
     #       by GitHub.
     PR_OR_HASH=$(git log -1 --pretty=%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/' | sed 's/^\([0-9a-f]*\)-.*/@\1/')
-    EXTRA_MESSAGE="${TRAVIS_REPO_SLUG}${PR_OR_HASH}"
+    EXTRA_MESSAGE="${TRAVIS_REPO_SLUG}${PR_OR_HASH} ${LATEST_COMMIT_TITLE}"
     chartpress --push --publish-chart --long --extra-message "${EXTRA_MESSAGE}"
 else
     # Setting a tag explicitly enforces a rebuild if this tag had already been
