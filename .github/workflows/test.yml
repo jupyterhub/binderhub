@@ -58,6 +58,13 @@ jobs:
               curl \
               libcurl4-openssl-dev \
               libssl-dev
+      - name: Setup JavaScript dependencies and run webpack
+        shell: bash
+        run: |
+            nvm install 14
+            nvm use 14
+            npm install
+            npm run webpack
       - name: Setup Python package dependencies
         shell: bash
         run: |
@@ -76,13 +83,18 @@ jobs:
             set -e
             . ci/common
             await_jupyterhub
+            # Next few commands are here for sanit checking/debugging of CI
+            # related issues
             echo "Proxy service details"
             kubectl get svc proxy-public -o json
+            echo
             echo "kubectl describe svc proxy-public"
             kubectl describe svc proxy-public
+            echo
             echo "kubectl get svc"
             kubectl get svc
-            echo "curl http://localhost:30902/hub/api/"
+            echo
+            echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
             curl http://localhost:30902/hub/api/
       - name: Run tests
         # running the "main" tests means "all tests that aren't auth"
