@@ -20,7 +20,7 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
         """
         return url.split('?')[0]
 
-    def fetch_mock(self, request):
+    def fetch_mock(self, request, raise_error=True):
         """Fetch a mocked request
 
         Arguments:
@@ -35,7 +35,7 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
         headers = HTTPHeaders(mock_data.get('headers', {}))
         response = HTTPResponse(request, code, headers=headers)
         response.buffer = io.BytesIO(mock_data['body'].encode('utf8'))
-        if code >= 400:
+        if code >= 400 and raise_error:
             raise HTTPError(mock_data['code'], response=response)
 
         return response
@@ -71,7 +71,9 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
 
         error = None
         try:
-            response = await gen.maybe_future(fetch(request))
+            response = await gen.maybe_future(
+                fetch(request, raise_error=kwargs.get("raise_error", True))
+            )
         except HTTPError as e:
             error = e
             response = e.response
