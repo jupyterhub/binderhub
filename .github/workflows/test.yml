@@ -1,0 +1,90 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+jobs:
+  main:
+    runs-on: ubuntu-20.04
+    strategy:
+      # keep running so we can see if tests with other versions pass
+      fail-fast: false
+      matrix:
+        include:
+            # This version of k3s uses kubernetes v1.18
+            - k3s-version: v1.18.10+k3s2
+              helm_version: v3.4.0
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # chartpress requires the full history
+          fetch-depth: 0
+      - uses: manics/action-k3s-helm@v0.2.1
+        with:
+          k3s-version: ${{ matrix.k3s-version }}
+          helm-version: ${{ matrix.helm-version }}
+          metrics-enabled: false
+          traefik-enabled: false
+          docker-enabled: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display kubernetes related details
+        shell: bash
+        run: |
+            echo "kubeconfig: $KUBECONFIG"
+            echo
+            echo "List of running pods:"
+            kubectl get pods --all-namespaces
+            echo
+            echo "List of cluster nodes:"
+            kubectl get nodes
+            echo
+            echo "Helm list output:"
+            helm list
+      - name: Setup helm chart repositories
+        shell: bash
+        run: |
+            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+            helm repo update
+      - name: Setup OS level dependencies
+        shell: bash
+        run: |
+            sudo apt-get update
+            sudo apt-get install --yes \
+              build-essential \
+              curl \
+              libcurl4-openssl-dev \
+              libssl-dev
+      - name: Setup Python package dependencies
+        shell: bash
+        run: |
+            # Install development requirements, package requirements, and frozen image
+            # requirements, with an increasing priority.
+            pip install -r dev-requirements.txt
+            pip install .
+            pip install -r helm-chart/images/binderhub/requirements.txt
+      - name: Install JupyterHub chart
+        shell: bash
+        run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart
+      - name: Wait for JupyterHub to be ready
+        shell: bash
+        run: |
+            # Wait for JupyterHub to be ready
+            set -e
+            . ci/common
+            await_jupyterhub
+            echo "Proxy service details"
+            kubectl get svc proxy-public -o json
+            echo "kubectl describe svc proxy-public"
+            kubectl describe svc proxy-public
+            echo "kubectl get svc"
+            kubectl get svc
+            echo "curl http://localhost:30902/hub/api/"
+            curl http://localhost:30902/hub/api/
+      - name: Run tests
+        # running the "main" tests means "all tests that aren't auth"
+        shell: bash
+        run: pytest -m "not auth" -svx --cov binderhub
