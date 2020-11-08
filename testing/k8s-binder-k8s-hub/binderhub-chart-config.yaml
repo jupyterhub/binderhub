@@ -1,3 +1,5 @@
+# This config is used when both BinderHub and the JupyterHub it uses are
+# deployed to a kubernetes cluster.
 cors:
   allowOrigin: '*'
 
@@ -7,7 +9,8 @@ service:
 
 config:
   BinderHub:
-    hub_url: http://192.168.99.100:30902
+    # don't set `hub_url` here, it needs to be set from Python code as we need
+    # to determine the IP at runtime.
     use_registry: false
     log_level: 10
 
