@@ -731,7 +731,7 @@ class BinderHub(Application):
         )
         self.http_server.listen(self.port)
         if self.builder_required:
-            asyncio.ensure_future(self.watch_build_pods())
+            asyncio.create_task(self.watch_build_pods())
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 
