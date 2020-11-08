@@ -58,11 +58,12 @@ jobs:
               curl \
               libcurl4-openssl-dev \
               libssl-dev
-      - name: Setup JavaScript dependencies and run webpack
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: Run webpack to build static assets
         shell: bash
         run: |
-            nvm install 14
-            nvm use 14
             npm install
             npm run webpack
       - name: Setup Python package dependencies
