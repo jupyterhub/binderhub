@@ -9,8 +9,8 @@ service:
 
 config:
   BinderHub:
-    # don't set `hub_url` here, it will be provided as a ccommand-line flag
-    # when installing the chart
+    #
+    hub_url_local: http://proxy-public
     use_registry: false
     log_level: 10
 
