@@ -9,8 +9,8 @@ service:
 
 config:
   BinderHub:
-    # don't set `hub_url` here, it needs to be set from Python code as we need
-    # to determine the IP at runtime.
+    # don't set `hub_url` here, it will be provided as a ccommand-line flag
+    # when installing the chart
     use_registry: false
     log_level: 10
 

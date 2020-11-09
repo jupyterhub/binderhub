@@ -12,7 +12,7 @@ jobs:
   main:
     runs-on: ubuntu-20.04
     strategy:
-      # keep running so we can see if tests with other versions pass
+      # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
       matrix:
         include:
@@ -87,7 +87,7 @@ jobs:
             set -e
             . ci/common
             await_jupyterhub
-            # Next few commands are here for sanit checking/debugging of CI
+            # Next few commands are here for sanity checking/debugging of CI
             # related issues
             echo "Proxy service details"
             kubectl get svc proxy-public -o json
@@ -108,7 +108,7 @@ jobs:
   auth:
     runs-on: ubuntu-20.04
     strategy:
-      # keep running so we can see if tests with other versions pass
+      # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
       matrix:
         include:
@@ -183,7 +183,7 @@ jobs:
             set -e
             . ci/common
             await_jupyterhub
-            # Next few commands are here for sanit checking/debugging of CI
+            # Next few commands are here for sanity checking/debugging of CI
             # related issues
             echo "Proxy service details"
             kubectl get svc proxy-public -o json
@@ -200,3 +200,122 @@ jobs:
         # running the "auth" tests means "all tests that are marked as auth"
         shell: bash
         run: pytest -m "auth" -vx --cov binderhub
+
+  helm:
+    runs-on: ubuntu-20.04
+    strategy:
+      # keep running so we can see if tests with other k3s/k8s/helm versions pass
+      fail-fast: false
+      matrix:
+        include:
+            # This version of k3s uses kubernetes v1.18
+            - k3s-version: v1.18.10+k3s2
+              helm_version: v3.4.0
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # chartpress requires the full history
+          fetch-depth: 0
+      - uses: manics/action-k3s-helm@v0.2.1
+        with:
+          k3s-version: ${{ matrix.k3s-version }}
+          helm-version: ${{ matrix.helm-version }}
+          metrics-enabled: false
+          traefik-enabled: false
+          docker-enabled: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display kubernetes related details
+        shell: bash
+        run: |
+            echo "kubeconfig: $KUBECONFIG"
+            echo
+            echo "List of running pods:"
+            kubectl get pods --all-namespaces
+            echo
+            echo "List of cluster nodes:"
+            kubectl get nodes
+            echo
+            echo "Helm list output:"
+            helm list
+      - name: Setup helm chart repositories
+        shell: bash
+        run: |
+            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+            helm repo update
+      - name: Setup OS level dependencies
+        shell: bash
+        run: |
+            sudo apt-get update
+            sudo apt-get install --yes \
+              build-essential \
+              curl \
+              libcurl4-openssl-dev \
+              libssl-dev
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: Run webpack to build static assets
+        shell: bash
+        run: |
+            npm install
+            npm run webpack
+      - name: Setup Python package dependencies
+        shell: bash
+        run: |
+            # Install development requirements, package requirements, and frozen image
+            # requirements, with an increasing priority.
+            pip install -r dev-requirements.txt
+            pip install .
+            pip install -r helm-chart/images/binderhub/requirements.txt
+      - name: Use chartpress to create the helm chart
+        shell: bash
+        run: |
+            # Use chartpress to create the helm chart and build its images
+            helm dependency update ./helm-chart/binderhub
+            (cd helm-chart && chartpress)
+            git --no-pager diff
+      - name: Validate the chart against the k8s API
+        shell: bash
+        run: |
+            helm template --validate binderhub-test helm-chart/binderhub \
+                --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+                --set config.BinderHub.hub_url=http://localhost:30902 \
+                --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+      - name: Install the chart
+        shell: bash
+        run: |
+          helm upgrade --install binderhub-test helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --set config.BinderHub.hub_url=http://loaclhost:30902 \
+              --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+      - name: Wait for BinderHub to be ready
+        shell: bash
+        run: |
+            # Wait for JupyterHub and BinderHub to be ready
+            set -e
+            . ci/common
+            await_jupyterhub
+            await_binderhub
+            # Next few commands are here for sanity checking/debugging of CI
+            # related issues
+            echo "Proxy service details"
+            kubectl get svc proxy-public -o json
+            echo
+            echo "kubectl describe svc proxy-public"
+            kubectl describe svc proxy-public
+            echo
+            echo "kubectl get svc"
+            kubectl get svc
+            echo
+            echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
+            curl http://localhost:30902/hub/api/
+            echo
+            echo "curl http://localhost:30901/health" to check BinderHub\'s health
+            curl http://localhost:30901/health
+      - name: Run tests
+        shell: bash
+        run: |
+            export BINDER_URL=http://localhost:30901
+            pytest -m "remote" -vx --cov binderhub
