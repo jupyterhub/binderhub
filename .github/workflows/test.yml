@@ -6,6 +6,9 @@ on:
     branches: [master, main]
 
 jobs:
+  # Most of the "main", "auth" and "helm" jobs are the same and only differ
+  # in small things. Unfortunately there is no easy way to share steps between
+  # jobs or have "template" jobs.
   main:
     runs-on: ubuntu-20.04
     strategy:
@@ -100,4 +103,100 @@ jobs:
       - name: Run tests
         # running the "main" tests means "all tests that aren't auth"
         shell: bash
-        run: pytest -m "not auth" -svx --cov binderhub
+        run: pytest -m "not auth" -vx --cov binderhub
+
+  auth:
+    runs-on: ubuntu-20.04
+    strategy:
+      # keep running so we can see if tests with other versions pass
+      fail-fast: false
+      matrix:
+        include:
+            # This version of k3s uses kubernetes v1.18
+            - k3s-version: v1.18.10+k3s2
+              helm_version: v3.4.0
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # chartpress requires the full history
+          fetch-depth: 0
+      - uses: manics/action-k3s-helm@v0.2.1
+        with:
+          k3s-version: ${{ matrix.k3s-version }}
+          helm-version: ${{ matrix.helm-version }}
+          metrics-enabled: false
+          traefik-enabled: false
+          docker-enabled: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display kubernetes related details
+        shell: bash
+        run: |
+            echo "kubeconfig: $KUBECONFIG"
+            echo
+            echo "List of running pods:"
+            kubectl get pods --all-namespaces
+            echo
+            echo "List of cluster nodes:"
+            kubectl get nodes
+            echo
+            echo "Helm list output:"
+            helm list
+      - name: Setup helm chart repositories
+        shell: bash
+        run: |
+            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+            helm repo update
+      - name: Setup OS level dependencies
+        shell: bash
+        run: |
+            sudo apt-get update
+            sudo apt-get install --yes \
+              build-essential \
+              curl \
+              libcurl4-openssl-dev \
+              libssl-dev
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: Run webpack to build static assets
+        shell: bash
+        run: |
+            npm install
+            npm run webpack
+      - name: Setup Python package dependencies
+        shell: bash
+        run: |
+            # Install development requirements, package requirements, and frozen image
+            # requirements, with an increasing priority.
+            pip install -r dev-requirements.txt
+            pip install .
+            pip install -r helm-chart/images/binderhub/requirements.txt
+      - name: Install JupyterHub chart with auth
+        shell: bash
+        run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
+      - name: Wait for JupyterHub to be ready
+        shell: bash
+        run: |
+            # Wait for JupyterHub to be ready
+            set -e
+            . ci/common
+            await_jupyterhub
+            # Next few commands are here for sanit checking/debugging of CI
+            # related issues
+            echo "Proxy service details"
+            kubectl get svc proxy-public -o json
+            echo
+            echo "kubectl describe svc proxy-public"
+            kubectl describe svc proxy-public
+            echo
+            echo "kubectl get svc"
+            kubectl get svc
+            echo
+            echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
+            curl http://localhost:30902/hub/api/
+      - name: Run tests
+        # running the "auth" tests means "all tests that are marked as auth"
+        shell: bash
+        run: pytest -m "auth" -vx --cov binderhub
