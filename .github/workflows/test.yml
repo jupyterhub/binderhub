@@ -143,9 +143,13 @@ jobs:
             # Wait for BinderHub to be ready
             set -e
             . ci/common
+            export MY_IP=$(curl http://4.icanhazip.com/)
             await_binderhub
             echo "curl http://localhost:30901/health" to check BinderHub\'s health
             curl http://localhost:30901/health
+            echo
+            echo "curl http://MY_IP:30901/health" to check BinderHub\'s health
+            curl http://${MY_IP}:30901/health
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
