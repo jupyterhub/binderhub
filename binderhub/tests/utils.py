@@ -42,6 +42,7 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
 
     def _record_response(self, url_key, response):
         """Record a response in self.records"""
+        print("Record URL Key:", url_key)
         if urlparse(url_key).hostname in ('127.0.0.1', 'localhost'):
             # don't record localhost requests
             return
@@ -63,6 +64,7 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
             request = HTTPRequest(req_or_url, *args, **kwargs)
 
         url_key = self.url_key(request.url)
+        print("Fetch URL Key:", url_key)
 
         if url_key in self.mocks:
             fetch = self.fetch_mock
