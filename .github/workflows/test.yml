@@ -158,7 +158,7 @@ jobs:
         # running the "auth" tests means "all tests that are marked as auth"
         shell: bash
         run: pytest -m "auth" -vx --cov binderhub
-      - name: Run tests
+      - name: Run helm tests
         if: matrix.test == 'helm'
         shell: bash
         run: |
