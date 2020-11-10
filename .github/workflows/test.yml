@@ -31,14 +31,13 @@ jobs:
         with:
           # chartpress requires the full history
           fetch-depth: 0
-      - uses: manics/action-k3s-helm@dev
+      - uses: manics/action-k3s-helm@v0.2.1
         with:
           k3s-version: ${{ matrix.k3s-version }}
           helm-version: ${{ matrix.helm-version }}
           metrics-enabled: false
           traefik-enabled: false
           docker-enabled: true
-          extra-setup-args: "--bind-address=0.0.0.0"
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
@@ -115,7 +114,8 @@ jobs:
         run: |
           helm upgrade --install binderhub-test helm-chart/binderhub \
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-              --set config.BinderHub.hub_url=http://loaclhost:30902 \
+              --set config.BinderHub.hub_url=http://localhost:30902 \
+              --set config.BinderHub.hub_url_local=http://proxy-public \
               --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
       - name: Wait for JupyterHub to be ready
         shell: bash
@@ -144,13 +144,10 @@ jobs:
             # Wait for BinderHub to be ready
             set -e
             . ci/common
-            export MY_IP=$(curl http://4.icanhazip.com/)
             await_binderhub
             echo "curl http://localhost:30901/health" to check BinderHub\'s health
             curl http://localhost:30901/health
             echo
-            echo "curl http://MY_IP:30901/health" to check BinderHub\'s health
-            curl http://${MY_IP}:30901/health
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
