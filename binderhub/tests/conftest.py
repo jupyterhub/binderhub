@@ -77,7 +77,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
               " to move or merge the newly created recordings with existing"
               f" recordings in {here}.")
 
-        with open(fname, 'w') as f:
+        # Always store newly created recordings in the root directory
+        # and ask a human to decide if they want to overwrite or merge
+        # them with existing recordingggs
+        with open(os.path.join(root, fname), 'w') as f:
             json.dump(records, f, sort_keys=True, indent=1)
 
 
