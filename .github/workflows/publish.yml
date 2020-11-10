@@ -1,24 +1,41 @@
----
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
+#
 name: Publish
 
+# Trigger the workflow's on pushed tags or commits to main/master branch.
 on:
   push:
-    branches:
-      - "main"
-      - "master"
+    branches: [main, master]
     tags:
-      - "**"
+
+defaults:
+  run:
+    # Declare bash be used by default in this workflow's "run" steps.
+    #
+    # NOTE: bash will by default run with:
+    #   --noprofile: Ignore ~/.profile etc.
+    #   --norc:      Ignore ~/.bashrc etc.
+    #   -e:          Exit directly on errors
+    #   -o pipefail: Don't mask errors from a command piped into another command
+    shell: bash
 
 jobs:
 
-  publish:
+  # Builds and pushes docker images to DockerHub and package the Helm chart and
+  # pushes it to jupyterhub/helm-chart@gh-pages where index.yaml represents the
+  # JupyterHub organization Helm chart repository.
+  #
+  # ref: https://github.com/jupyterhub/helm-chart
+  # ref: https://hub.docker.com/orgs/jupyterhub
+  #
+  Publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           # chartpress requires the full history
           fetch-depth: 0
-
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
@@ -39,6 +56,7 @@ jobs:
         # 3. Registering the public key (/tmp/id_ed25519.pub) as a deploy key
         #    with push rights for the jupyterhub/helm chart repo:
         #    https://github.com/jupyterhub/helm-chart/settings/keys
+        #
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -53,6 +71,7 @@ jobs:
         #    https://hub.docker.com/orgs/jupyterhub/teams/bots/permissions
         # 3. Registering the username and password as a secret for this repo:
         #    https://github.com/jupyterhub/binderhub/settings/secrets/actions
+        #
         run: |
           docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
