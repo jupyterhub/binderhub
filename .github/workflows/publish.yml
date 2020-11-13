@@ -39,7 +39,7 @@ jobs:
       - name: Install chart publishing dependencies (chartpress, helm)
         run: |
           . ./ci/common
-          setup_helm v3.4.0
+          setup_helm v3.4.1
           pip install --no-cache-dir chartpress
 
       - name: Setup push rights to jupyterhub/helm-chart
