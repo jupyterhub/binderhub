@@ -86,7 +86,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
 
 def load_mock_responses(host):
     fname = os.path.join(here, 'http-record.{}.json'.format(host))
-    print("Loading mock response from", fname)
     if not os.path.exists(fname):
         return {}
     with open(fname) as f:

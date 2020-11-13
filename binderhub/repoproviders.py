@@ -371,7 +371,6 @@ class HydroshareProvider(RepoProvider):
         self.resource_id = self._parse_resource_id(self.spec)
         req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
                           user_agent="BinderHub")
-        print("Request URL", req.url, "https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id))
         r = yield client.fetch(req)
 
         def parse_date(json_body):
