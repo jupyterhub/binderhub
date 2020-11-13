@@ -1,9 +1,6 @@
-# This is a GitHub workflow defining a set of jobs with a set of steps.
-# ref: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
-#
-name: Publish
+name: Publish helm chart and docker images
 
-# Trigger the workflow's on pushed tags or commits to main/master branch.
+# Trigger the workflow on tags or commits to the main or master branch.
 on:
   push:
     branches: [main, master]
@@ -21,8 +18,7 @@ defaults:
     shell: bash
 
 jobs:
-
-  # Builds and pushes docker images to DockerHub and package the Helm chart and
+  # Builds and pushes docker images to DockerHub, packages the Helm chart and
   # pushes it to jupyterhub/helm-chart@gh-pages where index.yaml represents the
   # JupyterHub organization Helm chart repository.
   #
@@ -43,7 +39,7 @@ jobs:
       - name: Install chart publishing dependencies (chartpress, helm)
         run: |
           . ./ci/common
-          setup_helm
+          setup_helm v3.4.0
           pip install --no-cache-dir chartpress
 
       - name: Setup push rights to jupyterhub/helm-chart
