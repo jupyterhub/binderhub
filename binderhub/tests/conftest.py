@@ -79,13 +79,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
 
         # Always store newly created recordings in the root directory
         # and ask a human to decide if they want to overwrite or merge
-        # them with existing recordingggs
+        # them with existing recordings
         with open(os.path.join(root, fname), 'w') as f:
             json.dump(records, f, sort_keys=True, indent=1)
 
 
 def load_mock_responses(host):
     fname = os.path.join(here, 'http-record.{}.json'.format(host))
+    print("Loading mock response from", fname)
     if not os.path.exists(fname):
         return {}
     with open(fname) as f:
