@@ -5,6 +5,10 @@ on:
   push:
     branches: [master, main]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
   # in small things. Unfortunately there is no easy way to share steps between
@@ -42,7 +46,6 @@ jobs:
         with:
           python-version: '3.8'
       - name: Display kubernetes related details
-        shell: bash
         run: |
             echo "kubeconfig: $KUBECONFIG"
             echo
@@ -55,12 +58,10 @@ jobs:
             echo "Helm list output:"
             helm list
       - name: Setup helm chart repositories
-        shell: bash
         run: |
             helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
             helm repo update
       - name: Setup OS level dependencies
-        shell: bash
         run: |
             sudo apt-get update
             sudo apt-get install --yes \
@@ -72,12 +73,10 @@ jobs:
         with:
           node-version: '14'
       - name: Run webpack to build static assets
-        shell: bash
         run: |
             npm install
             npm run webpack
       - name: Setup Python package dependencies
-        shell: bash
         run: |
             # Install development requirements, package requirements, and frozen image
             # requirements, with an increasing priority.
@@ -86,15 +85,12 @@ jobs:
             pip install -r helm-chart/images/binderhub/requirements.txt
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
-        shell: bash
         run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart
       - name: Install JupyterHub chart for auth tests
         if: matrix.test == 'auth'
-        shell: bash
         run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
-        shell: bash
         run: |
             # Use chartpress to create the helm chart and build its images
             helm dependency update ./helm-chart/binderhub
@@ -102,7 +98,6 @@ jobs:
             git --no-pager diff
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'
-        shell: bash
         run: |
             helm template --validate binderhub-test helm-chart/binderhub \
                 --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
@@ -110,7 +105,6 @@ jobs:
                 --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
       - name: Install the chart
         if: matrix.test == 'helm'
-        shell: bash
         run: |
           helm upgrade --install binderhub-test helm-chart/binderhub \
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
@@ -118,7 +112,6 @@ jobs:
               --set config.BinderHub.hub_url_local=http://proxy-public \
               --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
       - name: Wait for JupyterHub to be ready
-        shell: bash
         run: |
             # Wait for JupyterHub to be ready
             set -e
@@ -139,7 +132,6 @@ jobs:
             curl http://localhost:30902/hub/api/
       - name: Wait for binderhub to be ready
         if: matrix.test == 'helm'
-        shell: bash
         run: |
             # Wait for BinderHub to be ready
             set -e
@@ -151,16 +143,13 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        shell: bash
         run: pytest -m "not auth" -vx --cov binderhub
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        shell: bash
         run: pytest -m "auth" -vx --cov binderhub
       - name: Run helm tests
         if: matrix.test == 'helm'
-        shell: bash
         run: |
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -vx --cov binderhub
