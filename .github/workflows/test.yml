@@ -153,6 +153,12 @@ jobs:
         run: |
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -vx --cov binderhub
+      - name: Kubernetes namespace report
+        if: ${{ failure() }}
+        run: |
+          # Display debugging information
+          . ci/common
+          full_namespace_report
       - name: "Upload code coverage stats"
         run: |
           # install and run codecov
