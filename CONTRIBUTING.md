@@ -11,7 +11,7 @@ Depending on what you want to develop, you can setup BinderHub in different ways
   and JupyterHub is installed in a Kubernetes cluster.
 - [Develop Helm chart](#develop-helm-chart) - The BinderHub Helm chart with JupyterHub as a
   dependency is installed in a Kubernetes cluster.
- 
+
  This document also contains information on [how to run tests](#running-tests) and
  [common maintainer tasks](#common-maintainer-tasks).
 
@@ -191,7 +191,7 @@ continue.
    values to reference these images.
 
    ```bash
-   (cd helm-chart && chartpress)`
+   (cd helm-chart && chartpress)
    ```
 
 1. Validate, and then install the Helm chart defined in helm-chart/binderhub.

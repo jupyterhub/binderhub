@@ -1,5 +1,5 @@
-# A JupyterHub Helm chart config for use whenever JupyterHub is deployed by
-# itself.
+# A JupyterHub Helm chart config for use whenever JupyterHub is deployed on
+# a kubernetes cluster.
 
 # NOTE: This is a mirror of the jupyterhub section in
 #       binderhub-chart-config.yaml in testing/k8s-binder-k8s-hub, keep these

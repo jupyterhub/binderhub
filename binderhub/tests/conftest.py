@@ -57,6 +57,7 @@ def pytest_configure(config):
         "markers", "github_api: mark test to run only with GitHub API credentials"
     )
 
+
 def pytest_terminal_summary(terminalreporter, exitstatus):
     """This function has meaning to pytest, for more information, see:
     https://docs.pytest.org/en/stable/reference.html#pytest.hookspec.pytest_terminal_summary
@@ -72,8 +73,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
     for host, records in hosts.items():
         fname = 'http-record.{}.json'.format(host)
         print("Recorded http responses for {} in {}".format(host, fname))
+        print("To update the recordings used by the tests you will have"
+              " to move or merge the newly created recordings with existing"
+              f" recordings in {here}.")
 
-        with open(fname, 'w') as f:
+        # Always store newly created recordings in the root directory
+        # and ask a human to decide if they want to overwrite or merge
+        # them with existing recordings
+        with open(os.path.join(root, fname), 'w') as f:
             json.dump(records, f, sort_keys=True, indent=1)
 
 
@@ -97,6 +104,13 @@ def pytest_collection_modifyitems(items):
 def mock_asynchttpclient(request):
     """mock AsyncHTTPClient for recording responses"""
     AsyncHTTPClient.configure(MockAsyncHTTPClient)
+
+    # We have to explicitly load the mock responses we want to use
+    # We should use as few mocked responses as possible because it means
+    # we won't notice changes in the responses from the host that we are
+    # mocking and our mock responses don't simulate every and all behaviour
+    load_mock_responses("www.hydroshare.org")
+
     if not os.getenv('GITHUB_ACCESS_TOKEN'):
         load_mock_responses('api.github.com')
         load_mock_responses('zenodo.org')
