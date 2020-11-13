@@ -65,6 +65,7 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
 
         url_key = self.url_key(request.url)
         print("Fetch URL Key:", url_key)
+        print("In mocks?", url_key in self.mocks)
 
         if url_key in self.mocks:
             fetch = self.fetch_mock
