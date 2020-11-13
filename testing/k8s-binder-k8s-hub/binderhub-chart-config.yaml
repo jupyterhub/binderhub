@@ -9,7 +9,9 @@ service:
 
 config:
   BinderHub:
-    #
+    # Use the internal host name for Pod to Pod communication
+    # We can't use `hub_url` here because that is set to localhost which
+    # works on the host but not from within a Pod
     hub_url_local: http://proxy-public
     use_registry: false
     log_level: 10
