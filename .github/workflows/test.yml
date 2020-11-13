@@ -159,12 +159,8 @@ jobs:
           # Display debugging information
           . ci/common
           full_namespace_report
-      - name: "Upload code coverage stats"
-        run: |
-          # install and run codecov
-          #
-          # make sure we are back at the top of the checkout directory no matter
-          # what previous commands might have done or not
-          cd $GITHUB_WORKSPACE
-          pip install codecov
-          codecov
+      - name: Upload coverage stats
+        uses: codecov/codecov-action@v1
+        # https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
+        # Upload regardless of whether tests pass or fail
+        if: ${{ !cancelled() }}
