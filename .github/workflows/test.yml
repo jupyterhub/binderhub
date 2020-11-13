@@ -153,3 +153,12 @@ jobs:
         run: |
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -vx --cov binderhub
+      - name: "Upload code coverage stats"
+        run: |
+          # install and run codecov
+          #
+          # make sure we are back at the top of the checkout directory no matter
+          # what previous commands might have done or not
+          cd $GITHUB_WORKSPACE
+          pip install codecov
+          codecov
