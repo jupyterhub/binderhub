@@ -1,45 +1,10 @@
 #!/bin/sh
 # Use https://www.shellcheck.net/ to reduce mistakes if you make changes to this file.
 
-remove_docker_mirror_on_travis() {
-    # This is a workaround to an issue caused by the existence of a docker
-    # registry mirror in our CI environment. Without this fix that removes the
-    # mirror, chartpress fails to realize the existence of already built images
-    # and rebuilds them.
-    #
-    # ref: https://github.com/moby/moby/issues/39120
-    sudo cat /etc/docker/daemon.json
-    echo '{"mtu": 1460}' | sudo dd of=/etc/docker/daemon.json
-    sudo systemctl restart docker
-    docker ps -a
-}
-
-setup_kubectl () {
-    echo "setup kubectl"
-    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v"${KUBE_VERSION}"/bin/linux/amd64/kubectl
-    chmod +x kubectl
-    sudo mv kubectl /usr/local/bin/
-}
-
 setup_helm () {
-    echo "setup helm ${HELM_VERSION}"
-    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION=v${HELM_VERSION} bash
-}
-
-setup_minikube () {
-    # install conntrack for minikube with k8s 1.18.2
-    # install libgnutls28-dev for pycurl
-    sudo apt-get update
-    sudo apt-get -y install conntrack libgnutls28-dev
-
-    echo "setup minikube"
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v"${MINIKUBE_VERSION}"/minikube-linux-amd64
-    chmod +x minikube
-    sudo mv minikube /usr/local/bin/
-
-    echo "start minikube"
-    sudo CHANGE_MINIKUBE_NONE_USER=true minikube start --vm-driver=none --kubernetes-version=v"${KUBE_VERSION}"
-    minikube update-context
+    helm_version = $1
+    echo "setup helm ${helm_version}"
+    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION=v${helm_version} bash
 }
 
 await_jupyterhub() {
