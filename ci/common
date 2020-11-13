@@ -1,10 +1,10 @@
 #!/bin/sh
 # Use https://www.shellcheck.net/ to reduce mistakes if you make changes to this file.
 
-setup_helm () {
-    helm_version = $1
+setup_helm() {
+    helm_version="${1}"
     echo "setup helm ${helm_version}"
-    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION=v${helm_version} bash
+    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION="${helm_version}" bash
 }
 
 await_jupyterhub() {
@@ -22,7 +22,7 @@ await_binderhub() {
     kubectl rollout status --watch --timeout 300s deployment/binder
 }
 
-full_namespace_report () {
+full_namespace_report() {
     # list config (secret,configmap)
     kubectl get secret,cm
     # list networking (service,ingress)
