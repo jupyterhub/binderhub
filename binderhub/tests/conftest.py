@@ -105,6 +105,13 @@ def pytest_collection_modifyitems(items):
 def mock_asynchttpclient(request):
     """mock AsyncHTTPClient for recording responses"""
     AsyncHTTPClient.configure(MockAsyncHTTPClient)
+
+    # We have to explicitly load the mock responses we want to use
+    # We should use as few mocked responses as possible because it means
+    # we won't notice changes in the responses from the host that we are
+    # mocking and our mock responses don't simulate every and all behaviour
+    load_mock_responses("www.hydroshare.org")
+
     if not os.getenv('GITHUB_ACCESS_TOKEN'):
         load_mock_responses('api.github.com')
         load_mock_responses('zenodo.org')
