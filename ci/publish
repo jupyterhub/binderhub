@@ -6,6 +6,7 @@
 # Exit on errors, assert env vars, log commands
 set -eux
 
+cd helm-chart
 # chartpress use git to push to our Helm chart repository, which is the gh-pages
 # branch of jupyterhub/helm-chart. We have installed a private SSH key within
 # the ~/.ssh folder with permissions to push to jupyterhub/helm-chart.
@@ -22,7 +23,7 @@ if [[ $GITHUB_REF != refs/tags/* ]]; then
     #
     # NOTE: GitHub merge commits contain a PR reference like #123. `sed` looks
     #       to extract either a PR reference like #123 or fall back to create a
-    #       commit hash reference like @123abcd. Combined with TRAVIS_REPO_SLUG
+    #       commit hash reference like @123abcd. Combined with GITHUB_REPOSITORY
     #       we craft a commit message like jupyterhub/binderhub#123 or
     #       jupyterhub/binderhub@123abcd which will be understood as a reference
     #       by GitHub.
@@ -38,4 +39,4 @@ fi
 
 # Let us log the changes chartpress did, it should include replacements for
 # fields in values.yaml, such as what tag for various images we are using.
-git --no-pager diff
+git --no-pager diff --color=always
