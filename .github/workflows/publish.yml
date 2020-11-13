@@ -1,0 +1,91 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
+#
+name: Publish
+
+# Trigger the workflow's on pushed tags or commits to main/master branch.
+on:
+  push:
+    branches: [main, master]
+    tags:
+
+defaults:
+  run:
+    # Declare bash be used by default in this workflow's "run" steps.
+    #
+    # NOTE: bash will by default run with:
+    #   --noprofile: Ignore ~/.profile etc.
+    #   --norc:      Ignore ~/.bashrc etc.
+    #   -e:          Exit directly on errors
+    #   -o pipefail: Don't mask errors from a command piped into another command
+    shell: bash
+
+jobs:
+
+  # Builds and pushes docker images to DockerHub and package the Helm chart and
+  # pushes it to jupyterhub/helm-chart@gh-pages where index.yaml represents the
+  # JupyterHub organization Helm chart repository.
+  #
+  # ref: https://github.com/jupyterhub/helm-chart
+  # ref: https://hub.docker.com/orgs/jupyterhub
+  #
+  Publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # chartpress requires the full history
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install chart publishing dependencies (chartpress, helm)
+        run: |
+          . ./ci/common
+          setup_helm
+          pip install --no-cache-dir chartpress
+
+      - name: Setup push rights to jupyterhub/helm-chart
+        # This was setup by...
+        # 1. Generating a private/public key pair:
+        #    ssh-keygen -t ed25519 -C "jupyterhub/binderhub" -f /tmp/id_ed25519
+        # 2. Registering the private key (/tmp/id_ed25519) as a secret for this
+        #    repo:
+        #    https://github.com/jupyterhub/binderhub/settings/secrets/actions
+        # 3. Registering the public key (/tmp/id_ed25519.pub) as a deploy key
+        #    with push rights for the jupyterhub/helm chart repo:
+        #    https://github.com/jupyterhub/helm-chart/settings/keys
+        #
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.JUPYTERHUB_HELM_CHART_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Setup push rights to Docker Hub
+        # This was setup by...
+        # 1. Creating a Docker Hub service account "jupyterhubbot"
+        # 2. Making the account part of the "bots" team, and granting that team
+        #    permissions to push to the relevant images:
+        #    https://hub.docker.com/orgs/jupyterhub/teams/bots/permissions
+        # 3. Registering the username and password as a secret for this repo:
+        #    https://github.com/jupyterhub/binderhub/settings/secrets/actions
+        #
+        run: |
+          docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+
+      - name: Configure a git user
+        # Having a user.email and user.name configured with git is required to
+        # make commits, which is something chartpress does when publishing.
+        # While Travis CI had a dummy user by default, GitHub Actions doesn't
+        # and require this explicitly setup.
+        run: |
+          git config --global user.email "github-actions@example.local"
+          git config --global user.name "GitHub Actions user"
+
+      - name: Publish images and chart with chartpress
+        env:
+          GITHUB_REPOSITORY: "${{ github.repository }}"
+        run: |
+          ./ci/publish
