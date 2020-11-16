@@ -11,3 +11,6 @@ google-cloud-logging
 kubernetes==9.*
 # jupyterhub is pinned to match the JupyterHub Helm chart's version of jupyterhub
 jupyterhub==1.1.*
+# For pycurl v7.43.0.6 there are no wheels available on pypi.org, so stick
+# to the previous version for now.
+pycurl==7.43.0.5
