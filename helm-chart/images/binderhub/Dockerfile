@@ -33,6 +33,11 @@ RUN pip wheel pycurl --wheel-dir ./dist
 FROM python:3.8-slim-$DIST
 WORKDIR /
 
+# The slim version doesn't include git as required by binderhub
+RUN apt-get update && \
+    apt-get install --yes \
+        git
+
 # Copy the built wheels from the build-stage. Also copy the image
 # requirements.txt built from the binderhub package requirements.txt and the
 # requirements.in file using the ./dependency script.
