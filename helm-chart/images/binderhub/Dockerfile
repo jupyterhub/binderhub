@@ -22,8 +22,7 @@ COPY . /tmp/binderhub
 WORKDIR /tmp/binderhub
 
 # Build the binderhub python library into a wheel and save it to the ./dist
-# folder. Also build pycurl into a wheel as doing it requires curl-config and
-# gcc that aren't available in the slim version of the final stage.
+# folder. There are no pycurl wheels so we build our own in the build stage.
 RUN python setup.py bdist_wheel
 RUN pip wheel pycurl --wheel-dir ./dist
 

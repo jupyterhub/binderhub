@@ -13,8 +13,7 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         l.strip() for l in f.readlines()
         if not l.strip().startswith('#')
     ]
-    # pycurl is augmented to requirements.txt as a dependency for the binderhub
-    # package for reasons explained within requirements.txt.
+    # manually add pycurl here, see comment in requirements.txt
     requirements.append("pycurl")
 
 with open(os.path.join(here, 'README.rst'), encoding="utf8") as f:

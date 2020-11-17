@@ -1,12 +1,12 @@
 # About pycurl:
-# - pycurl is strongly recommended for performance but not strictly required by
-#   BinderHub.
-# - pycurl require both `curl-config` and `gcc` to be available when installing.
-# - The binderhub package require pycurl, but it is a dependency augmented to
-#   this files listed dependencies from within setup.py so that it can be
-#   either omitted as in our ReadTheDocs build that does code inspection of the
-#   binderhub package, or be installed in a separate build step as in the
-#   BinderHub docker image.
+# - pycurl is a dependency but not listed here, only in `setup.py`
+# - pycurl requires both `curl-config` and `gcc` to be available when installing
+#   it from source.
+# - the reason we do not list pycurl here is that it is not needed when our
+#   code is imported to generate the documentation and it is tricky to install
+#   in the ReadTheDocs build environment.
+# - instead we manually add pycurl to the list of dependencies in setup.py
+#   which is the list used when installing the binderhub package.
 docker
 escapism
 jinja2
