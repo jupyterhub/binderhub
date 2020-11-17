@@ -14,7 +14,7 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         if not l.strip().startswith('#')
     ]
 
-with open(os.path.join(here, 'README.rst'), encoding="utf8") as f:
+with open(os.path.join(here, 'README.md'), encoding="utf8") as f:
     readme = f.read()
 
 # Build our js and css files before packaging
@@ -44,7 +44,7 @@ setup(
     keywords="reproducible science environments docker kubernetes",
     description="Turn a Git repo into a collection of interactive notebooks",
     long_description=readme,
-    long_description_content_type='text/x-rst',
+    long_description_content_type='text/markdown',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
