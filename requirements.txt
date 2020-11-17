@@ -1,4 +1,12 @@
-# Keep this file in sync with `doc/doc-requirements.txt`!
+# About pycurl:
+# - pycurl is strongly recommended for performance but not strictly required by
+#   BinderHub.
+# - pycurl require both `curl-config` and `gcc` to be available when installing.
+# - The binderhub package require pycurl, but it is a dependency augmented to
+#   this files listed dependencies from within setup.py so that it can be
+#   either omitted as in our ReadTheDocs build that does code inspection of the
+#   binderhub package, or be installed in a separate build step as in the
+#   BinderHub docker image.
 docker
 escapism
 jinja2
@@ -6,7 +14,6 @@ jsonschema
 jupyterhub
 kubernetes
 prometheus_client
-pycurl
 python-json-logger
 tornado>=5.1
 traitlets
