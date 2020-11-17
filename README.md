@@ -48,8 +48,8 @@ guide](https://github.com/jupyterhub/binderhub/blob/master/CONTRIBUTING.md).
 
 ## Installation
 
-**BinderHub** is based on Python 3, it\'s currently only hosted on
-GitHub (pip release soon). However, it can be installed using `pip`:
+**BinderHub** is based on Python 3, it's currently only kept updated on GitHub.
+However, it can be installed using `pip`:
 
     pip install git+https://github.com/jupyterhub/binderhub
 
