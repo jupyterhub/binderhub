@@ -1,7 +1,7 @@
 # [BinderHub](https://github.com/jupyterhub/binderhub)
 
-[![travis status](https://img.shields.io/travis/com/jupyterhub/binderhub/master?logo=travis)](https://travis-ci.com/jupyterhub/binderhub)
 [![Documentation Status](https://img.shields.io/readthedocs/binderhub?logo=read-the-docs)](https://binderhub.readthedocs.io/en/latest/)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jupyterhub/binderhub/Tests?logo=github)](https://github.com/jupyterhub/binderhub/actions)
 [![Latest chart development release](https://img.shields.io/badge/dynamic/json.svg?label=latest&url=https://jupyterhub.github.io/helm-chart/info.json&query=$.binderhub.latest&colorB=orange)](https://jupyterhub.github.io/helm-chart/)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/jupyterhub/binderhub/issues)
 [![Discourse](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.jupyter.org/c/binder/binderhub)
