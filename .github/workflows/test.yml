@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [master, main]
+    tags: ["**"]
+  workflow_dispatch:
 
 defaults:
   run:
