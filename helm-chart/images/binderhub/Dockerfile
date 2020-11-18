@@ -13,9 +13,10 @@ ARG DIST
 # Install node as required to package binderhub to a wheel
 RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-RUN apt-get update && \
-    apt-get install --yes \
-        nodejs
+RUN apt-get update \
+ && apt-get install --yes \
+        nodejs \
+ && rm -rf /var/lib/apt/lists/*
 
 # Copy the whole git repository to /tmp/binderhub
 COPY . /tmp/binderhub
@@ -33,9 +34,11 @@ FROM python:3.8-slim-$DIST
 WORKDIR /
 
 # The slim version doesn't include git as required by binderhub
-RUN apt-get update && \
-    apt-get install --yes \
-        git
+RUN apt-get update \
+ && apt-get install --yes \
+        git \
+ && rm -rf /var/lib/apt/lists/*
+
 
 # Copy the built wheels from the build-stage. Also copy the image
 # requirements.txt built from the binderhub package requirements.txt and the
