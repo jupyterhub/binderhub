@@ -6,7 +6,7 @@ import json
 import os
 from urllib.parse import urlparse
 
-from tornado import gen, httpclient
+from tornado import httpclient
 from tornado.httputil import url_concat
 from traitlets.config import LoggingConfigurable
 from traitlets import Dict, Unicode, default
@@ -185,8 +185,7 @@ class DockerRegistry(LoggingConfigurable):
             base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
         )
 
-    @gen.coroutine
-    def get_image_manifest(self, image, tag):
+    async def get_image_manifest(self, image, tag):
         client = httpclient.AsyncHTTPClient()
         url = "{}/v2/{}/manifests/{}".format(self.url, image, tag)
         # first, get a token to perform the manifest request
@@ -196,7 +195,7 @@ class DockerRegistry(LoggingConfigurable):
                 auth_username=self.username,
                 auth_password=self.password,
             )
-            auth_resp = yield client.fetch(auth_req)
+            auth_resp = await client.fetch(auth_req)
             response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
 
             if "token" in response_body.keys():
@@ -215,7 +214,7 @@ class DockerRegistry(LoggingConfigurable):
             )
 
         try:
-            resp = yield client.fetch(req)
+            resp = await client.fetch(req)
         except httpclient.HTTPError as e:
             if e.code == 404:
                 # 404 means it doesn't exist
