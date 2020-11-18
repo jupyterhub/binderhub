@@ -6,7 +6,7 @@ ARG DIST=buster
 # The build stage
 # ---------------
 FROM python:3.8-$DIST as build-stage
-# ARG DIST has to be defined again to made available inside this build stage.
+# ARG DIST is defined again to be made available in this build stage's scope.
 # ref: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG DIST
 
