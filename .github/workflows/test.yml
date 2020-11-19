@@ -154,13 +154,11 @@ jobs:
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -vx --cov binderhub
       - name: Kubernetes namespace report
-        if: ${{ failure() }}
+        if: ${{ always() }}
         run: |
           # Display debugging information
           . ci/common
           full_namespace_report
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
-        # https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
-        # Upload regardless of whether tests pass or fail
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
