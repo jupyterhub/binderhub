@@ -13,6 +13,8 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         l.strip() for l in f.readlines()
         if not l.strip().startswith('#')
     ]
+    # manually add pycurl here, see comment in requirements.txt
+    requirements.append("pycurl")
 
 with open(os.path.join(here, 'README.rst'), encoding="utf8") as f:
     readme = f.read()

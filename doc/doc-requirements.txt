@@ -17,18 +17,4 @@ sphinx-copybutton
 # automatically building documentation based on inspection of the binderhub
 # package, which means we need to install it on RTD so it is available for
 # inspection.
-#
-# The binderhub package dependencies include pycurl though, and pycurl cannot be
-# installed on RTD, so due to that we maintain a copy of binderhub's
-# requirements.txt where we comment out pyrcurl.
-docker
-escapism
-jinja2
-jsonschema
-jupyterhub
-kubernetes
-prometheus_client
-#pycurl
-python-json-logger
-tornado>=5.1
-traitlets
+-r ../requirements.txt
