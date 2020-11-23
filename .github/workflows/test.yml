@@ -112,6 +112,7 @@ jobs:
               --set config.BinderHub.hub_url_local=http://proxy-public \
               --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
       - name: Wait for JupyterHub to be ready
+        timeout-minutes: 10
         run: |
             # Wait for JupyterHub to be ready
             set -e
@@ -130,8 +131,9 @@ jobs:
             echo
             echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
             curl http://localhost:30902/hub/api/
-      - name: Wait for binderhub to be ready
+      - name: Wait for BinderHub to be ready
         if: matrix.test == 'helm'
+        timeout-minutes: 10
         run: |
             # Wait for BinderHub to be ready
             set -e
@@ -154,13 +156,11 @@ jobs:
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -vx --cov binderhub
       - name: Kubernetes namespace report
-        if: ${{ failure() }}
+        if: ${{ always() }}
         run: |
           # Display debugging information
           . ci/common
           full_namespace_report
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
-        # https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions
-        # Upload regardless of whether tests pass or fail
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
