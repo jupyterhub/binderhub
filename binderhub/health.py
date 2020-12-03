@@ -74,10 +74,12 @@ def at_most_every(_f=None, *, interval=60):
             now = time.monotonic()
             if now > last_time + interval:
                 outstanding = asyncio.ensure_future(f(*args, **kwargs))
-                last_result = await outstanding
-                # complete, clear outstanding future and note the time
-                outstanding = None
-                last_time = time.monotonic()
+                try:
+                    last_result = await outstanding
+                finally:
+                    # complete, clear outstanding future and note the time
+                    outstanding = None
+                    last_time = time.monotonic()
             return last_result
 
         return wrapper
