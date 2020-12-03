@@ -24,11 +24,11 @@ from .utils import async_requests
         quote("https://github.com/consideratio/cached-minimal-dockerfile", safe='')
     ),
     "git/{}/596b52f10efb0c9befc0c4ae850cc5175297d71c".format(
-        quote("https://github.com/consideratio/cached-minimal-dockerfile", safe='')
+        quote("https://github.com/binderhub-ci-repos/cached-minimal-dockerfile", safe='')
     ),
     # gh/ GitHub repo provider
-    "gh/consideratio/cached-minimal-dockerfile/HEAD",
-    "gh/consideratio/cached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
+    "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
+    "gh/binderhub-ci-repos/cached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
     # gl/ GitLab repo provider
     "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/HEAD",
     "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
