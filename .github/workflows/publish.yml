@@ -40,7 +40,7 @@ jobs:
         run: |
           . ./ci/common
           setup_helm v3.4.1
-          pip install --no-cache-dir chartpress
+          pip install --no-cache-dir chartpress==1.0.*
 
       - name: Setup push rights to jupyterhub/helm-chart
         # This was setup by...
