@@ -13,3 +13,4 @@ best-practices in debugging issues.
    ../debug
    ../authentication
    ../https
+   ../cors
