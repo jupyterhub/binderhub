@@ -15,19 +15,29 @@ from binderhub.build import Build
 from .utils import async_requests
 
 
+# We have optimized this slow test, for more information, see the README of
+# https://github.com/binderhub-ci-repos/minimal-dockerfile.
 @pytest.mark.asyncio(timeout=900)
 @pytest.mark.parametrize("slug", [
-    "gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
-    "git/{}/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd".format(
-        quote("https://github.com/binderhub-ci-repos/requirements", safe='')
+    # git/ Git repo provider
+    "git/{}/HEAD".format(
+        quote("https://github.com/consideratio/cached-minimal-dockerfile", safe='')
     ),
-    "git/{}/master".format(
-        quote("https://github.com/binderhub-ci-repos/requirements", safe='')
+    "git/{}/596b52f10efb0c9befc0c4ae850cc5175297d71c".format(
+        quote("https://github.com/binderhub-ci-repos/cached-minimal-dockerfile", safe='')
     ),
-    "gl/minrk%2Fbinderhub-ci/0d4a217d40660efaa58761d8c6084e7cf5453cca",
+    # gh/ GitHub repo provider
+    "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
+    "gh/binderhub-ci-repos/cached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
+    # gl/ GitLab repo provider
+    "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/HEAD",
+    "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
 ])
 @pytest.mark.remote
 async def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
+    """
+    Test build a repo that is very quick and easy to build.
+    """
     # can't use mark.github_api since only some tests here use GitHub
     if slug.startswith('gh/') and "not github_api" in pytestconfig.getoption('markexpr'):
         pytest.skip("Skipping GitHub API test")
