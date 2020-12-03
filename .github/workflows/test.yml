@@ -147,16 +147,16 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        run: pytest -m "not auth" -vx --cov binderhub --durations=10
+        run: pytest -m "not auth" -v --maxfail=2 --cov binderhub --durations=10
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" -vx --cov binderhub --durations=10
+        run: pytest -m "auth" -v --maxfail=2 --cov binderhub --durations=10
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
             export BINDER_URL=http://localhost:30901
-            pytest -m "remote" -vx --cov binderhub --durations=10
+            pytest -m "remote" -v --maxfail=2 --cov binderhub --durations=10
       - name: Kubernetes namespace report
         if: ${{ always() }}
         run: |
