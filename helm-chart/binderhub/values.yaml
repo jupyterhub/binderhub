@@ -90,6 +90,10 @@ jupyterhub:
                     allow_origin = cors.get('allowOrigin')
                     if allow_origin:
                         args.append('--NotebookApp.allow_origin=' + allow_origin)
+                    # allow_origin=* doesn't properly allow cross-origin requests to single files
+                    # see https://github.com/jupyter/notebook/pull/5898
+                    if allow_origin == '*':
+                        args.append('--NotebookApp.allow_origin_pat=.*')
                     args += self.args
                 return args
 
