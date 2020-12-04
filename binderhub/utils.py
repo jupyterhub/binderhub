@@ -6,6 +6,14 @@ import time
 from traitlets import Integer, TraitError
 
 
+# default _request_timeout for kubernetes api requests
+# tuple of two timeouts: (connect_timeout, read_timeout)
+# the most important of these is the connect_timeout,
+# which can hang for a *very* long time when there are internal
+# kubernetes connection issues
+KUBE_REQUEST_TIMEOUT = (3, 30)
+
+
 def blake2b_hash_as_int(b):
     """Compute digest of the bytes `b` using the Blake2 hash function.
 
