@@ -8,6 +8,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.log import app_log
 
 from .base import BaseHandler
+from .utils import KUBE_REQUEST_TIMEOUT
 
 
 def retry(_f=None, *, delay=1, attempts=3):
@@ -120,6 +121,7 @@ class HealthHandler(BaseHandler):
                     namespace,
                     label_selector=label_selector,
                     _preload_content=False,
+                    _request_timeout=KUBE_REQUEST_TIMEOUT,
                 )
             )
             for label_selector in label_selectors

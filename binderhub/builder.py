@@ -22,6 +22,7 @@ from prometheus_client import Counter, Histogram, Gauge
 
 from .base import BaseHandler
 from .build import Build, FakeBuild
+from .utils import KUBE_REQUEST_TIMEOUT
 
 # Separate buckets for builds and launches.
 # Builds and launches have very different characteristic times,
@@ -475,9 +476,11 @@ class BuildHandler(BaseHandler):
 
         # TODO: run a watch to keep this up to date in the background
         pool = self.settings['executor']
-        f = pool.submit(kube.list_namespaced_pod,
+        f = pool.submit(
+            kube.list_namespaced_pod,
             self.settings["build_namespace"],
             label_selector='app=jupyterhub,component=singleuser-server',
+            _request_timeout=KUBE_REQUEST_TIMEOUT,
         )
         # concurrent.futures.Future isn't awaitable
         # wrap in tornado Future
