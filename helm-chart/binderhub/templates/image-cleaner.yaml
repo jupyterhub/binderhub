@@ -64,6 +64,7 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: 0
       volumes:
+      {{- if .Values.imageCleaner.host.enabled }}
       - name: dockerlib-host
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerLibDir }}
@@ -71,6 +72,7 @@ spec:
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerSocket }}
           type: Socket
+      {{- end }}
       {{- if .Values.dind.enabled }}
       - name: dockerlib-dind
         hostPath:
