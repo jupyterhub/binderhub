@@ -21,7 +21,7 @@ from .utils import async_requests
 @pytest.mark.parametrize("slug", [
     # git/ Git repo provider
     "git/{}/HEAD".format(
-        quote("https://github.com/consideratio/cached-minimal-dockerfile", safe='')
+        quote("https://github.com/binderhub-ci-repos/cached-minimal-dockerfile", safe='')
     ),
     "git/{}/596b52f10efb0c9befc0c4ae850cc5175297d71c".format(
         quote("https://github.com/binderhub-ci-repos/cached-minimal-dockerfile", safe='')
