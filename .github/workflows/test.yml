@@ -160,9 +160,10 @@ jobs:
       - name: Kubernetes namespace report
         if: ${{ always() }}
         run: |
-          # Display debugging information
+          # Display debugging information and always provide the logs from
+          # certain important k8s deployments.
           . ci/common
-          full_namespace_report
+          full_namespace_report deploy/binder deploy/hub deploy/proxy
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
         if: ${{ always() }}
