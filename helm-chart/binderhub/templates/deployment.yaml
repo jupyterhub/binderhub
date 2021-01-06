@@ -121,10 +121,23 @@ spec:
         ports:
           - containerPort: 8585
             name: binder
+        {{- if .Values.deployment.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
+            port: binder
+          initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.deployment.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
             path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
             port: binder
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
+          initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+        {{- end }}
