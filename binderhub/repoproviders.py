@@ -249,7 +249,7 @@ class FigshareProvider(RepoProvider):
     Users must provide a spec consisting of the Figshare DOI.
     """
     name = Unicode("Figshare")
-    url_regex = re.compile(r"(.*)/articles/([^/]+)/(\d+)(/)?(\d+)?")
+    url_regex = re.compile(r"(.*)/articles/([^/]+)/([^/]+)/(\d+)(/)?(\d+)?")
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
@@ -258,8 +258,8 @@ class FigshareProvider(RepoProvider):
         r = await client.fetch(req)
 
         match = self.url_regex.match(r.effective_url)
-        article_id = match.groups()[2]
-        article_version = match.groups()[4]
+        article_id = match.groups()[3]
+        article_version = match.groups()[5]
         if not article_version:
             article_version = "1"
         self.record_id = "{}.v{}".format(article_id, article_version)
