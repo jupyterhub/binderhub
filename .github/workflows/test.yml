@@ -22,15 +22,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            # This version of k3s uses kubernetes v1.18
             - k3s-version: v1.18.10+k3s2
-              helm_version: v3.4.1
+              helm-version: v3.4.2
               test: main
             - k3s-version: v1.18.10+k3s2
-              helm_version: v3.4.1
+              helm-version: v3.4.2
               test: auth
             - k3s-version: v1.18.10+k3s2
-              helm_version: v3.4.1
+              helm-version: v3.4.2
               test: helm
     steps:
       - uses: actions/checkout@v2
