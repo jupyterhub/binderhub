@@ -22,13 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-            - k3s-version: v1.18.10+k3s2
+            - k3s-channel: v1.19
               helm-version: v3.4.2
               test: main
-            - k3s-version: v1.18.10+k3s2
+            - k3s-channel: v1.19
               helm-version: v3.4.2
               test: auth
-            - k3s-version: v1.18.10+k3s2
+            - k3s-channel: v1.19
               helm-version: v3.4.2
               test: helm
     steps:
