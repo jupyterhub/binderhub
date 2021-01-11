@@ -37,7 +37,7 @@ jobs:
         with:
           # chartpress requires the full history
           fetch-depth: 0
-      - uses: jupyterhub/action-k3s-helm@v0.2.2
+      - uses: jupyterhub/action-k3s-helm@v1
         with:
           k3s-version: ${{ matrix.k3s-version }}
           helm-version: ${{ matrix.helm-version }}
