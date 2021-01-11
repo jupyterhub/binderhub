@@ -46,22 +46,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - name: Display kubernetes related details
-        run: |
-            echo "kubeconfig: $KUBECONFIG"
-            echo
-            echo "List of running pods:"
-            kubectl get pods --all-namespaces
-            echo
-            echo "List of cluster nodes:"
-            kubectl get nodes
-            echo
-            echo "Helm list output:"
-            helm list
-      - name: Setup helm chart repositories
-        run: |
-            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
-            helm repo update
       - name: Setup OS level dependencies
         run: |
             sudo apt-get update
@@ -86,10 +70,16 @@ jobs:
             pip install -r helm-chart/images/binderhub/requirements.txt
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
-        run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart
+        run: |
+            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+            helm repo update
+            ./testing/local-binder-k8s-hub/install-jupyterhub-chart
       - name: Install JupyterHub chart for auth tests
         if: matrix.test == 'auth'
-        run: ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
+        run: |
+            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
+            helm repo update
+            ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
@@ -115,34 +105,19 @@ jobs:
       - name: Wait for JupyterHub to be ready
         timeout-minutes: 10
         run: |
-            # Wait for JupyterHub to be ready
-            set -e
             . ci/common
             await_jupyterhub
-            # Next few commands are here for sanity checking/debugging of CI
-            # related issues
-            echo "Proxy service details"
-            kubectl get svc proxy-public -o json
-            echo
-            echo "kubectl describe svc proxy-public"
-            kubectl describe svc proxy-public
-            echo
-            echo "kubectl get svc"
-            kubectl get svc
-            echo
             echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
             curl http://localhost:30902/hub/api/
       - name: Wait for BinderHub to be ready
         if: matrix.test == 'helm'
         timeout-minutes: 10
         run: |
-            # Wait for BinderHub to be ready
-            set -e
             . ci/common
             await_binderhub
             echo "curl http://localhost:30901/health" to check BinderHub\'s health
             curl http://localhost:30901/health
-            echo
+
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
