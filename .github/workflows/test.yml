@@ -147,14 +147,14 @@ jobs:
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
 
+      # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
-        if: ${{ always() }}
-        run: |
-          # Display debugging information and always provide the logs from
-          # certain important k8s deployments.
-          . ci/common
-          full_namespace_report deploy/binder deploy/hub deploy/proxy
+        uses: jupyterhub/action-k8s-namespace-report@v1
+        if: always()
+        with:
+          important-workloads: deploy/binder deploy/hub deploy/proxy
 
+      # GitHub action reference: https://github.com/codecov/codecov-action
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
         if: ${{ always() }}
