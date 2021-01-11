@@ -45,10 +45,6 @@ jobs:
           traefik-enabled: false
           docker-enabled: true
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
       - name: Setup OS level dependencies
         run: |
             sudo apt-get update
@@ -66,6 +62,10 @@ jobs:
         run: |
             npm install
             npm run webpack
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
 
       - name: Setup Python package dependencies
         run: |
