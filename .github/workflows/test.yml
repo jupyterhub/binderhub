@@ -36,6 +36,7 @@ jobs:
         with:
           # chartpress requires the full history
           fetch-depth: 0
+
       - uses: jupyterhub/action-k3s-helm@v1
         with:
           k3s-version: ${{ matrix.k3s-version }}
@@ -43,9 +44,11 @@ jobs:
           metrics-enabled: false
           traefik-enabled: false
           docker-enabled: true
+
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
+
       - name: Setup OS level dependencies
         run: |
             sudo apt-get update
@@ -54,13 +57,16 @@ jobs:
               curl \
               libcurl4-openssl-dev \
               libssl-dev
+
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '14'
+
       - name: Run webpack to build static assets
         run: |
             npm install
             npm run webpack
+
       - name: Setup Python package dependencies
         run: |
             # Install development requirements, package requirements, and frozen image
@@ -68,18 +74,21 @@ jobs:
             pip install -r dev-requirements.txt
             pip install .
             pip install -r helm-chart/images/binderhub/requirements.txt
+
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
         run: |
             helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
             helm repo update
             ./testing/local-binder-k8s-hub/install-jupyterhub-chart
+
       - name: Install JupyterHub chart for auth tests
         if: matrix.test == 'auth'
         run: |
             helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
             helm repo update
             ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
+
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
@@ -87,6 +96,7 @@ jobs:
             helm dependency update ./helm-chart/binderhub
             (cd helm-chart && chartpress)
             git --no-pager diff
+
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'
         run: |
@@ -94,6 +104,7 @@ jobs:
                 --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
                 --set config.BinderHub.hub_url=http://localhost:30902 \
                 --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+
       - name: Install the chart
         if: matrix.test == 'helm'
         run: |
@@ -102,6 +113,7 @@ jobs:
               --set config.BinderHub.hub_url=http://localhost:30902 \
               --set config.BinderHub.hub_url_local=http://proxy-public \
               --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+
       - name: Wait for JupyterHub to be ready
         timeout-minutes: 10
         run: |
@@ -109,6 +121,7 @@ jobs:
             await_jupyterhub
             echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
             curl http://localhost:30902/hub/api/
+
       - name: Wait for BinderHub to be ready
         if: matrix.test == 'helm'
         timeout-minutes: 10
@@ -122,15 +135,18 @@ jobs:
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
         run: pytest -m "not auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
         run: pytest -m "auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
             export BINDER_URL=http://localhost:30901
             pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+
       - name: Kubernetes namespace report
         if: ${{ always() }}
         run: |
@@ -138,6 +154,7 @@ jobs:
           # certain important k8s deployments.
           . ci/common
           full_namespace_report deploy/binder deploy/hub deploy/proxy
+
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
         if: ${{ always() }}
