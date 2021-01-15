@@ -1,0 +1,55 @@
+# This workflow provides a diff of the rendered Helm chart's templates with the
+# latest released dev version of the chart.
+---
+name: Helm diff
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  diff-rendered-templates:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: jupyterhub/action-k3s-helm@v1
+        with:
+          k3s-channel: v1.19
+          metrics-enabled: false
+          traefik-enabled: false
+          docker-enabled: true
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install helm diff plugin, update local chart dependencies
+        run: |
+          helm plugin install https://github.com/databus23/helm-diff
+          helm dependency update ./helm-chart/binderhub
+
+      - name: "Install latest released dev chart"
+        run: |
+          UPGRADE_FROM_VERSION=$(curl -sS https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.dev')
+
+          # NOTE: We change the directory so binderhub the chart name won't be
+          #       misunderstood as the local folder name.
+          cd testing
+
+          helm install binderhub-test binderhub \
+              --values ./k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --repo https://jupyterhub.github.io/helm-chart/ \
+              --version=$UPGRADE_FROM_VERSION
+
+      - name: "Helm diff latest released dev chart with local chart"
+        run: |
+          echo "NOTE: For the helm diff, we have not updated the Chart.yaml"
+          echo "      version or image tags using chartpress."
+          echo
+
+          helm diff upgrade binderhub-test helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --context=3
