@@ -23,13 +23,13 @@ jobs:
       matrix:
         include:
             - k3s-channel: v1.19
-              helm-version: v3.4.2
+              helm-version: v3.5.0
               test: main
             - k3s-channel: v1.19
-              helm-version: v3.4.2
+              helm-version: v3.5.0
               test: auth
             - k3s-channel: v1.19
-              helm-version: v3.4.2
+              helm-version: v3.5.0
               test: helm
     steps:
       - uses: actions/checkout@v2
