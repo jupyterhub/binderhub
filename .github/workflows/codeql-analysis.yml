@@ -1,11 +1,6 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [master]
   schedule:
     # At 05:00 - https://crontab.guru/
     - cron: '0 5 * * *'
