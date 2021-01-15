@@ -112,8 +112,9 @@ jobs:
         run: |
             . ci/common
             await_jupyterhub
-            echo "curl http://localhost:30902/hub/api/" should print the JupyterHub version
-            curl http://localhost:30902/hub/api/
+
+            echo curl http://localhost:30902/hub/api/ should print the JupyterHub version
+            curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
 
       - name: Wait for BinderHub to be ready
         if: matrix.test == 'helm'
@@ -121,8 +122,9 @@ jobs:
         run: |
             . ci/common
             await_binderhub
-            echo "curl http://localhost:30901/health" to check BinderHub\'s health
-            curl http://localhost:30901/health
+
+            echo curl http://localhost:30901/health to check BinderHub\'s health
+            curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
 
       - name: Run main tests
         if: matrix.test == 'main'
