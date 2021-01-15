@@ -7,9 +7,6 @@ on:
     tags: ["**"]
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: bash
 
 jobs:
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
