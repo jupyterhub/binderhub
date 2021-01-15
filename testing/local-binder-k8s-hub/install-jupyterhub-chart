@@ -38,7 +38,8 @@ with NamedTemporaryFile(mode="w") as tmp:
 
     cmd = ['helm', 'upgrade', '--install', 'binderhub-test']
     cmd.extend([
-        'jupyterhub/jupyterhub',
+        'jupyterhub',
+        '--repo=https://jupyterhub.github.io/helm-chart/',
         f'--version={_get_jupyterhub_dependency_version()}',
         f'--values={tmp.name}',
         f'--values={os.path.join(here, "jupyterhub-chart-config.yaml")}',

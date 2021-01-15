@@ -78,15 +78,11 @@ jobs:
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
         run: |
-            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
-            helm repo update
             ./testing/local-binder-k8s-hub/install-jupyterhub-chart
 
       - name: Install JupyterHub chart for auth tests
         if: matrix.test == 'auth'
         run: |
-            helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
-            helm repo update
             ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
 
       - name: Use chartpress to create the helm chart
