@@ -15,7 +15,11 @@ module.exports = {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: "css-loader"
+                    use: "css-loader",
+                    // Set publicPath as relative path ("./").
+                    // By default it uses the `output.publicPath` ("/static/dist/"), when it rewrites the URLs in styles.css.
+                    // And it causes these files unavailabe if BinderHub has a different base_url than "/".
+                    publicPath: "./"
                 })
             },
             {
