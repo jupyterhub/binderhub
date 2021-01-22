@@ -234,18 +234,28 @@ function setUpLog() {
   const fitAddon = new FitAddon();
   log.loadAddon(fitAddon);
 
+  var $logContainer = $("div#log-container");
+  var $panelBody = $("div.panel-body");
   log.fit = function () {
-    fitAddon.fit();
+    if (!$panelBody.hasClass('hidden')) {
+      fitAddon.fit();
+    }
   };
 
-  log.open(document.getElementById('log'), false);
+  // https://xtermjs.org/docs/api/terminal/classes/terminal/#open says that
+  // `parent` must be visible (have dimensions) when open is called 
+  // as several DOM- based measurements need to be performed when this function is called.
+  $panelBody.removeClass('hidden');
+  $logContainer.removeClass('hidden');
+  log.open(parent=document.getElementById('log'), false);
+  $logContainer.addClass('hidden');
+  $panelBody.addClass('hidden');
   log.fit();
 
   $(window).resize(function() {
     log.fit();
   });
 
-  var $panelBody = $("div.panel-body");
   log.show = function () {
     $('#toggle-logs button').text('hide');
     $panelBody.removeClass('hidden');
