@@ -10,11 +10,11 @@
   pushing -> built
   pushing -> failed
 */
-import * as Terminal from 'xterm';
-import Clipboard from 'clipboard';
-import 'xterm/lib/xterm.css';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import ClipboardJS from 'clipboard';
+import 'xterm/css/xterm.css';
 import 'bootstrap';
-import 'event-source-polyfill';
 
 import BinderImage from './src/image';
 import { markdownBadge, rstBadge } from './src/badge';
@@ -24,10 +24,6 @@ import { nextHelpText } from './src/loading';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import '../index.css';
-
-// FIXME: Can not seem to import this addon from npm
-// See https://github.com/xtermjs/xterm.js/issues/1018 for more details
-import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
 var BADGE_BASE_URL = $('#badge-base-url').data().url;
@@ -231,10 +227,16 @@ function build(providerSpec, log, path, pathType) {
 }
 
 function setUpLog() {
-  var log = new Terminal({
+  const log = new Terminal({
     convertEol: true,
     disableStdin: true
   });
+  const fitAddon = new FitAddon();
+  log.loadAddon(fitAddon);
+
+  log.fit = function () {
+    fitAddon.fit();
+  };
 
   log.open(document.getElementById('log'), false);
   log.fit();
@@ -363,5 +365,5 @@ window.indexMain = indexMain;
 
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
-  new Clipboard('.clipboard');
+  new ClipboardJS('.clipboard');
 };
