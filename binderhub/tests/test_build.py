@@ -52,6 +52,13 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
             events.append(event)
             assert 'message' in event
             sys.stdout.write(event['message'])
+            # this is the signal that everything is ready, pod is launched
+            # and server is up inside the pod. Break out of the loop now
+            # because BinderHub keeps the connection open for many seconds
+            # after to avoid "reconnects" from slow clients
+            if event.get('phase') == 'ready':
+                r.close()
+                break
 
     final = events[-1]
     assert 'phase' in final
