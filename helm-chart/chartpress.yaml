@@ -31,6 +31,7 @@ charts:
         paths:
           - images/binderhub/requirements.txt
           - ../setup.py
-          - ../package.json
           - ../binderhub
+          - ../package.json
+          - ../webpack.config.js
         valuesPath: image
