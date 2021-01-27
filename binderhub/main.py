@@ -19,6 +19,7 @@ SPEC_NAMES = {
     "figshare": "Figshare",
     "hydroshare": "Hydroshare",
     "dataverse": "Dataverse",
+    "swh": "Software Heritage",
 }
 
 
