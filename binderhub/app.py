@@ -297,7 +297,7 @@ class BinderHub(Application):
     )
 
     push_secret = Unicode(
-        'binder-push-secret',
+        'binder-build-docker-config',
         allow_none=True,
         help="""
         A kubernetes secret object that provides credentials for pushing built images.
@@ -374,6 +374,22 @@ class BinderHub(Application):
         if parts.scheme != 'unix' or parts.netloc != '':
             raise TraitError("Only unix domain sockets on same node are supported for build_docker_host")
         return proposal.value
+
+    build_docker_config = Dict(
+        None,
+        allow_none=True,
+        help="""
+        A dict which will be merged into the .docker/config.json of the build container (repo2docker)
+        Here, you could for example pass proxy settings as described here:
+        https://docs.docker.com/network/proxy/#configure-the-docker-client
+
+        Note: if you provide your own push_secret, this values wont
+        have an effect, as the push_secrets will overwrite
+        .docker/config.json
+        In this case, make sure that you include your config in your push_secret
+        """,
+        config=True
+    )
 
     hub_api_token = Unicode(
         help="""API token for talking to the JupyterHub API""",
@@ -693,6 +709,7 @@ class BinderHub(Application):
                 "build_memory_limit": self.build_memory_limit,
                 "build_memory_request": self.build_memory_request,
                 "build_docker_host": self.build_docker_host,
+                "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
                 "badge_base_url": self.badge_base_url,
                 "static_path": os.path.join(HERE, "static"),
