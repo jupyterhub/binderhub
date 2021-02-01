@@ -16,8 +16,7 @@ import requests
 
 
 def build_binder(repo,
-                 ref='master',
-                 filepath=None,
+                 ref,
                  *,
                  binder_url='https://mybinder.org'):
     """Launch a binder
@@ -38,9 +37,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('repo', type=str, help="The GitHub repo to build")
     parser.add_argument(
-        '--ref', default='master', help="The ref of the repo to build")
-    parser.add_argument(
+        '--ref', default='HEAD', help="The ref of the repo to build")
+    file_or_url = parser.add_mutually_exclusive_group()
+    file_or_url.add_argument(
         '--filepath', type=str, help="The file to open, if any.")
+    file_or_url.add_argument(
+        '--urlpath', type=str, help="The url to open, if any.")
     parser.add_argument(
         '--binder',
         default='https://mybinder.org',
@@ -53,7 +55,6 @@ if __name__ == '__main__':
     for evt in build_binder(
             opts.repo,
             ref=opts.ref,
-            filepath=opts.filepath,
             binder_url=opts.binder):
         if 'message' in evt:
             print("[{phase}] {message}".format(
@@ -61,7 +62,12 @@ if __name__ == '__main__':
                 message=evt['message'].rstrip(),
             ))
         if evt.get('phase') == 'ready':
-            url = "{url}?token={token}".format(**evt)
+            if opts.filepath:
+                url = "{url}notebooks/{filepath}?token={token}".format(**evt, filepath=opts.filepath)
+            elif opts.urlpath:
+                url = "{url}{urlpath}?token={token}".format(**evt, urlpath=opts.urlpath)
+            else:
+                url = "{url}?token={token}".format(**evt)
             print("Opening %s" % url)
             webbrowser.open(url)
             break
