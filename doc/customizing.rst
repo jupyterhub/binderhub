@@ -16,7 +16,7 @@ the following pattern::
         <JUPYTERHUB-CONFIG-YAML>
 
 For example, see `this section of the mybinder.org Helm Chart
-<https://github.com/jupyterhub/mybinder.org-deploy/blob/staging/mybinder/values.yaml#L54>`_.
+<https://github.com/jupyterhub/mybinder.org-deploy/blob/a7d83838aea24a4f143a2b8630f4347fa722a6b3/mybinder/values.yaml#L192>`_.
 
 For information on how to configure your JupyterHub deployment, see the
 `JupyterHub for Kubernetes Customization Guide
