@@ -22,7 +22,7 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: /
+          - path: /{{ $.Values.ingress.pathSuffix }}
             backend:
               serviceName: binder
               servicePort: 80
