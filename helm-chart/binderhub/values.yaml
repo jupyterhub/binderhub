@@ -63,6 +63,9 @@ jupyterhub:
   rbac:
     enabled: true
   hub:
+    config:
+      JupyterHub:
+        authenticator_class: nullauthenticator.NullAuthenticator
     extraConfig:
       00-binder: |
         from tornado import web
@@ -125,9 +128,6 @@ jupyterhub:
       binder:
         admin: true
         apiToken:
-  config:
-    JupyterHub:
-      authenticator_class: "nullauthenticator.NullAuthenticator"
   singleuser:
     # start jupyter notebook
     cmd: jupyter-notebook
