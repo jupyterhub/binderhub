@@ -98,6 +98,11 @@ class HealthHandler(BaseHandler):
     # to avoid flooding logs with health checks
     log_success_debug = True
 
+    # Do not check request ip when getting health status
+    # we want to allow e.g. federation members to check each other's
+    # health, but not launch Binders
+    skip_check_request_ip = True
+
     def initialize(self, hub_url=None):
         self.hub_url = hub_url
 

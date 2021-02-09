@@ -2,11 +2,12 @@
 The binderhub application
 """
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+import ipaddress
 import json
 import logging
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from urllib.parse import urlparse
 
@@ -20,7 +21,17 @@ import tornado.options
 import tornado.log
 from tornado.log import app_log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, Union, default
+from traitlets import (
+    Bool,
+    Dict,
+    Integer,
+    List,
+    TraitError,
+    Unicode,
+    Union,
+    default,
+    validate,
+)
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 from jupyterhub.traitlets import Callable
@@ -483,6 +494,26 @@ class BinderHub(Application):
         """
     )
 
+    ban_networks = List(
+        config=True,
+        help="""
+        List of networks from which requests should be rejected with 403
+
+        Use CIDR notation (e.g. '1.2.3.4/32').
+        Strings will be parsed with `ipaddress.ip_network()`.
+        """,
+    )
+
+    @validate("ban_networks")
+    def _cast_ban_networks(self, proposal):
+        """Cast CIDR strings to IPv[4|6]Network objects"""
+        networks = []
+        for cidr in proposal.value:
+            networks.append(ipaddress.ip_network(cidr))
+
+        # collapse networks in case of overlap:
+        return list(ipaddress.collapse_addresses(networks))
+
     tornado_settings = Dict(
         config=True,
         help="""
@@ -611,6 +642,7 @@ class BinderHub(Application):
                 "debug": self.debug,
                 "launcher": self.launcher,
                 "appendix": self.appendix,
+                "ban_networks": self.ban_networks,
                 "build_namespace": self.build_namespace,
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,
