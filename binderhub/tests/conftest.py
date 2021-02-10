@@ -335,3 +335,8 @@ def always_build(app, request):
         patch = patch_provider(Provider)
         patch.start()
         request.addfinalizer(patch.stop)
+
+
+# skip_remote mark for tests that require local binder
+# e.g. patching config
+skip_remote = pytest.mark.skipif(REMOTE_BINDER, reason="requires local binder")

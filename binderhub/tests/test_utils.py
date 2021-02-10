@@ -1,4 +1,7 @@
+import ipaddress
 from unittest import mock
+
+import pytest
 
 from binderhub import utils
 
@@ -103,3 +106,27 @@ def test_cache_expiry():
     with mock.patch.object(cache, '_now', lambda: before_now() + 1):
         cache.get('a')
     assert cache._ages['a'] == before_age
+
+
+@pytest.mark.parametrize(
+    "ip, cidrs, found",
+    [
+        ("192.168.1.1", ["192.168.1.1/32", "255.255.0.0/16"], True),
+        ("192.168.1.2", ["192.168.1.1/32", "255.255.0.0/16"], False),
+        ("192.168.1.2", ["192.168.1.0/24", "255.255.0.0/16"], True),
+        ("192.168.1.2", ["255.255.0.0/16", "192.168.1.0/24"], True),
+        ("192.168.1.2", [], False),
+    ],
+)
+def test_ip_in_network_set(ip, cidrs, found):
+    network_set = set(ipaddress.ip_network(cidr) for cidr in cidrs)
+    if network_set:
+        min_prefix = min(net.prefixlen for net in network_set)
+    else:
+        min_prefix = 1
+    assert utils.ip_in_network_set(ip, network_set, min_prefix) == found
+
+
+def test_ip_in_network_set_invalid():
+    with pytest.raises(ValueError):
+        utils.ip_in_network_set("1.2.3.4", set(), 0)

@@ -1,6 +1,7 @@
 """Miscellaneous utilities"""
 from collections import OrderedDict
 from hashlib import blake2b
+import ipaddress
 import time
 
 from traitlets import Integer, TraitError
@@ -162,6 +163,25 @@ def url_path_join(*pieces):
         result = "/"
 
     return result
+
+
+def ip_in_network_set(ip, network_set, min_prefix_len=1):
+    """Return whether `ip` is in the set of networks network_set
+
+    This is O(1) regardless of the size of network_set
+
+    Implementation based on netaddr.IPSet.__contains__
+    """
+    if min_prefix_len < 1:
+        raise ValueError(f"min_prefix_len must be >= 1, got {min_prefix_len}")
+    if not network_set:
+        return False
+    check_net = ipaddress.ip_network(ip)
+    while check_net.prefixlen >= min_prefix_len:
+        if check_net in network_set:
+            return True
+        check_net = check_net.supernet(1)
+    return False
 
 
 # FIXME: remove when instantiating a kubernetes client

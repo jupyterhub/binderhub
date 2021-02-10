@@ -26,10 +26,12 @@ from traitlets import (
     Dict,
     Integer,
     List,
+    Set,
     TraitError,
     Unicode,
     Union,
     default,
+    observe,
     validate,
 )
 from traitlets.config import Application
@@ -494,7 +496,7 @@ class BinderHub(Application):
         """
     )
 
-    ban_networks = List(
+    ban_networks = Set(
         config=True,
         help="""
         List of networks from which requests should be rejected with 403
@@ -512,7 +514,20 @@ class BinderHub(Application):
             networks.append(ipaddress.ip_network(cidr))
 
         # collapse networks in case of overlap:
-        return list(ipaddress.collapse_addresses(networks))
+        return set(ipaddress.collapse_addresses(networks))
+
+    ban_networks_min_prefix_len = Integer(
+        1,
+        help="The shortest prefix in ban_networks",
+    )
+
+    @observe("ban_networks")
+    def _update_prefix_len(self, change):
+        if not change.new:
+            min_len = 1
+        else:
+            min_len = min(net.prefixlen for net in change.new)
+        self.ban_networks_min_prefix_len = min_len or 1
 
     tornado_settings = Dict(
         config=True,
@@ -643,6 +658,7 @@ class BinderHub(Application):
                 "launcher": self.launcher,
                 "appendix": self.appendix,
                 "ban_networks": self.ban_networks,
+                "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
                 "build_namespace": self.build_namespace,
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,

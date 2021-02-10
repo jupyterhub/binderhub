@@ -9,6 +9,7 @@ from tornado.log import app_log
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
+from .utils import ip_in_network_set
 
 
 class BaseHandler(HubOAuthenticated, web.RequestHandler):
@@ -28,13 +29,17 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     def check_request_ip(self):
         """Check network block list, if any"""
-        if self.skip_check_request_ip or not self.settings.get("ban_networks"):
+        ban_networks = self.settings.get("ban_networks")
+        if self.skip_check_request_ip or not ban_networks:
             return
-        request_ip = ip_address(self.request.remote_ip)
-        for network in self.settings["ban_networks"]:
-            if request_ip in network:
-                app_log.warning(f"Blocking request from {request_ip} in {network}")
-                raise web.HTTPError(403, f"Requests from {request_ip} are not allowed")
+        request_ip = self.request.remote_ip
+        if ip_in_network_set(
+            request_ip,
+            ban_networks,
+            min_prefix_len=self.settings["ban_networks_min_prefix_len"],
+        ):
+            app_log.warning(f"Blocking request from {request_ip} in ban_networks")
+            raise web.HTTPError(403, f"Requests from {request_ip} are not allowed")
 
     def get_current_user(self):
         if not self.settings['auth_enabled']:
