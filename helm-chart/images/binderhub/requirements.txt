@@ -22,14 +22,10 @@ cffi==1.14.4
     # via cryptography
 chardet==4.0.0
     # via requests
-cryptography==3.3.1
+cryptography==3.3.2
     # via pyopenssl
-docker==4.4.1
-    # via -r binderhub.in
 entrypoints==0.3
     # via jupyterhub
-escapism==1.0.1
-    # via -r binderhub.in
 google-api-core[grpc]==1.24.1
     # via
     #   google-cloud-core
@@ -51,23 +47,15 @@ idna==2.10
 ipython-genutils==0.2.0
     # via traitlets
 jinja2==2.11.2
-    # via
-    #   -r binderhub.in
-    #   jupyterhub
+    # via jupyterhub
 jsonschema==3.2.0
-    # via
-    #   -r binderhub.in
-    #   jupyter-telemetry
+    # via jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
 jupyterhub==1.2.2
-    # via
-    #   -r binderhub.in
-    #   -r requirements.in
+    # via -r requirements.in
 kubernetes==9.0.1
-    # via
-    #   -r binderhub.in
-    #   -r requirements.in
+    # via -r requirements.in
 mako==1.1.3
     # via alembic
 markupsafe==1.1.1
@@ -81,9 +69,7 @@ oauthlib==3.1.0
 pamela==1.0.0
     # via jupyterhub
 prometheus-client==0.9.0
-    # via
-    #   -r binderhub.in
-    #   jupyterhub
+    # via jupyterhub
 protobuf==3.14.0
     # via
     #   google-api-core
@@ -108,9 +94,7 @@ python-dateutil==2.8.1
 python-editor==1.0.4
     # via alembic
 python-json-logger==2.0.1
-    # via
-    #   -r binderhub.in
-    #   jupyter-telemetry
+    # via jupyter-telemetry
 pytz==2020.5
     # via google-api-core
 pyyaml==5.3.1
@@ -119,21 +103,17 @@ requests-oauthlib==1.3.0
     # via kubernetes
 requests==2.25.1
     # via
-    #   docker
     #   google-api-core
     #   jupyterhub
     #   kubernetes
     #   requests-oauthlib
 rsa==4.6
     # via google-auth
-ruamel.yaml.clib==0.2.2
-    # via ruamel.yaml
 ruamel.yaml==0.16.12
     # via jupyter-telemetry
 six==1.15.0
     # via
     #   cryptography
-    #   docker
     #   google-api-core
     #   google-auth
     #   google-cloud-core
@@ -149,12 +129,9 @@ sqlalchemy==1.3.22
     #   alembic
     #   jupyterhub
 tornado==6.1
-    # via
-    #   -r binderhub.in
-    #   jupyterhub
+    # via jupyterhub
 traitlets==5.0.5
     # via
-    #   -r binderhub.in
     #   jupyter-telemetry
     #   jupyterhub
 urllib3==1.26.2
@@ -162,9 +139,7 @@ urllib3==1.26.2
     #   kubernetes
     #   requests
 websocket-client==0.57.0
-    # via
-    #   docker
-    #   kubernetes
+    # via kubernetes
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
