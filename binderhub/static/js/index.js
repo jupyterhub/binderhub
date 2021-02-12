@@ -238,6 +238,7 @@ function setUpLog() {
   var $panelBody = $("div.panel-body");
   log.fit = function () {
     if (!$panelBody.hasClass('hidden')) {
+      // fit only when the log panel is open, otherwise fitAddon throws error
       fitAddon.fit();
     }
   };
@@ -259,6 +260,8 @@ function setUpLog() {
   log.show = function () {
     $('#toggle-logs button').text('hide');
     $panelBody.removeClass('hidden');
+    // user might resize the window while logs are closed, so to be sure fit the log panel
+    log.fit();
   };
 
   log.hide = function () {
