@@ -165,8 +165,6 @@ function build(providerSpec, log, path, pathType) {
   $('#build-progress .progress-bar').addClass('hidden');
   log.clear();
 
-  $('.on-build').removeClass('hidden');
-
   var image = new BinderImage(providerSpec);
 
   image.onStateChange('*', function(oldState, newState, data) {
@@ -184,7 +182,6 @@ function build(providerSpec, log, path, pathType) {
 
   image.onStateChange('building', function(oldState, newState, data) {
     $('#phase-building').removeClass('hidden');
-    log.show();
   });
 
   image.onStateChange('pushing', function(oldState, newState, data) {
@@ -234,7 +231,6 @@ function setUpLog() {
   const fitAddon = new FitAddon();
   log.loadAddon(fitAddon);
 
-  var $logContainer = $("div#log-container");
   var $panelBody = $("div.panel-body");
   log.fit = function () {
     if (!$panelBody.hasClass('hidden')) {
@@ -243,14 +239,7 @@ function setUpLog() {
     }
   };
 
-  // https://xtermjs.org/docs/api/terminal/classes/terminal/#open says that
-  // `parent` must be visible (have dimensions) when open is called 
-  // as several DOM- based measurements need to be performed when this function is called.
-  $panelBody.removeClass('hidden');
-  $logContainer.removeClass('hidden');
   log.open(parent=document.getElementById('log'), false);
-  $logContainer.addClass('hidden');
-  $panelBody.addClass('hidden');
   log.fit();
 
   $(window).resize(function() {
