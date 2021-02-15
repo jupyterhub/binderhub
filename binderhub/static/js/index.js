@@ -196,7 +196,6 @@ function build(providerSpec, log, path, pathType) {
 
     // If we fail for any reason, show an error message and logs
     update_favicon(BASE_URL + "favicon_fail.ico");
-    log.show();
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
       $('div#loader-text p.launching').html('Error loading ' + spec + '!<br /> See logs below for details.');
@@ -231,12 +230,8 @@ function setUpLog() {
   const fitAddon = new FitAddon();
   log.loadAddon(fitAddon);
 
-  var $panelBody = $("div.panel-body");
   log.fit = function () {
-    if (!$panelBody.hasClass('hidden')) {
-      // fit only when the log panel is open, otherwise fitAddon throws error
-      fitAddon.fit();
-    }
+    fitAddon.fit();
   };
 
   log.open(parent=document.getElementById('log'), false);
@@ -246,27 +241,6 @@ function setUpLog() {
     log.fit();
   });
 
-  log.show = function () {
-    $('#toggle-logs button').text('hide');
-    $panelBody.removeClass('hidden');
-    // user might resize the window while logs are closed, so to be sure fit the log panel
-    log.fit();
-  };
-
-  log.hide = function () {
-    $('#toggle-logs button').text('show');
-    $panelBody.addClass('hidden');
-  };
-
-  log.toggle = function () {
-    if ($panelBody.hasClass('hidden')) {
-      log.show();
-    } else {
-      log.hide();
-    }
-  };
-
-  $('#toggle-logs').click(log.toggle);
   return log;
 }
 
