@@ -25,8 +25,6 @@ from traitlets import (
     Bool,
     Dict,
     Integer,
-    List,
-    Set,
     TraitError,
     Unicode,
     Union,
@@ -496,25 +494,25 @@ class BinderHub(Application):
         """
     )
 
-    ban_networks = Set(
+    ban_networks = Dict(
         config=True,
         help="""
-        List of networks from which requests should be rejected with 403
+        Dict of networks from which requests should be rejected with 403
 
-        Use CIDR notation (e.g. '1.2.3.4/32').
-        Strings will be parsed with `ipaddress.ip_network()`.
+        Keys are CIDR notation (e.g. '1.2.3.4/32'),
+        values are a label used in log / error messages.
+        CIDR strings will be parsed with `ipaddress.ip_network()`.
         """,
     )
 
     @validate("ban_networks")
     def _cast_ban_networks(self, proposal):
         """Cast CIDR strings to IPv[4|6]Network objects"""
-        networks = []
-        for cidr in proposal.value:
-            networks.append(ipaddress.ip_network(cidr))
+        networks = {}
+        for cidr, message in proposal.value.items():
+            networks[ipaddress.ip_network(cidr)] = message
 
-        # collapse networks in case of overlap:
-        return set(ipaddress.collapse_addresses(networks))
+        return networks
 
     ban_networks_min_prefix_len = Integer(
         1,

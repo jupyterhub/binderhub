@@ -65,16 +65,19 @@ async def test_auth(app, path, authenticated, use_session):
 )
 async def test_ban_networks(request, app, use_session, path, banned, prefixlen, status):
     url = f"{app.url}{path}"
-    ban_networks = ["255.255.255.255/32", "1.0.0.0/8"]
+    ban_networks = {
+        "255.255.255.255/32": "255.x",
+        "1.0.0.0/8": "1.x",
+    }
     local_net = str(ipaddress.ip_network("127.0.0.1").supernet(new_prefix=prefixlen))
     if banned:
-        ban_networks.append(local_net)
+        ban_networks[local_net] = "local"
 
     # pass through trait validators on app
     app.ban_networks = ban_networks
 
     def reset():
-        app.ban_networks = []
+        app.ban_networks = {}
 
     request.addfinalizer(reset)
     with mock.patch.dict(
@@ -93,4 +96,4 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
 
     if status == 403:
         # check error message on 403
-        assert "Requests from 127.0.0.1 are not allowed" in r.text
+        assert "Requests from local are not allowed" in r.text

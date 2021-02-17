@@ -118,15 +118,22 @@ def test_cache_expiry():
         ("192.168.1.2", [], False),
     ],
 )
-def test_ip_in_network_set(ip, cidrs, found):
-    network_set = set(ipaddress.ip_network(cidr) for cidr in cidrs)
-    if network_set:
-        min_prefix = min(net.prefixlen for net in network_set)
+def test_ip_in_networks(ip, cidrs, found):
+    networks = {ipaddress.ip_network(cidr): f"message {cidr}" for cidr in cidrs}
+    if networks:
+        min_prefix = min(net.prefixlen for net in networks)
     else:
         min_prefix = 1
-    assert utils.ip_in_network_set(ip, network_set, min_prefix) == found
+    match = utils.ip_in_networks(ip, networks, min_prefix)
+    if found:
+        assert match
+        net, message = match
+        assert message == f"message {net}"
+        assert ipaddress.ip_address(ip) in net
+    else:
+        assert match == False
 
 
-def test_ip_in_network_set_invalid():
+def test_ip_in_networks_invalid():
     with pytest.raises(ValueError):
-        utils.ip_in_network_set("1.2.3.4", set(), 0)
+        utils.ip_in_networks("1.2.3.4", {}, 0)
