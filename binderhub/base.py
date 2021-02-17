@@ -1,12 +1,15 @@
 """Base classes for request handlers"""
 
 import json
+from ipaddress import ip_address
 
 from http.client import responses
 from tornado import web
+from tornado.log import app_log
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
+from .utils import ip_in_networks
 
 
 class BaseHandler(HubOAuthenticated, web.RequestHandler):
@@ -16,6 +19,31 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         super().initialize()
         if self.settings['auth_enabled']:
             self.hub_auth = HubOAuth.instance(config=self.settings['traitlets_config'])
+
+    def prepare(self):
+        super().prepare()
+        # check request ips early on all handlers
+        self.check_request_ip()
+
+    skip_check_request_ip = False
+
+    def check_request_ip(self):
+        """Check network block list, if any"""
+        ban_networks = self.settings.get("ban_networks")
+        if self.skip_check_request_ip or not ban_networks:
+            return
+        request_ip = self.request.remote_ip
+        match = ip_in_networks(
+            request_ip,
+            ban_networks,
+            min_prefix_len=self.settings["ban_networks_min_prefix_len"],
+        )
+        if match:
+            network, message = match
+            app_log.warning(
+                f"Blocking request from {request_ip} matching banned network {network}: {message}"
+            )
+            raise web.HTTPError(403, f"Requests from {message} are not allowed")
 
     def get_current_user(self):
         if not self.settings['auth_enabled']:

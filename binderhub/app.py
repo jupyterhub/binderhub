@@ -2,11 +2,12 @@
 The binderhub application
 """
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+import ipaddress
 import json
 import logging
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from urllib.parse import urlparse
 
@@ -20,7 +21,17 @@ import tornado.options
 import tornado.log
 from tornado.log import app_log
 import tornado.web
-from traitlets import Unicode, Integer, Bool, Dict, validate, TraitError, Union, default
+from traitlets import (
+    Bool,
+    Dict,
+    Integer,
+    TraitError,
+    Unicode,
+    Union,
+    default,
+    observe,
+    validate,
+)
 from traitlets.config import Application
 from jupyterhub.services.auth import HubOAuthCallbackHandler
 from jupyterhub.traitlets import Callable
@@ -483,6 +494,39 @@ class BinderHub(Application):
         """
     )
 
+    ban_networks = Dict(
+        config=True,
+        help="""
+        Dict of networks from which requests should be rejected with 403
+
+        Keys are CIDR notation (e.g. '1.2.3.4/32'),
+        values are a label used in log / error messages.
+        CIDR strings will be parsed with `ipaddress.ip_network()`.
+        """,
+    )
+
+    @validate("ban_networks")
+    def _cast_ban_networks(self, proposal):
+        """Cast CIDR strings to IPv[4|6]Network objects"""
+        networks = {}
+        for cidr, message in proposal.value.items():
+            networks[ipaddress.ip_network(cidr)] = message
+
+        return networks
+
+    ban_networks_min_prefix_len = Integer(
+        1,
+        help="The shortest prefix in ban_networks",
+    )
+
+    @observe("ban_networks")
+    def _update_prefix_len(self, change):
+        if not change.new:
+            min_len = 1
+        else:
+            min_len = min(net.prefixlen for net in change.new)
+        self.ban_networks_min_prefix_len = min_len or 1
+
     tornado_settings = Dict(
         config=True,
         help="""
@@ -611,6 +655,8 @@ class BinderHub(Application):
                 "debug": self.debug,
                 "launcher": self.launcher,
                 "appendix": self.appendix,
+                "ban_networks": self.ban_networks,
+                "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
                 "build_namespace": self.build_namespace,
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,
