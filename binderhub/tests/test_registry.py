@@ -113,7 +113,7 @@ async def test_get_image_manifest(tmpdir, request):
         [
             (r"/token", MockTokenHandler, {"test_handle": test_handle}),
             (
-                r"/v2/([^/]+)/manifests/([^/]+)",
+                r"/v2/([a-zA-Z0-9]+(?:/[a-zA-Z0-9]+)*)/manifests/([a-zA-Z0-9]+)",
                 MockManifestHandler,
                 {"test_handle": test_handle},
             ),
@@ -145,5 +145,9 @@ async def test_get_image_manifest(tmpdir, request):
     assert registry.token_url == url + "/token"
     assert registry.username == username
     assert registry.password == password
-    manifest = await registry.get_image_manifest("myimage", "abc123")
-    assert manifest == {"image": "myimage", "tag": "abc123"}
+
+    names = ["myimage:abc123", "localhost/myimage:abc1234", "localhost:8080/myimage:abc3",
+              "192.168.1.1:8080/myimage:abc321", "192.168.1.1:8080/some/repo/myimage:abc3210"]
+    for name in names:
+        manifest = await registry.get_image_manifest(name)
+        assert manifest == {"image": name.split("/", 1)[-1].rsplit(":", 1)[0], "tag": name.rsplit(":", 1)[-1]}

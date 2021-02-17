@@ -146,9 +146,7 @@ class HealthHandler(BaseHandler):
         # we are only interested in getting a response from the registry, we
         # don't care if the image actually exists or not
         image_name = self.settings["image_prefix"] + "some-image-name:12345"
-        await registry.get_image_manifest(
-            *'/'.join(image_name.split('/')[-2:]).split(':', 1)
-        )
+        await registry.get_image_manifest(image_name)
         return True
 
     async def check_pod_quota(self):

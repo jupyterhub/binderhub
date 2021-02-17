@@ -185,8 +185,28 @@ class DockerRegistry(LoggingConfigurable):
             base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
         )
 
-    async def get_image_manifest(self, image, tag):
+    @staticmethod
+    def parse_image_name(name):
+        """Parse a docker image string into (registry, image, tag)"""
+        # name could be "localhost:5000/foo:tag" 
+        # or "gcr.io/project/subrepo/sub/sub/sub:tag" 
+        # or "org/repo:tag" for implicit docker.io
+        registry, _, tagged_image = name.partition("/")
+        if tagged_image and (registry == "localhost" or any(c in registry for c in (".", ":"))):
+            # registry host is specified
+            pass
+        else:
+            # registry not given, use implicit default docker.io registry
+            registry = "docker.io"
+            tagged_image = name
+        image, _, tag = tagged_image.partition(":")
+
+        return registry, image, tag
+
+    async def get_image_manifest(self, name):
         client = httpclient.AsyncHTTPClient()
+        _, image, tag = DockerRegistry.parse_image_name(name)
+
         url = "{}/v2/{}/manifests/{}".format(self.url, image, tag)
         # first, get a token to perform the manifest request
         if self.token_url:
