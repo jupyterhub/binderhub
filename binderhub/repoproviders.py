@@ -582,7 +582,6 @@ class GitLabRepoProvider(RepoProvider):
     }
 
     def __init__(self, *args, **kwargs):
-        print("GITLAB contructor")
         super().__init__(*args, **kwargs)
         self.quoted_namespace, unresolved_ref = self.spec.split('/', 1)
         self.namespace = urllib.parse.unquote(self.quoted_namespace)
