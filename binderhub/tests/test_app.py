@@ -19,7 +19,7 @@ def test_image_prefix():
     prefixes = ["foo/bar", "foo-bar/baz", "foo/bar-", "localhost/foo", "localhost/foo/bar/baz",
                 "localhost:8080/foo/bar/baz", "127.0.0.1/foo", "127.0.0.1:5000/foo/b",
                 "f/o/o/b/a/r/b/a/z", "gcr.io/foo", "my.gcr.io:5000/foo", "foo_bar/baz-",
-                "foo_ba.r/baz-"]
+                "foo_ba.r/baz-", "localhost:32000/someprefix-"]
     for name in prefixes:
         b.image_prefix = name
 
