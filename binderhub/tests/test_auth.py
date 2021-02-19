@@ -107,7 +107,7 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
         assert ban_message in r.text
 
     if banned and path.startswith("/build"):
-        # /build/ is event-stream, so allow connecting with200
+        # /build/ is event-stream, so allow connecting with status 200
         # and a failure message
         assert r.headers["content-type"] == "text/event-stream"
         assert ban_message in r.text
