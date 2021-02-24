@@ -182,10 +182,18 @@ class BuildHandler(BaseHandler):
         self.event_log = self.settings['event_log']
 
     async def fail(self, message):
-        await self.emit({
-            'phase': 'failed',
-            'message': message + '\n',
-        })
+        await self.emit(
+            {
+                "phase": "failed",
+                "message": message + "\n",
+            }
+        )
+
+    def set_default_headers(self):
+        super().set_default_headers()
+        # set up for sending event streams
+        self.set_header("content-type", "text/event-stream")
+        self.set_header("cache-control", "no-cache")
 
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
@@ -205,10 +213,6 @@ class BuildHandler(BaseHandler):
         """
         prefix = '/build/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
-
-        # set up for sending event streams
-        self.set_header('content-type', 'text/event-stream')
-        self.set_header('cache-control', 'no-cache')
 
         # Verify if the provider is valid for EventSource.
         # EventSource cannot handle HTTP errors, so we must validate and send

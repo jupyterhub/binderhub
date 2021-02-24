@@ -1,6 +1,7 @@
 """Test authentication"""
 
 import ipaddress
+import json
 from unittest import mock
 from urllib.parse import urlparse
 
@@ -58,6 +59,12 @@ async def test_auth(app, path, authenticated, use_session):
             24,
             403,
         ),
+        (
+            "/build/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
+            True,
+            24,
+            200,  # due to event-stream, status is always 200 even when rejected
+        ),
         # ban_networks shouldn't affect health endpoint
         ("/health", True, 32, (200, 503)),
         ("/health", False, 24, (200, 503)),
@@ -94,6 +101,22 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
         # allow container of statuses
         assert r.status_code in status
 
+    ban_message = "Requests from local are not allowed"
     if status == 403:
         # check error message on 403
-        assert "Requests from local are not allowed" in r.text
+        assert ban_message in r.text
+
+    if banned and path.startswith("/build"):
+        # /build/ is event-stream, so allow connecting with status 200
+        # and a failure message
+        assert r.headers["content-type"] == "text/event-stream"
+        assert ban_message in r.text
+        events = []
+        for line in r.text.splitlines():
+            if line.startswith("data:"):
+                _, json_event = line.split(":", 1)
+                events.append(json.loads(json_event))
+        event = events[-1]
+        assert event["phase"] == "failed"
+        assert event["status_code"] == 403
+        assert ban_message in event["message"]
