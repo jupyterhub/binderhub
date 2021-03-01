@@ -149,6 +149,9 @@ class VersionHandler(BaseHandler):
 
     # demote logging of 200 responses to debug-level
     log_success_debug = True
+    # allow version-check requests from banned hosts
+    # (e.g. mybinder.org federation when blocking cloud datacenters)
+    skip_check_request_ip = True
 
     async def get(self):
         self.set_header("Content-type", "application/json")
