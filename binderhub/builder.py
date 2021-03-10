@@ -2,6 +2,7 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
+import asyncio
 import hashlib
 from http.client import responses
 import json
@@ -10,7 +11,6 @@ import time
 import escapism
 
 import docker
-from tornado.concurrent import chain_future, Future
 from tornado import gen
 from tornado.httpclient import HTTPClientError
 from tornado.web import Finish, authenticated
@@ -485,19 +485,16 @@ class BuildHandler(BaseHandler):
             self.settings["build_namespace"],
             label_selector='app=jupyterhub,component=singleuser-server',
             _request_timeout=KUBE_REQUEST_TIMEOUT,
+            _preload_content=False,
         )
-        # concurrent.futures.Future isn't awaitable
-        # wrap in tornado Future
-        # tornado 5 will have `.run_in_executor`
-        tf = Future()
-        chain_future(f, tf)
-        pods = await tf
-        for pod in pods.items:
+        resp = await asyncio.wrap_future(f)
+        pods = json.loads(resp.read())
+        for pod in pods["items"]:
             total_pods += 1
-            for container in pod.spec.containers:
+            for container in pod["spec"]["containers"]:
                 # is the container running the same image as us?
                 # if so, count one for the current repo.
-                image = container.image.rsplit(':', 1)[0]
+                image = container["image"].rsplit(":", 1)[0]
                 if image == image_no_tag:
                     matching_pods += 1
                     break
