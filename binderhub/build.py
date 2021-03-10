@@ -183,14 +183,16 @@ class Build:
         repository prefer to schedule on the same node in order to reuse the
         docker layer cache of previous builds.
         """
-        dind_pods = self.api.list_namespaced_pod(
+        resp = self.api.list_namespaced_pod(
             self.namespace,
             label_selector="component=dind,app=binder",
             _request_timeout=KUBE_REQUEST_TIMEOUT,
+            _preload_content=False,
         )
+        dind_pods = json.loads(resp.read())
 
         if self.sticky_builds and dind_pods:
-            node_names = [pod.spec.node_name for pod in dind_pods.items]
+            node_names = [pod["spec"]["nodeName"] for pod in dind_pods["items"]]
             ranked_nodes = rendezvous_rank(node_names, self.repo_url)
             best_node_name = ranked_nodes[0]
 
