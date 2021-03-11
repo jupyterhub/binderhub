@@ -71,10 +71,31 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     assert r.url.startswith(final['url'])
 
 
+def _list_dind_pods_mock():
+    """Mock list of DIND pods"""
+    mock_response = mock.MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {
+            "items": [
+                {
+                    "spec": {"nodeName": name},
+                }
+                for name in ["node-a", "node-b"]
+            ]
+        }
+    )
+    mock_k8s_api = mock.MagicMock()
+    mock_k8s_api.list_namespaced_pod.return_value = mock_response
+    return mock_k8s_api
+
+
 def test_default_affinity():
     # check that the default affinity is a pod anti-affinity
+
+    mock_k8s_api = _list_dind_pods_mock()
+
     build = Build(
-        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        mock.MagicMock(), api=mock_k8s_api, name='test_build',
         namespace='build_namespace', repo_url=mock.MagicMock(),
         ref=mock.MagicMock(), build_image=mock.MagicMock(),
         image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
@@ -92,14 +113,7 @@ def test_default_affinity():
 
 def test_sticky_builds_affinity():
     # Setup some mock objects for the response from the k8s API
-    Pod = namedtuple("Pod", "spec")
-    PodSpec = namedtuple("PodSpec", "node_name")
-    PodList = namedtuple("PodList", "items")
-
-    mock_k8s_api = mock.MagicMock()
-    mock_k8s_api.list_namespaced_pod.return_value = PodList(
-        [Pod(PodSpec("node-a")), Pod(PodSpec("node-b"))],
-    )
+    mock_k8s_api = _list_dind_pods_mock()
 
     build = Build(
         mock.MagicMock(), api=mock_k8s_api, name='test_build',
@@ -127,19 +141,21 @@ def test_git_credentials_passed_to_podspec_upon_submit():
         'client_id': 'my_username',
         'access_token': 'my_access_token',
     }
+
+    mock_k8s_api = _list_dind_pods_mock()
+
     build = Build(
-        mock.MagicMock(), api=mock.MagicMock(), name='test_build',
+        mock.MagicMock(), api=mock_k8s_api, name='test_build',
         namespace='build_namespace', repo_url=mock.MagicMock(), ref=mock.MagicMock(),
         git_credentials=git_credentials, build_image=mock.MagicMock(),
         image_name=mock.MagicMock(), push_secret=mock.MagicMock(),
         memory_limit=mock.MagicMock(), docker_host='http://mydockerregistry.local',
         node_selector=mock.MagicMock())
 
-    with mock.patch.object(build, 'api') as api_patch, \
-            mock.patch.object(build.stop_event, 'is_set', return_value=True):
+    with mock.patch.object(build.stop_event, 'is_set', return_value=True):
         build.submit()
 
-    call_args_list = api_patch.create_namespaced_pod.call_args_list
+    call_args_list = mock_k8s_api.create_namespaced_pod.call_args_list
     assert len(call_args_list) == 1
 
     args = call_args_list[0][0]
