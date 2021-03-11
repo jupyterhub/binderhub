@@ -291,13 +291,18 @@ If you setup your own local registry using
 
 .. important::
 
-    BinderHub assumes that `image_prefix` contains an extra level for the project name such that: `gcr.io/<project-id>/<prefix>-name:tag`.
-    Hence, your `image_prefix` field should be set to: `your-registry.io/<some-project-name>/<prefix>-`.
-    See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for more details.
+    BinderHub validates that `image_prefix` matches the following pattern: `[<registry>/]<prefix>`.
+    
+    <registry> is optional and defaults to `docker.io`. It may include the server port but does not 
+    include the protocol (http[s]://).
 
-    `<some-project-name>` can be completely arbitrary and/or made-up.
-    For example, it could be the name you give your BinderHub.
-    Without this extra level, you may find that your BinderHub always rebuilds images instead of pulling them from the registry.
+    <prefix> supports any repository depth.
+
+    Examples:
+    - `binder-`
+    - `foo/binder-`
+    - `docker.io/foo/bar/baz/binder-`
+    - `127.0.0.1:5000/binder-`
 
 Install BinderHub
 -----------------

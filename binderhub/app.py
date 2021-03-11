@@ -318,6 +318,16 @@ class BinderHub(Application):
         config=True
     )
 
+    @validate('image_prefix')
+    def _valid_image_prefix(self, proposal):
+        image_regex = re.compile(r'^([^\/:]+(?::[0-9]+)?\/)?' +
+                                 r'([_a-zA-Z0-9\-\.]+(?:\/[_a-zA-Z0-9\-\.]+)*)$')
+        if image_regex.match(proposal.value) is None:
+            raise AttributeError("'image_prefix' does not match the expected pattern "+
+                                 "[<registry>[:<port>]/]<repo>")
+
+        return proposal.value
+
     build_memory_request = ByteSpecification(
         0,
         help="""
