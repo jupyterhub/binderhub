@@ -39,9 +39,11 @@ from jupyterhub.traitlets import Callable
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
+from .config import ConfigHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
+from .repoproviders import RepoProvider
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
@@ -453,6 +455,18 @@ class BinderHub(Application):
         List of Repo Providers to register and try
         """
     )
+
+    @validate('repo_providers')
+    def _validate_repo_providers(self, proposal):
+        """trait validator to ensure there is at least one repo provider"""
+        if not proposal.value:
+            raise TraitError("Please provide at least one repo provider")
+
+        if any([not issubclass(provider, RepoProvider) for provider in proposal.value.values()]):
+            raise TraitError("Repository providers should inherit from 'binderhub.RepoProvider'")
+
+        return proposal.value
+
     concurrent_build_limit = Integer(
         32,
         config=True,
@@ -728,6 +742,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
+            (r'/_config', ConfigHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]

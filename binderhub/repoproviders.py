@@ -212,6 +212,15 @@ class ZenodoProvider(RepoProvider):
     """
     name = Unicode("Zenodo")
 
+    display_name = "Zenodo DOI"
+
+    labels = {
+        "text": "Zenodo DOI (10.5281/zenodo.3242074)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
+
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
         req = HTTPRequest("https://doi.org/{}".format(self.spec),
@@ -249,7 +258,17 @@ class FigshareProvider(RepoProvider):
     Users must provide a spec consisting of the Figshare DOI.
     """
     name = Unicode("Figshare")
+
+    display_name = "Figshare DOI"
+
     url_regex = re.compile(r"(.*)/articles/([^/]+)/([^/]+)/(\d+)(/)?(\d+)?")
+
+    labels = {
+        "text": "Figshare DOI (10.6084/m9.figshare.9782777.v1)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
@@ -291,6 +310,15 @@ class FigshareProvider(RepoProvider):
 
 class DataverseProvider(RepoProvider):
     name = Unicode("Dataverse")
+
+    display_name = "Dataverse DOI"
+
+    labels = {
+        "text": "Dataverse DOI (10.7910/DVN/TJCLKP)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
@@ -349,7 +377,17 @@ class HydroshareProvider(RepoProvider):
     Users must provide a spec consisting of the Hydroshare resource id.
     """
     name = Unicode("Hydroshare")
+
+    display_name = "Hydroshare resource"
+
     url_regex = re.compile(r".*([0-9a-f]{32}).*")
+
+    labels = {
+        "text": "Hydroshare resource id or URL",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     def _parse_resource_id(self, spec):
         match = self.url_regex.match(spec)
@@ -414,6 +452,15 @@ class GitRepoProvider(RepoProvider):
 
     name = Unicode("Git")
 
+    display_name = "Git repository"
+
+    labels = {
+        "text": "Arbitrary git repository URL (http://git.example.com/repo)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.url, unresolved_ref = self.spec.split('/', 1)
@@ -476,6 +523,8 @@ class GitLabRepoProvider(RepoProvider):
 
     name = Unicode('GitLab')
 
+    display_name = "GitLab.com"
+
     hostname = Unicode('gitlab.com', config=True,
         help="""The host of the GitLab instance
 
@@ -524,6 +573,13 @@ class GitLabRepoProvider(RepoProvider):
         if self.private_token:
             return r'username=binderhub\npassword={token}'.format(token=self.private_token)
         return ""
+
+    labels = {
+        "text": "GitLab.com repository or URL",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -583,6 +639,8 @@ class GitLabRepoProvider(RepoProvider):
 class GitHubRepoProvider(RepoProvider):
     """Repo provider for the GitHub service"""
     name = Unicode('GitHub')
+
+    display_name = 'GitHub'
 
     # shared cache for resolved refs
     cache = Cache(1024)
@@ -656,6 +714,13 @@ class GitHubRepoProvider(RepoProvider):
             else:
                 return r'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
         return ""
+
+    labels = {
+        "text": "GitHub repository name or URL",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -823,14 +888,24 @@ class GistRepoProvider(GitHubRepoProvider):
     If master or no ref is specified the latest revision will be used.
     """
 
-    name = Unicode('Gist')
-    hostname = Unicode('gist.github.com')
+    name = Unicode("Gist")
+
+    display_name = "Gist"
+
+    hostname = Unicode("gist.github.com")
 
     allow_secret_gist = Bool(
         default_value=False,
         config=True,
         help="Flag for allowing usages of secret Gists.  The default behavior is to disallow secret gists.",
     )
+
+    labels = {
+        "text": "Gist ID (username/gistId) or URL",
+        "tag_text": "Git commit SHA",
+        "ref_prop_disabled": False,
+        "label_prop_disabled": False,
+    }
 
     def __init__(self, *args, **kwargs):
         # We dont need to initialize entirely the same as github
