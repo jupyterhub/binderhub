@@ -575,7 +575,7 @@ class GitLabRepoProvider(RepoProvider):
         return ""
 
     labels = {
-        "text": "GitLab repository name or URL",
+        "text": "GitLab.com repository or URL",
         "tag_text": "Git ref (branch, tag, or commit)",
         "ref_prop_disabled": False,
         "label_prop_disabled": False,
