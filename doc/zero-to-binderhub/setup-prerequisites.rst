@@ -48,13 +48,19 @@ with your Kubernetes cluster.
 
    helm version
 
+Which will output something similar to:
+
 .. code-block:: bash
 
    version.BuildInfo{Version:"v3.4.0", GitCommit:"7090a89efc8a18f3d8178bf47d2462450349a004", GitTreeState:"clean", GoVersion:"go1.14.10"}
 
+Then check your kubectl version:
+
 .. code-block:: bash
 
    kubectl version
+
+Which will output something similar to:
 
 .. code-block:: bash
 
