@@ -384,7 +384,7 @@ class HydroshareProvider(RepoProvider):
 
     labels = {
         "text": "Hydroshare resource id or URL",
-        "tag_text": "Git branch, tag, or commit SHA",
+        "tag_text": "Git ref (branch, tag, or commit)",
         "ref_prop_disabled": True,
         "label_prop_disabled": True,
     }
