@@ -12,6 +12,7 @@ from .base import BaseHandler
 
 SPEC_NAMES = {
     "gh": "GitHub",
+    "bb": "Bitbucket",
     "gist": "Gist",
     "gl": "GitLab",
     "git": "Git repo",

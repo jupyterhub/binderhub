@@ -45,6 +45,7 @@ from .log import log_request
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
+                            BitbucketRepoProvider, 
                             GitLabRepoProvider, GistRepoProvider,
                             ZenodoProvider, FigshareProvider, HydroshareProvider,
                             DataverseProvider)
@@ -440,6 +441,7 @@ class BinderHub(Application):
     repo_providers = Dict(
         {
             'gh': GitHubRepoProvider,
+            'bb': BitbucketRepoProvider,
             'gist': GistRepoProvider,
             'git': GitRepoProvider,
             'gl': GitLabRepoProvider,

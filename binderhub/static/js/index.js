@@ -69,7 +69,14 @@ function updateRepoText() {
   $("label[for=ref]").prop("disabled", false);
   if (provider === "gh") {
     text = "GitHub repository name or URL";
-  } else if (provider === "gl") {
+  } 
+
+  else if (provider === "bb") {
+    text = "Bitbucket repository name or URL";
+    tag_text = "Bitbucket branch, tag, or commit SHA";
+  }
+
+  else if (provider === "gl") {
     text = "GitLab.com repository or URL";
   }
   else if (provider === "gist") {
