@@ -310,7 +310,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             for _ in range(3):
                 try:
-                    image_manifest = await self.registry.get_image_manifest(*image_name.split('/',1)[-1].split(':', 1))
+                    image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
                     image_found = bool(image_manifest)
                     break
                 except HTTPClientError:
