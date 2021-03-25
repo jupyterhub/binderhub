@@ -456,7 +456,7 @@ class GitRepoProvider(RepoProvider):
 
     labels = {
         "text": "Arbitrary git repository URL (http://git.example.com/repo)",
-        "tag_text": "Git ref (branch, tag, or commit) SHA",
+        "tag_text": "Git ref (branch, tag, or commit)",
         "ref_prop_disabled": False,
         "label_prop_disabled": False,
     }
