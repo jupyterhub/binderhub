@@ -71,13 +71,13 @@ def _get_image_basename_and_tag(full_name):
         image_name = full_name
         tag = 'latest'
 
-    if re.fullmatch('[a-z0-9]{4,40}/[a-z0-9\._-]{2,255}', image_name):
+    if re.fullmatch('[a-z0-9]{4,40}/[a-z0-9._-]{2,255}', image_name):
         # if it looks like a Docker Hub image name, we're done
         return image_name, tag
-    else:
-        # if the image isn't implied to origin at Docker Hub, the first part has to be a registry
-        image_basename = '/'.join(image_name.split('/')[1:])
-        return image_basename, tag
+    # if the image isn't implied to origin at Docker Hub,
+    # the first part has to be a registry
+    image_basename = '/'.join(image_name.split('/')[1:])
+    return image_basename, tag
 
 
 def _generate_build_name(build_slug, ref, prefix='', limit=63, ref_length=6):
