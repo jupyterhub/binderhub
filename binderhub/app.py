@@ -195,6 +195,32 @@ class BinderHub(Application):
         start the new server for the logged in user.""",
         config=True)
 
+    access_tokens = Dict(
+        key_trait=Unicode(),
+        value_trait=Unicode(),
+        help="""Dict of {'hex-encoded sha256 hash of token': 'label'}
+
+        Requests made with these tokens bypass the ban_networks origin check.
+
+        Requests should be made with the original token,
+        while the keys of this dict shall be the (hex-encoded) sha256 hashes of the tokens,
+        not the tokens themselves.
+        The values of this dict identify the tokens,
+        which are logged when authenticated requests are made.
+
+        Tokens can be passed in URL parameters with `?token={token}`
+        or in the Authorization header with:
+
+            Authorization: Bearer {token}
+
+        Create a token and its hash with e.g.:
+
+            token = secrets.token_hex(32)
+            hashed_token = hashlib.sha256(token.encode("ascii")).hexdigest()
+        """,
+        config=True,
+    )
+
     port = Integer(
         8585,
         help="""
@@ -663,6 +689,7 @@ class BinderHub(Application):
 
         self.tornado_settings.update(
             {
+                "access_tokens": self.access_tokens,
                 "log_function": log_request,
                 "push_secret": self.push_secret,
                 "image_prefix": self.image_prefix,

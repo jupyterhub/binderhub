@@ -1,5 +1,6 @@
 """Base classes for request handlers"""
 
+import hashlib
 import json
 from ipaddress import ip_address
 
@@ -29,6 +30,9 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     def check_request_ip(self):
         """Check network block list, if any"""
+        if self.current_user and self.current_user != "anonymous":
+            # don't check request ip when authenticated
+            return
         ban_networks = self.settings.get("ban_networks")
         if self.skip_check_request_ip or not ban_networks:
             return
@@ -45,8 +49,44 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             )
             raise web.HTTPError(403, f"Requests from {message} are not allowed")
 
+    def get_hashed_token(self):
+        """Lookup access token in Authorization header or ?token= url parameter
+
+        Returns the hashed token, ready for lookup in access_tokens
+        """
+        auth_header = self.request.headers.get("Authorization")
+        token = None
+        if auth_header:
+            kind, *token = auth_header.split(maxsplit=1)
+            if token:
+                token = token[0]
+        if not token:
+            # check url param
+            token = self.get_argument("token", None)
+        if not token:
+            return
+        return hashlib.sha256(token.encode("ascii", "replace")).hexdigest()
+
+    def get_login_url(self):
+        if not self.settings['auth_enabled']:
+            # when auth is not enabled, login redirect doesn't make sense
+            raise web.HTTPError(403)
+        return super().get_login_url()
+
     def get_current_user(self):
         if not self.settings['auth_enabled']:
+            if self.settings["access_tokens"]:
+                hashed_token = self.get_hashed_token()
+                if hashed_token:
+                    owner = self.settings["access_tokens"].get(hashed_token, None)
+                    if owner:
+                        return owner
+                    else:
+                        # Don't treat bad access tokens as anonymous requests,
+                        # explicitly fail
+                        app_log.error(f"Invalid access token: {hashed_token}")
+                        return None
+            # no token, anonymous request
             return 'anonymous'
         return super().get_current_user()
 
