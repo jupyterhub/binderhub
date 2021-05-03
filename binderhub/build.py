@@ -248,9 +248,9 @@ class Build:
         )]
 
         if self.push_secret:
-            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-config'))
+            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
             volumes.append(client.V1Volume(
-                name='docker-config',
+                name='docker-push-secret',
                 secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
             ))
 

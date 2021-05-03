@@ -351,7 +351,7 @@ class BuildHandler(BaseHandler):
         # Prepare to build
         q = Queue()
 
-        if self.settings['use_registry'] or self.settings['build_docker_config']:
+        if self.settings['use_registry']:
             push_secret = self.settings['push_secret']
         else:
             push_secret = None

@@ -16,9 +16,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Render docker config.json for the registry-publishing secret and other docker configuration.
+Render docker config.json for the registry-publishing secret.
 */}}
-{{- define "buildDockerConfig" -}}
+{{- define "registryDockerConfig" -}}
 
 {{- /* default auth url */ -}}
 {{- $url := (default "https://index.docker.io/v1" .Values.registry.url) }}
@@ -36,13 +36,11 @@ Render docker config.json for the registry-publishing secret and other docker co
 {{- end }}
 {{- $username := .Values.registry.username -}}
 
-{{- /* initialize a dict to represent a docker config with registry credentials */}}
-{{- $dockerConfig := dict "auths" (dict $url (dict "auth" (printf "%s:%s" $username .Values.registry.password | b64enc))) }}
-
-{{- /* augment our initialized docker config with buildDockerConfig */}}
-{{- if .Values.config.BinderHub.buildDockerConfig }}
-{{- $dockerConfig := merge $dockerConfig .Values.config.BinderHub.buildDockerConfig }}
-{{- end }}
-
-{{- $dockerConfig | toPrettyJson }}
+{
+  "auths": {
+    "{{ $url }}": {
+      "auth": "{{ printf "%s:%s" $username .Values.registry.password | b64enc }}"
+    }
+  }
+}
 {{- end }}
