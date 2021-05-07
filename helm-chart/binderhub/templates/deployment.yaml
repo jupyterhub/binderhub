@@ -55,7 +55,7 @@ spec:
       {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
-          secretName: binder-push-secret
+          secretName: binder-build-docker-config
       {{- else }}
       - name: docker-socket
         hostPath:
