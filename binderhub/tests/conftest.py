@@ -34,7 +34,6 @@ K8S_AVAILABLE = False
 K8S_NAMESPACE = subprocess.check_output([
     "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
 ], text=True).strip() or "default"
-ON_TRAVIS = os.environ.get('TRAVIS')
 
 # set BINDER_URL to run tests against an already-running binderhub
 # this will skip launching BinderHub internally in the app fixture
@@ -145,8 +144,6 @@ def _binderhub_config():
     except Exception:
         cfg.BinderHub.builder_required = False
         K8S_AVAILABLE = False
-        if ON_TRAVIS:
-            pytest.fail("Kubernetes should be available on Travis")
     else:
         K8S_AVAILABLE = True
     if REMOTE_BINDER:
@@ -157,8 +154,6 @@ def _binderhub_config():
         requests.get(cfg.BinderHub.hub_url, timeout=5, allow_redirects=False)
     except Exception as e:
         print(f"JupyterHub not available at {cfg.BinderHub.hub_url}: {e}")
-        if ON_TRAVIS:
-            pytest.fail("JupyterHub should be available on Travis")
         cfg.BinderHub.hub_url = ''
     else:
         print(f"JupyterHub available at {cfg.BinderHub.hub_url}")

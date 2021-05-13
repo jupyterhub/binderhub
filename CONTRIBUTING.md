@@ -330,7 +330,7 @@ VM underneath.
 This git repository contains `pytest` based tests that you can run locally.
 Depending on your development setup, you may want to run different kind of
 tests. You can get some hints on what tests to run and how by inspecting
-`.travis.yaml`.
+`.github`.
 
 ### Environment variables influencing tests
 - `BINDER_URL`: An address of an already running BinderHub as reachable from the
