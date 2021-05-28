@@ -211,6 +211,7 @@ ingress:
     #     - chart-example.local
 
 initContainers: []
+lifecycle: {}
 extraVolumes: []
 extraVolumeMounts: []
 extraEnv: []
