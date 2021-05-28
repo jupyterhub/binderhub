@@ -194,6 +194,13 @@ continue.
    (cd helm-chart && chartpress)
    ```
 
+1. Get the chart dependencies (for example JupyterHub)
+
+   ```bash
+   cd helm-chart/binderhub
+   helm dependency update
+   ```
+
 1. Validate, and then install the Helm chart defined in helm-chart/binderhub.
 
    This validation step is not making any modification to your Kubernetes
@@ -208,6 +215,8 @@ continue.
    ```
 
    If the validation succeeds, go ahead and upgrade/install the Helm chart.
+
+   Note that this will do the installation in the current namespace.
 
    ```bash
    helm upgrade --install binderhub-test helm-chart/binderhub \
