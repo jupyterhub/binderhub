@@ -55,6 +55,9 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
         {{- with .Values.dind.daemonset.lifecycle }}
+        lifecycle:
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
       terminationGracePeriodSeconds: 30
       volumes:
       - name: dockerlib-dind
