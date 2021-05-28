@@ -70,6 +70,10 @@ spec:
         args:
           - --config
           - /etc/binderhub/config/binderhub_config.py
+        {{- with .Values.lifecycle }}
+        lifecycle:
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
