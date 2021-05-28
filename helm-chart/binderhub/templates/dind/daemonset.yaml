@@ -51,6 +51,13 @@ spec:
           mountPath: /var/lib/docker
         - name: rundind
           mountPath: {{ .Values.dind.hostSocketDir }}
+        {{- with .Values.dind.daemonset.extraVolumeMounts }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
+        {{- with .Values.dind.daemonset.lifecycle }}
+        lifecycle:
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
       terminationGracePeriodSeconds: 30
       volumes:
       - name: dockerlib-dind
@@ -61,4 +68,7 @@ spec:
         hostPath:
           path: {{ .Values.dind.hostSocketDir }}
           type: DirectoryOrCreate
+      {{- with .Values.dind.daemonset.extraVolumes }}
+      {{- . | toYaml | nindent 6 }}
+      {{- end }}
 {{- end }}

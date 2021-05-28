@@ -166,6 +166,9 @@ dind:
       tag: 19.03.5-dind
     # Additional command line arguments to pass to dockerd
     extraArgs: []
+    lifecycle: {}
+    extraVolumes: []
+    extraVolumeMounts: []
   storageDriver: overlay2
   resources: {}
   hostSocketDir: /var/run/dind
