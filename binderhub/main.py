@@ -1,8 +1,10 @@
 """
 Main handler classes for requests
 """
+import time
 import urllib.parse
 
+import jwt
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
@@ -93,10 +95,22 @@ class ParameterizedMainHandler(BaseHandler):
             if response.code >= 400:
                 nbviewer_url = None
 
+        build_token = jwt.encode(
+            {
+                "exp": int(time.time()) + self.settings["build_token_expires_seconds"],
+                "aud": provider_spec,
+                "origin": self.request.headers.get(
+                    "origin", self.request.headers.get("host", "")
+                ),
+            },
+            key=self.settings["build_token_secret"],
+            algorithm="HS256",
+        )
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
             badge_base_url=self.get_badge_base_url(),
+            build_token=build_token,
             provider_spec=provider_spec,
             social_desc=social_desc,
             nbviewer_url=nbviewer_url,

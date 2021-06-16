@@ -17,3 +17,4 @@ prometheus_client
 python-json-logger
 tornado>=5.1
 traitlets
+pyjwt>=2

@@ -7,6 +7,8 @@ import json
 import logging
 import os
 import re
+import secrets
+from binascii import a2b_hex
 from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from urllib.parse import urlparse
@@ -23,6 +25,7 @@ from tornado.log import app_log
 import tornado.web
 from traitlets import (
     Bool,
+    Bytes,
     Dict,
     Integer,
     TraitError,
@@ -43,6 +46,7 @@ from .config import ConfigHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
+from .ratelimit import RateLimiter
 from .repoproviders import RepoProvider
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
@@ -493,7 +497,7 @@ class BinderHub(Application):
         config=True,
         help="""The number of threads to use for blocking calls
 
-        Should generaly be a small number because we don't
+        Should generally be a small number because we don't
         care about high concurrency here, just not blocking the webserver.
         This executor is not used for long-running tasks (e.g. builds).
         """,
@@ -512,6 +516,41 @@ class BinderHub(Application):
         will be killed.
         """
     )
+
+    build_token_expires_seconds = Integer(
+        300,
+        config=True,
+        help="""Expiry (in seconds) of build tokens
+
+        These are generally only used to authenticate a single request
+        from a page, so should be short-lived.
+        """,
+    )
+    build_token_secret = Union(
+        [Unicode(), Bytes()],
+        config=True,
+        help="""Secret used to sign build tokens
+
+        Lightweight validation of same-origin requests
+        """,
+    )
+
+    @validate("build_token_secret")
+    def _validate_build_token_secret(self, proposal):
+        if isinstance(proposal.value, str):
+            # allow hex string for text-only input formats
+            return a2b_hex(proposal.value)
+        return proposal.value
+
+    @default("build_token_secret")
+    def _default_build_token_secret(self):
+        if os.environ.get("BINDERHUB_BUILD_TOKEN_SECRET"):
+            return a2b_hex(os.environ["BINDERHUB_BUILD_TOKEN_SECRET"])
+        app_log.warning(
+            "Generating random build token secret."
+            " Set BinderHub.build_token_secret to avoid this warning."
+        )
+        return secrets.token_bytes(32)
 
     # FIXME: Come up with a better name for it?
     builder_required = Bool(
@@ -691,12 +730,15 @@ class BinderHub(Application):
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
+                "build_token_secret": self.build_token_secret,
+                "build_token_expires_seconds": self.build_token_expires_seconds,
                 "sticky_builds": self.sticky_builds,
                 "log_tail_lines": self.log_tail_lines,
                 "pod_quota": self.pod_quota,
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,
                 "repo_providers": self.repo_providers,
+                "rate_limiter": RateLimiter(parent=self),
                 "use_registry": self.use_registry,
                 "registry": registry,
                 "traitlets_config": self.config,

@@ -1,14 +1,15 @@
 """Base classes for request handlers"""
 
 import json
-from ipaddress import ip_address
 
+import jwt
 from http.client import responses
 from tornado import web
 from tornado.log import app_log
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
+from .ratelimit import RateLimitExceeded
 from .utils import ip_in_networks
 
 
@@ -44,6 +45,71 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
                 f"Blocking request from {request_ip} matching banned network {network}: {message}"
             )
             raise web.HTTPError(403, f"Requests from {message} are not allowed")
+
+    def check_build_token(self, build_token, provider_spec):
+        """Validate that a build token is valid for the current request
+
+        Sets `_have_build_token` boolean property to:
+        - True if a token is present and valid
+        - False if not present
+        Raises 403 if a token is present but not valid
+        """
+        if not build_token:
+            app_log.debug(f"No build token for {provider_spec}")
+            self._have_build_token = False
+            return
+        try:
+            decoded = jwt.decode(
+                build_token,
+                key=self.settings["build_token_secret"],
+                audience=provider_spec,
+                algorithms=["HS256"],
+            )
+        except jwt.PyJWTError as e:
+            app_log.error(f"Failure to validate build token for {provider_spec}: {e}")
+            raise web.HTTPError(403, "Invalid build token")
+
+        origin = self.request.headers.get(
+            "origin", self.request.headers.get("host", "")
+        )
+        if decoded["origin"] != origin:
+            app_log.error(f"Rejecting build token from mismatched origin {decoded}")
+            raise web.HTTPError(403, "Invalid build token")
+        app_log.debug(f"Accepting build token for {provider_spec}")
+        self._have_build_token = True
+        return decoded
+
+    def check_rate_limit(self):
+        rate_limiter = self.settings["rate_limiter"]
+        if rate_limiter.limit == 0:
+            # no limit enabled
+            return
+
+        if self.settings['auth_enabled'] and self.current_user:
+            # authenticated, no limit
+            # TODO: separate authenticated limit
+            return
+
+        if self._have_build_token:
+            # build token defined, no limit
+            # TODO: use different limit for verified builds
+            return
+
+        # rate limit is applied per-ip
+        request_ip = self.request.remote_ip
+        try:
+            limit = rate_limiter.increment(request_ip)
+        except RateLimitExceeded as e:
+            raise web.HTTPError(
+                429,
+                f"Rate limit exceeded. Try again in {rate_limiter.period_seconds} seconds.",
+            )
+        else:
+            app_log.debug(f"Rate limit for {request_ip}: {limit}")
+
+        self.set_header("x-ratelimit-remaining", str(limit["remaining"]))
+        self.set_header("x-ratelimit-reset", str(limit["reset"]))
+        self.set_header("x-ratelimit-limit", str(rate_limiter.limit))
 
     def get_current_user(self):
         if not self.settings['auth_enabled']:

@@ -214,6 +214,11 @@ class BuildHandler(BaseHandler):
         prefix = '/build/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
 
+        # verify the build token and rate limit
+        build_token = self.get_argument("build_token", None)
+        self.check_build_token(build_token, f"{provider_prefix}/{spec}")
+        self.check_rate_limit()
+
         # Verify if the provider is valid for EventSource.
         # EventSource cannot handle HTTP errors, so we must validate and send
         # error messages on the eventsource.
@@ -339,13 +344,20 @@ class BuildHandler(BaseHandler):
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
-                'provider': provider.name,
-                'spec': spec,
-                'ref': ref,
-                'status': 'success',
-                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
-            })
+            self.event_log.emit(
+                "binderhub.jupyter.org/launch",
+                5,
+                {
+                    "provider": provider.name,
+                    "spec": spec,
+                    "ref": ref,
+                    "status": "success",
+                    "build_token": self._has_build_token,
+                    "origin": self.settings["normalized_origin"]
+                    if self.settings["normalized_origin"]
+                    else self.request.host,
+                },
+            )
             return
 
         # Prepare to build
@@ -447,13 +459,20 @@ class BuildHandler(BaseHandler):
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
-                'provider': provider.name,
-                'spec': spec,
-                'ref': ref,
-                'status': 'success',
-                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
-            })
+            self.event_log.emit(
+                "binderhub.jupyter.org/launch",
+                5,
+                {
+                    "provider": provider.name,
+                    "spec": spec,
+                    "ref": ref,
+                    "status": "success",
+                    "build_token": self._has_build_token,
+                    "origin": self.settings["normalized_origin"]
+                    if self.settings["normalized_origin"]
+                    else self.request.host,
+                },
+            )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
