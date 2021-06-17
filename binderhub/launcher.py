@@ -244,5 +244,9 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
-        return data
+        # return back only what is need to launch the user server
+        launch_data = {
+            "url": self.hub_url + 'user/%s/%s' % (username, server_name),
+            "token": data["token"],
+        }
+        return launch_data

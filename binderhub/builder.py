@@ -538,11 +538,22 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
+                # get file/url path, it will be passed to user_options
+                # this is useful when one wants to re-generate same launch url
+                path = self.get_argument('filepath', '').lstrip('/')
+                path_type = "file" if path else ""
+                if not path:
+                    path = self.get_argument('urlpath', '').lstrip('/')
+                    path_type = "url" if path else ""
+                app_log.info("path: %s", path)
+                app_log.info("path_type: %s", path_type)
                 extra_args = {
                     'binder_ref_url': self.ref_url,
                     'binder_launch_host': self.binder_launch_host,
                     'binder_request': self.binder_request,
                     'binder_persistent_request': self.binder_persistent_request,
+                    'path_type': path_type,
+                    'path': path,
                 }
                 server_info = await launcher.launch(image=self.image_name,
                                                     username=username,

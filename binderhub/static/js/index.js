@@ -161,7 +161,7 @@ function build(providerSpec, log, path, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  var image = new BinderImage(providerSpec);
+  var image = new BinderImage(providerSpec, path, pathType);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
