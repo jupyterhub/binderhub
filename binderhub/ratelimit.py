@@ -87,7 +87,7 @@ class RateLimiter(LoggingConfigurable):
         # keep decrementing, so we have a track of excess requests
         # which indicate abuse
         limit["remaining"] -= 1
-        if limit["remaining"] <= 0:
+        if limit["remaining"] < 0:
             seconds_until_reset = int(limit["reset"] - now)
             raise RateLimitExceeded(
                 f"Rate limit exceeded (by {-limit['remaining']}) for {key!r}, reset in {seconds_until_reset}s."
