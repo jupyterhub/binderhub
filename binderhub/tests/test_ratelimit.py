@@ -20,7 +20,7 @@ def test_rate_limit():
     assert r._limits == {
         "1.2.3.4": limit,
     }
-    for i in range(1, 9):
+    for i in range(1, 10):
         limit = r.increment("1.2.3.4")
         assert limit == {
             "remaining": 9 - i,
