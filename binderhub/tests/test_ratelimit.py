@@ -31,7 +31,7 @@ def test_rate_limit():
         with pytest.raises(RateLimitExceeded):
             r.increment("1.2.3.4")
 
-    assert r._limits["1.2.3.4"]["remaining"] == -4
+    assert r._limits["1.2.3.4"]["remaining"] == -5
 
 
 def test_rate_limit_expires():
