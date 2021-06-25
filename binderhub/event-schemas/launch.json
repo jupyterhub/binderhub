@@ -1,6 +1,6 @@
 {
     "$id": "binderhub.jupyter.org/launch",
-    "version": 4,
+    "version": 5,
     "title": "BinderHub Launch Events",
     "description": "BinderHub emits this event whenever a new repo is launched",
     "type": "object",
@@ -29,6 +29,10 @@
         "status": {
             "enum": ["success", "failure"],
             "description": "Success/Failure of the launch"
+        },
+        "build_token": {
+            "type": "boolean",
+            "description": "Whether a build token was used for the launch"
         },
         "origin": {
           "type": "string",
