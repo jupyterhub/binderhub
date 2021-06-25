@@ -99,9 +99,7 @@ class ParameterizedMainHandler(BaseHandler):
             {
                 "exp": int(time.time()) + self.settings["build_token_expires_seconds"],
                 "aud": provider_spec,
-                "origin": self.request.headers.get(
-                    "origin", self.request.headers.get("host", "")
-                ),
+                "origin": self.token_origin(),
             },
             key=self.settings["build_token_secret"],
             algorithm="HS256",
