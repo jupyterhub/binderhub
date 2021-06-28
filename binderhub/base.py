@@ -1,6 +1,7 @@
 """Base classes for request handlers"""
 
 import json
+import urllib.parse
 
 import jwt
 from http.client import responses
@@ -46,6 +47,22 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             )
             raise web.HTTPError(403, f"Requests from {message} are not allowed")
 
+    def token_origin(self):
+        """Compute the origin used by build tokens
+
+        For build tokens we check the Origin and then the Host header to
+        compute the "origin" of a build token.
+        """
+        origin_or_host = self.request.headers.get("origin", None)
+        if origin_or_host is not None:
+            # the origin header includes the scheme, which the host header
+            # doesn't so we normalize Origin to the format of Host
+            origin_or_host = urllib.parse.urlparse(origin_or_host).netloc
+        else:
+            origin_or_host = self.request.headers.get("host", "")
+
+        return origin_or_host
+
     def check_build_token(self, build_token, provider_spec):
         """Validate that a build token is valid for the current request
 
@@ -69,9 +86,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             app_log.error(f"Failure to validate build token for {provider_spec}: {e}")
             raise web.HTTPError(403, "Invalid build token")
 
-        origin = self.request.headers.get(
-            "origin", self.request.headers.get("host", "")
-        )
+        origin = self.token_origin()
         if decoded["origin"] != origin:
             app_log.error(f"Rejecting build token from mismatched origin {decoded}")
             raise web.HTTPError(403, "Invalid build token")
