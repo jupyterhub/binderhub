@@ -188,6 +188,12 @@ class RepoProvider(LoggingConfigurable):
 class FakeProvider(RepoProvider):
     """Fake provider for local testing of the UI
     """
+    labels = {
+        "text": "Fake Provider",
+        "tag_text": "Fake Ref",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
 
     async def get_resolved_ref(self):
         return "1a2b3c4d5e6f"
