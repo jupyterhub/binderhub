@@ -1,6 +1,3 @@
-var BASE_URL = $("#base-url").data().url;
-var BUILD_TOKEN = $("#build-token").data().token;
-
 export default function BinderImage(providerSpec) {
   this.providerSpec = providerSpec;
   this.callbacks = {};
@@ -8,9 +5,11 @@ export default function BinderImage(providerSpec) {
 }
 
 BinderImage.prototype.fetch = function() {
-  var apiUrl = BASE_URL + "build/" + this.providerSpec;
-  if (BUILD_TOKEN) {
-      apiUrl = apiUrl + `?build_token=${BUILD_TOKEN}`;
+  var baseUrl = $("#base-url").data('url');
+  var apiUrl = baseUrl + "build/" + this.providerSpec;
+  var buildToken = $("#build-token").data('token');
+  if (buildToken) {
+      apiUrl = apiUrl + `?build_token=${buildToken}`;
   }
 
   this.eventSource = new EventSource(apiUrl);
