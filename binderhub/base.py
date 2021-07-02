@@ -88,8 +88,12 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
         origin = self.token_origin()
         if decoded["origin"] != origin:
-            app_log.error(f"Rejecting build token from mismatched origin {decoded}")
-            raise web.HTTPError(403, "Invalid build token")
+            app_log.error(
+                f"Build token from mismatched origin != {origin}: {decoded};"
+                f" Host={self.request.headers.get('host')}, Origin={self.request.headers.get('origin')}"
+            )
+            if self.settings["build_token_check_origin"]:
+                raise web.HTTPError(403, "Invalid build token")
         app_log.debug(f"Accepting build token for {provider_spec}")
         self._have_build_token = True
         return decoded
