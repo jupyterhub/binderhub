@@ -517,6 +517,15 @@ class BinderHub(Application):
         """
     )
 
+    build_token_check_origin = Bool(
+        True,
+        config=True,
+        help="""Whether to validate build token origin.
+
+        False disables the origin check.
+        """
+    )
+
     build_token_expires_seconds = Integer(
         300,
         config=True,
@@ -526,6 +535,7 @@ class BinderHub(Application):
         from a page, so should be short-lived.
         """,
     )
+
     build_token_secret = Union(
         [Unicode(), Bytes()],
         config=True,
@@ -730,6 +740,7 @@ class BinderHub(Application):
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
+                "build_token_check_origin": self.build_token_check_origin,
                 "build_token_secret": self.build_token_secret,
                 "build_token_expires_seconds": self.build_token_expires_seconds,
                 "sticky_builds": self.sticky_builds,
