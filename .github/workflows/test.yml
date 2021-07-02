@@ -3,10 +3,7 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [master, main]
-    tags: ["**"]
   workflow_dispatch:
-
 
 jobs:
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
@@ -18,16 +15,14 @@ jobs:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
       matrix:
-        include:
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: main
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: auth
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: helm
+        k3s-channel:
+        - v1.19
+        helm-version:
+        - v3.5.0
+        test:
+        - main
+        - auth
+        - helm
     steps:
       - uses: actions/checkout@v2
         with:
@@ -55,6 +50,14 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Cache npm
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Run webpack to build static assets
         run: |
             npm install
@@ -64,13 +67,22 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Setup Python package dependencies
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+            ${{ runner.os }}-python-
+
+      - name: Update pip
         run: |
-            # Install development requirements, package requirements, and frozen image
-            # requirements, with an increasing priority.
-            pip install -r dev-requirements.txt
-            pip install .
-            pip install -r helm-chart/images/binderhub/requirements.txt
+            pip install --upgrade pip
+            pip install --upgrade setuptools wheel
+
+      - name: Setup Python package dependencies
+        run: pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt .
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
