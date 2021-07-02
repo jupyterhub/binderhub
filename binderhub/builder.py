@@ -352,7 +352,7 @@ class BuildHandler(BaseHandler):
                     "spec": spec,
                     "ref": ref,
                     "status": "success",
-                    "build_token": self._has_build_token,
+                    "build_token": self._have_build_token,
                     "origin": self.settings["normalized_origin"]
                     if self.settings["normalized_origin"]
                     else self.request.host,
@@ -467,7 +467,7 @@ class BuildHandler(BaseHandler):
                     "spec": spec,
                     "ref": ref,
                     "status": "success",
-                    "build_token": self._has_build_token,
+                    "build_token": self._have_build_token,
                     "origin": self.settings["normalized_origin"]
                     if self.settings["normalized_origin"]
                     else self.request.host,
