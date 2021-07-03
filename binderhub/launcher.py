@@ -161,6 +161,7 @@ class Launcher(LoggingConfigurable):
         """
         # TODO: validate the image argument?
 
+        # Matches the escaping that JupyterHub does https://github.com/jupyterhub/jupyterhub/blob/c00c3fa28703669b932eb84549654238ff8995dc/jupyterhub/user.py#L427
         escaped_username = quote(username, safe='@~')
         if self.create_user:
             # create a new user
