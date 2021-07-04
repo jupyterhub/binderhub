@@ -2,6 +2,16 @@
 <html>
 <head>
   <title>{% block title %}Binder{% endblock %}</title>
+  {% block meta_social %}
+  {# Social media previews #}
+  <meta property="og:title" content="The Binder Project">
+  <meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
+  <meta property="og:description" content="Reproducible, sharable, open, interactive computing environments.">
+  <meta property="og:image:width" content="1334">
+  <meta property="og:image:height" content="700">
+  <meta property="og:image:alt" content="The Binder Project Logo" />
+  <meta name="twitter:card" content="summary_large_image">
+  {% endblock meta_social %}
   {% block head %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
