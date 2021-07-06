@@ -6,7 +6,7 @@ import json
 import random
 import re
 import string
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 import uuid
 import os
 
@@ -161,11 +161,13 @@ class Launcher(LoggingConfigurable):
         """
         # TODO: validate the image argument?
 
+        # Matches the escaping that JupyterHub does https://github.com/jupyterhub/jupyterhub/blob/c00c3fa28703669b932eb84549654238ff8995dc/jupyterhub/user.py#L427
+        escaped_username = quote(username, safe='@~')
         if self.create_user:
             # create a new user
             app_log.info("Creating user %s for image %s", username, image)
             try:
-                await self.api_request('users/%s' % username, body=b'', method='POST')
+                await self.api_request('users/%s' % escaped_username, body=b'', method='POST')
             except HTTPError as e:
                 if e.response:
                     body = e.response.body
@@ -178,13 +180,13 @@ class Launcher(LoggingConfigurable):
         elif server_name == '':
             # authentication is enabled but not named servers
             # check if user has a running server ('')
-            user_data = await self.get_user_data(username)
+            user_data = await self.get_user_data(escaped_username)
             if server_name in user_data['servers']:
                 raise web.HTTPError(409, "User %s already has a running server." % username)
         elif self.named_server_limit_per_user > 0:
             # authentication is enabled with named servers
             # check if user has already reached to the limit of named servers
-            user_data = await self.get_user_data(username)
+            user_data = await self.get_user_data(escaped_username)
             len_named_spawners = len([s for s in user_data['servers'] if s != ''])
             if self.named_server_limit_per_user <= len_named_spawners:
                 raise web.HTTPError(
@@ -213,7 +215,7 @@ class Launcher(LoggingConfigurable):
         app_log.info("Starting server%s for user %s with image %s", _server_name, username, image)
         try:
             resp = await self.api_request(
-                'users/{}/servers/{}'.format(username, server_name),
+                'users/{}/servers/{}'.format(escaped_username, server_name),
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
             )
@@ -222,7 +224,7 @@ class Launcher(LoggingConfigurable):
                 # We wait for it!
                 # NOTE: This ends up being about ten minutes
                 for i in range(64):
-                    user_data = await self.get_user_data(username)
+                    user_data = await self.get_user_data(escaped_username)
                     if user_data['servers'][server_name]['ready']:
                         break
                     if not user_data['servers'][server_name]['pending']:
@@ -244,5 +246,5 @@ class Launcher(LoggingConfigurable):
                           format(_server_name, username, e, body))
             raise web.HTTPError(500, "Failed to launch image %s" % image)
 
-        data['url'] = self.hub_url + 'user/%s/%s' % (username, server_name)
+        data['url'] = self.hub_url + 'user/%s/%s' % (escaped_username, server_name)
         return data
