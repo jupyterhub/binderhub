@@ -365,7 +365,7 @@ These are tasks that BinderHub maintainers perform.
 
 The BinderHub Helm chart depends on the [JupyterHub Helm
 chart](https://jupyterhub.github.io/helm-chart/), and its version is pinned
-within `helm-chart/binderhub/requirements.yaml`. It is straightforward to update
+within `helm-chart/binderhub/Chart.yaml`. It is straightforward to update
 it with another version from the [JupyterHub Helm chart
 repository](https://jupyterhub.github.io/helm-chart/).
 

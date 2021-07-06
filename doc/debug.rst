@@ -55,8 +55,7 @@ The BinderHub serving mybinder.org is deployed as a dependency of a local chart 
       hub:
         ...
 
-Such kinds of "nested" chart dependencies are managed by a special file called ``requirements.yaml``.
-More info on using such a file can be found in the `related Helm docs <https://helm.sh/docs/developing_charts/#managing-dependencies-with-requirements-yaml>`_.
+Such kinds of "nested" chart dependencies are managed via the dependencies field in ``Chart.yaml``.
 
 Ok so now that we've ascertained that indentation errors are the most likely cause of undesirable behaviour, how can we prevent them?
 

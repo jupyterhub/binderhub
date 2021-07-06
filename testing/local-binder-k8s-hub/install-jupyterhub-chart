@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Makes a standalone installation of the JupyterHub Helm chart of the version
-specified in the BinderHub Helm chart requirements.yaml file, and use the
+specified in the BinderHub Helm chart's Chart.yaml file, and use the
 configuration for the JupyterHub Helm chart nested in the BinderHub helm chart's
 configuration.
 """
@@ -19,17 +19,17 @@ helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
 def _get_jupyterhub_dependency_version():
     """
     Extract JupyterHub Helm chart version from the BinderHub chart's
-    requirements.yaml
+    Chart.yaml file that lists its chart dependencies.
     """
-    requirements_yaml = os.path.join(helm_chart, 'binderhub', 'requirements.yaml')
+    chart_yaml = os.path.join(helm_chart, 'binderhub', 'Chart.yaml')
 
-    with open(requirements_yaml) as f:
-        requirements = yaml.safe_load(f)
-    for dep in requirements['dependencies']:
+    with open(chart_yaml) as f:
+        dependecies = yaml.safe_load(f)
+    for dep in dependecies['dependencies']:
         if dep['name'] == 'jupyterhub':
             return dep['version']
     else:
-        raise ValueError(f"JupyterHub as a Helm chart dependency not found in {requirements_yaml}:\n{requirements}")
+        raise ValueError(f"JupyterHub as a Helm chart dependency not found in {chart_yaml}:\n{dependecies}")
 
 
 with NamedTemporaryFile(mode="w") as tmp:

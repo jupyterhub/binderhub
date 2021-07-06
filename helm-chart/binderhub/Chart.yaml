@@ -2,7 +2,15 @@
 apiVersion: v2
 name: binderhub
 version: 0.2.0-set.by.chartpress
-description: A Helm chart to install BinderHub
+dependencies:
+  # https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tags
+  - name: jupyterhub
+    version: "1.0.1"
+    repository: "https://jupyterhub.github.io/helm-chart"
+description: |-
+  BinderHub is like a JupyterHub that automatically builds environments for the
+  users based on repo2docker. A BinderHub is by default not configured to
+  authenticate users or provide storage for them.
 keywords: [jupyter, jupyterhub, binderhub]
 home: https://binderhub.readthedocs.io/en/latest/
 sources: [https://github.com/jupyterhub/binderhub]
