@@ -117,7 +117,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- with .Values.extraEnv }}
-        {{- include "jupyterhub.extraEnv" . | nindent 8 }}
+        {{- . | toYaml | nindent 8 }}
         {{- end }}
         ports:
           - containerPort: 8585
