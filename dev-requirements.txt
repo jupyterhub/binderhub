@@ -3,6 +3,7 @@ chartpress==1.0.*
 click
 codecov
 html5lib
+jsonschema
 jupyterhub
 pytest
 pytest-asyncio
