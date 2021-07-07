@@ -506,15 +506,15 @@ properties:
         MY_ENV_VARS_NAME1: "my env var value 1"
 
         # explicit notation (the "name" field takes precedence)
-        CHP_NAMESPACE:
-          name: CHP_NAMESPACE
+        BINDER_NAMESPACE:
+          name: BINDER_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
 
         # implicit notation (the "name" field is implied)
-        PREFIXED_CHP_NAMESPACE:
-          value: "my-prefix-$(CHP_NAMESPACE)"
+        PREFIXED_BINDER_NAMESPACE:
+          value: "my-prefix-$(BINDER_NAMESPACE)"
         SECRET_VALUE:
           valueFrom:
             secretKeyRef:
