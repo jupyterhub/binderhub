@@ -286,17 +286,14 @@ properties:
       hub:
         type: object
         additionalProperties: true
-        required: [services]
         properties:
           services:
             type: object
             additionalProperties: true
-            required: [binder]
             properties:
               binder:
                 type: object
                 additionalProperties: true
-                required: [apiToken]
                 properties:
                   apiToken:
                     type: [string, "null"]
@@ -533,3 +530,24 @@ properties:
     patternProperties: *labels-and-annotations-patternProperties
     description: |
       Annotations to add to the binder Pods.
+
+  global:
+    type: object
+    additionalProperties: true
+
+  hpa:
+    type: object
+    additionalProperties: true
+    description: |
+      This is not a supported configuration yet by this Helm chart, but may be
+      in the future. This schema entry was added because
+      jupyterhub/mybinder.org-deploy configured a HorizontalPodAutoscaler
+      resource here.
+
+  networkPolicy:
+    type: object
+    additionalProperties: true
+    description: |
+      This is not a supported configuration yet by this Helm chart, but may be
+      in the future. This schema entry was added because
+      jupyterhub/mybinder.org-deploy configured a Networkpolicy resource here.
