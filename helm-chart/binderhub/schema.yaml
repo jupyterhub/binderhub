@@ -492,9 +492,38 @@ properties:
   extraVolumes: *extraVolumes-spec
   extraVolumeMounts: *extraVolumeMounts-spec
   extraEnv:
-    type: array
+    type: [object, array]
+    additionalProperties: true
     description: |
-      Env to add to the binder Pods.
+      Environment variables to add to the binder pods.
+
+      String literals with `$(ENV_VAR_NAME)` will be expanded by Kubelet which
+      is a part of Kubernetes.
+
+      ```yaml
+      extraEnv:
+        # basic notation (for literal values only)
+        MY_ENV_VARS_NAME1: "my env var value 1"
+
+        # explicit notation (the "name" field takes precedence)
+        CHP_NAMESPACE:
+          name: CHP_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
+        # implicit notation (the "name" field is implied)
+        PREFIXED_CHP_NAMESPACE:
+          value: "my-prefix-$(CHP_NAMESPACE)"
+        SECRET_VALUE:
+          valueFrom:
+            secretKeyRef:
+              name: my-k8s-secret
+              key: password
+      ```
+
+      For more information, see the [Kubernetes EnvVar
+      specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvar-v1-core).
   podAnnotations:
     type: object
     additionalProperties: false
