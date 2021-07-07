@@ -272,6 +272,7 @@ properties:
     description: |
       Configuration for the JupyterHub Helm chart that is a dependency of the
       BinderHub Helm chart.
+    required: [hub]
     properties:
       custom:
         type: object
@@ -282,14 +283,25 @@ properties:
             type: boolean
             description: |
               TODO
-      binder:
+      hub:
         type: object
         additionalProperties: true
+        required: [services]
         properties:
-          apiToken:
-            type: [string, "null"]
-            description: |
-              TODO
+          services:
+            type: object
+            additionalProperties: true
+            required: [binder]
+            properties:
+              binder:
+                type: object
+                additionalProperties: true
+                required: [apiToken]
+                properties:
+                  apiToken:
+                    type: [string, "null"]
+                    description: |
+                      TODO
 
   deployment:
     type: object
