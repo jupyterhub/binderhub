@@ -80,4 +80,5 @@ jobs:
         env:
           GITHUB_REPOSITORY: "${{ github.repository }}"
         run: |
+          ./tools/generate-json-schema.py
           ./ci/publish
