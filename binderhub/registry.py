@@ -128,7 +128,7 @@ class DockerRegistry(LoggingConfigurable):
         url = urlparse(self.url)
         if ("." + url.hostname).endswith(".gcr.io"):
             return "https://{0}/v2/token?service={0}".format(url.hostname)
-        elif self.url.endswith(".docker.com"):
+        elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
             # is gcr.io's token url common? If so, it might be worth defaulting
