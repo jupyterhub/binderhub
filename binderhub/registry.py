@@ -11,7 +11,7 @@ from tornado.httputil import url_concat
 from traitlets.config import LoggingConfigurable
 from traitlets import Dict, Unicode, default
 
-DEFAULT_DOCKER_REGISTRY_URL = "https://registry.hub.docker.com"
+DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
 DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"
 
 
@@ -128,7 +128,7 @@ class DockerRegistry(LoggingConfigurable):
         url = urlparse(self.url)
         if ("." + url.hostname).endswith(".gcr.io"):
             return "https://{0}/v2/token?service={0}".format(url.hostname)
-        elif self.url.endswith(".docker.com"):
+        elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
             # is gcr.io's token url common? If so, it might be worth defaulting

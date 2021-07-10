@@ -281,7 +281,7 @@ If you setup your own local registry using
           url: "https://index.docker.io/v1"
         config:
           DockerRegistry:
-            url: "https://registry.hub.docker.com" # the actual v2 registry url
+            url: "https://registry-1.docker.io" # the recommended registry URL
             auth_config_url: "https://index.docker.io/v1" # must match above!
             token_url: "https://auth.docker.io/token?service=registry.docker.io"
 
