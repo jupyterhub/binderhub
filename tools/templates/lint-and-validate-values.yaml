@@ -147,8 +147,9 @@ lifecycle: *lifecycle
 extraVolumes: []
 extraVolumeMounts: []
 extraEnv: &extraEnv
-  - name: MOCK_ENV_VAR_NAME1
+  IGNORED_KEY_NAME:
+    name: MOCK_ENV_VAR_NAME1
     value: MOCK_ENV_VAR_VALUE1
-  - name: MOCK_ENV_VAR_NAME2
+  MOCK_ENV_VAR_NAME2:
     value: MOCK_ENV_VAR_VALUE2
 podAnnotations: *annotations
