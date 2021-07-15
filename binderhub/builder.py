@@ -7,6 +7,7 @@ import hashlib
 from http.client import responses
 import json
 import string
+import re
 import time
 import escapism
 
@@ -53,6 +54,30 @@ LAUNCH_COUNT = Counter(
 )
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
+
+
+def _get_image_basename_and_tag(full_name):
+    """Get a supposed image name and tag without the registry part
+    :param full_name: full image specification, e.g. "gitlab.com/user/project:tag"
+    :return: tuple of image name and tag, e.g. ("user/project", "tag")
+    """
+    # the tag is either after the last (and only) colon, or not given at all,
+    # in which case "latest" is implied
+    tag_splits = full_name.rsplit(':', 1)
+    if len(tag_splits) == 2:
+        image_name = tag_splits[0]
+        tag = tag_splits[1]
+    else:
+        image_name = full_name
+        tag = 'latest'
+
+    if re.fullmatch('[a-z0-9]{4,40}/[a-z0-9._-]{2,255}', image_name):
+        # if it looks like a Docker Hub image name, we're done
+        return image_name, tag
+    # if the image isn't implied to origin at Docker Hub,
+    # the first part has to be a registry
+    image_basename = '/'.join(image_name.split('/')[1:])
+    return image_basename, tag
 
 
 def _generate_build_name(build_slug, ref, prefix='', limit=63, ref_length=6):
@@ -315,7 +340,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             for _ in range(3):
                 try:
-                    image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
+                    image_manifest = await self.registry.get_image_manifest(*_get_image_basename_and_tag(image_name))
                     image_found = bool(image_manifest)
                     break
                 except HTTPClientError:
