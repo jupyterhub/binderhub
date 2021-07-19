@@ -36,7 +36,7 @@ jobs:
           #        Upstream issue:  https://github.com/docker/docker-py/issues/2807
           #        Breaking commit: https://github.com/docker/docker-py/commit/c8fba210a222d4f7fde90da8f48db1e7faa637ec
           #
-          pip install --no-cache-dir chartpress==1.0.* six
+          pip install --no-cache-dir chartpress==1.0.* six pyyaml
 
       - name: Setup push rights to jupyterhub/helm-chart
         # This was setup by...
