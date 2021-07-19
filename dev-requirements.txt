@@ -1,5 +1,5 @@
 beautifulsoup4
-chartpress==1.0.*
+chartpress>=1.2
 click
 codecov
 html5lib
@@ -8,10 +8,9 @@ jupyterhub
 pytest
 pytest-asyncio
 pytest-cov
+# pyyaml is used by the scripts in tools/ and could absolutely be replaced by
+# using ruamel.yaml. ruamel.yaml is more powerful than pyyaml, and that is
+# relevant when writing YAML files back after having loaded them from disk.
+pyyaml
 requests
 ruamel.yaml>=0.15
-# FIXME: six is required by docker 5.0.0 but isn't explicitly required any more.
-#        Upstream issue:  https://github.com/docker/docker-py/issues/2807
-#        Breaking commit: https://github.com/docker/docker-py/commit/c8fba210a222d4f7fde90da8f48db1e7faa637ec
-#
-six
