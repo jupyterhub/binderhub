@@ -30,13 +30,7 @@ jobs:
         run: |
           . ./ci/common
           setup_helm v3.5.4
-          # FIXME: six is required by docker 5.0.0 but isn't explicitly required
-          #        any more.
-          #
-          #        Upstream issue:  https://github.com/docker/docker-py/issues/2807
-          #        Breaking commit: https://github.com/docker/docker-py/commit/c8fba210a222d4f7fde90da8f48db1e7faa637ec
-          #
-          pip install --no-cache-dir chartpress==1.0.* six pyyaml
+          pip install --no-cache-dir chartpress>=1.2 pyyaml
 
       - name: Setup push rights to jupyterhub/helm-chart
         # This was setup by...
