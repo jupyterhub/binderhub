@@ -263,7 +263,7 @@ Second, you will need to instruct BinderHub about the token URL::
 If you setup your own local registry using
 `native basic HTTP authentication <https://docs.docker.com/registry/deploying/#native-basic-auth>`__
 (htpasswd), you can set ``token_url`` to ``None``.
-You will also need to configure the kubernetes nodes to authentificate to your private registry.
+You will also need to configure the kubernetes nodes to authenticate to your private registry.
 Instructions can be followed on the `official kubernetes documentation <https://kubernetes.io/docs/concepts/containers/images/#configuring-nodes-to-authenticate-to-a-private-registry>`_.
 
 .. note::
