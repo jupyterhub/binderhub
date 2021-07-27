@@ -3,9 +3,16 @@ apiVersion: v2
 name: binderhub
 version: 0.2.0-set.by.chartpress
 dependencies:
-  # https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tags
+  # Source code:    https://github.com/jupyterhub/zero-to-jupyterhub-k8s
+  # Latest version: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tags
+  # App changelog:  https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tree/HEAD/CHANGELOG.md
+  #
+  # Important: Whenever you bump the jupyterhub Helm chart version, also inspect
+  #            the helm-chart/images/binderhub pinned version in requirements.in
+  #            and run "./dependencies freeze --upgrade".
+  #
   - name: jupyterhub
-    version: "1.0.1"
+    version: "1.1.1"
     repository: "https://jupyterhub.github.io/helm-chart"
 description: |-
   BinderHub is like a JupyterHub that automatically builds environments for the
