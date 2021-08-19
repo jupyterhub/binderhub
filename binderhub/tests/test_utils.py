@@ -2,6 +2,7 @@ import ipaddress
 from unittest import mock
 
 import pytest
+from traitlets.traitlets import TraitError
 
 from binderhub import utils
 
@@ -137,3 +138,45 @@ def test_ip_in_networks(ip, cidrs, found):
 def test_ip_in_networks_invalid():
     with pytest.raises(ValueError):
         utils.ip_in_networks("1.2.3.4", {}, 0)
+
+@pytest.mark.parametrize(
+    "value, coerced",
+    [
+        ("2", 2),
+        (2, 2),
+        ("0.2", 0.2),
+        (0.2, 0.2),
+        ("200m", "200m"),
+        (None, 0),
+        (0, 0),
+        ("0", 0),
+    ]
+)
+def test_cpu_specification_valid(value, coerced):
+    cpu_spec = utils.CPUSpecification()
+    assert cpu_spec.validate(None, value) == coerced
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        ("0.2m"),
+        ("deadbeef"),
+        ("m"),
+        (""),
+        ("200M"),
+        ("200k"),
+        ("-1"),
+        ("-1m"),
+        ("-0.1m"),
+        (-0.1),
+        (-1),
+        (False),
+        (True),
+        ([]),
+        ({}),
+    ]
+)
+def test_cpu_specification_invalid(value):
+    cpu_spec = utils.CPUSpecification()
+    with pytest.raises(TraitError):
+        _ = cpu_spec.validate(None, value)
