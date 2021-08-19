@@ -4,7 +4,7 @@ from hashlib import blake2b
 import ipaddress
 import time
 
-from traitlets import Integer, TraitError
+from traitlets import Unicode, Integer, TraitError
 
 from unittest.mock import Mock
 from kubernetes.client import api_client
@@ -44,6 +44,86 @@ def rendezvous_rank(buckets, key):
 
     return [b for (s, b) in sorted(ranking, reverse=True)]
 
+
+class CPUSpecification(Unicode):
+    """
+    Allows specifying CPU limits
+
+    Suffixes allowed are:
+      - m -> millicore
+
+    """
+
+    # Default to allowing None as a value
+    allow_none = True
+
+    def validate(self, obj, value):
+        """
+        Validate that the passed in value is a valid cpu specification
+        in the K8s CPU meaning.
+        
+        See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu
+
+        It could either be a pure int or float, when it is taken as a value.
+        In case of integer it can optionally have 'm' suffix to designate millicores.
+        """
+
+        def raise_error(value):
+            raise TraitError(
+                "{val} is not a valid cpu specification".format(
+                    val=value
+                )
+            )
+
+        # Positive filter for numberic values
+        only_positive = lambda v : v if v >= 0 else raise_error(v)
+
+        if value is None:
+            return 0
+
+        if isinstance(value, bool):
+            raise_error(value)
+
+        if isinstance(value, int):
+            return only_positive(int(value))
+
+        if isinstance(value, float):
+            return only_positive(float(value))
+
+        # Must be string
+        if not isinstance(value, str):
+            raise_error(value)
+
+        # Try treat it as integer
+        _int_value = None
+        try:
+            _int_value = int(value)
+        except ValueError:
+            pass
+
+        if isinstance(_int_value, int):
+            return only_positive(_int_value)
+
+        # Try treat it as float
+        _float_value = None
+        try:
+            _float_value = float(value)
+        except ValueError:
+            pass
+
+        if isinstance(_float_value, float):
+            return only_positive(_float_value)
+
+        # Try treat it as millicore spec
+        try:
+            _unused = only_positive(int(value[:-1]))
+        except ValueError:
+            raise_error(value)
+
+        if value[-1] not in ['m']:
+            raise_error(value)
+
+        return value
 
 class ByteSpecification(Integer):
     """

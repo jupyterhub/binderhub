@@ -57,7 +57,7 @@ from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             DataverseProvider)
 from .metrics import MetricsHandler
 
-from .utils import ByteSpecification, url_path_join
+from .utils import CPUSpecification, ByteSpecification, url_path_join
 from .events import EventLog
 
 
@@ -358,6 +358,26 @@ class BinderHub(Application):
         Defaults to "", which is probably not what you want :)
         """,
         config=True
+    )
+
+    build_cpu_request = CPUSpecification(
+        0,
+        help="""
+        Amount of cpu to request when scheduling a build
+
+        0 reserves no cpu.
+
+        """,
+        config=True,
+    )
+    build_cpu_limit = CPUSpecification(
+        0,
+        help="""
+        Max amount of cpu allocated for each image build process.
+
+        0 sets no limit.
+        """,
+        config=True,
     )
 
     build_memory_request = ByteSpecification(
@@ -800,6 +820,8 @@ class BinderHub(Application):
                 "jinja2_env": jinja_env,
                 "build_memory_limit": self.build_memory_limit,
                 "build_memory_request": self.build_memory_request,
+                "build_cpu_limit": self.build_cpu_limit,
+                "build_cpu_request": self.build_cpu_request,
                 "build_docker_host": self.build_docker_host,
                 "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
