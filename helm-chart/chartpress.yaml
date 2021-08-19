@@ -5,10 +5,10 @@
 #       helm-chart folder.
 charts:
   - name: binderhub
-    imagePrefix: jupyterhub/k8s-
+    imagePrefix: noroutine/k8s-
     repo:
-      git: jupyterhub/helm-chart
-      published: https://jupyterhub.github.io/helm-chart
+      git: noroutine/binderhub-helm-chart
+      published: https://noroutine.github.io/binderhub-helm-chart
     resetTag: local
     resetVersion: 0.2.0
     images:
