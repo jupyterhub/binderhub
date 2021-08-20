@@ -484,7 +484,7 @@ class GitRepoProvider(RepoProvider):
             self.sha1_validate(self.unresolved_ref)
         except ValueError:
             # The ref is a head/tag and we resolve it using `git ls-remote`
-            command = ["git", "ls-remote", self.repo, self.unresolved_ref]
+            command = ["git", "ls-remote", "--", self.repo, self.unresolved_ref]
             result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if result.returncode:
                 raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(result.stderr))
