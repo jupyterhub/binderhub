@@ -407,6 +407,42 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == quote(url, safe="") + f"/{ref}"
 
+@pytest.mark.parametrize(
+    "url, unresolved_ref, expected",
+    [
+        (
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+        ),
+        (
+            "not a repo",
+            "main",
+            ValueError,
+        ),
+        (
+            "ftp://protocol.unsupported",
+            "main",
+            ValueError,
+        ),
+        (
+            "git@github.com:jupyterhub/binderhub",
+            "main",
+            "ssh://git@github.com/jupyterhub/binderhub",
+        ),
+    ],
+)
+def test_git_validate_url(url, unresolved_ref, expected):
+    spec = "{}/{}".format(quote(url, safe=""), quote(unresolved_ref))
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            GitRepoProvider(spec=spec)
+        return
+
+    provider = GitRepoProvider(spec=spec)
+    assert provider.repo == expected
+
 
 @pytest.mark.parametrize(
     "unresolved_ref, resolved_ref",

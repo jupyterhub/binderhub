@@ -14,6 +14,7 @@ import time
 import urllib.parse
 import re
 import subprocess
+from urllib.parse import urlparse
 
 import escapism
 from prometheus_client import Gauge
@@ -21,13 +22,14 @@ from prometheus_client import Gauge
 from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httputil import url_concat
 
-from traitlets import Dict, Unicode, Bool, default, List
+from traitlets import Dict, Unicode, Bool, default, List, Set
 from traitlets.config import LoggingConfigurable
 
 from .utils import Cache
 
 GITHUB_RATE_LIMIT = Gauge('binderhub_github_rate_limit_remaining', 'GitHub rate limit remaining')
 SHA1_PATTERN = re.compile(r'[0-9a-f]{40}')
+GIT_SSH_PATTERN = re.compile(r"([\w\-]+@[\w\-\.]+):(.+)", re.IGNORECASE)
 
 
 def tokenize_spec(spec):
@@ -467,13 +469,40 @@ class GitRepoProvider(RepoProvider):
         "label_prop_disabled": False,
     }
 
+    allowed_protocols = Set(
+        Unicode(),
+        default_value={
+            "http",
+            "https",
+            "git",
+            "ssh",
+        },
+        config=True,
+        help="""Specify allowed git protocols. Default: http[s], git, ssh.""",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url, unresolved_ref = self.spec.split('/', 1)
-        self.repo = urllib.parse.unquote(self.url)
+        self.escaped_url, unresolved_ref = self.spec.split("/", 1)
+        self.repo = urllib.parse.unquote(self.escaped_url)
+
+        # handle `git@github.com:path` git ssh url, map to standard url format
+        ssh_match = GIT_SSH_PATTERN.match(self.repo)
+        if ssh_match:
+            user_host, path = ssh_match.groups()
+            self.repo = f"ssh://{user_host}/{path}"
+
+        proto = urlparse(self.repo).scheme
+        if proto not in self.allowed_protocols:
+            raise ValueError(
+                f"Unsupported git url {self.repo}, protocol {proto} not in {', '.join(self.allowed_protocols)}"
+            )
+
         self.unresolved_ref = urllib.parse.unquote(unresolved_ref)
         if not self.unresolved_ref:
-            raise ValueError("`unresolved_ref` must be specified as a query parameter for the basic git provider")
+            raise ValueError(
+                "`unresolved_ref` must be specified in the url for the basic git provider"
+            )
 
     async def get_resolved_ref(self):
         if hasattr(self, 'resolved_ref'):
@@ -502,7 +531,7 @@ class GitRepoProvider(RepoProvider):
     async def get_resolved_spec(self):
         if not hasattr(self, 'resolved_ref'):
             self.resolved_ref = await self.get_resolved_ref()
-        return f"{self.url}/{self.resolved_ref}"
+        return f"{self.escaped_url}/{self.resolved_ref}"
 
     def get_repo_url(self):
         return self.repo
