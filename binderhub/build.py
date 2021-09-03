@@ -535,7 +535,7 @@ class FakeBuild(Build):
     Fake Building process to be able to work on the UI without a running Minikube.
     """
     def submit(self):
-        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, 'Running')
+        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
         return
 
     def stream_logs(self):
@@ -562,7 +562,7 @@ class FakeBuild(Build):
                     'message': f"Step {i+1}/10\n",
                 })
             )
-        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, 'Succeeded')
+        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
         self.progress('log', json.dumps({
                 'phase': 'Deleted',
                 'message': f"Deleted...\n",

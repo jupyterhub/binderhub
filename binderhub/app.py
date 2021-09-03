@@ -49,7 +49,7 @@ from .launcher import Launcher
 from .log import log_request
 from .ratelimit import RateLimiter
 from .repoproviders import RepoProvider
-from .registry import DockerRegistry
+from .registry import DockerRegistry, FakeRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
@@ -256,6 +256,16 @@ class BinderHub(Application):
         The class used to build repo2docker images.
         
         Must inherit from binderhub.build.Build
+        """,
+        config=True
+    )
+
+    registry_class = Type(
+        DockerRegistry,
+        help="""
+        The class used to Query a Docker registry.
+
+        Must inherit from binderhub.registry.DockerRegistry
         """,
         config=True
     )
@@ -720,8 +730,8 @@ class BinderHub(Application):
             FileSystemLoader(template_paths)
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
-        if self.use_registry and self.builder_required:
-            registry = DockerRegistry(parent=self)
+        if self.use_registry:
+            registry = self.registry_class(parent=self)
         else:
             registry = None
 
