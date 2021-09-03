@@ -193,6 +193,21 @@ class BinderHub(Application):
             proposal.value = proposal.value + '/'
         return proposal.value
 
+    cors_allow_origin = Unicode(
+        "",
+        help="""
+        Origins that can access the BinderHub API.
+
+        Sets the Access-Control-Allow-Origin header in the spawned
+        notebooks. Set to '*' to allow any origin to access spawned
+        notebook servers.
+
+        See also BinderSpawner.cors_allow_origin in the binderhub spawner
+        mixin for setting this property on the spawned notebooks.
+        """,
+        config=True
+    )
+
     auth_enabled = Bool(
         False,
         help="""If JupyterHub authentication enabled,
@@ -800,6 +815,8 @@ class BinderHub(Application):
         )
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
+        if self.cors_allow_origin:
+            self.tornado_app.setdefault('headers', {})['Access-Control-Allow-Origin'] = self.cors_allow_origin
 
         handlers = [
             (r'/metrics', MetricsHandler),

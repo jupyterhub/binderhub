@@ -39,26 +39,16 @@ config:
 
 extraConfig: {}
 
-# have to set cors.allowOrigin twice:
-# once in top-level cors.allowOrigin,
-# and again in jupyterhub.hub.extraConfigMap.cors.allowOrigin
-
-# Using YAML anchors, `&cors` for the first appearance and `*cors` for subsequent
-# appearances, allows us to remove redundancy in this (BinderHub) `values.yaml`.
-# The anchors do not extend beyond this file.
-# As such, users must set `cors` separately for their own user `values.yaml` for notebooks.
-# `cors` will be set separately in the user `values.yaml` and binderhub`values.yaml`.
-# The same anchor pattern (`&cors`, `*cors`) can be used in the user `values.yaml`.
-
-cors: &cors
-  allowOrigin:
+# Two bits of config need to be set to fully enable cors.
+# config.BinderHub.cors_allow_origin controls the allowed origins for the
+# binderhub api, and jupyterhub.hub.config.BinderSpawner.cors_allow_origin
+# controls the allowed origins for the spawned user notebooks. You most
+# likely want to set both of those to the same value.
 
 jupyterhub:
   cull:
     enabled: true
     users: true
-  custom:
-    cors: *cors
   rbac:
     enabled: true
   hub:
@@ -77,7 +67,7 @@ jupyterhub:
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
-        from traitlet import Bool
+        from traitlet import Bool, Unicode
 
         class BinderSpawner(KubeSpawner):
             auth_enabled = Bool(
@@ -87,6 +77,21 @@ jupyterhub:
 
                 Requires `jupyterhub-singleuser` to be available inside the repositories
                 being built.
+                """,
+                config=True
+            )
+
+            cors_allow_origin = Unicode(
+                "",
+                help="""
+                Origins that can access the spawned notebooks.
+
+                Sets the Access-Control-Allow-Origin header in the spawned
+                notebooks. Set to '*' to allow any origin to access spawned
+                notebook servers.
+
+                See also BinderHub.cors_allow_origin in binderhub config
+                for controlling CORS policy for the BinderHub API endpoint.
                 """,
                 config=True
             )
@@ -104,12 +109,11 @@ jupyterhub:
                     if self.default_url:
                         args.append(f'--NotebookApp.default_url={self.default_url}')
 
-                    allow_origin = cors.get('allowOrigin')
-                    if allow_origin:
-                        args.append('--NotebookApp.allow_origin=' + allow_origin)
+                    if self.cors_allow_origin:
+                        args.append('--NotebookApp.allow_origin=' + cors_allow_origin)
                     # allow_origin=* doesn't properly allow cross-origin requests to single files
                     # see https://github.com/jupyter/notebook/pull/5898
-                    if allow_origin == '*':
+                    if self.cors_allow_origin == '*':
                         args.append('--NotebookApp.allow_origin_pat=.*')
                     args += self.args
                 return args

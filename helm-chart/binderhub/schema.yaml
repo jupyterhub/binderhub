@@ -255,17 +255,6 @@ properties:
       manifest as either the binder pod going into `Error` or `CrashLoopBackoff` states, or in
       some special cases, the binder pod running but... just doing very random things. Be careful!
 
-  cors: &cors-spec
-    type: object
-    additionalProperties: false
-    description: |
-      TODO
-    properties:
-      allowOrigin:
-        type: [string, "null"]
-        description: |
-          TODO
-
   jupyterhub:
     type: object
     additionalProperties: true
@@ -274,11 +263,6 @@ properties:
       BinderHub Helm chart.
     required: [hub]
     properties:
-      custom:
-        type: object
-        additionalProperties: true
-        properties:
-          cors: *cors-spec
       hub:
         type: object
         additionalProperties: true

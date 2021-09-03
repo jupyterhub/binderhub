@@ -48,15 +48,10 @@ extraConfig:
   binder-test-config: |-
     dummy binderhub python code ...
 
-cors: &cors
-  allowOrigin:
-
 jupyterhub:
   cull:
     enabled: true
     users: true
-  custom:
-    cors: *cors
   rbac:
     enabled: true
   hub:
