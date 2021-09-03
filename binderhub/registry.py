@@ -226,3 +226,11 @@ class DockerRegistry(LoggingConfigurable):
                 raise
         else:
             return json.loads(resp.body.decode("utf-8"))
+
+class FakeRegistry(DockerRegistry):
+    """
+    Fake registry that contains no images
+    """
+
+    async def get_image_manifest(self, image, tag):
+        return None
