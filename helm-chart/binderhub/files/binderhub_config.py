@@ -4,8 +4,6 @@ from functools import lru_cache
 from urllib.parse import urlparse
 import yaml
 
-c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
-
 
 def _merge_dictionaries(a, b):
     """Merge two dictionaries recursively.
@@ -79,9 +77,6 @@ if allow_origin:
             'Access-Control-Allow-Origin': allow_origin,
         }
     })
-
-if os.getenv('BUILD_NAMESPACE'):
-    c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
 
 if c.BinderHub.auth_enabled:
     hub_url = urlparse(c.BinderHub.hub_url)

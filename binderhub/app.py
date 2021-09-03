@@ -445,7 +445,6 @@ class BinderHub(Application):
         return proposal.value
 
     build_namespace = Unicode(
-        'default',
         help="""
         Kubernetes namespace to spawn build pods in.
 
@@ -453,6 +452,9 @@ class BinderHub(Application):
         """,
         config=True
     )
+    @default('build_namespace')
+    def _default_build_namespace(self):
+        return os.environ.get('BUILD_NAMESPACE', 'default')
 
     build_image = Unicode(
         'quay.io/jupyterhub/repo2docker:2021.08.0',
