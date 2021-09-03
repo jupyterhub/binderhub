@@ -57,7 +57,6 @@ jupyterhub:
     users: true
   custom:
     cors: *cors
-    binderauth_enabled: false
   rbac:
     enabled: true
   hub:

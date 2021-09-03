@@ -59,13 +59,14 @@ jupyterhub:
     users: true
   custom:
     cors: *cors
-    binderauth_enabled: false
   rbac:
     enabled: true
   hub:
     config:
       JupyterHub:
         authenticator_class: nullauthenticator.NullAuthenticator
+      BinderSpawner:
+        auth_enabled: false
     extraConfig:
       00-binder: |
         from tornado import web
@@ -73,14 +74,24 @@ jupyterhub:
         # get custom config from values.custom
         import z2jh
         cors = z2jh.get_config('custom.cors', {})
-        auth_enabled = z2jh.get_config('custom.binderauth_enabled', False)
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
+        from traitlet import Bool
 
         class BinderSpawner(KubeSpawner):
+            auth_enabled = Bool(
+                False,
+                help="""
+                Enable authenticated binderhub setup.
+
+                Requires `jupyterhub-singleuser` to be available inside the repositories
+                being built.
+                """,
+                config=True
+            )
             def get_args(self):
-                if auth_enabled:
+                if self.auth_enabled:
                     args = super().get_args()
                 else:
                     args = [

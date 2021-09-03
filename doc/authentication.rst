@@ -17,10 +17,11 @@ you need to add the following into ``config.yaml``:
       cull:
         # don't cull authenticated users
         users: False
-      custom:
-        binderauth_enabled: true
       hub:
         redirectToServer: false
+        config:
+          BinderSpawner:
+            auth_enabled: false
         services:
           binder:
             oauth_no_confirm: true

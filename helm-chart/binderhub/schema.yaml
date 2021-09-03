@@ -279,10 +279,6 @@ properties:
         additionalProperties: true
         properties:
           cors: *cors-spec
-          binderauth_enabled:
-            type: boolean
-            description: |
-              TODO
       hub:
         type: object
         additionalProperties: true
