@@ -61,10 +61,6 @@ jupyterhub:
       00-binder: |
         from tornado import web
 
-        # get custom config from values.custom
-        import z2jh
-        cors = z2jh.get_config('custom.cors', {})
-
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
         from traitlet import Bool, Unicode
