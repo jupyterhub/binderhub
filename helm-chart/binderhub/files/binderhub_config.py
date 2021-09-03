@@ -78,9 +78,6 @@ if allow_origin:
         }
     })
 
-if os.getenv('BUILD_NAMESPACE'):
-    c.BinderHub.build_namespace = os.environ['BUILD_NAMESPACE']
-
 if c.BinderHub.auth_enabled:
     hub_url = urlparse(c.BinderHub.hub_url)
     c.HubOAuth.hub_host = '{}://{}'.format(hub_url.scheme, hub_url.netloc)
