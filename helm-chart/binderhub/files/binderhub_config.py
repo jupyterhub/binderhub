@@ -4,8 +4,6 @@ from functools import lru_cache
 from urllib.parse import urlparse
 import yaml
 
-c.BinderHub.hub_api_token = os.environ['JUPYTERHUB_API_TOKEN']
-
 
 def _merge_dictionaries(a, b):
     """Merge two dictionaries recursively.
