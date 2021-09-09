@@ -262,17 +262,15 @@ properties:
       BinderHub Helm chart.
     required: [hub]
     properties:
-      custom:
-        type: object
-        description: |
-          DEPRECATED
       hub:
         type: object
         additionalProperties: true
+        required: [services]
         properties:
           services:
             type: object
             additionalProperties: true
+            required: [binder]
             properties:
               binder:
                 type: object
@@ -538,6 +536,6 @@ properties:
   # Deprecated
   cors:
     type: object
-    additionalProperties: false
+    additionalProperties: true
     description: |
       DEPRECATED.
