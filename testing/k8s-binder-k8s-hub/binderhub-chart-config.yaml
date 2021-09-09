@@ -21,11 +21,10 @@ jupyterhub:
   debug:
     enabled: true
 
-  config:
-    BinderSpawner:
-      cors_allow_origin: "*"
-
   hub:
+    config:
+      BinderSpawner:
+        cors_allow_origin: "*"
     db:
       type: "sqlite-memory"
 

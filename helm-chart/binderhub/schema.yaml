@@ -25,7 +25,6 @@ required:
   - service
   - config
   - extraConfig
-  - cors
   - jupyterhub
   - deployment
   - dind
@@ -263,6 +262,10 @@ properties:
       BinderHub Helm chart.
     required: [hub]
     properties:
+      custom:
+        type: object
+        description: |
+          DEPRECATED
       hub:
         type: object
         additionalProperties: true
@@ -322,7 +325,7 @@ properties:
         type: array
         description: |
           List of additional initContainers.
-          
+
           See the [Kubernetes
           docs](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
           for more info.
@@ -531,3 +534,10 @@ properties:
       This is not a supported configuration yet by this Helm chart, but may be
       in the future. This schema entry was added because
       jupyterhub/mybinder.org-deploy configured a Networkpolicy resource here.
+
+  # Deprecated
+  cors:
+    type: object
+    additionalProperties: false
+    description: |
+      DEPRECATED.

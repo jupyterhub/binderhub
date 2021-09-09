@@ -4,6 +4,7 @@ pdb:
 
 replicas: 1
 
+
 resources:
   requests:
     cpu: 0.2
@@ -46,6 +47,9 @@ extraConfig: {}
 # likely want to set both of those to the same value.
 
 jupyterhub:
+  # Deprecated values, kept here so we can provide useful error messages
+  custom:
+    cors: {}
   cull:
     enabled: true
     users: true
@@ -234,3 +238,7 @@ extraVolumes: []
 extraVolumeMounts: []
 extraEnv: {}
 podAnnotations: {}
+
+# Deprecated values, kept here so we can provide useful error messages
+cors: {}
+
