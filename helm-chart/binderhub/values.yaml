@@ -90,6 +90,9 @@ jupyterhub:
                         '--NotebookApp.token=%s' % self.user_options['token'],
                         '--NotebookApp.trust_xheaders=True',
                     ]
+                    if self.default_url:
+                        args.append(f'--NotebookApp.default_url={self.default_url}')
+
                     allow_origin = cors.get('allowOrigin')
                     if allow_origin:
                         args.append('--NotebookApp.allow_origin=' + allow_origin)
