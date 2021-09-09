@@ -25,7 +25,6 @@ required:
   - service
   - config
   - extraConfig
-  - cors
   - jupyterhub
   - deployment
   - dind
@@ -255,17 +254,6 @@ properties:
       manifest as either the binder pod going into `Error` or `CrashLoopBackoff` states, or in
       some special cases, the binder pod running but... just doing very random things. Be careful!
 
-  cors: &cors-spec
-    type: object
-    additionalProperties: false
-    description: |
-      TODO
-    properties:
-      allowOrigin:
-        type: [string, "null"]
-        description: |
-          TODO
-
   jupyterhub:
     type: object
     additionalProperties: true
@@ -274,22 +262,15 @@ properties:
       BinderHub Helm chart.
     required: [hub]
     properties:
-      custom:
-        type: object
-        additionalProperties: true
-        properties:
-          cors: *cors-spec
-          binderauth_enabled:
-            type: boolean
-            description: |
-              TODO
       hub:
         type: object
         additionalProperties: true
+        required: [services]
         properties:
           services:
             type: object
             additionalProperties: true
+            required: [binder]
             properties:
               binder:
                 type: object
@@ -342,7 +323,7 @@ properties:
         type: array
         description: |
           List of additional initContainers.
-          
+
           See the [Kubernetes
           docs](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
           for more info.
@@ -551,3 +532,10 @@ properties:
       This is not a supported configuration yet by this Helm chart, but may be
       in the future. This schema entry was added because
       jupyterhub/mybinder.org-deploy configured a Networkpolicy resource here.
+
+  # Deprecated
+  cors:
+    type: object
+    additionalProperties: true
+    description: |
+      DEPRECATED.

@@ -1,8 +1,5 @@
 # This config is used when both BinderHub and the JupyterHub it uses are
 # deployed to a kubernetes cluster.
-cors:
-  allowOrigin: '*'
-
 service:
   type: NodePort
   nodePort: 30901
@@ -15,6 +12,7 @@ config:
     hub_url_local: http://proxy-public
     use_registry: false
     log_level: 10
+    cors_allow_origin: '*'
 
 # NOTE: This is a mirror of the jupyterhub section in
 #       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
@@ -23,11 +21,10 @@ jupyterhub:
   debug:
     enabled: true
 
-  custom:
-    cors:
-      allowOrigin: "*"
-
   hub:
+    config:
+      BinderSpawner:
+        cors_allow_origin: "*"
     db:
       type: "sqlite-memory"
 
