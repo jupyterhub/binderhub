@@ -129,8 +129,10 @@ jupyterhub:
         admin: true
         apiToken:
   singleuser:
-    # start jupyter notebook
+    # start jupyter notebook for the server
     cmd: jupyter-notebook
+    # use jupyterlab for the default UI
+    defaultUrl: /lab
     events: false
     storage:
       type: none
