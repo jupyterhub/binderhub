@@ -67,7 +67,7 @@ jupyterhub:
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
-        from traitlet import Bool, Unicode
+        from traitlets import Bool, Unicode
 
         class BinderSpawner(KubeSpawner):
             auth_enabled = Bool(
@@ -110,7 +110,7 @@ jupyterhub:
                         args.append(f'--NotebookApp.default_url={self.default_url}')
 
                     if self.cors_allow_origin:
-                        args.append('--NotebookApp.allow_origin=' + cors_allow_origin)
+                        args.append('--NotebookApp.allow_origin=' + self.cors_allow_origin)
                     # allow_origin=* doesn't properly allow cross-origin requests to single files
                     # see https://github.com/jupyter/notebook/pull/5898
                     if self.cors_allow_origin == '*':
@@ -119,7 +119,7 @@ jupyterhub:
                 return args
 
             def start(self):
-                if not auth_enabled:
+                if not self.auth_enabled:
                     if 'token' not in self.user_options:
                         raise web.HTTPError(400, "token required")
                     if 'image' not in self.user_options:

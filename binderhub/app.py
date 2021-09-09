@@ -816,7 +816,7 @@ class BinderHub(Application):
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
         if self.cors_allow_origin:
-            self.tornado_app.setdefault('headers', {})['Access-Control-Allow-Origin'] = self.cors_allow_origin
+            self.tornado_settings.setdefault('headers', {})['Access-Control-Allow-Origin'] = self.cors_allow_origin
 
         handlers = [
             (r'/metrics', MetricsHandler),
