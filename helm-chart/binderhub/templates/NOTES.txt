@@ -174,12 +174,12 @@ config:
 {{- $breaking_title = print $breaking_title "\n######             the `helm template` command.                             #####" }}
 {{- $breaking_title = print $breaking_title "\n#################################################################################" }}
 
-{{- if hasKey .Values.cors "allowedOrigin" }}
-{{- $breaking = print $breaking "\n\nRENAMED: cors.allowedOrigin has been renamed to config.BinderHub.cors_allow_origin" }}
+{{- if hasKey .Values.cors "allowOrigin" }}
+{{- $breaking = print $breaking "\n\nRENAMED: cors.allowOrigin has been renamed to config.BinderHub.cors_allow_origin" }}
 {{- end }}
 
-{{- if hasKey .Values.jupyterhub.custom.cors "allowedOrigin" }}
-{{- $breaking = print $breaking "\n\nRENAMED: jupyterhub.custom.cors.allowedOrigin has been renamed to jupyterhub.hub.config.BinderSpawner.cors_allow_origin" }}
+{{- if hasKey .Values.jupyterhub.custom.cors "allowOrigin" }}
+{{- $breaking = print $breaking "\n\nRENAMED: jupyterhub.custom.cors.allowOrigin has been renamed to jupyterhub.hub.config.BinderSpawner.cors_allow_origin" }}
 {{- end }}
 
 {{- if $breaking }}
