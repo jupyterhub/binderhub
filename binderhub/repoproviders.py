@@ -520,7 +520,7 @@ class GitRepoProvider(RepoProvider):
             stdout, stderr = await proc.communicate()
             retcode = await proc.wait()
             if retcode:
-                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(stderr))
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(stderr.decode()))
             if not stdout:
                 return None
             resolved_ref = stdout.decode().split(None, 1)[0]
