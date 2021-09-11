@@ -82,12 +82,9 @@ jobs:
             pip install --upgrade setuptools wheel
 
       - name: Setup Python package dependencies
-        run: pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt .
-
-      - name: Embed the BinderSpawner mixin into the values.yaml
         run: |
-          ./ci/embed-chart-files.py
-          git diff
+          pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+          pip install .
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
