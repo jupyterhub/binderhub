@@ -84,6 +84,11 @@ jobs:
       - name: Setup Python package dependencies
         run: pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt .
 
+      - name: Embed the BinderSpawner mixin into the values.yaml
+        run: |
+          ./ci/embed-chart-files.py
+          git diff
+
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
         run: |
@@ -97,8 +102,6 @@ jobs:
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
-            # Embed the BinderSpawner mixin into the values.yaml
-            ./ci/embed-chart-files.py
             # Use chartpress to create the helm chart and build its images
             helm dependency update ./helm-chart/binderhub
             (cd helm-chart && chartpress)
