@@ -13,7 +13,7 @@ import os
 import time
 import urllib.parse
 import re
-import subprocess
+import asyncio
 from urllib.parse import urlparse
 
 import escapism
@@ -514,12 +514,16 @@ class GitRepoProvider(RepoProvider):
         except ValueError:
             # The ref is a head/tag and we resolve it using `git ls-remote`
             command = ["git", "ls-remote", "--", self.repo, self.unresolved_ref]
-            result = subprocess.run(command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if result.returncode:
-                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(result.stderr))
-            if not result.stdout:
+            proc = await asyncio.create_subprocess_exec(
+                *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await proc.communicate()
+            retcode = await proc.wait()
+            if retcode:
+                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(stderr.decode()))
+            if not stdout:
                 return None
-            resolved_ref = result.stdout.split(None, 1)[0]
+            resolved_ref = stdout.decode().split(None, 1)[0]
             self.sha1_validate(resolved_ref)
             self.resolved_ref = resolved_ref
         else:
