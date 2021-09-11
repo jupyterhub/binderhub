@@ -12,5 +12,6 @@ pytest-cov
 # using ruamel.yaml. ruamel.yaml is more powerful than pyyaml, and that is
 # relevant when writing YAML files back after having loaded them from disk.
 pyyaml
+jupyter-repo2docker
 requests
 ruamel.yaml>=0.15
