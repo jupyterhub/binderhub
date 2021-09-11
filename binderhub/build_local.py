@@ -69,6 +69,8 @@ class LocalRepo2dockerBuild(Build):
     """Represents a build of a git repository into a docker image.
 
     This runs a build using the repo2docker command line tool.
+
+    WARNING: This is still under development. Breaking changes may be made at any time.
     """
 
     def __init__(
