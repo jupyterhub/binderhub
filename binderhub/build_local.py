@@ -8,16 +8,11 @@ import datetime
 from functools import partial
 import json
 import os
-import threading
-from urllib.parse import urlparse
 import subprocess
-import warnings
-from tornado import ioloop
 
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
-from .utils import rendezvous_rank, KUBE_REQUEST_TIMEOUT
 from .build import ProgressEvent, Build
 
 
@@ -114,9 +109,7 @@ class LocalRepo2dockerBuild(Build):
         ref : str
             Ref of repository to build
             Passed through to repo2docker.
-        build_image : str
-            Docker image containing repo2docker that is used to spawn the build
-            pods.
+        build_image : ignored
         docker_host : ignored
         image_name : str
             Full name of the image to build. Includes the tag.
@@ -154,7 +147,6 @@ class LocalRepo2dockerBuild(Build):
         self.name = name
         self.image_name = image_name
         self.push_secret = push_secret
-        self.build_image = build_image
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.memory_request = memory_request
