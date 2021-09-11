@@ -1,17 +1,21 @@
 """Test building repos"""
 
+import docker
 import json
 import sys
 from collections import namedtuple
 from unittest import mock
 from urllib.parse import quote
+from uuid import uuid4
 
 import pytest
 from tornado.httputil import url_concat
+from tornado.queues import Queue
 
 from kubernetes import client
 
-from binderhub.build import Build
+from binderhub.build import Build, ProgressEvent
+from binderhub.build_local import LocalRepo2dockerBuild
 from .utils import async_requests
 
 
@@ -169,3 +173,34 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     }
 
     assert env['GIT_CREDENTIAL_ENV'] == git_credentials
+
+
+async def test_local_repo2docker_build():
+    q = Queue()
+    repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
+    ref = "HEAD"
+    name = str(uuid4())
+
+    build = LocalRepo2dockerBuild(
+        q,
+        None,
+        name,
+        namespace=None,
+        repo_url=repo_url,
+        ref=ref,
+        build_image=None,
+        docker_host=None,
+        image_name=name
+    )
+    build.submit()
+
+    events = []
+    while True:
+        event = await q.get(10)
+        if event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE and event.payload == ProgressEvent.BuildStatus.COMPLETED:
+            break
+        events.append(event)
+
+    # Image should now exist locally
+    docker_client = docker.from_env(version='auto')
+    assert docker_client.images.get(name)
