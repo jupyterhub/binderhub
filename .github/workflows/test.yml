@@ -97,6 +97,8 @@ jobs:
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
+            # Embed the BinderSpawner mixin into the values.yaml
+            ./ci/embed-chart-files.py
             # Use chartpress to create the helm chart and build its images
             helm dependency update ./helm-chart/binderhub
             (cd helm-chart && chartpress)

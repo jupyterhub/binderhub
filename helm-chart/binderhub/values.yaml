@@ -63,7 +63,8 @@ jupyterhub:
         auth_enabled: false
     extraConfig:
       00-binder: |
-        from binderhub.launcher import BinderSpawnerMixin
+        # This must be embedded since the Z2JH hub container won't contain BinderHub
+        from binderhub.binderspawner_mixin import BinderSpawnerMixin
 
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
