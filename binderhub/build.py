@@ -173,10 +173,9 @@ class Build:
 
         self._component_label = "binderhub-build"
 
-    def get_cmd(self):
-        """Get the cmd to run to build the image"""
-        cmd = [
-            'jupyter-repo2docker',
+    def get_r2d_cmd_options(self):
+        """Get options/flags for repo2docker"""
+        r2d_options = [
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
@@ -184,14 +183,22 @@ class Build:
             '--user-id', '1000',
         ]
         if self.appendix:
-            cmd.extend(['--appendix', self.appendix])
+            r2d_options.extend(['--appendix', self.appendix])
 
         if self.push_secret:
-            cmd.append('--push')
+            r2d_options.append('--push')
 
         if self.memory_limit:
-            cmd.append('--build-memory-limit')
-            cmd.append(str(self.memory_limit))
+            r2d_options.append('--build-memory-limit')
+            r2d_options.append(str(self.memory_limit))
+
+        return r2d_options
+
+    def get_cmd(self):
+        """Get the cmd to run to build the image"""
+        cmd = [
+            'jupyter-repo2docker',
+        ] + self.get_r2d_cmd_options()
 
         # repo_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
