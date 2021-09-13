@@ -182,9 +182,8 @@ class RepoProvider(LoggingConfigurable):
         raise NotImplementedError("Must be overriden in the child class")
 
     @staticmethod
-    def sha1_validate(sha1):
-        if not SHA1_PATTERN.match(sha1):
-            raise ValueError("resolved_ref is not a valid sha1 hexadecimal hash")
+    def is_valid_sha1(sha1):
+        return bool(SHA1_PATTERN.match(sha1))
 
 
 class FakeProvider(RepoProvider):
@@ -508,10 +507,10 @@ class GitRepoProvider(RepoProvider):
         if hasattr(self, 'resolved_ref'):
             return self.resolved_ref
 
-        try:
-            # Check if the reference is a valid SHA hash
-            self.sha1_validate(self.unresolved_ref)
-        except ValueError:
+        if self.is_valid_sha1(self.unresolved_ref):
+            # The ref already was a valid SHA hash
+            self.resolved_ref = self.unresolved_ref
+        else:
             # The ref is a head/tag and we resolve it using `git ls-remote`
             command = ["git", "ls-remote", "--", self.repo, self.unresolved_ref]
             proc = await asyncio.create_subprocess_exec(
@@ -524,11 +523,9 @@ class GitRepoProvider(RepoProvider):
             if not stdout:
                 return None
             resolved_ref = stdout.decode().split(None, 1)[0]
-            self.sha1_validate(resolved_ref)
+            if not self.is_valid_sha1(resolved_ref):
+                raise ValueError(f'resolved_ref {resolved_ref} is not a valid sha1 hexadecimal hash')
             self.resolved_ref = resolved_ref
-        else:
-            # The ref already was a valid SHA hash
-            self.resolved_ref = self.unresolved_ref
 
         return self.resolved_ref
 
