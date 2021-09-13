@@ -3,6 +3,7 @@
 import docker
 import json
 import sys
+from time import time
 from unittest import mock
 from urllib.parse import quote
 from uuid import uuid4
@@ -14,7 +15,7 @@ from tornado.queues import Queue
 from kubernetes import client
 
 from binderhub.build import Build, ProgressEvent
-from binderhub.build_local import LocalRepo2dockerBuild
+from binderhub.build_local import _execute_cmd, LocalRepo2dockerBuild, ProcessTerminated
 from .utils import async_requests
 
 
@@ -211,3 +212,71 @@ async def test_local_repo2docker_build():
     # Image should now exist locally
     docker_client = docker.from_env(version='auto')
     assert docker_client.images.get(name)
+
+
+@pytest.mark.asyncio(timeout=20)
+async def test_local_repo2docker_build_stop(event_loop):
+    q = Queue()
+    repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
+    ref = "HEAD"
+    name = str(uuid4())
+
+    build = LocalRepo2dockerBuild(
+        q,
+        None,
+        name,
+        namespace=None,
+        repo_url=repo_url,
+        ref=ref,
+        build_image=None,
+        docker_host=None,
+        image_name=name
+    )
+    run = event_loop.run_in_executor(None, build.submit)
+
+    # Get first few log messages to check it successfully stared
+    event = await q.get()
+    assert event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE
+    assert event.payload == ProgressEvent.BuildStatus.RUNNING
+
+    for i in range(2):
+        event = await q.get()
+        print(event.__dict__)
+        assert event.kind == ProgressEvent.Kind.LOG_MESSAGE
+        assert 'message' in event.payload
+
+    build.stop()
+
+    for i in range(10):
+        event = await q.get()
+        if event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE and event.payload == ProgressEvent.BuildStatus.FAILED:
+            break
+    assert event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE and event.payload == ProgressEvent.BuildStatus.FAILED
+
+    # Todo: check that process was stopped, and we didn't just return early and leave it in the background
+
+    # Build was stopped so image should not exist locally
+    docker_client = docker.from_env(version='auto')
+    with pytest.raises(docker.errors.ImageNotFound):
+        docker_client.images.get(name)
+
+
+def test_execute_cmd():
+    cmd = ['python', '-c', 'from time import sleep; print(1, flush=True); sleep(2); print(2, flush=True)']
+    lines = list(_execute_cmd(cmd, capture=True))
+    assert lines == ['1\n', '2\n']
+
+def test_execute_cmd_break():
+    cmd = ['python', '-c', 'from time import sleep; print(1, flush=True); sleep(10); print(2, flush=True)']
+    lines = []
+    now = time()
+
+    def break_callback():
+        return time() - now > 2
+
+    # This should break after the first line
+    with pytest.raises(ProcessTerminated) as exc:
+        for line in _execute_cmd(cmd, capture=True, break_callback=break_callback):
+            lines.append(line)
+    assert lines == ['1\n']
+    assert str(exc.value) == f'ProcessTerminated: {cmd}'
