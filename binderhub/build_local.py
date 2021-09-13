@@ -218,4 +218,4 @@ class LocalRepo2dockerBuild(Build):
         pass
 
     def stop(self):
-        pass
+        raise NotImplementedError()
