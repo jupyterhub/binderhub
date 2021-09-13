@@ -4,7 +4,7 @@
 #
 #    ./dependencies freeze --upgrade
 #
-alembic==1.6.5
+alembic==1.7.1
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
@@ -22,19 +22,19 @@ cffi==1.14.6
     # via cryptography
 charset-normalizer==2.0.4
     # via requests
-cryptography==3.4.7
+cryptography==3.4.8
     # via pyopenssl
-docker==5.0.0
+docker==5.0.2
     # via -r binderhub.in
 entrypoints==0.3
     # via jupyterhub
 escapism==1.0.1
     # via -r binderhub.in
-google-api-core[grpc]==1.31.1
+google-api-core[grpc]==1.31.2
     # via
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==1.34.0
+google-auth==1.35.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -47,12 +47,12 @@ googleapis-common-protos==1.53.0
     # via google-api-core
 greenlet==1.1.1
     # via sqlalchemy
-grpcio==1.39.0
+grpcio==1.40.0
     # via google-api-core
 idna==3.2
     # via requests
-ipython-genutils==0.2.0
-    # via traitlets
+importlib-resources==5.2.2
+    # via alembic
 jinja2==3.0.1
     # via
     #   -r binderhub.in
@@ -71,7 +71,7 @@ kubernetes==9.0.1
     # via
     #   -r binderhub.in
     #   -r requirements.in
-mako==1.1.4
+mako==1.1.5
     # via alembic
 markupsafe==2.0.1
     # via
@@ -111,11 +111,8 @@ pyrsistent==0.18.0
     # via jsonschema
 python-dateutil==2.8.2
     # via
-    #   alembic
     #   jupyterhub
     #   kubernetes
-python-editor==1.0.4
-    # via alembic
 python-json-logger==2.0.2
     # via
     #   -r binderhub.in
@@ -137,7 +134,7 @@ rsa==4.7.2
     # via google-auth
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
-ruamel.yaml==0.17.10
+ruamel.yaml==0.17.16
     # via jupyter-telemetry
 six==1.16.0
     # via
@@ -150,7 +147,7 @@ six==1.16.0
     #   protobuf
     #   pyopenssl
     #   python-dateutil
-sqlalchemy==1.4.22
+sqlalchemy==1.4.23
     # via
     #   alembic
     #   jupyterhub
@@ -158,7 +155,7 @@ tornado==6.1
     # via
     #   -r binderhub.in
     #   jupyterhub
-traitlets==5.0.5
+traitlets==5.1.0
     # via
     #   -r binderhub.in
     #   jupyter-telemetry
@@ -167,10 +164,12 @@ urllib3==1.26.6
     # via
     #   kubernetes
     #   requests
-websocket-client==1.1.1
+websocket-client==1.2.1
     # via
     #   docker
     #   kubernetes
+zipp==3.5.0
+    # via importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
