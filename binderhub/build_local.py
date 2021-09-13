@@ -215,7 +215,7 @@ class LocalRepo2dockerBuild(Build):
         pass
 
     def cleanup(self):
-        raise NotImplementedError()
+        pass
 
     def stop(self):
         pass
