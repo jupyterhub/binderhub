@@ -28,6 +28,7 @@ else:
     subprocess.check_call(['npm', 'install'])
     subprocess.check_call(['npm', 'run', 'webpack'])
 
+# FIXME: See helm-chart/binderhub/values.yaml for a betterlong term fix
 binderspawner_mixin_py = os.path.join(here, 'binderhub', 'binderspawner_mixin.py')
 values_yaml = os.path.join(here, 'helm-chart', 'binderhub', 'values.yaml')
 with open(values_yaml) as f:

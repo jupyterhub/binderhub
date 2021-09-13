@@ -66,8 +66,19 @@ jupyterhub:
         """
         Helpers for creating BinderSpawners
 
+        FIXME:
         This file is defined in helm-chart/binderhub/values.yaml and is copied to
-        binderhub/binderspawner_mixin.py by setup.py
+        binderhub/binderspawner_mixin.py by setup.py so that it can be used by other JupyterHub
+        container spawners.
+
+        The BinderHub repo is just used as the distribution mechanism for this spawner, BinderHub
+        itself doesn't require this code.
+
+        Longer term options include:
+        - Move BinderSpawnerMixin to a separate Python package and include it in the Z2JH Hub
+          image
+        - Override the Z2JH hub with a custom image built in this repository
+        - Duplicate the code here and in binderhub/binderspawner_mixin.py
         """
         from tornado import web
         from traitlets.config import Configurable
