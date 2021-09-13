@@ -17,7 +17,7 @@ from binderhub.repoproviders import (
     tokenize_spec,
 )
 
-sha1_validate = GitRepoProvider.sha1_validate
+is_valid_sha1 = GitRepoProvider.is_valid_sha1
 
 
 # General string processing
@@ -202,7 +202,7 @@ def test_github_ref(repo, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -396,7 +396,7 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -464,7 +464,7 @@ def test_gitlab_ref(unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -504,7 +504,7 @@ def test_gist_ref(owner, gist_id, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
