@@ -62,7 +62,7 @@ jupyterhub:
       BinderSpawner:
         auth_enabled: false
     extraConfig:
-      00-binderspawnermixin: |
+      0-binderspawnermixin: |
         """
         Helpers for creating BinderSpawners
 
@@ -174,7 +174,7 @@ jupyterhub:
                         env[key.upper()] = self.user_options[key]
                 return env
 
-      01-binder: |
+      00-binder: |
         # image & token are set via spawn options
         from kubespawner import KubeSpawner
 

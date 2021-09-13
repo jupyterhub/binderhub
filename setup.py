@@ -34,7 +34,7 @@ values_yaml = os.path.join(here, 'helm-chart', 'binderhub', 'values.yaml')
 with open(values_yaml) as f:
     values = yaml.safe_load(f)
 with open(binderspawner_mixin_py, 'w') as f:
-    f.write(values['jupyterhub']['hub']['extraConfig']['00-binderspawnermixin'])
+    f.write(values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin'])
 
 setup(
     name='binderhub',
