@@ -24,8 +24,7 @@ WORKDIR /tmp/binderhub
 
 # Build the binderhub python library into a wheel and save it to the ./dist
 # folder. There are no pycurl wheels so we build our own in the build stage.
-RUN pip install pyyaml && \
-    python setup.py bdist_wheel
+RUN python setup.py bdist_wheel
 RUN pip wheel pycurl --wheel-dir ./dist
 
 

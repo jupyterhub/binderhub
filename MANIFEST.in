@@ -6,4 +6,3 @@ graft doc
 include LICENSE
 include versioneer.py
 include binderhub/_version.py
-include helm-chart/binderhub/values.yaml
