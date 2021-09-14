@@ -6,6 +6,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: check embedded chart code
+        run: ./ci/check_embedded_chart_code.py
+
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
   # in small things. Unfortunately there is no easy way to share steps between
   # jobs or have "template" jobs, so we use `if` conditions on steps
