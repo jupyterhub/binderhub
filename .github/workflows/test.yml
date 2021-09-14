@@ -82,7 +82,9 @@ jobs:
             pip install --upgrade setuptools wheel
 
       - name: Setup Python package dependencies
-        run: pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt .
+        run: |
+          pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+          pip install .
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'

@@ -62,14 +62,46 @@ jupyterhub:
       BinderSpawner:
         auth_enabled: false
     extraConfig:
-      00-binder: |
-        from tornado import web
+      0-binderspawnermixin: |
+        """
+        Helpers for creating BinderSpawners
 
-        # image & token are set via spawn options
-        from kubespawner import KubeSpawner
+        FIXME:
+        This file is defined in helm-chart/binderhub/values.yaml and is copied to
+        binderhub/binderspawner_mixin.py by setup.py so that it can be used by other JupyterHub
+        container spawners.
+
+        The BinderHub repo is just used as the distribution mechanism for this spawner, BinderHub
+        itself doesn't require this code.
+
+        Longer term options include:
+        - Move BinderSpawnerMixin to a separate Python package and include it in the Z2JH Hub
+          image
+        - Override the Z2JH hub with a custom image built in this repository
+        - Duplicate the code here and in binderhub/binderspawner_mixin.py
+        """
+        from tornado import web
+        from traitlets.config import Configurable
         from traitlets import Bool, Unicode
 
-        class BinderSpawner(KubeSpawner):
+
+        class BinderSpawnerMixin(Configurable):
+            """
+            Mixin to convert a JupyterHub container spawner to a BinderHub spawner
+
+            Container spawner must support the following properties that will be set
+            via spawn options:
+            - image: Container image to launch
+            - token: JupyterHub API token
+            """
+
+            def __init__(self, *args, **kwargs):
+                # Is this right? Is it possible to having multiple inheritance with both
+                # classes using traitlets?
+                # https://stackoverflow.com/questions/9575409/calling-parent-class-init-with-multiple-inheritance-whats-the-right-way
+                # https://github.com/ipython/traitlets/pull/175
+                super(BinderSpawnerMixin, self).__init__(*args, **kwargs)
+
             auth_enabled = Bool(
                 False,
                 help="""
@@ -95,6 +127,7 @@ jupyterhub:
                 """,
                 config=True
             )
+
             def get_args(self):
                 if self.auth_enabled:
                     args = super().get_args()
@@ -140,6 +173,13 @@ jupyterhub:
                     if key in self.user_options:
                         env[key.upper()] = self.user_options[key]
                 return env
+
+      00-binder: |
+        # image & token are set via spawn options
+        from kubespawner import KubeSpawner
+
+        class BinderSpawner(BinderSpawnerMixin, KubeSpawner):
+            pass
 
         c.JupyterHub.spawner_class = BinderSpawner
     services:

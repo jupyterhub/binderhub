@@ -1,2 +1,3 @@
 helm-chart
 !helm-chart/images
+!helm-chart/binderhub/values.yaml
