@@ -184,3 +184,73 @@ jobs:
       - name: Upload coverage stats
         uses: codecov/codecov-action@v1
         if: ${{ always() }}
+
+  test-local:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup OS level dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get install --yes \
+              build-essential \
+              curl \
+              libcurl4-openssl-dev \
+              libssl-dev
+
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+
+      - name: Cache npm
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+            ${{ runner.os }}-python-
+
+      - name: Update pip
+        run: |
+            pip install --upgrade pip
+            pip install --upgrade setuptools wheel
+
+      - name: Setup Python package dependencies
+        run: |
+          pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
+          pip install .
+
+      - name: Setup JupyterHub NPM dependencies
+        run: npm install -g configurable-http-proxy
+
+      - name: Await and curl JupyterHub
+        run: |
+            cd testing/local-binder-local-hub
+            jupyterhub --config=binderhub_config.py > jupyterhub.log 2>&1 &
+            sleep 5
+
+            echo curl http://localhost:8000/hub/api/ should print the JupyterHub version
+            curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+
+      - name: Run remote tests
+        run: |
+          export BINDER_URL=http://localhost:8000/services/binder/
+          pytest -m remote -v --color=yes
+
+      - name: Show hub logs
+        if: always()
+        run: cat testing/local-binder-local-hub/jupyterhub.log
