@@ -51,6 +51,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "github_api: mark test to run only with GitHub API credentials"
     )
+    config.addinivalue_line(
+        "markers", "remote: mark test for when BinderHub is already running somewhere."
+    )
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus):
