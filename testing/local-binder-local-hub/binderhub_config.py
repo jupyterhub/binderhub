@@ -35,7 +35,9 @@ c.BinderHub.banner_message = 'See <a href="https://github.com/jupyterhub/binderh
 
 if RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE:
     c.BinderHub.base_url = os.getenv('JUPYTERHUB_SERVICE_PREFIX')
-    c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
+    # JUPYTERHUB_BASE_URL may not include the host
+    # c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
+    c.BinderHub.hub_url = f'http://{hostip}:8000'
 else:
     c.BinderHub.hub_url = f'http://{hostip}:8000'
     # Shared with JupyterHub
