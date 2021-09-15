@@ -3,6 +3,9 @@
 #
 # Run `jupyterhub --config=binderhub_config.py` terminal
 
+# Optionally override the external access URL
+JUPYTERHUB_EXTERNAL_URL = None
+
 # If True JupyterHub will take care of running BinderHub as a managed service
 # If False then run `python3 -m binderhub -f binderhub_config.py` in another terminal
 RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE = True
@@ -35,11 +38,12 @@ c.BinderHub.banner_message = 'See <a href="https://github.com/jupyterhub/binderh
 
 if RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE:
     c.BinderHub.base_url = os.getenv('JUPYTERHUB_SERVICE_PREFIX')
+    c.BinderHub.hub_url_local = 'http://localhost:8000'
     # JUPYTERHUB_BASE_URL may not include the host
     # c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
-    c.BinderHub.hub_url = f'http://{hostip}:8000'
+    c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
 else:
-    c.BinderHub.hub_url = f'http://{hostip}:8000'
+    c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
     # Shared with JupyterHub
     api_token = "secretsecretsecretsecretsecretsecret"
     c.BinderHub.hub_api_token = api_token
