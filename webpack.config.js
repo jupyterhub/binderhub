@@ -41,12 +41,6 @@ module.exports = {
             {
                 test: /\.(eot|woff|ttf|woff2|svg)$/,
                 type: 'asset/resource'
-            },
-            {
-                // Ignore errors caused by us using old version of xterm that ships with sourcemaps
-                // FIXME: Upgrade version of xterm so this can go away
-                test: /\.js\.map$/,
-                type: 'null-loader'
             }
         ]
     },

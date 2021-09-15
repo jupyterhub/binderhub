@@ -10,9 +10,9 @@
   pushing -> built
   pushing -> failed
 */
-import * as Terminal from 'xterm';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 import ClipboardJS from 'clipboard';
-import 'xterm/lib/xterm.css';
 import 'bootstrap';
 import 'event-source-polyfill';
 
@@ -21,13 +21,10 @@ import { markdownBadge, rstBadge } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
 
+import 'xterm/css/xterm.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import '../index.css';
-
-// FIXME: Can not seem to import this addon from npm
-// See https://github.com/xtermjs/xterm.js/issues/1018 for more details
-import {fit} from './vendor/xterm/addons/fit';
 
 var BASE_URL = $('#base-url').data().url;
 var BADGE_BASE_URL = $('#badge-base-url').data().url;
@@ -147,7 +144,7 @@ function updateUrls(formValues) {
   }
 }
 
-function build(providerSpec, log, path, pathType) {
+function build(providerSpec, log, fitAddon, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
@@ -166,7 +163,7 @@ function build(providerSpec, log, path, pathType) {
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
       log.writeAndStore(data.message);
-      log.fit();
+      fitAddon.fit();
     } else {
       console.log(data);
     }
@@ -225,13 +222,16 @@ function setUpLog() {
     convertEol: true,
     disableStdin: true
   });
+
+  const fitAddon = new FitAddon();
+  log.loadAddon(fitAddon);
   var logMessages = [];
 
   log.open(document.getElementById('log'), false);
-  log.fit();
+  fitAddon.fit();
 
   $(window).resize(function() {
-    log.fit();
+    fitAddon.fit();
   });
 
   var $panelBody = $("div.panel-body");
@@ -267,11 +267,11 @@ function setUpLog() {
     log.write(msg);
   }
 
-  return log;
+  return [log, fitAddon];
 }
 
 function indexMain() {
-    var log = setUpLog();
+    var [log, fitAddon] = setUpLog();
 
     // setup badge dropdown and default values.
     updateUrls();
@@ -321,7 +321,7 @@ function indexMain() {
         updateUrls(formValues);
         build(
           formValues.providerPrefix + '/' + formValues.repo + '/' + formValues.ref,
-          log,
+          log, fitAddon,
           formValues.path,
           formValues.pathType
         );
@@ -330,7 +330,7 @@ function indexMain() {
 }
 
 function loadingMain(providerSpec) {
-  var log = setUpLog();
+  var [log, fitAddon] = setUpLog();
   // retrieve (encoded) filepath/urlpath from URL
   // URLSearchParams.get returns the decoded value,
   // that is good because it is the real value and '/'s will be trimmed in `launch`
