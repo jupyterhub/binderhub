@@ -240,7 +240,7 @@ jobs:
       - name: Await and curl JupyterHub
         run: |
             cd testing/local-binder-local-hub
-            jupyterhub --config=binderhub_config.py > jupyterhub.log 2>&1 &
+            jupyterhub --config=jupyterhub_config.py > jupyterhub.log 2>&1 &
             sleep 5
 
             echo curl http://localhost:8000/hub/api/ should print the JupyterHub version

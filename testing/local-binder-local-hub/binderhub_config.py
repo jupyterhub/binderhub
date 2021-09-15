@@ -1,14 +1,11 @@
 ######################################################################
 ## A development config to test BinderHub locally.
 #
-# Run `jupyterhub --config=binderhub_config.py` terminal
+# If you are running BidnerHub manually (not via JupyterHub) run
+# `python -m binderhub -f binderhub_config.py`
 
-# Optionally override the external access URL
+# Optionally override the external access URL for JupyterHub
 JUPYTERHUB_EXTERNAL_URL = None
-
-# If True JupyterHub will take care of running BinderHub as a managed service
-# If False then run `python3 -m binderhub -f binderhub_config.py` in another terminal
-RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE = True
 
 # Host IP is needed in a few places
 import socket
@@ -17,11 +14,6 @@ s.connect(("8.8.8.8", 80))
 hostip = s.getsockname()[0]
 s.close()
 
-
-######################################################################
-## BinderHub config
-
-from binderhub.binderspawner_mixin import BinderSpawnerMixin
 from binderhub.build_local import LocalRepo2dockerBuild
 import os
 
@@ -36,52 +28,15 @@ c.BinderHub.push_secret = None
 c.BinderHub.about_message = "This is a local dev deployment without Kubernetes"
 c.BinderHub.banner_message = 'See <a href="https://github.com/jupyterhub/binderhub">BinderHub on GitHub</a>'
 
-if RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE:
+c.BinderHub.hub_url_local = 'http://localhost:8000'
+
+# Are we running as a managed JupyterHub service?
+if os.getenv('JUPYTERHUB_SERVICE_PREFIX'):
     c.BinderHub.base_url = os.getenv('JUPYTERHUB_SERVICE_PREFIX')
-    c.BinderHub.hub_url_local = 'http://localhost:8000'
     # JUPYTERHUB_BASE_URL may not include the host
     # c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
     c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
 else:
     c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
-    # Shared with JupyterHub
-    api_token = "secretsecretsecretsecretsecretsecret"
-    c.BinderHub.hub_api_token = api_token
-
-
-######################################################################
-## JupyterHub config
-
-from dockerspawner import DockerSpawner
-
-# image & token are set via spawn options
-class LocalContainerSpawner(BinderSpawnerMixin, DockerSpawner):
-    pass
-
-
-c.JupyterHub.spawner_class = LocalContainerSpawner
-c.DockerSpawner.remove = True
-c.LocalContainerSpawner.cmd = 'jupyter-notebook'
-
-c.Application.log_level = 'DEBUG'
-c.JupyterHub.Spawner.debug = True
-c.JupyterHub.authenticator_class = "nullauthenticator.NullAuthenticator"
-
-c.JupyterHub.hub_ip = '0.0.0.0'
-c.JupyterHub.hub_connect_ip = hostip
-
-binderhub_service_name = 'binder'
-if RUN_BINDERHUB_AS_JUPYTERHUB_SERVICE:
-    c.JupyterHub.services = [{
-        "name": binderhub_service_name,
-        "admin": True,
-        "command": ["python", "-mbinderhub", f"--config={__file__}"],
-        "url": f"http://localhost:8585",
-    }]
-    c.JupyterHub.default_url = f"/services/{binderhub_service_name}/"
-else:
-    c.JupyterHub.services = [{
-        "name": binderhub_service_name,
-        "admin": True,
-        "api_token": api_token,
-    }]
+    # API token shared between JupyterHub and BinderHub
+    c.BinderHub.hub_api_token = open(os.path.join(os.path.dirname(__file__), 'api_token.txt')).read()
