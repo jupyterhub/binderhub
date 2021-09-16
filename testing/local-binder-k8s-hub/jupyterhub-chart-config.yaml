@@ -7,21 +7,20 @@
 debug:
   enabled: true
 
-custom:
-  cors:
-    allowOrigin: "*"
 
 hub:
-  # cookieSecret must be a hex encoded even length string
-  cookieSecret: "cccccccccc"
+  config:
+    BinderSpawner:
+      cors_allow_origin: '*'
   db:
     type: "sqlite-memory"
   services:
     binder:
+      # apiToken is also configured in
+      # testing/local-binder-k8s-hub/binderhub_config.py
       apiToken: "dummy-binder-secret-token"
 
 proxy:
-  secretToken: "dummy-proxy-secret-token"
   service:
     type: NodePort
     nodePorts:

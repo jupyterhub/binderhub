@@ -6,7 +6,10 @@ from collections import defaultdict
 import datetime
 import json
 import threading
+from typing import Union
 from urllib.parse import urlparse
+from enum import Enum
+import warnings
 
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
@@ -14,6 +17,33 @@ from tornado.log import app_log
 
 from .utils import rendezvous_rank, KUBE_REQUEST_TIMEOUT
 
+
+class ProgressEvent:
+    """
+    Represents an event that happened in the build process
+    """
+    class Kind(Enum):
+        """
+        The kind of event that happened
+        """
+        BUILD_STATUS_CHANGE = 1
+        LOG_MESSAGE = 2
+
+    class BuildStatus(Enum):
+        """
+        The state the build is now in
+
+        Used when `kind` is `Kind.BUILD_STATUS_CHANGE`
+        """
+        PENDING = 1
+        RUNNING = 2
+        COMPLETED = 3
+        FAILED = 4
+        UNKNOWN = 5
+
+    def __init__(self, kind: Kind, payload: Union[str, BuildStatus]):
+        self.kind = kind
+        self.payload = payload
 
 class Build:
     """Represents a build of a git repository into a docker image.
@@ -58,6 +88,67 @@ class Build:
         log_tail_lines=100,
         sticky_builds=False,
     ):
+        """
+        Parameters
+        ----------
+
+        q : tornado.queues.Queue
+            Queue that receives progress events after the build has been submitted
+        api : kubernetes.client.CoreV1Api()
+            Api object to make kubernetes requests via
+        name : str
+            A unique name for the thing (repo, ref) being built. Used to coalesce
+            builds, make sure they are not being unnecessarily repeated
+        namespace : str
+            Kubernetes namespace to spawn build pods into
+        repo_url : str
+            URL of repository to build.
+            Passed through to repo2docker.
+        ref : str
+            Ref of repository to build
+            Passed through to repo2docker.
+        build_image : str
+            Docker image containing repo2docker that is used to spawn the build
+            pods.
+        docker_host : str
+            The docker socket to use for building the image.
+            Must be a unix domain socket on a filesystem path accessible on the
+            node in which the build pod is running.
+        image_name : str
+            Full name of the image to build. Includes the tag.
+            Passed through to repo2docker.
+        git_credentials : str
+            Git credentials to use to clone private repositories. Passed
+            through to repo2docker via the GIT_CREDENTIAL_ENV environment
+            variable. Can be anything that will be accepted by git as
+            a valid output from a git-credential helper. See
+            https://git-scm.com/docs/gitcredentials for more information.
+        push_secret : str
+            Kubernetes secret containing credentials to push docker image to registry.
+        memory_limit
+            Memory limit for the docker build process. Can be an integer in
+            bytes, or a byte specification (like 6M).
+            Passed through to repo2docker.
+        memory_request
+            Memory request of the build pod. The actual building happens in the
+            docker daemon, but setting request in the build pod makes sure that
+            memory is reserved for the docker build in the node by the kubernetes
+            scheduler.
+        node_selector : dict
+            Node selector for the kubernetes build pod.
+        appendix : str
+            Appendix to be added at the end of the Dockerfile used by repo2docker.
+            Passed through to repo2docker.
+        log_tail_lines : int
+            Number of log lines to fetch from a currently running build.
+            If a build with the same name is already running when submitted,
+            only the last `log_tail_lines` number of lines will be fetched and
+            displayed to the end user. If not, all log lines will be streamed.
+        sticky_builds : bool
+            If true, builds for the same repo (but different refs) will try to
+            schedule on the same node, to reuse cache layers in the docker daemon
+            being used.
+        """
         self.q = q
         self.api = api
         self.repo_url = repo_url
@@ -82,10 +173,9 @@ class Build:
 
         self._component_label = "binderhub-build"
 
-    def get_cmd(self):
-        """Get the cmd to run to build the image"""
-        cmd = [
-            'jupyter-repo2docker',
+    def get_r2d_cmd_options(self):
+        """Get options/flags for repo2docker"""
+        r2d_options = [
             '--ref', self.ref,
             '--image', self.image_name,
             '--no-clean', '--no-run', '--json-logs',
@@ -93,14 +183,22 @@ class Build:
             '--user-id', '1000',
         ]
         if self.appendix:
-            cmd.extend(['--appendix', self.appendix])
+            r2d_options.extend(['--appendix', self.appendix])
 
         if self.push_secret:
-            cmd.append('--push')
+            r2d_options.append('--push')
 
         if self.memory_limit:
-            cmd.append('--build-memory-limit')
-            cmd.append(str(self.memory_limit))
+            r2d_options.append('--build-memory-limit')
+            r2d_options.append(str(self.memory_limit))
+
+        return r2d_options
+
+    def get_cmd(self):
+        """Get the cmd to run to build the image"""
+        cmd = [
+            'jupyter-repo2docker',
+        ] + self.get_r2d_cmd_options()
 
         # repo_url comes at the end, since otherwise our arguments
         # might be mistook for commands to run.
@@ -166,9 +264,11 @@ class Build:
             app_log.info("Deleted %i/%i build pods", deleted, len(builds))
         app_log.debug("Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1))
 
-    def progress(self, kind, obj):
-        """Put the current action item into the queue for execution."""
-        self.main_loop.add_callback(self.q.put, {'kind': kind, 'payload': obj})
+    def progress(self, kind: ProgressEvent.Kind, payload: str):
+        """
+        Put current progress info into the queue on the main thread
+        """
+        self.main_loop.add_callback(self.q.put, ProgressEvent(kind, payload))
 
     def get_affinity(self):
         """Determine the affinity term for the build pod.
@@ -237,7 +337,12 @@ class Build:
         return affinity
 
     def submit(self):
-        """Submit a build pod to create the image for the repository."""
+        """
+        Submit a build pod to create the image for the repository.
+
+        Progress of the build can be monitored by listening for items in
+        the Queue passed to the constructor as `q`.
+        """
         volume_mounts = [
             client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
         ]
@@ -248,9 +353,9 @@ class Build:
         )]
 
         if self.push_secret:
-            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-push-secret'))
+            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-config'))
             volumes.append(client.V1Volume(
-                name='docker-push-secret',
+                name='docker-config',
                 secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
             ))
 
@@ -334,11 +439,31 @@ class Build:
                     _request_timeout=KUBE_REQUEST_TIMEOUT,
                 ):
                     if f['type'] == 'DELETED':
-                        self.progress('pod.phasechange', 'Deleted')
+                        # Assume this is a successful completion
+                        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
                         return
                     self.pod = f['object']
                     if not self.stop_event.is_set():
-                        self.progress('pod.phasechange', self.pod.status.phase)
+                        # Account for all the phases kubernetes pods can be in
+                        # Pending, Running, Succeeded, Failed, Unknown
+                        # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
+                        phase = self.pod.status.phase
+                        if phase == 'Pending':
+                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.PENDING)
+                        elif phase == 'Running':
+                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
+                        elif phase == 'Succeeded':
+                            # Do nothing! We will clean this up, and send a 'Completed' progress event
+                            # when the pod has been deleted
+                            pass
+                        elif phase == 'Failed':
+                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.FAILED)
+                        elif phase == 'Unknown':
+                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.UNKNOWN)
+                        else:
+                            # This shouldn't happen, unless k8s introduces new Phase types
+                            warnings.warn(f"Found unknown phase {phase} when building {self.name}")
+
                     if self.pod.status.phase == 'Succeeded':
                         self.cleanup()
                     elif self.pod.status.phase == 'Failed':
@@ -353,7 +478,9 @@ class Build:
                 return
 
     def stream_logs(self):
-        """Stream a pod's logs"""
+        """
+        Stream build logs to the queue in self.q
+        """
         app_log.info("Watching logs of %s", self.name)
         for line in self.api.read_namespaced_pod_log(
             self.name,
@@ -382,12 +509,14 @@ class Build:
                     'message': line,
                 })
 
-            self.progress('log', line)
+            self.progress(ProgressEvent.Kind.LOG_MESSAGE, line)
         else:
             app_log.info("Finished streaming logs of %s", self.name)
 
     def cleanup(self):
-        """Delete a kubernetes pod."""
+        """
+        Delete the kubernetes build pod
+        """
         try:
             self.api.delete_namespaced_pod(
                 name=self.name,
@@ -403,7 +532,9 @@ class Build:
                 raise
 
     def stop(self):
-        """Stop watching a build"""
+        """
+        Stop wathcing for progress of build.
+        """
         self.stop_event.set()
 
 class FakeBuild(Build):
@@ -411,7 +542,7 @@ class FakeBuild(Build):
     Fake Building process to be able to work on the UI without a running Minikube.
     """
     def submit(self):
-        self.progress('pod.phasechange', 'Running')
+        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
         return
 
     def stream_logs(self):
@@ -421,7 +552,7 @@ class FakeBuild(Build):
             if self.stop_event.is_set():
                 app_log.warning("Stopping logs of %s", self.name)
                 return
-            self.progress('log',
+            self.progress(ProgressEvent.Kind.LOG_MESSAGE,
                 json.dumps({
                     'phase': phase,
                     'message': f"{phase}...\n",
@@ -438,7 +569,7 @@ class FakeBuild(Build):
                     'message': f"Step {i+1}/10\n",
                 })
             )
-        self.progress('pod.phasechange', 'Succeeded')
+        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
         self.progress('log', json.dumps({
                 'phase': 'Deleted',
                 'message': f"Deleted...\n",

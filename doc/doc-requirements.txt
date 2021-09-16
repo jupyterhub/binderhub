@@ -9,6 +9,7 @@
 # environment, which it is on ReadTheDocs.
 
 # Documentation specific packages
+https://github.com/jupyterhub/autodoc-traits/archive/HEAD.zip
 myst-parser
 pydata-sphinx-theme
 sphinx-copybutton

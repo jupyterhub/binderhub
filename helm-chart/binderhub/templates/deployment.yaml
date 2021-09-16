@@ -24,10 +24,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
         {{- with .Values.deployment.labels }}
-        # Because toYaml + indent is super flaky
-        {{- range $key, $value := .Values.deployment.labels }}
-        {{ $key }}: {{ $value | quote }}
-        {{- end }}
+        {{- . | toYaml | trimSuffix "\n" | nindent 8 }}
         {{- end }}
       annotations:
         # This lets us autorestart when the configmap changes!
@@ -55,7 +52,7 @@ spec:
       {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
-          secretName: binder-push-secret
+          secretName: binder-build-docker-config
       {{- else }}
       - name: docker-socket
         hostPath:
@@ -70,6 +67,10 @@ spec:
         args:
           - --config
           - /etc/binderhub/config/binderhub_config.py
+        {{- with .Values.lifecycle }}
+        lifecycle:
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
@@ -97,8 +98,8 @@ spec:
         - name: JUPYTERHUB_API_TOKEN
           valueFrom:
             secretKeyRef:
-              name: binder-secret
-              key: "binder.hub-token"
+              name: "{{ include "jupyterhub.hub.fullname" . }}"
+              key: hub.services.binder.apiToken
         {{- if .Values.config.BinderHub.auth_enabled }}
         - name: JUPYTERHUB_API_URL
           value: {{ (print (.Values.config.BinderHub.hub_url_local | default .Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
@@ -116,7 +117,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- with .Values.extraEnv }}
-        {{- . | toYaml | nindent 8 }}
+        {{- include "jupyterhub.extraEnv" . | nindent 8 }}
         {{- end }}
         ports:
           - containerPort: 8585

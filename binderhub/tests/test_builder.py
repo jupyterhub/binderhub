@@ -1,7 +1,21 @@
 import pytest
 
-from binderhub.builder import _generate_build_name
+from binderhub.builder import _generate_build_name, _get_image_basename_and_tag
 
+
+@pytest.mark.parametrize("fullname,basename,tag", [
+    ("jupyterhub/k8s-binderhub:0.2.0-a2079a5", "jupyterhub/k8s-binderhub", "0.2.0-a2079a5"),
+    ("jupyterhub/jupyterhub", "jupyterhub/jupyterhub", "latest"),
+    ("gcr.io/project/image:tag", "project/image", "tag"),
+    ("weirdregistry.com/image:tag", "image", "tag"),
+    ("gitlab-registry.example.com/group/project:some-tag", "group/project", "some-tag"),
+    ("gitlab-registry.example.com/group/project/image:latest", "group/project/image", "latest"),
+    ("gitlab-registry.example.com/group/project/my/image:rc1", "group/project/my/image", "rc1")
+])
+def test_image_basename_resolution(fullname, basename, tag):
+    result_basename, result_tag = _get_image_basename_and_tag(fullname)
+    assert result_basename == basename
+    assert result_tag == tag
 
 @pytest.mark.parametrize('ref,build_slug', [
     # a long ref, no special characters at critical positions

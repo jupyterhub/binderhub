@@ -12,7 +12,7 @@ from binderhub.registry import DockerRegistry
 
 def test_registry_defaults(tmpdir):
     registry = DockerRegistry(docker_config_path=str(tmpdir.join("doesntexist.json")))
-    assert registry.url == "https://registry.hub.docker.com"
+    assert registry.url == "https://registry-1.docker.io"
     assert registry.auth_config_url == "https://index.docker.io/v1"
     assert (
         registry.token_url == "https://auth.docker.io/token?service=registry.docker.io"
@@ -37,7 +37,7 @@ def test_registry_username_password(tmpdir):
     registry = DockerRegistry(docker_config_path=str(config_json))
     assert registry.username == "user"
     assert registry.password == "pass"
-    assert registry.url == "https://registry.hub.docker.com"
+    assert registry.url == "https://registry-1.docker.io"
 
 
 def test_registry_gcr_defaults(tmpdir):

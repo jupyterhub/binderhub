@@ -29,8 +29,8 @@ jobs:
       - name: Install chart publishing dependencies (chartpress, helm)
         run: |
           . ./ci/common
-          setup_helm v3.4.1
-          pip install --no-cache-dir chartpress==1.0.*
+          setup_helm v3.5.4
+          pip install --no-cache-dir chartpress>=1.2 pyyaml
 
       - name: Setup push rights to jupyterhub/helm-chart
         # This was setup by...
@@ -74,4 +74,5 @@ jobs:
         env:
           GITHUB_REPOSITORY: "${{ github.repository }}"
         run: |
+          ./tools/generate-json-schema.py
           ./ci/publish

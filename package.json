@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "description": "`BinderHub`",
   "devDependencies": {
+    "css-loader": "^6.2.0",
+    "event-source-polyfill": "^0.0.12",
+    "mini-css-extract-plugin": "^2.3.0",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0"
+  },
+  "dependencies": {
     "bootstrap": "^3.4.0",
     "clipboard": "^1.7.1",
-    "css-loader": "^0.28.7",
-    "event-source-polyfill": "^0.0.12",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.6",
     "jquery": "^3.2.1",
-    "style-loader": "^0.19.1",
-    "webpack": "^3.10.0",
+    "null-loader": "^4.0.1",
     "xterm": "^2.9.2"
   },
   "scripts": {

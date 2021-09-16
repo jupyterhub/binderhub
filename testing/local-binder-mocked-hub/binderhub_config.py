@@ -7,12 +7,15 @@
 # - JupyterHub: mocked
 
 from binderhub.repoproviders import FakeProvider
+from binderhub.registry import FakeRegistry
+from binderhub.build import FakeBuild
 
 c.BinderHub.debug = True
-c.BinderHub.use_registry = False
+c.BinderHub.use_registry = True
+c.BinderHub.registry_class = FakeRegistry
 c.BinderHub.builder_required = False
 c.BinderHub.repo_providers = {'gh': FakeProvider}
-c.BinderHub.tornado_settings.update({'fake_build': True})
+c.BinderHub.build_class = FakeBuild
 
 c.BinderHub.about_message = "<blink>Hello world.</blink>"
 c.BinderHub.banner_message = 'This is headline <a href="#">news.</a>'

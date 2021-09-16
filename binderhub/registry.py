@@ -11,7 +11,7 @@ from tornado.httputil import url_concat
 from traitlets.config import LoggingConfigurable
 from traitlets import Dict, Unicode, default
 
-DEFAULT_DOCKER_REGISTRY_URL = "https://registry.hub.docker.com"
+DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
 DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"
 
 
@@ -128,7 +128,7 @@ class DockerRegistry(LoggingConfigurable):
         url = urlparse(self.url)
         if ("." + url.hostname).endswith(".gcr.io"):
             return "https://{0}/v2/token?service={0}".format(url.hostname)
-        elif self.url.endswith(".docker.com"):
+        elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
             # is gcr.io's token url common? If so, it might be worth defaulting
@@ -191,7 +191,10 @@ class DockerRegistry(LoggingConfigurable):
         # first, get a token to perform the manifest request
         if self.token_url:
             auth_req = httpclient.HTTPRequest(
-                url_concat(self.token_url, {"scope": "repository:{}:pull".format(image)}),
+                url_concat(self.token_url, {
+                    "scope": "repository:{}:pull".format(image),
+                    "service": "container_registry"
+                }),
                 auth_username=self.username,
                 auth_password=self.password,
             )
@@ -223,3 +226,11 @@ class DockerRegistry(LoggingConfigurable):
                 raise
         else:
             return json.loads(resp.body.decode("utf-8"))
+
+class FakeRegistry(DockerRegistry):
+    """
+    Fake registry that contains no images
+    """
+
+    async def get_image_manifest(self, image, tag):
+        return None

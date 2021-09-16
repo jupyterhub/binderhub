@@ -1,11 +1,17 @@
 beautifulsoup4
-chartpress==1.0.*
+chartpress>=1.2
 click
 codecov
 html5lib
+jsonschema
 jupyterhub
 pytest
 pytest-asyncio
 pytest-cov
+# pyyaml is used by the scripts in tools/ and could absolutely be replaced by
+# using ruamel.yaml. ruamel.yaml is more powerful than pyyaml, and that is
+# relevant when writing YAML files back after having loaded them from disk.
+pyyaml
+jupyter-repo2docker>=2021.08.0
 requests
 ruamel.yaml>=0.15

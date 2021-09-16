@@ -4,17 +4,6 @@
 <meta id="base-url" data-url="{{base_url}}">
 <meta id="badge-base-url" data-url="{{badge_base_url}}">
 <script src="{{static_url("dist/bundle.js")}}"></script>
-
-
-<!-- Social media previews -->
-<meta property="og:title" content="The Binder Project">
-<meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
-<meta property="og:description" content="Reproducible, sharable, interactive computing environments.">
-<meta property="og:image:width" content="1334">
-<meta property="og:image:height" content="700">
-<meta property="og:image:alt" content="The Binder Project Logo" />
-<meta name="twitter:card" content="summary_large_image">
-
 {{ super() }}
 {% endblock head %}
 
@@ -37,9 +26,9 @@
       {% block form %}
       <form id="build-form" class="form jumbotron">
         <h4 id="form-header" class='row'>Build and launch a repository</h4>
-        <input type="hidden" id="provider_prefix" value="gh"/>
+        <input type="hidden" id="provider_prefix" value="{{repo_providers.keys() | list | first}}"/> 
         <div class="form-group row">
-          <label for="repository">Git repository URL (github.com, gitlab.com or self-host)</label>
+          <label for="repository">{{(repo_providers.values() | list | first).labels.text}}</label>
           <div class="input-group">
             <div class="input-group-btn" id="url-type-btn">
               <button type="button" class="btn btn-secondary dropdown-toggle"
@@ -47,34 +36,29 @@
                 title="Specify source of repository"
               >
               <span id="provider_prefix-selected">
-              GitHub
+                {{(repo_providers.values() | list | first).display_name}}
               </span>
               <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" id="provider_prefix_sel">
-                <li class="dropdown-item" value="gh"><a href="#">GitHub</a></li>
-                <li class="dropdown-item" value="gist"><a href="#">Gist</a></li>
-                <li class="dropdown-item" value="gl"><a href="#">GitLab.com</a></li>
-                <li class="dropdown-item" value="git"><a href="#">Git repository</a></li>
-                <li class="dropdown-item" value="zenodo"><a href="#">Zenodo DOI</a></li>
-                <li class="dropdown-item" value="figshare"><a href="#">Figshare DOI</a></li>
-                <li class="dropdown-item" value="hydroshare"><a href="#">Hydroshare resource</a></li>
-                <li class="dropdown-item" value="dataverse"><a href="#">Dataverse DOI</a></li>
+                {% for provider_prefix, provider in repo_providers.items() %}
+                  <li class="dropdown-item" value={{provider_prefix}}><a href="#">{{provider.display_name}}</a></li>
+                {% endfor %}
               </ul>
             </div>
-            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="GitHub repository name or link"/>
+            <input class="form-control" type="text" id="repository" data-lpignore="true" placeholder="{{(repo_providers.values() | list | first).labels.text}}"/>
           </div>
         </div>
         <div class="form-row row">
           <div class="form-group col-md-4">
-            <label for="ref">Git branch, tag, or commit</label>
-            <input class="form-control" type="text" id="ref" placeholder="master"/>
+            <label for="ref">{{(repo_providers.values() | list | first).labels.tag_text}}</label>
+            <input class="form-control" type="text" id="ref" placeholder="HEAD"/>
           </div>
           <div class="form-group col-md-6">
-            <label for="filepath"></label>
+            <label for="filepath">Path to a notebook file (optional)</label>
             <div class="input-group">
               <input class="form-control" type="text" id="filepath"
-                placeholder=""
+                placeholder="Path to a notebook file (optional)"
               />
               <div class="input-group-btn" id="url-or-file-btn">
                 <button type="button" class="btn btn-secondary dropdown-toggle"
@@ -107,14 +91,15 @@
               <label>Copy the URL below and share your Binder with others:</label>
             </div>
             <div class="url-row">
-              <pre id="basic-url-snippet" data-default="Fill in the fields to see a URL for sharing your Binder."></pre>
+              <pre id="basic-url-snippet" data-default="Fill in the fields to see a URL for sharing your Binder."
+              >Fill in the fields to see a URL for sharing your Binder.</pre>
               <img class="icon clipboard" src="{{static_url("images/copy-icon-black.svg")}}" data-clipboard-target="#basic-url-snippet" alt="Copy to clipboard">
             </div>
         </div>
 
         <div class="badges row">
             <div class="dropdownmenu" id="toggle-badge-snippet">
-              <label>Copy the text below, then paste into your README to show a binder badge: <img id="badge" src="{{static_url("images/badge_logo.svg")}}"></label>
+              <label>Expand to see the text below, paste it into your README to show a binder badge: <img id="badge" src="{{static_url("images/badge_logo.svg")}}"></label>
               <a id="badge-link"></a>
               <a href="#" title="show badge snippets"><span id="badge-snippet-caret" class="glyphicon glyphicon-triangle-right"></span></a>
             </div>
@@ -163,7 +148,8 @@
         <div id="log-container" class="panel panel-default on-build hidden row">
           <div id="toggle-logs" class="panel-heading">
             Build logs
-            <button type="button" class="btn btn-link btn-xs pull-right">show</button>
+            <button type="button" class="btn btn-link btn-xs pull-right toggle">show</button>
+            <a id="view-raw-logs" class="btn btn-link btn-xs pull-right" target="_blank">view raw</a>
           </div>
           <div class="panel-body hidden">
             <div id="log"></div>

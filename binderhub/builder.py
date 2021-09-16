@@ -7,6 +7,7 @@ import hashlib
 from http.client import responses
 import json
 import string
+import re
 import time
 import escapism
 
@@ -21,7 +22,7 @@ from tornado.log import app_log
 from prometheus_client import Counter, Histogram, Gauge
 
 from .base import BaseHandler
-from .build import Build, FakeBuild
+from .build import ProgressEvent
 from .utils import KUBE_REQUEST_TIMEOUT
 
 # Separate buckets for builds and launches.
@@ -53,6 +54,30 @@ LAUNCH_COUNT = Counter(
 )
 BUILDS_INPROGRESS = Gauge('binderhub_inprogress_builds', 'Builds currently in progress')
 LAUNCHES_INPROGRESS = Gauge('binderhub_inprogress_launches', 'Launches currently in progress')
+
+
+def _get_image_basename_and_tag(full_name):
+    """Get a supposed image name and tag without the registry part
+    :param full_name: full image specification, e.g. "gitlab.com/user/project:tag"
+    :return: tuple of image name and tag, e.g. ("user/project", "tag")
+    """
+    # the tag is either after the last (and only) colon, or not given at all,
+    # in which case "latest" is implied
+    tag_splits = full_name.rsplit(':', 1)
+    if len(tag_splits) == 2:
+        image_name = tag_splits[0]
+        tag = tag_splits[1]
+    else:
+        image_name = full_name
+        tag = 'latest'
+
+    if re.fullmatch('[a-z0-9]{4,40}/[a-z0-9._-]{2,255}', image_name):
+        # if it looks like a Docker Hub image name, we're done
+        return image_name, tag
+    # if the image isn't implied to origin at Docker Hub,
+    # the first part has to be a registry
+    image_basename = '/'.join(image_name.split('/')[1:])
+    return image_basename, tag
 
 
 def _generate_build_name(build_slug, ref, prefix='', limit=63, ref_length=6):
@@ -214,6 +239,11 @@ class BuildHandler(BaseHandler):
         prefix = '/build/' + provider_prefix
         spec = self.get_spec_from_request(prefix)
 
+        # verify the build token and rate limit
+        build_token = self.get_argument("build_token", None)
+        self.check_build_token(build_token, f"{provider_prefix}/{spec}")
+        self.check_rate_limit()
+
         # Verify if the provider is valid for EventSource.
         # EventSource cannot handle HTTP errors, so we must validate and send
         # error messages on the eventsource.
@@ -310,7 +340,7 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             for _ in range(3):
                 try:
-                    image_manifest = await self.registry.get_image_manifest(*'/'.join(image_name.split('/')[-2:]).split(':', 1))
+                    image_manifest = await self.registry.get_image_manifest(*_get_image_basename_and_tag(image_name))
                     image_found = bool(image_manifest)
                     break
                 except HTTPClientError:
@@ -328,9 +358,6 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
-        # Launch a notebook server if the image already is built
-        kube = self.settings['kubernetes_client']
-
         if image_found:
             await self.emit({
                 'phase': 'built',
@@ -338,25 +365,32 @@ class BuildHandler(BaseHandler):
                 'message': 'Found built image, launching...\n'
             })
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
-                'provider': provider.name,
-                'spec': spec,
-                'ref': ref,
-                'status': 'success',
-                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
-            })
+                await self.launch(provider)
+            self.event_log.emit(
+                "binderhub.jupyter.org/launch",
+                5,
+                {
+                    "provider": provider.name,
+                    "spec": spec,
+                    "ref": ref,
+                    "status": "success",
+                    "build_token": self._have_build_token,
+                    "origin": self.settings["normalized_origin"]
+                    if self.settings["normalized_origin"]
+                    else self.request.host,
+                },
+            )
             return
 
         # Prepare to build
         q = Queue()
 
-        if self.settings['use_registry']:
+        if self.settings['use_registry'] or self.settings['build_docker_config']:
             push_secret = self.settings['push_secret']
         else:
             push_secret = None
 
-        BuildClass = FakeBuild if self.settings.get('fake_build') else Build
+        BuildClass = self.settings.get('build_class')
 
         appendix = self.settings['appendix'].format(
             binder_url=self.binder_launch_host + self.binder_request,
@@ -367,7 +401,8 @@ class BuildHandler(BaseHandler):
 
         self.build = build = BuildClass(
             q=q,
-            api=kube,
+            # api object can be None if we are using FakeBuild
+            api=self.settings.get("kubernetes_client"),
             name=build_name,
             namespace=self.settings["build_namespace"],
             repo_url=repo_url,
@@ -408,31 +443,33 @@ class BuildHandler(BaseHandler):
 
                 # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
                 # whatever, we should fail properly.
-                if progress['kind'] == 'pod.phasechange':
-                    if progress['payload'] == 'Pending':
+                if progress.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE:
+                    if progress.payload == ProgressEvent.BuildStatus.PENDING:
                         # nothing to do, just waiting
                         continue
-                    elif progress['payload'] == 'Deleted':
+                    elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
                         event = {
                             'phase': 'built',
                             'message': 'Built image, launching...\n',
                             'imageName': image_name,
                         }
                         done = True
-                    elif progress['payload'] == 'Running':
+                    elif progress.payload == ProgressEvent.BuildStatus.RUNNING:
                         # start capturing build logs once the pod is running
                         if log_future is None:
                             log_future = pool.submit(build.stream_logs)
                         continue
-                    elif progress['payload'] == 'Succeeded':
+                    elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
                         # Do nothing, is ok!
                         continue
-                    else:
-                        # FIXME: message? debug?
-                        event = {'phase': progress['payload']}
-                elif progress['kind'] == 'log':
-                    # We expect logs to be already JSON structured anyway
-                    event = progress['payload']
+                    elif progress.payload == ProgressEvent.BuildStatus.FAILED:
+                        event = {'phase': 'failure'}
+                    elif progress.payload == ProgressEvent.BuildStatus.UNKNOWN:
+                        event = {'phase': 'unknown'}
+                elif progress.kind == ProgressEvent.Kind.LOG_MESSAGE:
+                    # The logs are coming out of repo2docker, so we expect
+                    # them to be JSON structured anyway
+                    event = progress.payload
                     payload = json.loads(event)
                     if payload.get('phase') in ('failure', 'failed'):
                         failed = True
@@ -446,14 +483,21 @@ class BuildHandler(BaseHandler):
             BUILD_TIME.labels(status='success').observe(time.perf_counter() - build_starttime)
             BUILD_COUNT.labels(status='success', **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(kube, provider)
-            self.event_log.emit('binderhub.jupyter.org/launch', 4, {
-                'provider': provider.name,
-                'spec': spec,
-                'ref': ref,
-                'status': 'success',
-                'origin': self.settings['normalized_origin'] if self.settings['normalized_origin'] else self.request.host
-            })
+                await self.launch(provider)
+            self.event_log.emit(
+                "binderhub.jupyter.org/launch",
+                5,
+                {
+                    "provider": provider.name,
+                    "spec": spec,
+                    "ref": ref,
+                    "status": "success",
+                    "build_token": self._have_build_token,
+                    "origin": self.settings["normalized_origin"]
+                    if self.settings["normalized_origin"]
+                    else self.request.host,
+                },
+            )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
@@ -465,7 +509,7 @@ class BuildHandler(BaseHandler):
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
 
-    async def launch(self, kube, provider):
+    async def launch(self, provider):
         """Ask JupyterHub to launch the image."""
         # Load the spec-specific configuration if it has been overridden
         repo_config = provider.repo_config(self.settings)
@@ -475,45 +519,46 @@ class BuildHandler(BaseHandler):
         # if we added annotations/labels with the repo name via KubeSpawner
         # we could do this better
         image_no_tag = self.image_name.rsplit(':', 1)[0]
-        matching_pods = 0
-        total_pods = 0
-
-        # TODO: run a watch to keep this up to date in the background
-        pool = self.settings['executor']
-        f = pool.submit(
-            kube.list_namespaced_pod,
-            self.settings["build_namespace"],
-            label_selector='app=jupyterhub,component=singleuser-server',
-            _request_timeout=KUBE_REQUEST_TIMEOUT,
-            _preload_content=False,
-        )
-        resp = await asyncio.wrap_future(f)
-        pods = json.loads(resp.read())
-        for pod in pods["items"]:
-            total_pods += 1
-            for container in pod["spec"]["containers"]:
-                # is the container running the same image as us?
-                # if so, count one for the current repo.
-                image = container["image"].rsplit(":", 1)[0]
-                if image == image_no_tag:
-                    matching_pods += 1
-                    break
 
         # TODO: put busy users in a queue rather than fail?
         # That would be hard to do without in-memory state.
         quota = repo_config.get('quota')
-        if quota and matching_pods >= quota:
-            app_log.error("%s has exceeded quota: %s/%s (%s total)",
-                self.repo_url, matching_pods, quota, total_pods)
-            await self.fail("Too many users running %s! Try again soon." % self.repo_url)
-            return
+        if quota:
+            # Fetch info on currently running users *only* if quotas are set
+            matching_pods = 0
+            total_pods = 0
 
-        if quota and matching_pods >= 0.5 * quota:
-            log = app_log.warning
-        else:
-            log = app_log.info
-        log("Launching pod for %s: %s other pods running this repo (%s total)",
-            self.repo_url, matching_pods, total_pods)
+            # TODO: run a watch to keep this up to date in the background
+            f = self.settings['executor'].submit(
+                self.settings['kubernetes_client'].list_namespaced_pod,
+                self.settings['build_namespace'],
+                label_selector='app=jupyterhub,component=singleuser-server',
+                _request_timeout=KUBE_REQUEST_TIMEOUT,
+                _preload_content=False,
+            )
+            resp = await asyncio.wrap_future(f)
+            pods = json.loads(resp.read())
+            for pod in pods["items"]:
+                total_pods += 1
+                for container in pod["spec"]["containers"]:
+                    # is the container running the same image as us?
+                    # if so, count one for the current repo.
+                    image = container["image"].rsplit(":", 1)[0]
+                    if image == image_no_tag:
+                        matching_pods += 1
+                        break
+            if matching_pods >= quota:
+                app_log.error("%s has exceeded quota: %s/%s (%s total)",
+                    self.repo_url, matching_pods, quota, total_pods)
+                await self.fail("Too many users running %s! Try again soon." % self.repo_url)
+                return
+
+            if matching_pods >= 0.5 * quota:
+                log = app_log.warning
+            else:
+                log = app_log.info
+            log("Launching pod for %s: %s other pods running this repo (%s total)",
+                self.repo_url, matching_pods, total_pods)
 
         await self.emit({
             'phase': 'launching',

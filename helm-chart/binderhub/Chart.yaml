@@ -1,4 +1,32 @@
-apiVersion: v1
-description: A helm chart to install Binder
+# Chart.yaml v2 reference: https://helm.sh/docs/topics/charts/#the-chartyaml-file
+apiVersion: v2
 name: binderhub
-version: 0.2.0
+version: 0.2.0-set.by.chartpress
+dependencies:
+  # Source code:    https://github.com/jupyterhub/zero-to-jupyterhub-k8s
+  # Latest version: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tags
+  # App changelog:  https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tree/HEAD/CHANGELOG.md
+  #
+  # Important: Whenever you bump the jupyterhub Helm chart version, also inspect
+  #            the helm-chart/images/binderhub pinned version in requirements.in
+  #            and run "./dependencies freeze --upgrade".
+  #
+  - name: jupyterhub
+    version: "1.1.2"
+    repository: "https://jupyterhub.github.io/helm-chart"
+description: |-
+  BinderHub is like a JupyterHub that automatically builds environments for the
+  users based on repo2docker. A BinderHub is by default not configured to
+  authenticate users or provide storage for them.
+keywords: [jupyter, jupyterhub, binderhub]
+home: https://binderhub.readthedocs.io/en/latest/
+sources: [https://github.com/jupyterhub/binderhub]
+icon: https://jupyter.org/assets/hublogo.svg
+kubeVersion: ">=1.17.0-0"
+maintainers:
+  # Since it is a requirement of Artifact Hub to have specific maintainers
+  # listed, we have added some below, but in practice the entire JupyterHub team
+  # contributes to the maintenance of this Helm chart. Please go ahead and add
+  # yourself!
+  - name: Erik Sundell
+    email: erik@sundellopensource.se

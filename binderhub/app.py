@@ -7,6 +7,8 @@ import json
 import logging
 import os
 import re
+import secrets
+from binascii import a2b_hex
 from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from urllib.parse import urlparse
@@ -23,11 +25,13 @@ from tornado.log import app_log
 import tornado.web
 from traitlets import (
     Bool,
+    Bytes,
     Dict,
     Integer,
     TraitError,
     Unicode,
     Union,
+    Type,
     default,
     observe,
     validate,
@@ -39,10 +43,13 @@ from jupyterhub.traitlets import Callable
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
+from .config import ConfigHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
-from .registry import DockerRegistry
+from .ratelimit import RateLimiter
+from .repoproviders import RepoProvider
+from .registry import DockerRegistry, FakeRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,
@@ -186,6 +193,21 @@ class BinderHub(Application):
             proposal.value = proposal.value + '/'
         return proposal.value
 
+    cors_allow_origin = Unicode(
+        "",
+        help="""
+        Origins that can access the BinderHub API.
+
+        Sets the Access-Control-Allow-Origin header in the spawned
+        notebooks. Set to '*' to allow any origin to access spawned
+        notebook servers.
+
+        See also BinderSpawner.cors_allow_origin in the binderhub spawner
+        mixin for setting this property on the spawned notebooks.
+        """,
+        config=True
+    )
+
     auth_enabled = Bool(
         False,
         help="""If JupyterHub authentication enabled,
@@ -243,6 +265,26 @@ class BinderHub(Application):
         config=True
     )
 
+    build_class = Type(
+        Build,
+        help="""
+        The class used to build repo2docker images.
+        
+        Must inherit from binderhub.build.Build
+        """,
+        config=True
+    )
+
+    registry_class = Type(
+        DockerRegistry,
+        help="""
+        The class used to Query a Docker registry.
+
+        Must inherit from binderhub.registry.DockerRegistry
+        """,
+        config=True
+    )
+
     per_repo_quota = Integer(
         0,
         help="""
@@ -295,7 +337,7 @@ class BinderHub(Application):
     )
 
     push_secret = Unicode(
-        'binder-push-secret',
+        'binder-build-docker-config',
         allow_none=True,
         help="""
         A kubernetes secret object that provides credentials for pushing built images.
@@ -373,6 +415,22 @@ class BinderHub(Application):
             raise TraitError("Only unix domain sockets on same node are supported for build_docker_host")
         return proposal.value
 
+    build_docker_config = Dict(
+        None,
+        allow_none=True,
+        help="""
+        A dict which will be merged into the .docker/config.json of the build container (repo2docker)
+        Here, you could for example pass proxy settings as described here:
+        https://docs.docker.com/network/proxy/#configure-the-docker-client
+
+        Note: if you provide your own push_secret, this values wont
+        have an effect, as the push_secrets will overwrite
+        .docker/config.json
+        In this case, make sure that you include your config in your push_secret
+        """,
+        config=True
+    )
+
     hub_api_token = Unicode(
         help="""API token for talking to the JupyterHub API""",
         config=True,
@@ -412,7 +470,6 @@ class BinderHub(Application):
         return proposal.value
 
     build_namespace = Unicode(
-        'default',
         help="""
         Kubernetes namespace to spawn build pods in.
 
@@ -420,9 +477,12 @@ class BinderHub(Application):
         """,
         config=True
     )
+    @default('build_namespace')
+    def _default_build_namespace(self):
+        return os.environ.get('BUILD_NAMESPACE', 'default')
 
     build_image = Unicode(
-        'jupyter/repo2docker:2021.01.0',
+        'quay.io/jupyterhub/repo2docker:2021.08.0',
         help="""
         The repo2docker image to be used for doing builds
         """,
@@ -453,6 +513,18 @@ class BinderHub(Application):
         List of Repo Providers to register and try
         """
     )
+
+    @validate('repo_providers')
+    def _validate_repo_providers(self, proposal):
+        """trait validator to ensure there is at least one repo provider"""
+        if not proposal.value:
+            raise TraitError("Please provide at least one repo provider")
+
+        if any([not issubclass(provider, RepoProvider) for provider in proposal.value.values()]):
+            raise TraitError("Repository providers should inherit from 'binderhub.RepoProvider'")
+
+        return proposal.value
+
     concurrent_build_limit = Integer(
         32,
         config=True,
@@ -463,7 +535,7 @@ class BinderHub(Application):
         config=True,
         help="""The number of threads to use for blocking calls
 
-        Should generaly be a small number because we don't
+        Should generally be a small number because we don't
         care about high concurrency here, just not blocking the webserver.
         This executor is not used for long-running tasks (e.g. builds).
         """,
@@ -482,6 +554,51 @@ class BinderHub(Application):
         will be killed.
         """
     )
+
+    build_token_check_origin = Bool(
+        True,
+        config=True,
+        help="""Whether to validate build token origin.
+
+        False disables the origin check.
+        """
+    )
+
+    build_token_expires_seconds = Integer(
+        300,
+        config=True,
+        help="""Expiry (in seconds) of build tokens
+
+        These are generally only used to authenticate a single request
+        from a page, so should be short-lived.
+        """,
+    )
+
+    build_token_secret = Union(
+        [Unicode(), Bytes()],
+        config=True,
+        help="""Secret used to sign build tokens
+
+        Lightweight validation of same-origin requests
+        """,
+    )
+
+    @validate("build_token_secret")
+    def _validate_build_token_secret(self, proposal):
+        if isinstance(proposal.value, str):
+            # allow hex string for text-only input formats
+            return a2b_hex(proposal.value)
+        return proposal.value
+
+    @default("build_token_secret")
+    def _default_build_token_secret(self):
+        if os.environ.get("BINDERHUB_BUILD_TOKEN_SECRET"):
+            return a2b_hex(os.environ["BINDERHUB_BUILD_TOKEN_SECRET"])
+        app_log.warning(
+            "Generating random build token secret."
+            " Set BinderHub.build_token_secret to avoid this warning."
+        )
+        return secrets.token_bytes(32)
 
     # FIXME: Come up with a better name for it?
     builder_required = Bool(
@@ -628,8 +745,8 @@ class BinderHub(Application):
             FileSystemLoader(template_paths)
         ])
         jinja_env = Environment(loader=loader, **jinja_options)
-        if self.use_registry and self.builder_required:
-            registry = DockerRegistry(parent=self)
+        if self.use_registry:
+            registry = self.registry_class(parent=self)
         else:
             registry = None
 
@@ -661,13 +778,18 @@ class BinderHub(Application):
                 "build_image": self.build_image,
                 "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
+                "build_token_check_origin": self.build_token_check_origin,
+                "build_token_secret": self.build_token_secret,
+                "build_token_expires_seconds": self.build_token_expires_seconds,
                 "sticky_builds": self.sticky_builds,
                 "log_tail_lines": self.log_tail_lines,
                 "pod_quota": self.pod_quota,
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,
                 "repo_providers": self.repo_providers,
+                "rate_limiter": RateLimiter(parent=self),
                 "use_registry": self.use_registry,
+                "build_class": self.build_class,
                 "registry": registry,
                 "traitlets_config": self.config,
                 "google_analytics_code": self.google_analytics_code,
@@ -679,6 +801,7 @@ class BinderHub(Application):
                 "build_memory_limit": self.build_memory_limit,
                 "build_memory_request": self.build_memory_request,
                 "build_docker_host": self.build_docker_host,
+                "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
                 "badge_base_url": self.badge_base_url,
                 "static_path": os.path.join(HERE, "static"),
@@ -692,6 +815,8 @@ class BinderHub(Application):
         )
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
+        if self.cors_allow_origin:
+            self.tornado_settings.setdefault('headers', {})['Access-Control-Allow-Origin'] = self.cors_allow_origin
 
         handlers = [
             (r'/metrics', MetricsHandler),
@@ -728,6 +853,7 @@ class BinderHub(Application):
                 {'path': os.path.join(self.tornado_settings['static_path'], 'images')}),
             (r'/about', AboutHandler),
             (r'/health', HealthHandler, {'hub_url': self.hub_url_local}),
+            (r'/_config', ConfigHandler),
             (r'/', MainHandler),
             (r'.*', Custom404),
         ]

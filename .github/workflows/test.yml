@@ -3,12 +3,17 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [master, main]
-    tags: ["**"]
   workflow_dispatch:
 
-
 jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: check embedded chart code
+        run: ./ci/check_embedded_chart_code.py
+
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
   # in small things. Unfortunately there is no easy way to share steps between
   # jobs or have "template" jobs, so we use `if` conditions on steps
@@ -18,16 +23,14 @@ jobs:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
       matrix:
-        include:
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: main
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: auth
-            - k3s-channel: v1.19
-              helm-version: v3.5.0
-              test: helm
+        k3s-channel:
+        - v1.19
+        helm-version:
+        - v3.5.0
+        test:
+        - main
+        - auth
+        - helm
     steps:
       - uses: actions/checkout@v2
         with:
@@ -55,6 +58,14 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Cache npm
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Run webpack to build static assets
         run: |
             npm install
@@ -64,13 +75,24 @@ jobs:
         with:
           python-version: '3.8'
 
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
+            ${{ runner.os }}-python-
+
+      - name: Update pip
+        run: |
+            pip install --upgrade pip
+            pip install --upgrade setuptools wheel
+
       - name: Setup Python package dependencies
         run: |
-            # Install development requirements, package requirements, and frozen image
-            # requirements, with an increasing priority.
-            pip install -r dev-requirements.txt
-            pip install .
-            pip install -r helm-chart/images/binderhub/requirements.txt
+          pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+          pip install .
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
@@ -89,6 +111,17 @@ jobs:
             helm dependency update ./helm-chart/binderhub
             (cd helm-chart && chartpress)
             git --no-pager diff --color=always
+
+      - name: Generate values.schema.json from schema.yaml
+        if: matrix.test == 'helm'
+        run: |
+          tools/generate-json-schema.py
+
+      - name: "Helm template --validate (with lint-and-validate-values.yaml)"
+        if: matrix.test == 'helm'
+        run: |
+          helm template --validate binderhub-test helm-chart/binderhub \
+              --values tools/templates/lint-and-validate-values.yaml
 
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'

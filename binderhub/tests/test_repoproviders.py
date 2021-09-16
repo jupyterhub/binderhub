@@ -17,7 +17,7 @@ from binderhub.repoproviders import (
     tokenize_spec,
 )
 
-sha1_validate = GitRepoProvider.sha1_validate
+is_valid_sha1 = GitRepoProvider.is_valid_sha1
 
 
 # General string processing
@@ -202,7 +202,7 @@ def test_github_ref(repo, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -396,7 +396,7 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -406,6 +406,42 @@ def test_git_ref(url, unresolved_ref, resolved_ref):
     assert ref_url == full_url
     resolved_spec = IOLoop().run_sync(provider.get_resolved_spec)
     assert resolved_spec == quote(url, safe="") + f"/{ref}"
+
+@pytest.mark.parametrize(
+    "url, unresolved_ref, expected",
+    [
+        (
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+            "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+        ),
+        (
+            "not a repo",
+            "main",
+            ValueError,
+        ),
+        (
+            "ftp://protocol.unsupported",
+            "main",
+            ValueError,
+        ),
+        (
+            "git@github.com:jupyterhub/binderhub",
+            "main",
+            "ssh://git@github.com/jupyterhub/binderhub",
+        ),
+    ],
+)
+def test_git_validate_url(url, unresolved_ref, expected):
+    spec = "{}/{}".format(quote(url, safe=""), quote(unresolved_ref))
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            GitRepoProvider(spec=spec)
+        return
+
+    provider = GitRepoProvider(spec=spec)
+    assert provider.repo == expected
 
 
 @pytest.mark.parametrize(
@@ -428,7 +464,7 @@ def test_gitlab_ref(unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:
@@ -468,7 +504,7 @@ def test_gist_ref(owner, gist_id, unresolved_ref, resolved_ref):
     if resolved_ref == True:
         # True means it should resolve, but don't check value
         assert ref is not None
-        sha1_validate(ref)
+        assert is_valid_sha1(ref)
     else:
         assert ref == resolved_ref
     if not resolved_ref:

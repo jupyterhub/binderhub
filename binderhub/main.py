@@ -1,8 +1,10 @@
 """
 Main handler classes for requests
 """
+import time
 import urllib.parse
 
+import jwt
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
@@ -35,6 +37,7 @@ class MainHandler(BaseHandler):
             google_analytics_code=self.settings['google_analytics_code'],
             google_analytics_domain=self.settings['google_analytics_domain'],
             extra_footer_scripts=self.settings['extra_footer_scripts'],
+            repo_providers=self.settings['repo_providers'],
         )
 
 
@@ -63,7 +66,7 @@ class ParameterizedMainHandler(BaseHandler):
         social_desc = f"{SPEC_NAMES[provider_prefix]}: {spec}"
         nbviewer_url = None
         if provider_prefix == "gh":
-            # we can only produce an nbviewer URL for github right now
+            # We can only produce an nbviewer URL for github right now
             nbviewer_url = 'https://nbviewer.jupyter.org/github'
             org, repo_name, ref = spec.split('/', 2)
             # NOTE: tornado unquotes query arguments too -> notebooks%2Findex.ipynb becomes notebooks/index.ipynb
@@ -92,10 +95,20 @@ class ParameterizedMainHandler(BaseHandler):
             if response.code >= 400:
                 nbviewer_url = None
 
+        build_token = jwt.encode(
+            {
+                "exp": int(time.time()) + self.settings["build_token_expires_seconds"],
+                "aud": provider_spec,
+                "origin": self.token_origin(),
+            },
+            key=self.settings["build_token_secret"],
+            algorithm="HS256",
+        )
         self.render_template(
             "loading.html",
             base_url=self.settings['base_url'],
             badge_base_url=self.get_badge_base_url(),
+            build_token=build_token,
             provider_spec=provider_spec,
             social_desc=social_desc,
             nbviewer_url=nbviewer_url,

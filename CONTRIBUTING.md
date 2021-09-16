@@ -194,6 +194,13 @@ continue.
    (cd helm-chart && chartpress)
    ```
 
+1. Get the chart dependencies (for example JupyterHub)
+
+   ```bash
+   cd helm-chart/binderhub
+   helm dependency update
+   ```
+
 1. Validate, and then install the Helm chart defined in helm-chart/binderhub.
 
    This validation step is not making any modification to your Kubernetes
@@ -208,6 +215,8 @@ continue.
    ```
 
    If the validation succeeds, go ahead and upgrade/install the Helm chart.
+
+   Note that this will do the installation in the current namespace.
 
    ```bash
    helm upgrade --install binderhub-test helm-chart/binderhub \
@@ -330,7 +339,7 @@ VM underneath.
 This git repository contains `pytest` based tests that you can run locally.
 Depending on your development setup, you may want to run different kind of
 tests. You can get some hints on what tests to run and how by inspecting
-`.travis.yaml`.
+`.github`.
 
 ### Environment variables influencing tests
 - `BINDER_URL`: An address of an already running BinderHub as reachable from the
@@ -356,7 +365,7 @@ These are tasks that BinderHub maintainers perform.
 
 The BinderHub Helm chart depends on the [JupyterHub Helm
 chart](https://jupyterhub.github.io/helm-chart/), and its version is pinned
-within `helm-chart/binderhub/requirements.yaml`. It is straightforward to update
+within `helm-chart/binderhub/Chart.yaml`. It is straightforward to update
 it with another version from the [JupyterHub Helm chart
 repository](https://jupyterhub.github.io/helm-chart/).
 
