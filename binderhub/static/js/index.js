@@ -11,7 +11,7 @@
   pushing -> failed
 */
 import * as Terminal from 'xterm';
-import Clipboard from 'clipboard';
+import ClipboardJS from 'clipboard';
 import 'xterm/lib/xterm.css';
 import 'bootstrap';
 import 'event-source-polyfill';
@@ -367,5 +367,5 @@ window.indexMain = indexMain;
 
 // Load the clipboard after the page loads so it can find the buttons it needs
 window.onload = function() {
-  new Clipboard('.clipboard');
+  new ClipboardJS('.clipboard');
 };
