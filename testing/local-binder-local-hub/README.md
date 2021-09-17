@@ -15,4 +15,5 @@ Run JupyterHub in one terminal
 
     jupyterhub --config=binderhub_config.py
 
-BinderHub will be running as a managed JupyterHub service, go to http://localhost:8000 nd you should be redirected to BinderHub.
+BinderHub will be running as a managed JupyterHub service, go to http://localhost:8000
+and you should be redirected to BinderHub.
