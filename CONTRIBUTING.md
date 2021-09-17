@@ -350,7 +350,7 @@ tests. You can get some hints on what tests to run and how by inspecting
   GitHub API.
 
 ### Pytest marks labelling tests
-- `remote`: Tests for them the BinderHub is already running somewhere.
+- `remote`: Tests for when BinderHub is already running somewhere.
 - `github_api`: Tests that communicate with the GitHub API a lot.
 - `auth`: Tests related to BinderHub's usage of JupyterHub as an OAuth2 Identity
   Provider (IdP) for non public access.

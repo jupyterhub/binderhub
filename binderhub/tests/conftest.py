@@ -29,11 +29,7 @@ binderhub_config_auth_additions_path = os.path.join(root, 'testing/local-binder-
 
 # These are automatically determined
 K8S_AVAILABLE = False
-
-# get the current context's namespace or assume it is "default"
-K8S_NAMESPACE = subprocess.check_output([
-    "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
-], text=True).strip() or "default"
+K8S_NAMESPACE = None
 
 # set BINDER_URL to run tests against an already-running binderhub
 # this will skip launching BinderHub internally in the app fixture
@@ -54,6 +50,9 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "github_api: mark test to run only with GitHub API credentials"
+    )
+    config.addinivalue_line(
+        "markers", "remote: mark test for when BinderHub is already running somewhere."
     )
 
 
@@ -139,13 +138,20 @@ def _binderhub_config():
     """
     cfg = PyFileConfigLoader(binderhub_config_path).load_config()
     global K8S_AVAILABLE
+    global K8S_NAMESPACE
     try:
         kubernetes.config.load_kube_config()
     except Exception:
         cfg.BinderHub.builder_required = False
         K8S_AVAILABLE = False
+        K8S_NAMESPACE = None
     else:
         K8S_AVAILABLE = True
+        # get the current context's namespace or assume it is "default"
+        K8S_NAMESPACE = subprocess.check_output([
+            "kubectl", "config", "view", "--minify", "--output", "jsonpath={..namespace}"
+        ], text=True).strip() or "default"
+
     if REMOTE_BINDER:
         return
 
