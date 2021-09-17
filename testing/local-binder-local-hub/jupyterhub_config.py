@@ -48,5 +48,4 @@ else:
     c.JupyterHub.services = [{
         "name": binderhub_service_name,
         "admin": True,
-        "api_token": open(os.path.join(os.path.dirname(__file__), 'api_token.txt')).read(),
     }]

@@ -38,5 +38,3 @@ if os.getenv('JUPYTERHUB_SERVICE_PREFIX'):
     c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
 else:
     c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
-    # API token shared between JupyterHub and BinderHub
-    c.BinderHub.hub_api_token = open(os.path.join(os.path.dirname(__file__), 'api_token.txt')).read()
