@@ -24,7 +24,7 @@ c.DockerSpawner.remove = True
 c.LocalContainerSpawner.cmd = 'jupyter-notebook'
 
 c.Application.log_level = 'DEBUG'
-c.JupyterHub.Spawner.debug = True
+c.Spawner.debug = True
 c.JupyterHub.authenticator_class = "nullauthenticator.NullAuthenticator"
 
 c.JupyterHub.hub_ip = '0.0.0.0'
