@@ -3,9 +3,9 @@
 #
 # If you are running BidnerHub manually (not via JupyterHub) run
 # `python -m binderhub -f binderhub_config.py`
-
-# Optionally override the external access URL for JupyterHub
-JUPYTERHUB_EXTERNAL_URL = None
+#
+# Override the external access URL for JupyterHub by setting the
+# environment variable JUPYTERHUB_EXTERNAL_URL
 
 # Host IP is needed in a few places
 import socket
@@ -36,4 +36,4 @@ assert os.getenv('JUPYTERHUB_API_TOKEN')
 c.BinderHub.base_url = os.getenv('JUPYTERHUB_SERVICE_PREFIX')
 # JUPYTERHUB_BASE_URL may not include the host
 # c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
-c.BinderHub.hub_url = JUPYTERHUB_EXTERNAL_URL or f'http://{hostip}:8000'
+c.BinderHub.hub_url = os.getenv('JUPYTERHUB_EXTERNAL_URL') or f'http://{hostip}:8000'
