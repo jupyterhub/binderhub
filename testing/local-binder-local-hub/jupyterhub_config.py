@@ -24,7 +24,7 @@ c.DockerSpawner.remove = True
 c.LocalContainerSpawner.cmd = 'jupyter-notebook'
 
 c.Application.log_level = 'DEBUG'
-c.JupyterHub.Spawner.debug = True
+c.Spawner.debug = True
 c.JupyterHub.authenticator_class = "nullauthenticator.NullAuthenticator"
 
 c.JupyterHub.hub_ip = '0.0.0.0'
@@ -37,5 +37,6 @@ c.JupyterHub.services = [{
     "admin": True,
     "command": ["python", "-mbinderhub", f"--config={binderhub_config}"],
     "url": f"http://localhost:8585",
+    "environment": {"JUPYTERHUB_EXTERNAL_URL": os.getenv("JUPYTERHUB_EXTERNAL_URL", "")}
 }]
 c.JupyterHub.default_url = f"/services/{binderhub_service_name}/"
