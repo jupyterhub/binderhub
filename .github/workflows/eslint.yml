@@ -1,8 +1,11 @@
+# Lints the binderhub/static/js folders content with eslint, influenced by
+# ".eslintrc.js", by running "npm run lint".
 name: eslint
 
 on:
   pull_request:
   push:
+  workflow_dispatch:
 
 jobs:
   build:
