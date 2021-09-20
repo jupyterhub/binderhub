@@ -12,4 +12,4 @@ jobs:
     - name: Install modules
       run: npm i
     - name: Run ESLint on binderhub JS
-      run: ./node_modules/.bin/eslint binderhub/static/js
+      run: npm run lint

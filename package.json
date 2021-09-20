@@ -19,7 +19,8 @@
   },
   "scripts": {
     "webpack": "webpack",
-    "webpack:watch": "webpack --watch"
+    "webpack:watch": "webpack --watch",
+    "lint": "eslint binderhub/static/js"
   },
   "repository": {
     "type": "git",
