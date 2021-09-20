@@ -5,8 +5,8 @@ export function getPathType() {
 }
 
 export function updatePathText() {
-  var pathType = getPathType();
-  var text;
+  const pathType = getPathType();
+  let text;
   if (pathType === "file") {
     text = "Path to a notebook file (optional)";
   } else {
