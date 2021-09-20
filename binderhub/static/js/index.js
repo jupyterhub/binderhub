@@ -345,7 +345,7 @@ function loadingMain(providerSpec) {
       pathType = 'file';
     }
   }
-  build(providerSpec, log, path, pathType);
+  build(providerSpec, log, fitAddon, path, pathType);
 
   // Looping through help text every few seconds
   const launchMessageInterval = 6 * 1000
