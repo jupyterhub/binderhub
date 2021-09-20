@@ -159,7 +159,8 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  const image = new BinderImage(providerSpec);
+  const buildToken = $("#build-token").data('token');
+  const image = new BinderImage(providerSpec, BASE_URL, buildToken);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
