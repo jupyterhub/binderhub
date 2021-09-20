@@ -138,7 +138,7 @@ function updateUrls(formValues) {
     $('#markdown-badge-snippet').text(markdownBadge(url));
     $('#rst-badge-snippet').text(rstBadge(url));
   } else {
-    ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item, ind){
+    ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item){
       const el = $(item);
       el.text(el.attr('data-default'));
     })
@@ -170,20 +170,20 @@ function build(providerSpec, log, fitAddon, path, pathType) {
     }
   });
 
-  image.onStateChange('waiting', function(oldState, newState, data) {
+  image.onStateChange('waiting', function() {
     $('#phase-waiting').removeClass('hidden');
   });
 
-  image.onStateChange('building', function(oldState, newState, data) {
+  image.onStateChange('building', function() {
     $('#phase-building').removeClass('hidden');
     log.show();
   });
 
-  image.onStateChange('pushing', function(oldState, newState, data) {
+  image.onStateChange('pushing', function() {
     $('#phase-pushing').removeClass('hidden');
   });
 
-  image.onStateChange('failed', function(oldState, newState, data) {
+  image.onStateChange('failed', function() {
     $('#build-progress .progress-bar').addClass('hidden');
     $('#phase-failed').removeClass('hidden');
 
@@ -199,7 +199,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
     image.close();
   });
 
-  image.onStateChange('built', function(oldState, newState, data) {
+  image.onStateChange('built', function(oldState) {
     if (oldState === null) {
       $('#phase-already-built').removeClass('hidden');
       $('#phase-launching').removeClass('hidden');
@@ -296,11 +296,11 @@ function indexMain() {
     updatePathText();
     updateRepoText();
 
-    $('#repository').on('keyup paste change', function(event) {updateUrls();});
+    $('#repository').on('keyup paste change', function() {updateUrls();});
 
-    $('#ref').on('keyup paste change', function(event) {updateUrls();});
+    $('#ref').on('keyup paste change', function() {updateUrls();});
 
-    $('#filepath').on('keyup paste change', function(event) {updateUrls();});
+    $('#filepath').on('keyup paste change', function() {updateUrls();});
 
     $('#toggle-badge-snippet').on('click', function() {
         const badgeSnippets = $('#badge-snippets');

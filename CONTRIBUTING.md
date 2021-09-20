@@ -97,6 +97,9 @@ user interface of those parts as BinderHub is configured to fake those actions.
 You can tell you are using the fake builder and launcher from the fact that the
 build will never complete.
 
+We use [eslint](https://eslint.org/) to catch errors in our JS, and you can
+run it locally with `npm run lint`.
+
 To learn how to set yourself with a BinderHub development environment that lets
 you modify the builder and launcher refer to [Develop Kubernetes
 integration](#develop-kubernetes-integration) or [Develop Helm
