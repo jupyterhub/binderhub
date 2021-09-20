@@ -31,9 +31,10 @@ following to your ``config.yaml``:
         cors_allow_origin: '*'
 
     jupyterhub:
-      config:
-        BinderSpawner:
-          cors_allow_origin: '*'
+      hub:
+        config:
+          BinderSpawner:
+            cors_allow_origin: '*'
 
 For example, if you're following on from the previous section
 :doc:`../https`, your ``config.yaml`` might look like this:
@@ -46,9 +47,10 @@ For example, if you're following on from the previous section
         cors_allow_origin: '*'
 
     jupyterhub:
-      config:
-        BinderSpawner:
-          cors_allow_origin: '*'
+      hub:
+        config:
+          BinderSpawner:
+            cors_allow_origin: '*'
       ingress:
         enabled: true
         hosts:
