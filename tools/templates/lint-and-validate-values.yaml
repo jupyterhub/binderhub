@@ -39,6 +39,7 @@ service:
     mock-annotation1-key: mock-annotation1-value
     mock-annotation2-key: mock-annotation2-value
   nodePort: 1234
+  loadBalancerIP: 123.123.123.123
 
 config:
   BinderHub:
