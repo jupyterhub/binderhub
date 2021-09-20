@@ -186,6 +186,12 @@ properties:
           See [the Kubernetes
           documentation](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport)
           for more details about NodePorts.
+      loadBalancerIP:
+        type: [string, "null"]
+        description: |
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+          for more details about loadBalancerIP.
 
   config:
     type: object
