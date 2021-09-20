@@ -26,12 +26,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import '../index.css';
 
-var BASE_URL = $('#base-url').data().url;
-var BADGE_BASE_URL = $('#badge-base-url').data().url;
-var config_dict = {};
+const BASE_URL = $('#base-url').data().url;
+const BADGE_BASE_URL = $('#badge-base-url').data().url;
+let config_dict = {};
 
 function update_favicon(path) {
-    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
     link.type = 'image/x-icon';
     link.rel = 'shortcut icon';
     link.href = path;
@@ -44,11 +44,12 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
     // no repo, no url
     return null;
   }
+  let url;
   if (BADGE_BASE_URL) {
-    var url = BADGE_BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+    url = BADGE_BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
   }
   else {
-    var url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
+    url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
   }
   if (path && path.length > 0) {
     // encode the path, it will be decoded in loadingMain
@@ -58,7 +59,7 @@ function v2url(providerPrefix, repository, ref, path, pathType) {
 }
 
 function loadConfig(callback) {
-  var req = new XMLHttpRequest();
+  const req = new XMLHttpRequest();
   req.onreadystatechange = function() {
     if (req.readyState == 4 && req.status == 200)
       callback(req.responseText)
@@ -68,12 +69,12 @@ function loadConfig(callback) {
 }
 
 function setLabels() {
-  var provider = $("#provider_prefix").val();
-  var text = config_dict[provider]["text"];
-  var tag_text = config_dict[provider]["tag_text"];
-  var ref_prop_disabled = config_dict[provider]["ref_prop_disabled"];
-  var label_prop_disabled = config_dict[provider]["label_prop_disabled"];
-  var placeholder = "HEAD";
+  const provider = $("#provider_prefix").val();
+  const text = config_dict[provider]["text"];
+  const tag_text = config_dict[provider]["tag_text"];
+  const ref_prop_disabled = config_dict[provider]["ref_prop_disabled"];
+  const label_prop_disabled = config_dict[provider]["label_prop_disabled"];
+  const placeholder = "HEAD";
 
   $("#ref").attr('placeholder', placeholder).prop("disabled", ref_prop_disabled);
   $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
@@ -93,8 +94,8 @@ function updateRepoText() {
 }
 
 function getBuildFormValues() {
-  var providerPrefix = $('#provider_prefix').val().trim();
-  var repo = $('#repository').val().trim();
+  const providerPrefix = $('#provider_prefix').val().trim();
+  let repo = $('#repository').val().trim();
   if (providerPrefix !== 'git') {
     repo = repo.replace(/^(https?:\/\/)?gist.github.com\//, '');
     repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
@@ -108,12 +109,12 @@ function getBuildFormValues() {
     repo = encodeURIComponent(repo);
   }
 
-  var ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
+  let ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
   if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
       providerPrefix === 'hydroshare') {
     ref = "";
   }
-  var path = $('#filepath').val().trim();
+  const path = $('#filepath').val().trim();
   return {'providerPrefix': providerPrefix, 'repo': repo,
           'ref': ref, 'path': path, 'pathType': getPathType()}
 }
@@ -122,7 +123,7 @@ function updateUrls(formValues) {
   if (typeof formValues === "undefined") {
       formValues = getBuildFormValues();
   }
-  var url = v2url(
+  const url = v2url(
                formValues.providerPrefix,
                formValues.repo,
                formValues.ref,
@@ -138,7 +139,7 @@ function updateUrls(formValues) {
     $('#rst-badge-snippet').text(rstBadge(url));
   } else {
     ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item, ind){
-      var el = $(item);
+      const el = $(item);
       el.text(el.attr('data-default'));
     })
   }
@@ -147,7 +148,7 @@ function updateUrls(formValues) {
 function build(providerSpec, log, fitAddon, path, pathType) {
   update_favicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
-  var spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
+  const spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
   // Update the text of the loading page if it exists
   if ($('div#loader-text').length > 0) {
     $('div#loader-text p.launching').text("Starting repository: " + decodeURIComponent(spec))
@@ -158,7 +159,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  var image = new BinderImage(providerSpec);
+  const image = new BinderImage(providerSpec);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
@@ -218,14 +219,14 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 }
 
 function setUpLog() {
-  var log = new Terminal({
+  const log = new Terminal({
     convertEol: true,
     disableStdin: true
   });
 
   const fitAddon = new FitAddon();
   log.loadAddon(fitAddon);
-  var logMessages = [];
+  const logMessages = [];
 
   log.open(document.getElementById('log'), false);
   fitAddon.fit();
@@ -234,7 +235,7 @@ function setUpLog() {
     fitAddon.fit();
   });
 
-  var $panelBody = $("div.panel-body");
+  const $panelBody = $("div.panel-body");
   log.show = function () {
     $('#toggle-logs button.toggle').text('hide');
     $panelBody.removeClass('hidden');
@@ -271,7 +272,7 @@ function setUpLog() {
 }
 
 function indexMain() {
-    var [log, fitAddon] = setUpLog();
+    const [log, fitAddon] = setUpLog();
 
     // setup badge dropdown and default values.
     updateUrls();
@@ -302,7 +303,7 @@ function indexMain() {
     $('#filepath').on('keyup paste change', function(event) {updateUrls();});
 
     $('#toggle-badge-snippet').on('click', function() {
-        var badgeSnippets = $('#badge-snippets');
+        const badgeSnippets = $('#badge-snippets');
         if (badgeSnippets.hasClass('hidden')) {
             badgeSnippets.removeClass('hidden');
             $("#badge-snippet-caret").removeClass("glyphicon-triangle-right");
@@ -317,7 +318,7 @@ function indexMain() {
     });
 
     $('#build-form').submit(function() {
-        var formValues = getBuildFormValues();
+        const formValues = getBuildFormValues();
         updateUrls(formValues);
         build(
           formValues.providerPrefix + '/' + formValues.repo + '/' + formValues.ref,
@@ -330,12 +331,12 @@ function indexMain() {
 }
 
 function loadingMain(providerSpec) {
-  var [log, fitAddon] = setUpLog();
+  const [log, fitAddon] = setUpLog();
   // retrieve (encoded) filepath/urlpath from URL
   // URLSearchParams.get returns the decoded value,
   // that is good because it is the real value and '/'s will be trimmed in `launch`
-  var params = new URL(location.href).searchParams;
-  var pathType, path;
+  const params = new URL(location.href).searchParams;
+  let pathType, path;
   path = params.get('urlpath');
   if (path) {
     pathType = 'url';

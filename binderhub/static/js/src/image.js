@@ -9,15 +9,15 @@ export default function BinderImage(providerSpec) {
 }
 
 BinderImage.prototype.fetch = function() {
-  var baseUrl = $("#base-url").data('url');
-  var apiUrl = baseUrl + "build/" + this.providerSpec;
-  var buildToken = $("#build-token").data('token');
+  const baseUrl = $("#base-url").data('url');
+  let apiUrl = baseUrl + "build/" + this.providerSpec;
+  const buildToken = $("#build-token").data('token');
   if (buildToken) {
       apiUrl = apiUrl + `?build_token=${buildToken}`;
   }
 
   this.eventSource = new EventSource(apiUrl);
-  var that = this;
+  const that = this;
   this.eventSource.onerror = function(err) {
     console.error("Failed to construct event stream", err);
     that.changeState("failed", {
@@ -25,10 +25,10 @@ BinderImage.prototype.fetch = function() {
     });
   };
   this.eventSource.addEventListener("message", function(event) {
-    var data = JSON.parse(event.data);
+    const data = JSON.parse(event.data);
     // FIXME: Rename 'phase' to 'state' upstream
     // FIXME: fix case of phase/state upstream
-    var state = null;
+    let state = null;
     if (data.phase) {
       state = data.phase.toLowerCase();
     }
@@ -59,7 +59,7 @@ BinderImage.prototype.launch = function(url, token, path, pathType) {
       url = url + "/" + path;
     }
   }
-  var sep = url.indexOf("?") == -1 ? "?" : "&";
+  const sep = url.indexOf("?") == -1 ? "?" : "&";
   url = url + sep + $.param({ token: token });
   window.location.href = url;
 };
@@ -89,11 +89,11 @@ BinderImage.prototype.validateStateTransition = function(oldState, newState) {
 };
 
 BinderImage.prototype.changeState = function(state, data) {
-  var that = this;
+  const that = this;
   [state, "*"].map(function(key) {
-    var callbacks = that.callbacks[key];
+    const callbacks = that.callbacks[key];
     if (callbacks) {
-      for (var i = 0; i < callbacks.length; i++) {
+      for (let i = 0; i < callbacks.length; i++) {
         callbacks[i](that.state, state || that.state, data);
       }
     }
