@@ -17,7 +17,7 @@ import 'bootstrap';
 import 'event-source-polyfill';
 
 import BinderImage from './src/image';
-import { markdownBadge, rstBadge } from './src/badge';
+import { makeBadgeMarkup } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
 
@@ -135,8 +135,12 @@ function updateUrls(formValues) {
     // update URLs and links (badges, etc.)
     $("#badge-link").attr('href', url);
     $('#basic-url-snippet').text(url);
-    $('#markdown-badge-snippet').text(markdownBadge(url));
-    $('#rst-badge-snippet').text(rstBadge(url));
+    $('#markdown-badge-snippet').text(
+      makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'markdown')
+    );
+    $('#rst-badge-snippet').text(
+      makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'rst')
+    );
   } else {
     ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item){
       const el = $(item);
@@ -159,7 +163,8 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 
   $('.on-build').removeClass('hidden');
 
-  const image = new BinderImage(providerSpec);
+  const buildToken = $("#build-token").data('token');
+  const image = new BinderImage(providerSpec, BASE_URL, buildToken);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
