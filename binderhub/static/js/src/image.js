@@ -49,11 +49,16 @@ export default class BinderImage {
       url = url.replace(/\/$/, "");
       // trim leading '/'
       path = path.replace(/(^\/)/g, "");
-      if (pathType === "file") {
+      if (pathType === "lab") {
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
         // /doc/tree is safe because it allows redirect to files
         url = url + "/doc/tree/" + encodeURI(path);
+      } else if (pathType === "file") {
+        // trim trailing / on file paths
+        path = path.replace(/(\/$)/g, "");
+        // /tree is safe because it allows redirect to files
+        url = url + "/tree/" + encodeURI(path);
       } else {
         // pathType === 'url'
         url = url + "/" + path;

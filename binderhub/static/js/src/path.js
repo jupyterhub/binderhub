@@ -1,7 +1,14 @@
 export function getPathType() {
   // return path type. 'file' or 'url'
   const element = document.getElementById("url-or-file-selected");
-  return element.innerText.trim().toLowerCase();
+  let pathType = element.innerText.trim().toLowerCase();
+  if (pathType === "file") {
+    // selecting a 'file' in the form opens with jupyterlab
+    // avoids backward-incompatibility with old `filepath` urls,
+    // which still open old UI
+    pathType = "lab";
+  }
+  return pathType;
 }
 
 export function updatePathText() {
