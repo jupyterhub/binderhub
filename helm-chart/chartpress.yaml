@@ -12,8 +12,6 @@ charts:
     resetTag: local
     resetVersion: 0.2.0
     images:
-      image-cleaner:
-        valuesPath: imageCleaner.image
       binderhub:
         # We will not use the default build contextPath, and must therefore
         # specify the dockerfilePath explicitly.
