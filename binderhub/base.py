@@ -160,7 +160,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         """Construct a provider object"""
         providers = self.settings['repo_providers']
         if provider_prefix not in providers:
-            raise web.HTTPError(404, "No provider found for prefix %s" % provider_prefix)
+            raise web.HTTPError(404, f"No provider found for prefix {provider_prefix}")
 
         return providers[provider_prefix](
             config=self.settings['traitlets_config'], spec=spec)

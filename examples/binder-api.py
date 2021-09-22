@@ -68,7 +68,7 @@ if __name__ == '__main__':
                 url = "{url}{urlpath}?token={token}".format(**evt, urlpath=opts.urlpath)
             else:
                 url = "{url}?token={token}".format(**evt)
-            print("Opening %s" % url)
+            print(f"Opening {url}")
             webbrowser.open(url)
             break
     else:

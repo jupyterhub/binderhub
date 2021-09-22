@@ -20,11 +20,11 @@ def test_rendezvous_independence():
     # check that the relative ranking of 80 buckets doesn't depend on the
     # presence of 20 extra buckets
     key = "k1"
-    eighty_buckets = utils.rendezvous_rank(["b%i" % i for i in range(80)], key)
-    hundred_buckets = utils.rendezvous_rank(["b%i" % i for i in range(100)], key)
+    eighty_buckets = utils.rendezvous_rank([f"b{i}" for i in range(80)], key)
+    hundred_buckets = utils.rendezvous_rank([f"b{i}" for i in range(100)], key)
 
     for i in range(80, 100):
-        hundred_buckets.remove("b%i" % i)
+        hundred_buckets.remove(f"b{i}")
 
     assert eighty_buckets == hundred_buckets
 

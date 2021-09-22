@@ -69,9 +69,9 @@ class BinderSpawnerMixin(Configurable):
         else:
             args = [
                 '--ip=0.0.0.0',
-                '--port=%i' % self.port,
-                '--NotebookApp.base_url=%s' % self.server.base_url,
-                '--NotebookApp.token=%s' % self.user_options['token'],
+                f'--port={self.port}',
+                f'--NotebookApp.base_url={self.server.base_url}',
+                f"--NotebookApp.token={self.user_options['token']}",
                 '--NotebookApp.trust_xheaders=True',
             ]
             if self.default_url:
