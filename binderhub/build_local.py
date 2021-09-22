@@ -186,9 +186,9 @@ class LocalRepo2dockerBuild(Build):
             for line in _execute_cmd(cmd, capture=True, env=env):
                 self._handle_log(line)
             self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.FAILED)
-        except Exception as e:
+        except Exception:
             app_log.exception("Error in watch stream for %s", self.name)
             raise
 

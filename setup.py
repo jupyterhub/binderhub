@@ -10,8 +10,8 @@ here = os.path.dirname(__file__)
 
 with open(os.path.join(here, 'requirements.txt')) as f:
     requirements = [
-        l.strip() for l in f.readlines()
-        if not l.strip().startswith('#')
+        line.strip() for line in f.readlines()
+        if not line.strip().startswith('#')
     ]
     # manually add pycurl here, see comment in requirements.txt
     requirements.append("pycurl")

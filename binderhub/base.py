@@ -118,7 +118,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         request_ip = self.request.remote_ip
         try:
             limit = rate_limiter.increment(request_ip)
-        except RateLimitExceeded as e:
+        except RateLimitExceeded:
             raise web.HTTPError(
                 429,
                 f"Rate limit exceeded. Try again in {rate_limiter.period_seconds} seconds.",

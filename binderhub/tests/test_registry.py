@@ -67,7 +67,7 @@ class MockTokenHandler(RequestHandler):
         self.test_handle = test_handle
 
     def get(self):
-        scope = self.get_argument("scope")
+        self.get_argument("scope")
         auth_header = self.request.headers.get("Authorization", "")
         if not auth_header.startswith("Basic "):
             raise HTTPError(401, "No basic auth")
