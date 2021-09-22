@@ -150,12 +150,12 @@ class RepoProvider(LoggingConfigurable):
                 raise ValueError(
                     "Spec-pattern configuration expected "
                     "a regex pattern string, not "
-                    "type %s" % type(pattern))
+                    f"type {type(pattern)}")
             if not isinstance(config, dict):
                 raise ValueError(
                     "Spec-pattern configuration expected "
                     "a specification configuration dict, not "
-                    "type %s" % type(config))
+                    f"type {type(config)}")
             # Ignore case, because most git providers do not
             # count DS-100/textbook as different from ds-100/textbook
             if re.match(pattern, self.spec, re.IGNORECASE):
@@ -814,9 +814,7 @@ class GitHubRepoProvider(RepoProvider):
                 # round expiry up to nearest 5 minutes
                 minutes_until_reset = 5 * (1 + (reset_seconds // 60 // 5))
 
-                raise ValueError("GitHub rate limit exceeded. Try again in %i minutes."
-                    % minutes_until_reset
-                )
+                raise ValueError(f"GitHub rate limit exceeded. Try again in {minutes_until_reset} minutes.")
             # Status 422 is returned by the API when we try and resolve a non
             # existent reference
             elif e.code in (404, 422):

@@ -248,7 +248,7 @@ class BuildHandler(BaseHandler):
         # EventSource cannot handle HTTP errors, so we must validate and send
         # error messages on the eventsource.
         if provider_prefix not in self.settings['repo_providers']:
-            await self.fail("No provider found for prefix %s" % provider_prefix)
+            await self.fail(f"No provider found for prefix {provider_prefix}")
             return
 
         # create a heartbeat
@@ -287,7 +287,7 @@ class BuildHandler(BaseHandler):
             return
 
         if ref is None:
-            error_message = ["Could not resolve ref for %s. Double check your URL." % key]
+            error_message = [f"Could not resolve ref for {key}. Double check your URL."]
 
             if provider.name == "GitHub":
                 error_message.append('GitHub recently changed default branches from "master" to "main".')
@@ -548,9 +548,8 @@ class BuildHandler(BaseHandler):
                         matching_pods += 1
                         break
             if matching_pods >= quota:
-                app_log.error("%s has exceeded quota: %s/%s (%s total)",
-                    self.repo_url, matching_pods, quota, total_pods)
-                await self.fail("Too many users running %s! Try again soon." % self.repo_url)
+                app_log.error(f"{self.repo_url} has exceeded quota: {matching_pods}/{quota} ({total_pods} total)")
+                await self.fail(f"Too many users running {self.repo_url}! Try again soon.")
                 return
 
             if matching_pods >= 0.5 * quota:
@@ -626,9 +625,7 @@ class BuildHandler(BaseHandler):
                 await self.emit(
                     {
                         "phase": "launching",
-                        "message": "Launch attempt {} failed, retrying...\n".format(
-                            i + 1
-                        ),
+                        "message": f"Launch attempt {i + 1} failed, retrying...\n",
                     }
                 )
                 await gen.sleep(retry_delay)
@@ -646,7 +643,7 @@ class BuildHandler(BaseHandler):
                 break
         event = {
             'phase': 'ready',
-            'message': 'server running at %s\n' % server_info['url'],
+            'message': f"server running at {server_info['url']}\n",
         }
         event.update(server_info)
         await self.emit(event)
