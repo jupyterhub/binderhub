@@ -176,11 +176,13 @@ class Build:
     def get_r2d_cmd_options(self):
         """Get options/flags for repo2docker"""
         r2d_options = [
-            '--ref', self.ref,
-            '--image', self.image_name,
-            '--no-clean', '--no-run', '--json-logs',
-            '--user-name', 'jovyan',
-            '--user-id', '1000',
+            f"--ref={self.ref}",
+            f"--image={self.image_name}",
+            "--no-clean",
+            "--no-run",
+            "--json-logs",
+            "--user-name=jovyan",
+            "--user-id=1000",
         ]
         if self.appendix:
             r2d_options.extend(['--appendix', self.appendix])
