@@ -1,6 +1,5 @@
 import tempfile
 import json
-from contextlib import redirect_stderr
 import logging
 from binderhub.events import EventLog
 import pytest

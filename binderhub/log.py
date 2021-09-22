@@ -6,13 +6,11 @@
 
 import json
 import logging
-import traceback
 from http.cookies import SimpleCookie
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
 from tornado.log import access_log
-from tornado.log import LogFormatter
 from tornado.web import HTTPError
 from tornado.web import StaticFileHandler
 

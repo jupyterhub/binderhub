@@ -1,4 +1,3 @@
-from tornado.log import app_log
 from .base import BaseHandler
 
 class ConfigHandler(BaseHandler):

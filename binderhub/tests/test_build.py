@@ -3,7 +3,6 @@
 import docker
 import json
 import sys
-from collections import namedtuple
 from unittest import mock
 from urllib.parse import quote
 from uuid import uuid4
