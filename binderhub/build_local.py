@@ -2,9 +2,6 @@
 Contains build of a docker image from a git repository.
 """
 
-import asyncio
-from collections import defaultdict
-import datetime
 from functools import partial
 import json
 import os

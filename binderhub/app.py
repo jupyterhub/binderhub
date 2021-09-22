@@ -49,7 +49,7 @@ from .launcher import Launcher
 from .log import log_request
 from .ratelimit import RateLimiter
 from .repoproviders import RepoProvider
-from .registry import DockerRegistry, FakeRegistry
+from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
 from .repoproviders import (GitHubRepoProvider, GitRepoProvider,
                             GitLabRepoProvider, GistRepoProvider,

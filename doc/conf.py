@@ -18,9 +18,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import os.path as op
 import sys
-import requests
+
 curdir = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join(curdir, 'script')))
 
