@@ -131,7 +131,7 @@ def test_ip_in_networks(ip, cidrs, found):
         assert message == f"message {net}"
         assert ipaddress.ip_address(ip) in net
     else:
-        assert match == False
+        assert match is False
 
 
 def test_ip_in_networks_invalid():

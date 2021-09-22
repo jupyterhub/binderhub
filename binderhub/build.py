@@ -412,7 +412,7 @@ class Build:
         )
 
         try:
-            ret = self.api.create_namespaced_pod(
+            _ = self.api.create_namespaced_pod(
                 self.namespace,
                 self.pod,
                 _request_timeout=KUBE_REQUEST_TIMEOUT,
@@ -468,7 +468,7 @@ class Build:
                         self.cleanup()
                     elif self.pod.status.phase == 'Failed':
                         self.cleanup()
-            except Exception as e:
+            except Exception:
                 app_log.exception("Error in watch stream for %s", self.name)
                 raise
             finally:
@@ -572,6 +572,6 @@ class FakeBuild(Build):
         self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
         self.progress('log', json.dumps({
                 'phase': 'Deleted',
-                'message': f"Deleted...\n",
+                'message': "Deleted...\n",
              })
         )

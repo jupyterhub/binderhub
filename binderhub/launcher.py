@@ -73,10 +73,10 @@ class Launcher(LoggingConfigurable):
         config=True,
         allow_none=True,
         help="""
-        An optional hook function that you can use to implement checks before starting a user's server. 
-        For example if you have a non-standard BinderHub deployment, 
+        An optional hook function that you can use to implement checks before starting a user's server.
+        For example if you have a non-standard BinderHub deployment,
         in this hook you can check if the current user has right to launch a new repo.
-        
+
         Receives 5 parameters: launcher, image, username, server_name, repo_url
         """
     )

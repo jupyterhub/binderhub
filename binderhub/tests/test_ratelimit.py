@@ -37,7 +37,6 @@ def test_rate_limit_expires():
     r = RateLimiter(limit=10, period_seconds=60)
     assert r._limits == {}
     now = r.time()
-    reset = int(now) + 60
 
     for i in range(5):
         limit = r.increment("1.2.3.4")
@@ -56,7 +55,7 @@ def test_rate_limit_clean():
     assert r._limits == {}
     now = r.time()
 
-    limit = r.increment("1.2.3.4")
+    r.increment("1.2.3.4")
 
     with mock.patch.object(r, "time", lambda: now + 30):
         limit2 = r.increment("4.3.2.1")

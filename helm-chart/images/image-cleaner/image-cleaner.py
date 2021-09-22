@@ -182,7 +182,7 @@ def main():
         else:
             images = get_docker_images(client)
             if not images:
-                logging.info(f'No images to delete')
+                logging.info('No images to delete')
                 time.sleep(interval)
                 continue
             else:

@@ -1,22 +1,22 @@
-######################################################################
-## A development config to test BinderHub locally.
-#
-# If you are running BidnerHub manually (not via JupyterHub) run
-# `python -m binderhub -f binderhub_config.py`
-#
-# Override the external access URL for JupyterHub by setting the
-# environment variable JUPYTERHUB_EXTERNAL_URL
+"""
+A development config to test BinderHub locally.
 
-# Host IP is needed in a few places
+If you are running BinderHub manually (not via JupyterHub) run
+`python -m binderhub -f binderhub_config.py`
+
+Override the external access URL for JupyterHub by setting the
+environment variable JUPYTERHUB_EXTERNAL_URL
+Host IP is needed in a few places
+"""
+import os
 import socket
+
+from binderhub.build_local import LocalRepo2dockerBuild
+
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("8.8.8.8", 80))
 hostip = s.getsockname()[0]
 s.close()
-
-from binderhub.build_local import LocalRepo2dockerBuild
-import os
-
 
 c.BinderHub.debug = True
 c.BinderHub.use_registry = False

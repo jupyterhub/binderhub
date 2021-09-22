@@ -18,13 +18,13 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+from os.path import dirname
 import sys
 
-curdir = os.path.dirname(__file__)
+curdir = dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join(curdir, 'script')))
 
 # set paths
-from os.path import dirname
 docs = dirname(dirname(__file__))
 root = dirname(docs)
 sys.path.insert(0, root)

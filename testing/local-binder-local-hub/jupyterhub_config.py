@@ -1,18 +1,22 @@
-######################################################################
-## A development config to test BinderHub locally.
-#
-# Run `jupyterhub --config=binderhub_config.py` terminal
+"""
+A development config to test BinderHub locally.
 
-# Host IP is needed in a few places
+Run `jupyterhub --config=binderhub_config.py` terminal
+Host IP is needed in a few places
+"""
+import os
 import socket
+
+from dockerspawner import DockerSpawner
+
+from binderhub.binderspawner_mixin import BinderSpawnerMixin
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("8.8.8.8", 80))
 hostip = s.getsockname()[0]
 s.close()
 
-from binderhub.binderspawner_mixin import BinderSpawnerMixin
-from dockerspawner import DockerSpawner
-import os
 
 # image & token are set via spawn options
 class LocalContainerSpawner(BinderSpawnerMixin, DockerSpawner):
@@ -36,7 +40,7 @@ c.JupyterHub.services = [{
     "name": binderhub_service_name,
     "admin": True,
     "command": ["python", "-mbinderhub", f"--config={binderhub_config}"],
-    "url": f"http://localhost:8585",
+    "url": "http://localhost:8585",
     "environment": {"JUPYTERHUB_EXTERNAL_URL": os.getenv("JUPYTERHUB_EXTERNAL_URL", "")}
 }]
 c.JupyterHub.default_url = f"/services/{binderhub_service_name}/"
