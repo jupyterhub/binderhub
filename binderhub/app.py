@@ -269,7 +269,7 @@ class BinderHub(Application):
         Build,
         help="""
         The class used to build repo2docker images.
-        
+
         Must inherit from binderhub.build.Build
         """,
         config=True
