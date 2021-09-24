@@ -588,7 +588,7 @@ class BuildHandler(BaseHandler):
                     await self.emit(
                         {
                             "phase": "launching",
-                            "message": "{}\n".format(message),
+                            "message": message + "\n",
                         }
                     )
 

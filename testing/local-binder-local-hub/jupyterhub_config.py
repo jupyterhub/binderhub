@@ -44,3 +44,9 @@ c.JupyterHub.services = [{
     "environment": {"JUPYTERHUB_EXTERNAL_URL": os.getenv("JUPYTERHUB_EXTERNAL_URL", "")}
 }]
 c.JupyterHub.default_url = f"/services/{binderhub_service_name}/"
+
+c.JupyterHub.tornado_settings = {
+    "slow_spawn_timeout": 0,
+}
+
+c.KubeSpawner.events_enabled = True

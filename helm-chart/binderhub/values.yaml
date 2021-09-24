@@ -211,6 +211,7 @@ jupyterhub:
 
         # launch the notebook server
         os.execvp("jupyter-notebook", sys.argv)
+    events: true
     storage:
       type: none
     memory:
