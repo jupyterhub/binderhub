@@ -75,7 +75,7 @@ class ParameterizedMainHandler(BaseHandler):
                 filepath = self.get_argument('filepath', '').lstrip('/')
 
 
-            # Check if we have a JupyterLab + file path, if so then use it for the filepath
+            # Check the urlpath parameter for a file path, if so use it for the filepath
             urlpath = self.get_argument('urlpath', '').lstrip('/')
             if urlpath and "/tree/" in urlpath:
                 filepath = urlpath.split('tree/', 1)[-1]
