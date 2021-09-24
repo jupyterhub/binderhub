@@ -23,10 +23,8 @@ import { nextHelpText } from './src/loading';
 import 'xterm/css/xterm.css';
 
 // Include just the bootstrap components we use
-import 'bootstrap/js/dropdown';
+import 'bootstrap/js/dist/dropdown';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap-theme.min.css';
-
 import '../index.css';
 
 const BASE_URL = $('#base-url').data().url;
@@ -137,17 +135,17 @@ function updateUrls(formValues) {
   if ((url||'').trim().length > 0){
     // update URLs and links (badges, etc.)
     $("#badge-link").attr('href', url);
-    $('#basic-url-snippet').text(url);
-    $('#markdown-badge-snippet').text(
+    $('#basic-url-snippet').val(url);
+    $('#markdown-badge-snippet').val(
       makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'markdown')
     );
-    $('#rst-badge-snippet').text(
+    $('#rst-badge-snippet').val(
       makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'rst')
     );
   } else {
     ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item){
       const el = $(item);
-      el.text(el.attr('data-default'));
+      el.val("");
     })
   }
 }

@@ -44,9 +44,11 @@ p > a:hover {
 #build-form {
     color: rgb(50,50,50);
     background: rgb(235, 236, 237);
-    padding: 55px;
-    padding-top: 25px;
-    padding-bottom: 20px;
+    font-size: 14px;
+}
+
+label {
+    font-weight: 700;
 }
 
 
@@ -101,6 +103,46 @@ h4 {
     color: rgb(70, 70, 70);
 }
 
+.panel {
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    border-radius: 4px;
+}
+.panel .panel-body {
+    padding: 8px;
+    background-color: #fff;
+}
+
+.panel .panel-header {
+    background-color:#DDDDDD;
+    border-radius: 3px 3px 0px 0px;
+    font-weight: 700;
+    padding: 8px;
+}
+
+.panel input[type='text'] {
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 13px;
+}
+
+
+input[type='text'] {
+    font-size: 14px;
+}
+
+input[type='button'] {
+    font-size: 14px;
+}
+
+#build-form button {
+    font-size: 14px;
+}
+
+.badge-snippet {
+    border-bottom: 1px #ccc solid;
+}
+
 #form-header {
     padding-bottom: 5px;
 }
@@ -140,70 +182,6 @@ h4 {
 
 #log .terminal {
     font-family: "Roboto Mono", monospace;
-}
-
-.url, .badges{
-    background-color: #ffffff;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    border: 1px solid #ccc;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-
-.url{
-    margin-bottom:20px;
-}
-
-.badges{
-    margin-bottom:40px;
-}
-
-.dropdownmenu{
-    background-color:#DDDDDD;
-    border-radius: 3px 3px 0px 0px;
-    height:35px;
-    width: 100%;
-}
-
-.dropdownmenu label{
-    color:black;
-    padding: 6px 12px;
-    margin:0px;
-    width: 95%;
-}
-
-
-.badge-snippet-row, .url-row {
-    width: 100%;
-    display: flex;
-    flex-direction: reverse;
-    border-bottom: 1px #ccc solid;
-    padding: 10px;
-}
-
-.badge-snippet-row .icon, .url-row .icon {
-    order: 0;
-    max-width: 30px;
-    max-height: 40px;
-    padding:3px;
-    /* margin-top: 13px; */
-    /*margin-left: 4px; */
-}
-
-.input-group-btn .btn {
-    border: solid #ccc 1px;
-}
-
-.badge-snippet-row pre, .url-row pre {
-    order: 1;
-    margin: 0;
-    flex-grow: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
 }
 
 
@@ -285,22 +263,4 @@ h4.logo-subtext {
         margin-top: inherit;
     }
 
-}
-
-/*Clipboard styling*/
-
-img.icon.clipboard{
-    order: 1;
-    border: thin solid silver;
-    border-radius: 5px;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    border-left: none;
-}
-img.icon.clipboard:hover {
-    background: #f5f5f5;
-}
-
-img.icon.clipboard:active {
-    background: #ddd;
 }

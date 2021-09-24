@@ -14,8 +14,9 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
-    "bootstrap": "^3.4.0",
+    "bootstrap": "^5.1.1",
     "clipboard": "^2.0.8",
+    "@popperjs/core": "^2.10.1",
     "event-source-polyfill": "^1.0.25",
     "jquery": "^3.6.0",
     "xterm": "^4.14.1",
