@@ -87,8 +87,8 @@ class Launcher(LoggingConfigurable):
         600,
         config=True,
         help="""
-         Wait this many seconds until server is ready, raise TimeoutError otherwise.
-         """,
+        Wait this many seconds until server is ready, raise TimeoutError otherwise.
+        """,
     )
 
     async def api_request(self, url, *args, **kwargs):
@@ -241,7 +241,7 @@ class Launcher(LoggingConfigurable):
             )
             if resp.code == 202:
                 # Server hasn't actually started yet
-                # listen pending spawn (launch) events until server is ready
+                # listen for pending spawn (launch) events until server is ready
                 ready_event_container = []
                 buffer_list = []
 
@@ -280,14 +280,13 @@ class Launcher(LoggingConfigurable):
                 except (gen.TimeoutError, TimeoutError):
                     raise web.HTTPError(
                         500,
-                        "Image %s for user %s took too long to launch"
-                        % (image, username),
+                        f"Image {image} for user {username} took too long to launch",
                     )
 
                 # verify that the server is running!
                 if not ready_event_container:
                     raise web.HTTPError(
-                        500, "Image %s for user %s failed to launch" % (image, username)
+                        500, f"Image {image} for user {username} failed to launch"
                     )
 
         except HTTPError as e:
