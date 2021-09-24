@@ -1,6 +1,7 @@
 """
 Launch an image with a temporary user via JupyterHub
 """
+import asyncio
 import base64
 import json
 import random
@@ -233,7 +234,14 @@ class Launcher(LoggingConfigurable):
 
         # start server
         app_log.info(f"Starting server{_server_name} for user {username} with image {image}")
-        ready_event_container = []
+        ready_event_future = asyncio.Future()
+
+        def _cancel_ready_event(f=None):
+            if not ready_event_future.done():
+                if f and f.exception():
+                    ready_event_future.set_exception(f.exception())
+                else:
+                    ready_event_future.cancel()
         try:
             resp = await self.api_request(
                 'users/{}/servers/{}'.format(escaped_username, server_name),
@@ -257,9 +265,18 @@ class Launcher(LoggingConfigurable):
                         event = json.loads(line.split(":", 1)[1])
                         if event_callback:
                             await event_callback(event)
+
+                        # stream ends when server is ready or fails
                         if event.get("ready", False):
-                            # stream ends when server is ready
-                            ready_event_container.append(event)
+                            if not ready_event_future.done():
+                                ready_event_future.set_result(event)
+                        elif event.get("failed", False):
+                            if not ready_event_future.done():
+                                ready_event_future.set_exception(
+                                    web.HTTPError(
+                                        500, event.get("message", "unknown error")
+                                    )
+                                )
 
             url_parts = ["users", username]
             if server_name:
@@ -267,6 +284,7 @@ class Launcher(LoggingConfigurable):
             else:
                 url_parts.extend(["server/progress"])
             progress_api_url = url_path_join(*url_parts)
+            self.log.debug("Requesting progress for {username}: {progress_api_url}")
             resp_future = self.api_request(
                 progress_api_url,
                 streaming_callback=handle_chunk,
@@ -277,12 +295,14 @@ class Launcher(LoggingConfigurable):
                     timedelta(seconds=self.launch_timeout), resp_future
                 )
             except (gen.TimeoutError, TimeoutError):
+                _cancel_ready_event()
                 raise web.HTTPError(
                     500,
                     f"Image {image} for user {username} took too long to launch",
                 )
 
         except HTTPError as e:
+            _cancel_ready_event()
             if e.response:
                 body = e.response.body
             else:
@@ -292,13 +312,20 @@ class Launcher(LoggingConfigurable):
                 f"Error starting server{_server_name} for user {username}: {e}\n{body}"
             )
             raise web.HTTPError(500, f"Failed to launch image {image}")
+        except Exception:
+            _cancel_ready_event()
+            raise
 
         # verify that the server is running!
-        if not ready_event_container:
+        try:
+            # this should already be done, but it's async so wait a finite time
+            ready_event = await gen.with_timeout(
+                timedelta(seconds=5), ready_event_future
+            )
+        except (gen.TimeoutError, TimeoutError):
             raise web.HTTPError(
                 500, f"Image {image} for user {username} failed to launch"
             )
-        ready_event = ready_event_container[0]
 
         data["url"] = url_path_join(self.hub_url, ready_event["url"])
         return data
