@@ -57,7 +57,7 @@ class CPUSpecification(Unicode):
     def validate(self, obj, value):
         """
         Validate that the passed in value is a valid cpu specification
-        in the K8s CPU meaning.
+        using Kubernetes formatting.
         
         See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu
 
