@@ -233,61 +233,54 @@ class Launcher(LoggingConfigurable):
 
         # start server
         app_log.info(f"Starting server{_server_name} for user {username} with image {image}")
+        ready_event_container = []
         try:
             resp = await self.api_request(
                 'users/{}/servers/{}'.format(escaped_username, server_name),
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
             )
-            if resp.code == 202:
-                # Server hasn't actually started yet
-                # listen for pending spawn (launch) events until server is ready
-                ready_event_container = []
-                buffer_list = []
+            # listen for pending spawn (launch) events until server is ready
+            # do this even if previous request finished!
+            buffer_list = []
 
-                async def handle_chunk(chunk):
-                    lines = b"".join(buffer_list + [chunk]).split(b"\n\n")
-                    # the last item in the list is usually an empty line ('')
-                    # but it can be the partial line after the last `\n\n`,
-                    # so put it back on the buffer to handle with the next chunk
-                    buffer_list[:] = [lines[-1]]
-                    for line in lines[:-1]:
-                        if line:
-                            line = line.decode("utf8", "replace")
-                        if line and line.startswith("data:"):
-                            event = json.loads(line.split(":", 1)[1])
-                            if event_callback:
-                                await event_callback(event)
-                            if event.get("ready", False):
-                                # stream ends when server is ready
-                                ready_event_container.append(event)
+            async def handle_chunk(chunk):
+                lines = b"".join(buffer_list + [chunk]).split(b"\n\n")
+                # the last item in the list is usually an empty line ('')
+                # but it can be the partial line after the last `\n\n`,
+                # so put it back on the buffer to handle with the next chunk
+                buffer_list[:] = [lines[-1]]
+                for line in lines[:-1]:
+                    if line:
+                        line = line.decode("utf8", "replace")
+                    if line and line.startswith("data:"):
+                        event = json.loads(line.split(":", 1)[1])
+                        if event_callback:
+                            await event_callback(event)
+                        if event.get("ready", False):
+                            # stream ends when server is ready
+                            ready_event_container.append(event)
 
-                url_parts = ["users", username]
-                if server_name:
-                    url_parts.extend(["servers", server_name, "progress"])
-                else:
-                    url_parts.extend(["server/progress"])
-                progress_api_url = url_path_join(*url_parts)
-                resp_future = self.api_request(
-                    progress_api_url,
-                    streaming_callback=handle_chunk,
-                    request_timeout=self.launch_timeout,
+            url_parts = ["users", username]
+            if server_name:
+                url_parts.extend(["servers", server_name, "progress"])
+            else:
+                url_parts.extend(["server/progress"])
+            progress_api_url = url_path_join(*url_parts)
+            resp_future = self.api_request(
+                progress_api_url,
+                streaming_callback=handle_chunk,
+                request_timeout=self.launch_timeout,
+            )
+            try:
+                await gen.with_timeout(
+                    timedelta(seconds=self.launch_timeout), resp_future
                 )
-                try:
-                    await gen.with_timeout(
-                        timedelta(seconds=self.launch_timeout), resp_future
-                    )
-                except (gen.TimeoutError, TimeoutError):
-                    raise web.HTTPError(
-                        500,
-                        f"Image {image} for user {username} took too long to launch",
-                    )
-
-                # verify that the server is running!
-                if not ready_event_container:
-                    raise web.HTTPError(
-                        500, f"Image {image} for user {username} failed to launch"
-                    )
+            except (gen.TimeoutError, TimeoutError):
+                raise web.HTTPError(
+                    500,
+                    f"Image {image} for user {username} took too long to launch",
+                )
 
         except HTTPError as e:
             if e.response:
@@ -295,11 +288,17 @@ class Launcher(LoggingConfigurable):
             else:
                 body = ''
 
-            app_log.error("Error starting server{} for user {}: {}\n{}".
-                          format(_server_name, username, e, body))
+            app_log.error(
+                f"Error starting server{_server_name} for user {username}: {e}\n{body}"
+            )
             raise web.HTTPError(500, f"Failed to launch image {image}")
 
-        data["url"] = url_path_join(
-            self.hub_url, f"user/{escaped_username}/{server_name}"
-        )
+        # verify that the server is running!
+        if not ready_event_container:
+            raise web.HTTPError(
+                500, f"Image {image} for user {username} failed to launch"
+            )
+        ready_event = ready_event_container[0]
+
+        data["url"] = url_path_join(self.hub_url, ready_event["url"])
         return data
