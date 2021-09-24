@@ -346,9 +346,14 @@ function loadingMain(providerSpec) {
   if (path) {
     pathType = 'url';
   } else {
-    path = params.get('filepath');
+    path = params.get('labpath');
     if (path) {
-      pathType = 'file';
+      pathType = 'lab';
+    } else {
+      path = params.get('filepath');
+      if (path) {
+        pathType = 'file';
+      }
     }
   }
   build(providerSpec, log, fitAddon, path, pathType);
