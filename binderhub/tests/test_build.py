@@ -48,13 +48,14 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     r = await async_requests.get(build_url, stream=True)
     r.raise_for_status()
     events = []
+    launch_events = 0
     async for line in async_requests.iter_lines(r):
         line = line.decode('utf8', 'replace')
         if line.startswith('data:'):
             event = json.loads(line.split(':', 1)[1])
             events.append(event)
             assert 'message' in event
-            sys.stdout.write(event['message'])
+            sys.stdout.write(f"{event.get('phase', '')}: {event['message']}")
             # this is the signal that everything is ready, pod is launched
             # and server is up inside the pod. Break out of the loop now
             # because BinderHub keeps the connection open for many seconds
@@ -62,7 +63,14 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
             if event.get('phase') == 'ready':
                 r.close()
                 break
+            if event.get("phase") == "launching" and not event["message"].startswith(
+                ("Launching server...", "Launch attempt ")
+            ):
+                # skip standard launching events of builder
+                # we are interested in launching events from spawner
+                launch_events += 1
 
+    assert launch_events > 0
     final = events[-1]
     assert 'phase' in final
     assert final['phase'] == 'ready'

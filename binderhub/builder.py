@@ -582,17 +582,30 @@ class BuildHandler(BaseHandler):
                 username = launcher.unique_name_from_repo(self.repo_url)
                 server_name = ''
             try:
+
+                async def handle_progress_event(event):
+                    message = event["message"]
+                    await self.emit(
+                        {
+                            "phase": "launching",
+                            "message": message + "\n",
+                        }
+                    )
+
                 extra_args = {
                     'binder_ref_url': self.ref_url,
                     'binder_launch_host': self.binder_launch_host,
                     'binder_request': self.binder_request,
                     'binder_persistent_request': self.binder_persistent_request,
                 }
-                server_info = await launcher.launch(image=self.image_name,
-                                                    username=username,
-                                                    server_name=server_name,
-                                                    repo_url=self.repo_url,
-                                                    extra_args=extra_args)
+                server_info = await launcher.launch(
+                    image=self.image_name,
+                    username=username,
+                    server_name=server_name,
+                    repo_url=self.repo_url,
+                    extra_args=extra_args,
+                    event_callback=handle_progress_event,
+                )
             except Exception as e:
                 duration = time.perf_counter() - launch_starttime
                 if i + 1 == launcher.retries:

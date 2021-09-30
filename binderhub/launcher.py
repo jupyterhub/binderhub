@@ -1,6 +1,7 @@
 """
 Launch an image with a temporary user via JupyterHub
 """
+import asyncio
 import base64
 import json
 import random
@@ -9,6 +10,7 @@ import string
 from urllib.parse import urlparse, quote
 import uuid
 import os
+from datetime import timedelta
 
 from tornado.log import app_log
 from tornado import web, gen
@@ -17,6 +19,8 @@ from traitlets.config import LoggingConfigurable
 from traitlets import Integer, Unicode, Bool, default
 from jupyterhub.traitlets import Callable
 from jupyterhub.utils import maybe_future
+
+from .utils import url_path_join
 
 # pattern for checking if it's an ssh repo and not a URL
 # used only after verifying that `://` is not present
@@ -79,6 +83,13 @@ class Launcher(LoggingConfigurable):
 
         Receives 5 parameters: launcher, image, username, server_name, repo_url
         """
+    )
+    launch_timeout = Integer(
+        600,
+        config=True,
+        help="""
+        Wait this many seconds until server is ready, raise TimeoutError otherwise.
+        """,
     )
 
     async def api_request(self, url, *args, **kwargs):
@@ -148,7 +159,15 @@ class Launcher(LoggingConfigurable):
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
 
-    async def launch(self, image, username, server_name='', repo_url='', extra_args=None):
+    async def launch(
+        self,
+        image,
+        username,
+        server_name="",
+        repo_url="",
+        extra_args=None,
+        event_callback=None,
+    ):
         """Launch a server for a given image
 
         - creates a temporary user on the Hub if authentication is not enabled
@@ -215,38 +234,100 @@ class Launcher(LoggingConfigurable):
 
         # start server
         app_log.info(f"Starting server{_server_name} for user {username} with image {image}")
+        ready_event_future = asyncio.Future()
+
+        def _cancel_ready_event(f=None):
+            if not ready_event_future.done():
+                if f and f.exception():
+                    ready_event_future.set_exception(f.exception())
+                else:
+                    ready_event_future.cancel()
         try:
             resp = await self.api_request(
                 'users/{}/servers/{}'.format(escaped_username, server_name),
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
             )
-            if resp.code == 202:
-                # Server hasn't actually started yet
-                # We wait for it!
-                # NOTE: This ends up being about ten minutes
-                for i in range(64):
-                    user_data = await self.get_user_data(escaped_username)
-                    if user_data['servers'][server_name]['ready']:
-                        break
-                    if not user_data['servers'][server_name]['pending']:
-                        raise web.HTTPError(500, "Image %s for user %s failed to launch" % (image, username))
-                    # FIXME: make this configurable
-                    # FIXME: Measure how long it takes for servers to start
-                    # and tune this appropriately
-                    await gen.sleep(min(1.4 ** i, 10))
-                else:
-                    raise web.HTTPError(500, f"Image {image} for user {username} took too long to launch")
+            # listen for pending spawn (launch) events until server is ready
+            # do this even if previous request finished!
+            buffer_list = []
+
+            async def handle_chunk(chunk):
+                lines = b"".join(buffer_list + [chunk]).split(b"\n\n")
+                # the last item in the list is usually an empty line ('')
+                # but it can be the partial line after the last `\n\n`,
+                # so put it back on the buffer to handle with the next chunk
+                buffer_list[:] = [lines[-1]]
+                for line in lines[:-1]:
+                    if line:
+                        line = line.decode("utf8", "replace")
+                    if line and line.startswith("data:"):
+                        event = json.loads(line.split(":", 1)[1])
+                        if event_callback:
+                            await event_callback(event)
+
+                        # stream ends when server is ready or fails
+                        if event.get("ready", False):
+                            if not ready_event_future.done():
+                                ready_event_future.set_result(event)
+                        elif event.get("failed", False):
+                            if not ready_event_future.done():
+                                ready_event_future.set_exception(
+                                    web.HTTPError(
+                                        500, event.get("message", "unknown error")
+                                    )
+                                )
+
+            url_parts = ["users", username]
+            if server_name:
+                url_parts.extend(["servers", server_name, "progress"])
+            else:
+                url_parts.extend(["server/progress"])
+            progress_api_url = url_path_join(*url_parts)
+            self.log.debug("Requesting progress for {username}: {progress_api_url}")
+            resp_future = self.api_request(
+                progress_api_url,
+                streaming_callback=lambda chunk: asyncio.ensure_future(
+                    handle_chunk(chunk)
+                ),
+                request_timeout=self.launch_timeout,
+            )
+            try:
+                await gen.with_timeout(
+                    timedelta(seconds=self.launch_timeout), resp_future
+                )
+            except (gen.TimeoutError, TimeoutError):
+                _cancel_ready_event()
+                raise web.HTTPError(
+                    500,
+                    f"Image {image} for user {username} took too long to launch",
+                )
 
         except HTTPError as e:
+            _cancel_ready_event()
             if e.response:
                 body = e.response.body
             else:
                 body = ''
 
-            app_log.error("Error starting server{} for user {}: {}\n{}".
-                          format(_server_name, username, e, body))
+            app_log.error(
+                f"Error starting server{_server_name} for user {username}: {e}\n{body}"
+            )
             raise web.HTTPError(500, f"Failed to launch image {image}")
+        except Exception:
+            _cancel_ready_event()
+            raise
 
-        data['url'] = self.hub_url + 'user/%s/%s' % (escaped_username, server_name)
+        # verify that the server is running!
+        try:
+            # this should already be done, but it's async so wait a finite time
+            ready_event = await gen.with_timeout(
+                timedelta(seconds=5), ready_event_future
+            )
+        except (gen.TimeoutError, TimeoutError):
+            raise web.HTTPError(
+                500, f"Image {image} for user {username} failed to launch"
+            )
+
+        data["url"] = url_path_join(self.hub_url, ready_event["url"])
         return data
