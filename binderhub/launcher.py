@@ -287,7 +287,9 @@ class Launcher(LoggingConfigurable):
             self.log.debug("Requesting progress for {username}: {progress_api_url}")
             resp_future = self.api_request(
                 progress_api_url,
-                streaming_callback=handle_chunk,
+                streaming_callback=lambda chunk: asyncio.ensure_future(
+                    handle_chunk(chunk)
+                ),
                 request_timeout=self.launch_timeout,
             )
             try:
