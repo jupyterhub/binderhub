@@ -1,10 +1,8 @@
 name: Publish helm chart and docker images
 
-# Trigger the workflow on tags or commits to the main or master branch.
 on:
+  pull_request:
   push:
-    branches: [main, master]
-    tags: ["**"]
 
 
 jobs:
@@ -17,6 +15,7 @@ jobs:
   #
   Publish:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') || (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/master')
     steps:
       - uses: actions/checkout@v2
         with:
@@ -76,3 +75,24 @@ jobs:
         run: |
           ./tools/generate-json-schema.py
           ./ci/publish
+
+  PyPI-testbuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Versioneer requires past tags
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install pypa/build
+        run: python -mpip install build
+      - name: Build a sdist, and a binary wheel from the sdist
+        run: python -mbuild .
+      # ref: https://github.com/actions/upload-artifact#readme
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pypi-dist
+          path: "dist/*"
+          if-no-files-found: error
