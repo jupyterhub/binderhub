@@ -383,9 +383,8 @@ to prepare for breaking changes associated with the version bump.
 
 * update/close the `CHANGES.md` for this release (see below)
 * create a git tag for the release
-* `pip install twine`
-* `python setup.py sdist`
-* `python setup.py bdist_wheel`
+* `pip install build twine`
+* `python -mbuild .`
 * `twine check dist/*` to check the README parses on PyPI
 * edit `$HOME/.pypirc` to use the binder team account
 * `twine upload dist/*`
@@ -399,7 +398,7 @@ PyPI](https://packaging.python.org/guides/distributing-packages-using-setuptools
 
 As BinderHub does not have a typical semver release schedule, we try to
 update the changelog in `CHANGES.md` every three months. A useful tool
-for this [can be found here](https://github.com/choldgraf/github-activity).
+for this [can be found here](https://github.com/executablebooks/github-activity).
 If you choose to use this tool, the command that generated current sections
 in the changelog is below:
 
