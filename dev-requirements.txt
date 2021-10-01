@@ -4,6 +4,7 @@ click
 codecov
 html5lib
 jsonschema
+jupyter_packaging>=0.10.4,<2
 jupyterhub
 pytest
 pytest-asyncio
