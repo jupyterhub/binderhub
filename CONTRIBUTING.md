@@ -200,9 +200,8 @@ sudo apt install python3 python3-pip npm curl
   cluster. Note: when you no longer wish to use the minikube host, you can
   undo this change by running:
 
-  ```bash
-  eval $(minikube docker-env -u)
-  ```
+   ```bash
+   eval $(minikube docker-env -u)
 
 You are now setup for work on the Python server. Return to "day-to-day development tasks".
 
