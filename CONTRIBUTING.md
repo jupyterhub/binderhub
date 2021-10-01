@@ -159,11 +159,6 @@ Before you begin, there are a few utilities that need to be installed:
 sudo apt install python3 python3-pip npm curl
 ```
 
-If you are on linux, you may additionally need to install socat for port forwarding:
-
-```bash
-sudo apt install socat
-```
 
 1. [Install Minikube](https://minikube.sigs.k8s.io/docs/start/) to run Kubernetes locally.
 
