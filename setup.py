@@ -1,12 +1,24 @@
+from jupyter_packaging import wrap_installers, npm_builder
 import os
 
 from setuptools import setup, find_packages
-import subprocess
 
 import versioneer
 
 
 here = os.path.dirname(__file__)
+
+# Representative files that should exist after a successful build
+jstargets = [
+    os.path.join(here, "binderhub", "static", "dist", "bundle.js"),
+]
+
+# Automatically rebuild assets in dist if js is modified
+jsdeps = npm_builder(build_cmd="webpack", build_dir="binderhub/static/dist/", source_dir="binderhub/static/js/")
+cmdclass = wrap_installers(
+    pre_develop=jsdeps, pre_dist=jsdeps,
+    ensured_targets=jstargets)
+
 
 with open(os.path.join(here, 'requirements.txt')) as f:
     requirements = [
@@ -19,18 +31,10 @@ with open(os.path.join(here, 'requirements.txt')) as f:
 with open(os.path.join(here, 'README.md'), encoding="utf8") as f:
     readme = f.read()
 
-# Build our js and css files before packaging
-if os.name == "nt":
-    subprocess.check_call(['npm.cmd', 'install'])
-    subprocess.check_call(['npm.cmd', 'run', 'webpack'])
-else:
-    subprocess.check_call(['npm', 'install'])
-    subprocess.check_call(['npm', 'run', 'webpack'])
-
 setup(
     name='binderhub',
     version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=versioneer.get_cmdclass(cmdclass),
     python_requires='>=3.6',
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',
