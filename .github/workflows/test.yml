@@ -1,3 +1,6 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
 name: Tests
 
 on:
@@ -24,13 +27,22 @@ jobs:
       fail-fast: false
       matrix:
         k3s-channel:
-        - v1.19
-        helm-version:
-        - v3.5.0
+        # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
+        - latest
         test:
         - main
         - auth
         - helm
+        include:
+          # Chart.yaml contains the chart's oldest supported k8s version, we
+          # want to test against that. We also test against the oldest known
+          # supported helm cli version which isn't documented anywhere, but is
+          # currently at 3.5.0. Currently we have listed 1.17 in Chart.yaml, but
+          # due to a k3s issue with their k8s 1.17 release, we can't test
+          # against k8s 1.17 and settle for k8s 1.18 for now.
+          - k3s-channel: v1.18
+            helm-version: v3.5.0
+            test: helm
     steps:
       - uses: actions/checkout@v2
         with:
@@ -39,7 +51,7 @@ jobs:
 
       - uses: jupyterhub/action-k3s-helm@v1
         with:
-          k3s-version: ${{ matrix.k3s-version }}
+          k3s-channel: ${{ matrix.k3s-channel }}
           helm-version: ${{ matrix.helm-version }}
           metrics-enabled: false
           traefik-enabled: false
