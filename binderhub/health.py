@@ -138,7 +138,7 @@ class HealthHandler(BaseHandler):
     @retry
     async def check_jupyterhub_api(self, hub_url):
         """Check JupyterHub API health"""
-        await AsyncHTTPClient().fetch(hub_url + "hub/health", request_timeout=3)
+        await AsyncHTTPClient().fetch(hub_url + "hub/api/health", request_timeout=3)
         return True
 
     @false_if_raises
