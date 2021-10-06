@@ -82,7 +82,6 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     t.start()
 
     c_last = ""
-    terminate = False
     terminated = False
     while True:
         try:
@@ -93,15 +92,13 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
             if c == b"\n":
                 yield flush()
             c_last = c
-            if break_callback:
-                terminate = break_callback()
+            if break_callback and break_callback():
+                proc.kill()
+                terminated = True
         except queue.Empty:
-            if break_callback:
-                terminate = break_callback()
-                if terminate:
-                    proc.kill()
-                    terminated = True
-            # Only terminate if timeout occurred so that all output has been read
+            if break_callback and break_callback():
+                proc.kill()
+                terminated = True
             if not t.is_alive():
                 break
     if buf:
