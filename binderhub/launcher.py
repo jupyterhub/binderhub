@@ -284,7 +284,7 @@ class Launcher(LoggingConfigurable):
             else:
                 url_parts.extend(["server/progress"])
             progress_api_url = url_path_join(*url_parts)
-            self.log.debug("Requesting progress for {username}: {progress_api_url}")
+            self.log.debug(f"Requesting progress for {username}: {progress_api_url}")
             resp_future = self.api_request(
                 progress_api_url,
                 streaming_callback=lambda chunk: asyncio.ensure_future(
@@ -329,5 +329,6 @@ class Launcher(LoggingConfigurable):
                 500, f"Image {image} for user {username} failed to launch"
             )
 
-        data["url"] = url_path_join(self.hub_url, ready_event["url"])
+        data["url"] = self.hub_url + f"user/{escaped_username}/{server_name}"
+        self.log.debug(data["url"])
         return data
