@@ -217,7 +217,9 @@ async def test_local_repo2docker_build():
 @pytest.mark.asyncio(timeout=20)
 async def test_local_repo2docker_build_stop(event_loop):
     q = Queue()
-    repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
+    # We need a slow build here so that we can interrupt it, so pick a large repo that
+    # will take several seconds to clone
+    repo_url = "https://github.com/jupyterhub/jupyterhub"
     ref = "HEAD"
     name = str(uuid4())
 
