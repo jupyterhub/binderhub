@@ -129,7 +129,9 @@ ingress:
     type: kube-lego
   hosts: [domain.com]
   annotations: *annotations
+  ingressClassName: mock-ingress-class-name
   pathSuffix: dummy-pathSuffix
+  pathType: ImplementationSpecific
   tls:
     - secretName: binderhub-tls
       hosts:

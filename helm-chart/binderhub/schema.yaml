@@ -459,12 +459,28 @@ properties:
         type: array
         description: |
           List of hosts to route requests to the proxy.
+      ingressClassName:
+        type: [string, "null"]
+        description: |
+          Maps directly to the Ingress resource's spec.ingressClassName. To
+          configure this, your k8s cluster must have version 1.18+ or above.
+
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class)
+          for more details.
       pathSuffix:
         type: [string, "null"]
         description: |
           Suffix added to Ingress's routing path pattern.
 
           Specify `*` if your ingress matches path by glob pattern.
+      pathType:
+        enum: [Prefix, Exact, ImplementationSpecific]
+        description: |
+          The path type to use. The default value is 'Prefix'. Only applies on Kubernetes v1.18+.
+
+          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) 
+          for more details about path types.
       tls:
         type: array
         description: |

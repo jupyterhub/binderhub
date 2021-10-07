@@ -1,8 +1,8 @@
 {{- if .Values.ingress.enabled -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
-apiVersion: networking.k8s.io/v1beta1
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
 {{- else }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
@@ -17,15 +17,27 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
+  {{- with .Values.ingress.ingressClassName }}
+  ingressClassName: "{{ . }}"
+  {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ . }}
       http:
         paths:
           - path: /{{ $.Values.ingress.pathSuffix }}
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            pathType: {{ $.Values.ingress.pathType }}
+            backend:
+              service:
+                name: binder
+                port:
+                  name: 80
+            {{- else }}
             backend:
               serviceName: binder
               servicePort: 80
+            {{- end }}
     {{- end }}
   {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
   tls:
