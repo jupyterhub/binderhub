@@ -32,8 +32,6 @@ with open(os.path.join(here, 'requirements.txt')) as f:
         line.strip() for line in f.readlines()
         if not line.strip().startswith('#')
     ]
-    # manually add pycurl here, see comment in requirements.txt
-    requirements.append("pycurl")
 
 with open(os.path.join(here, 'README.md'), encoding="utf8") as f:
     readme = f.read()
@@ -61,4 +59,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
+    extras_require={
+        # optional dependency which improves performance
+        'pycurl': ['pycurl'],
+    },
 )
