@@ -164,7 +164,7 @@ jobs:
         if: matrix.test == 'helm'
         run: |
             . ci/common
-            await_binderhub
+            await_binderhub binderhub-test
 
             echo curl http://localhost:30901/health to check BinderHub\'s health
             curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
