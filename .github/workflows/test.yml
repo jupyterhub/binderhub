@@ -141,7 +141,7 @@ jobs:
             helm template --validate binderhub-test helm-chart/binderhub \
                 --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
                 --set config.BinderHub.hub_url=http://localhost:30902 \
-                --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+                --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
 
       - name: Install the chart
         if: matrix.test == 'helm'
@@ -150,7 +150,7 @@ jobs:
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
               --set config.BinderHub.hub_url=http://localhost:30902 \
               --set config.BinderHub.hub_url_local=http://proxy-public \
-              --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
 
       - name: Await and curl JupyterHub
         run: |
