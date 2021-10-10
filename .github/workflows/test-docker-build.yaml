@@ -1,0 +1,56 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
+name: Test docker multiarch build
+
+# Trigger the workflow's on all PRs and pushes so that other contributors can
+# run tests in their own forks. Avoid triggering this tests on changes not
+# influencing the image notably.
+on:
+  pull_request:
+    paths:
+      - "helm-chart/images/**"
+      - "helm-chart/chartpress.yaml"
+      - ".github/workflows/test-docker-build.yaml"
+  push:
+    paths:
+      - "helm-chart/images/**"
+      - "helm-chart/chartpress.yaml"
+      - ".github/workflows/test-docker-build.yaml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+  workflow_dispatch:
+
+jobs:
+  # This is a quick test to check the arm64 docker images based on:
+  # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/local-registry.md
+  # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/multi-platform.md
+  build_images:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # chartpress requires git history to set chart version and image tags
+          # correctly
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install chartpress
+        run: pip install chartpress
+
+      - name: Set up QEMU (for docker buildx)
+        uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480 # dependabot updates to latest release
+
+      - name: Set up Docker Buildx (for chartpress multi-arch builds)
+        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25 # dependabot updates to latest release
+
+      - name: Build a multiple architecture Docker image
+        run: |
+          cd helm-chart
+          chartpress \
+              --builder docker-buildx \
+              --platform linux/amd64 --platform linux/arm64
