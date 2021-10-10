@@ -24,14 +24,14 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
         {{- with .Values.deployment.labels }}
-        {{- . | toYaml | trimSuffix "\n" | nindent 8 }}
+        {{- . | toYaml | nindent 8 }}
         {{- end }}
       annotations:
         # This lets us autorestart when the configmap changes!
         checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
-        {{- . | toYaml | trimSuffix "\n" | nindent 8 }}
+        {{- . | toYaml | nindent 8 }}
         {{- end }}
     spec:
       {{- with .Values.initContainers }}
