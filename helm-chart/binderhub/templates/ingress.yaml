@@ -32,7 +32,7 @@ spec:
               service:
                 name: binder
                 port:
-                  name: 80
+                  number: 80
             {{- else }}
             backend:
               serviceName: binder
