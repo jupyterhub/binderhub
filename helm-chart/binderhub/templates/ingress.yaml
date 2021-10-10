@@ -12,13 +12,13 @@ metadata:
     {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
     kubernetes.io/tls-acme: "true"
     {{- end }}
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- . | toYaml | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:
   {{- with .Values.ingress.ingressClassName }}
-  ingressClassName: "{{ . }}"
+  ingressClassName: {{ . | quote }}
   {{- end }}
   rules:
     {{- range $host := .Values.ingress.hosts | default (list "") }}
@@ -37,8 +37,8 @@ spec:
               serviceName: binder
               servicePort: 80
             {{- end }}
-      {{- if $host }}
-      host: {{ $host | quote }}
+      {{- with $host }}
+      host: {{ . | quote }}
       {{- end }}
     {{- end }}
   {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
