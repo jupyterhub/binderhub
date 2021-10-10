@@ -18,6 +18,17 @@ await_jupyterhub() {
 }
 
 await_binderhub() {
-    await_jupyterhub
-    kubectl rollout status --watch --timeout 300s deployment/binder
+    # accepts the release name as a parameter
+    await_jupyterhub \
+ && kubectl rollout status --watch --timeout 300s deployment/binder \
+ && (
+        if kubectl get "daemonset/${1}-dind" > /dev/null 2>&1; then
+            kubectl rollout status --watch --timeout 300s "daemonset/${1}-dind"
+        fi
+    ) \
+ && (
+        if kubectl get "daemonset/${1}-image-cleaner" > /dev/null 2>&1; then
+            kubectl rollout status --watch --timeout 300s "daemonset/${1}-image-cleaner"
+        fi
+    )
 }
