@@ -214,7 +214,7 @@ continue.
    helm template --validate binderhub-test helm-chart/binderhub \
       --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
       --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
-      --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+      --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
    ```
 
    If the validation succeeds, go ahead and upgrade/install the Helm chart.
@@ -225,7 +225,7 @@ continue.
    helm upgrade --install binderhub-test helm-chart/binderhub \
       --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
       --set config.BinderHub.hub_url=http://$(minikube ip):30902 \
-      --set config.BinderHub.access_token=$GITHUB_ACCESS_TOKEN
+      --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
 
    echo "BinderHub inside the Minikube based Kubernetes cluster is starting up at http://$(minikube ip):30901"
    ```
