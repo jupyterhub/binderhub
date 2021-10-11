@@ -42,9 +42,6 @@ spec:
           mountPath: /var/lib/docker
         - name: dockersocket-{{ $kind }}
           mountPath: /var/run/docker.sock
-        command:
-        - python3
-        - /usr/local/bin/image-cleaner.py
         env:
         - name: NODE_NAME
           valueFrom:

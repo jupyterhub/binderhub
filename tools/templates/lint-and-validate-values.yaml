@@ -89,7 +89,7 @@ deployment:
   labels: *labels
 
 dind:
-  enabled: false
+  enabled: true
   initContainers: &initContainers
     - name: mock-init-container-name
       image: mock-init-container-image

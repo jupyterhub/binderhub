@@ -43,6 +43,12 @@ jobs:
           - k3s-channel: v1.18
             helm-version: v3.5.0
             test: helm
+          - k3s-channel: stable
+            test: helm
+            test-variation: upgrade
+            # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
+            upgrade-from: dev
+            upgrade-from-extra-args: ""
     steps:
       - uses: actions/checkout@v2
         with:
@@ -143,6 +149,52 @@ jobs:
                 --set config.BinderHub.hub_url=http://localhost:30902 \
                 --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
 
+      - name: "(Upgrade) Install ${{ matrix.upgrade-from }} chart"
+        if: matrix.test-variation == 'upgrade'
+        run: |
+          . ./ci/common
+          UPGRADE_FROM_VERSION=$(curl -sS https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.${{ matrix.upgrade-from }}')
+          echo "UPGRADE_FROM_VERSION=$UPGRADE_FROM_VERSION" >> $GITHUB_ENV
+
+          echo ""
+          echo "Installing already released binderhub version $UPGRADE_FROM_VERSION"
+
+          # FIXME: We change the directory so binderhub the chart name won't be
+          #        misunderstood as the local folder name.
+          #
+          #        https://github.com/helm/helm/issues/9244
+          cd ci
+          helm install binderhub-test \
+              --repo https://jupyterhub.github.io/helm-chart/ binderhub \
+              --version=$UPGRADE_FROM_VERSION \
+              --values ../testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --set config.BinderHub.hub_url=http://localhost:30902 \
+              --set config.BinderHub.hub_url_local=http://proxy-public \
+              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
+              ${{ matrix.upgrade-from-extra-args }}
+
+      - name: "(Upgrade) Install helm diff"
+        if: matrix.test-variation == 'upgrade'
+        run: |
+          helm plugin install https://github.com/databus23/helm-diff
+
+      - name: "(Upgrade) Helm diff ${{ matrix.upgrade-from }} chart with local chart"
+        if: matrix.test-variation == 'upgrade'
+        run: |
+          helm diff upgrade binderhub-test ./helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --set config.BinderHub.hub_url=http://localhost:30902 \
+              --set config.BinderHub.hub_url_local=http://proxy-public \
+              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
+              ${{ matrix.local-chart-extra-args }}
+
+      - name: "(Upgrade) Await ${{ matrix.upgrade-from }} chart"
+        if: matrix.test-variation == 'upgrade'
+        uses: jupyterhub/action-k8s-await-workloads@v1
+        with:
+          timeout: 150
+          max-restarts: 1
+
       - name: Install the chart
         if: matrix.test == 'helm'
         run: |
@@ -150,7 +202,8 @@ jobs:
               --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
               --set config.BinderHub.hub_url=http://localhost:30902 \
               --set config.BinderHub.hub_url_local=http://proxy-public \
-              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
+              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
+              ${{ matrix.local-chart-extra-args }}
 
       - name: Await and curl JupyterHub
         run: |
@@ -164,7 +217,7 @@ jobs:
         if: matrix.test == 'helm'
         run: |
             . ci/common
-            await_binderhub
+            await_binderhub binderhub-test
 
             echo curl http://localhost:30901/health to check BinderHub\'s health
             curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused

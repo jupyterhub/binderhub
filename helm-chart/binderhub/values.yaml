@@ -258,7 +258,7 @@ imageCleaner:
   enabled: true
   image:
     name: quay.io/jupyterhub/docker-image-cleaner
-    tag: 1.0.0-alpha.1
+    tag: 1.0.0-alpha.2
   # delete an image at most every 5 seconds
   delay: 5
   # Interpret threshold values as percentage or bytes
