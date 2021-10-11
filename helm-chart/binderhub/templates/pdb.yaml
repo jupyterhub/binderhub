@@ -14,7 +14,12 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  {{- if not (.Values.pdb.maxUnavailable | typeIs "<nil>") }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
+  {{- end }}
+  {{- if not (.Values.pdb.minAvailable | typeIs "<nil>") }}
   minAvailable: {{ .Values.pdb.minAvailable }}
+  {{- end }}
   selector:
     matchLabels:
       app: binder

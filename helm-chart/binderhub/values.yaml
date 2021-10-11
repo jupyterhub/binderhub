@@ -1,9 +1,9 @@
 pdb:
   enabled: true
-  minAvailable: 1
+  maxUnavailable: 1
+  minAvailable:
 
 replicas: 1
-
 
 resources:
   requests:
