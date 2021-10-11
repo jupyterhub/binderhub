@@ -6,14 +6,16 @@
 # Exit on errors, assert env vars, log commands
 set -eux
 
+PUBLISH_ARGS="--push --publish-chart \
+    --builder docker-buildx \
+    --platform linux/amd64 --platform linux/arm64 \
+    "
+
 cd helm-chart
 # chartpress use git to push to our Helm chart repository, which is the gh-pages
 # branch of jupyterhub/helm-chart. We have installed a private SSH key within
 # the ~/.ssh folder with permissions to push to jupyterhub/helm-chart.
 if [[ $GITHUB_REF != refs/tags/* ]]; then
-    # Using --long, we are ensured to get a build suffix, which ensures we don't
-    # build the same tag twice.
-    #
     # Using --extra-message, we help readers of merged PRs to know what version
     # they need to bump to in order to make use of the PR. This is enabled by a
     # GitHub notificaiton in the PR like "Github Action user pushed a commit to
@@ -30,11 +32,11 @@ if [[ $GITHUB_REF != refs/tags/* ]]; then
     PR_OR_HASH=$(git log -1 --pretty=%h-%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/' | sed 's/^\([0-9a-f]*\)-.*/@\1/')
     LATEST_COMMIT_TITLE=$(git log -1 --pretty=%B | head -n1)
     EXTRA_MESSAGE="${GITHUB_REPOSITORY}${PR_OR_HASH} ${LATEST_COMMIT_TITLE}"
-    chartpress --push --publish-chart --long --extra-message "${EXTRA_MESSAGE}"
+    chartpress $PUBLISH_ARGS --extra-message "${EXTRA_MESSAGE}"
 else
     # Setting a tag explicitly enforces a rebuild if this tag had already been
     # built and we wanted to override it.
-    chartpress --push --publish-chart --tag "${GITHUB_REF:10}"
+    chartpress $PUBLISH_ARGS --tag "${GITHUB_REF:10}"
 fi
 
 # Let us log the changes chartpress did, it should include replacements for
