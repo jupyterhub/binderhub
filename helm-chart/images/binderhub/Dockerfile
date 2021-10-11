@@ -23,9 +23,12 @@ COPY . /tmp/binderhub
 WORKDIR /tmp/binderhub
 
 # Build the binderhub python library into a wheel and save it to the ./dist
-# folder. There are no pycurl wheels so we build our own in the build stage.
+# folder. There are no pycurl or ruamel.yaml.clib wheels so we build our own in
+# the build stage.
 RUN python -mpip install build && python -mbuild --wheel .
-RUN pip wheel pycurl --wheel-dir ./dist
+RUN pip wheel --wheel-dir ./dist \
+       pycurl \
+       ruamel.yaml.clib
 
 
 # The final stage
