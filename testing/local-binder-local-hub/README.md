@@ -13,7 +13,7 @@ Install local BinderHub from source
 
 Run JupyterHub in one terminal
 
-    jupyterhub --config=binderhub_config.py
+    jupyterhub --config=jupyterhub_config.py
 
 BinderHub will be running as a managed JupyterHub service, go to http://localhost:8000
 and you should be redirected to BinderHub.
