@@ -27,18 +27,13 @@ form {
     font-family: "ClearSans-Light", sans-serif;
 }
 
-p > a {
-    cursor: pointer;
-    color: rgb(120,120,120);
-    border-bottom: dotted 2px rgb(120,120,120);
-    transition: all 0.1s;
-    text-decoration: non
+a {
+    color: #337ab7;
+    text-decoration: none;
 }
 
-p > a:hover {
-    color: rgb(30,30,30);
-    border-bottom: dotted 2px rgb(30,30,30);
-    text-decoration: none;
+a:hover {
+    color: #23527c;
 }
 
 #build-form {
