@@ -241,7 +241,7 @@ function setUpLog() {
     fitAddon.fit();
   });
 
-  const $panelBody = $("div.panel-body");
+  const $panelBody = $("#log-container .panel-body");
   log.show = function () {
     $('#toggle-logs button.toggle').text('hide');
     $panelBody.removeClass('hidden');

@@ -148,35 +148,37 @@
           </div>
         </div>
 
-        <div id="build-progress" class="progress on-build hidden row">
-          <div id="phase-failed" class="progress-bar progress-bar-danger progress-bar-striped hidden" style="width: 100%">
+        <div id="build-progress" class="progress hidden on-build col-12 mb-1">
+          <div id="phase-failed" class="progress-bar progress-bar-striped hidden bg-danger" style="width: 100%">
             Failed. Try refreshing this page in a few seconds.
           </div>
-          <div id="phase-waiting" class="progress-bar progress-bar-danger progress-bar-striped active hidden" style="width: 10%">
+          <div id="phase-waiting" class="progress-bar progress-bar-striped progress-bar-animated hidden bg-danger" style="width: 10%">
             Waiting
           </div>
-          <div id="phase-already-built" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 90%">
+          <div id="phase-already-built" class="progress-bar progress-bar-striped progress-bar-animated hidden bg-warning" style="width: 90%">
             Already built!
           </div>
-          <div id="phase-building" class="progress-bar progress-bar-warning progress-bar-striped active hidden" style="width: 40%">
+          <div id="phase-building" class="progress-bar progress-bar-striped progress-bar-animated hidden bg-warning" style="width: 40%">
             Building
           </div>
-          <div id="phase-pushing" class="progress-bar progress-bar-info progress-bar-striped active hidden" style="width: 40%">
+          <div id="phase-pushing" class="progress-bar progress-bar-striped progress-bar-animated hidden bg-info" style="width: 40%">
             Pushing
           </div>
-          <div id="phase-launching" class="progress-bar progress-bar-success progress-bar-striped active hidden" style="width: 10%">
+          <div id="phase-launching" class="progress-bar progress-bar-striped progress-bar-animated hidden bg-success" style="width: 10%">
             Launching
           </div>
         </div>
 
-        <div id="log-container" class="panel panel-default on-build hidden row">
-          <div id="toggle-logs" class="panel-heading">
-            Build logs
-            <button type="button" class="btn btn-link btn-xs pull-right toggle">show</button>
-            <a id="view-raw-logs" class="btn btn-link btn-xs pull-right" target="_blank">view raw</a>
-          </div>
-          <div class="panel-body hidden">
-            <div id="log"></div>
+        <div class="col-12 mb-3">
+          <div id="log-container" class="panel hidden panel-default on-build">
+            <div id="toggle-logs" class="panel-header d-flex">
+              <label class='flex-grow-1 p-1'>Build logs</label>
+              <a class="toggle p-1">show</button>
+              <a id="view-raw-logs" class="p-1" target="_blank">view raw</a>
+            </div>
+            <div class="panel-body hidden">
+              <div id="log"></div>
+            </div>
           </div>
         </div>
       </form>

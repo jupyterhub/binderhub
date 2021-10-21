@@ -144,15 +144,10 @@ input[type='button'] {
 
 #build-progress {
     font-family: ClearSans-Bold, sans-serif;
-    font-size: 16px;
-    height: 28px;
+    height: 24px;
     text-shadow: black 1px 1px 1px;
 }
 
-#build-progress .progress-bar {
-    padding-top: 4px;
-
-}
 
 #explanation {
     color: rgb(40, 40, 40);
@@ -164,6 +159,10 @@ input[type='button'] {
 #log-container .panel-body {
     /* match color of terminal! */
     background-color: black;
+}
+
+#toggle-logs a {
+    cursor: pointer;
 }
 
 #launch-buttons {
