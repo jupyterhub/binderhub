@@ -243,12 +243,12 @@ function setUpLog() {
 
   const $panelBody = $("#log-container .panel-body");
   log.show = function () {
-    $('#toggle-logs button.toggle').text('hide');
+    $('#toggle-logs a.toggle').text('hide');
     $panelBody.removeClass('hidden');
   };
 
   log.hide = function () {
-    $('#toggle-logs button.toggle').text('show');
+    $('#toggle-logs a.toggle').text('show');
     $panelBody.addClass('hidden');
   };
 
