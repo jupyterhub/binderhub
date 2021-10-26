@@ -32,7 +32,16 @@ class ProcessTerminated(subprocess.CalledProcessError):
 
 
 # https://github.com/jupyterhub/repo2docker/blob/2021.08.0/repo2docker/utils.py#L13-L58
-# With modifications to allow asynchonous termination of the process
+# With modifications to allow asynchronous termination of the process
+#
+# BinderHub runs asynchronously but the repo2docker or K8S calls are
+# synchronous- they are run inside a thread pool managed by BinderHub.
+# This means we can't use asyncio subprocesses here to provide a way to allow
+# a subprocess to be interrupted.
+# Instead we run the subprocess inside a thread, and use a queue to pass the
+# output of the subprocess to the caller.
+# Since it's running inside its own thread we can set/check a flag to
+# indicate whether the process should stop itself.
 def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     """
     Call given command, yielding output line by line if capture=True.
@@ -63,7 +72,7 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     buf = []
     q = queue.Queue()
 
-    def readToQueue(proc, capture, q):
+    def read_to_queue(proc, capture, q):
         try:
             for c in iter(partial(proc.stdout.read, 1), b""):
                 q.put(c)
@@ -76,7 +85,7 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
         buf[:] = []
         return line
 
-    t = Thread(target=readToQueue, args=(proc, capture, q))
+    t = Thread(target=read_to_queue, args=(proc, capture, q))
     # thread dies with the program
     t.daemon = True
     t.start()
