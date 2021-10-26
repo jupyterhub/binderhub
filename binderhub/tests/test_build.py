@@ -243,7 +243,6 @@ async def test_local_repo2docker_build_stop(event_loop):
 
     for i in range(2):
         event = await q.get()
-        print(event.__dict__)
         assert event.kind == ProgressEvent.Kind.LOG_MESSAGE
         assert 'message' in event.payload
 
