@@ -14,7 +14,7 @@ export function getPathType() {
 export function updatePathText() {
   const pathType = getPathType();
   let text;
-  if (pathType === "file") {
+  if (pathType === "file" || pathType === "lab") {
     text = "Path to a notebook file (optional)";
   } else {
     text = "URL to open (optional)";
