@@ -360,6 +360,22 @@ class BinderHub(Application):
         config=True
     )
 
+    proxy = Unicode(
+        "",
+        help="""
+        Proxy
+        """,
+        config=True
+    )
+
+    no_proxy = Unicode(
+        "",
+        help="""
+        No Proxy
+        """,
+        config=True
+    )
+
     build_cpu_request = CPUSpecification(
         0,
         help="""
@@ -818,6 +834,8 @@ class BinderHub(Application):
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
                 "jinja2_env": jinja_env,
+                "proxy": self.proxy,
+                "no_proxy": self.no_proxy,
                 "build_memory_limit": self.build_memory_limit,
                 "build_memory_request": self.build_memory_request,
                 "build_cpu_limit": self.build_cpu_limit,

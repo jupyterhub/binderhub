@@ -325,6 +325,8 @@ class BuildHandler(BaseHandler):
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
         image_prefix = self.settings['image_prefix']
+        proxy = self.settings['proxy']
+        no_proxy = self.settings['no_proxy']
 
         # Enforces max 255 characters before image
         safe_build_slug = _safe_build_slug(provider.get_build_slug(), limit=255 - len(image_prefix))
@@ -410,6 +412,8 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             push_secret=push_secret,
             build_image=self.settings['build_image'],
+            proxy=self.settings['proxy'],
+            no_proxy=self.settings['no_proxy'],
             cpu_limit=self.settings['build_cpu_limit'],
             cpu_request=self.settings['build_cpu_request'],
             memory_limit=self.settings['build_memory_limit'],

@@ -81,6 +81,8 @@ class Build:
         image_name,
         git_credentials=None,
         push_secret=None,
+        proxy,
+        no_proxy,
         cpu_limit=0,
         cpu_request=0,
         memory_limit=0,
@@ -173,6 +175,8 @@ class Build:
         self.push_secret = push_secret
         self.build_image = build_image
         self.main_loop = IOLoop.current()
+        self.proxy = proxy
+        self.no_proxy = no_proxy
         self.cpu_limit = cpu_limit
         self.cpu_request = cpu_request
         self.memory_limit = memory_limit
@@ -380,6 +384,16 @@ class Build:
         env = []
         if self.git_credentials:
             env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
+
+        if self.proxy:
+            env.append(client.V1EnvVar(name='HTTP_PROXY', value=self.proxy))
+            env.append(client.V1EnvVar(name='http_proxy', value=self.proxy))
+            env.append(client.V1EnvVar(name='HTTPS_PROXY', value=self.proxy))
+            env.append(client.V1EnvVar(name='https_proxy', value=self.proxy))
+
+        if self.no_proxy:
+            env.append(client.V1EnvVar(name='NO_PROXY', value=self.no_proxy))
+            env.append(client.V1EnvVar(name='no_proxy', value=self.no_proxy))
 
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
