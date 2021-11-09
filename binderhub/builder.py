@@ -342,11 +342,12 @@ class BuildHandler(BaseHandler):
         if self.settings['use_registry']:
             for _ in range(3):
                 try:
+                    app_log.debug("Checking for image %s in the registry", *_get_image_basename_and_tag(image_name))
                     image_manifest = await self.registry.get_image_manifest(*_get_image_basename_and_tag(image_name))
                     image_found = bool(image_manifest)
                     break
-                except HTTPClientError:
-                    app_log.exception("Tornado HTTP Timeout error: Failed to get image manifest for %s", image_name)
+                except BaseException as err:
+                    app_log.exception("Failed to get image manifest for %s: %s", image_name, err)
                     image_found = False
         else:
             # Check if the image exists locally!
