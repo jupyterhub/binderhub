@@ -1,8 +1,10 @@
-# The dependencies in this file, together with binderhub's dependencies, can be
-# used to update requirements.txt for this Docker image:
-#
-#    ./dependencies freeze --upgrade
-#
+# make sure to run in the same Python version and OS as the Dockerfile,
+# e.g.
+
+#    docker run --rm -it -e CUSTOM_COMPILE_COMMAND="see requirements.in" -v$PWD:/io -w /io/helm-chart/images/binderhub python:3.8 sh -c 'pip install pip-tools==6.* && pip-compile'
+
+# add any pip-compile upgrade arguments to the end, e.g. `--upgrade` or `--upgrade-package`.
+
 # FIXME: google-cloud-logging was pinned to avoid introducing a potentially
 #        breaking change as major version 2 was recently released. See:
 #        https://github.com/googleapis/python-logging/blob/master/UPGRADING.md
@@ -12,3 +14,6 @@ google-cloud-logging==1.*
 # version of jupyterhub
 jupyterhub==1.4.*
 kubernetes==9.*
+
+# binderhub's dependencies
+-r ../../../requirements.txt
