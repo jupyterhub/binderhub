@@ -82,7 +82,8 @@ class MockAsyncHTTPClient(CurlAsyncHTTPClient):
             error = e
             response = e.response
 
-        self._record_response(url_key, response)
+        if response:
+            self._record_response(url_key, response)
         # return or raise the original result
         if error:
             raise error
