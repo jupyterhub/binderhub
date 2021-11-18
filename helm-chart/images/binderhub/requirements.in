@@ -1,14 +1,13 @@
-# The dependencies in this file, together with binderhub's dependencies, can be
-# used to update requirements.txt for this Docker image:
-#
-#    ./dependencies freeze --upgrade
-#
 # FIXME: google-cloud-logging was pinned to avoid introducing a potentially
 #        breaking change as major version 2 was recently released. See:
 #        https://github.com/googleapis/python-logging/blob/master/UPGRADING.md
 google-cloud-logging==1.*
 
-# jupyterhub and kubernetes is pinned to match the JupyterHub Helm chart's
+# jupyterhub is pinned to match the JupyterHub Helm chart's
 # version of jupyterhub
 jupyterhub==1.4.*
+
 kubernetes==9.*
+
+# binderhub's dependencies
+-r ../../../requirements.txt
