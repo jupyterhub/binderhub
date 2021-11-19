@@ -3,7 +3,7 @@
 import docker
 import json
 import sys
-from time import time
+from time import monotonic
 from unittest import mock
 from urllib.parse import quote
 from uuid import uuid4
@@ -270,10 +270,10 @@ def test_execute_cmd():
 def test_execute_cmd_break():
     cmd = ['python', '-c', 'from time import sleep; print(1, flush=True); sleep(10); print(2, flush=True)']
     lines = []
-    now = time()
+    now = monotonic()
 
     def break_callback():
-        return time() - now > 2
+        return monotonic() - now > 2
 
     # This should break after the first line
     with pytest.raises(ProcessTerminated) as exc:
