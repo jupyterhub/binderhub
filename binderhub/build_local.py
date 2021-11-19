@@ -67,23 +67,14 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
 
     # Capture output for logging.
     # Each line will be yielded as text.
-    # This should behave the same as .readline(), but splits on `\r` OR `\n`,
-    # not just `\n`.
-    buf = []
     q = queue.Queue()
 
     def read_to_queue(proc, capture, q):
         try:
-            for c in iter(partial(proc.stdout.read, 1), b""):
-                q.put(c)
+            for line in proc.stdout:
+                q.put(line)
         finally:
             proc.wait()
-
-    def flush():
-        """Flush next line of the buffer"""
-        line = b"".join(buf).decode("utf8", "replace")
-        buf[:] = []
-        return line
 
     t = Thread(target=read_to_queue, args=(proc, capture, q))
     # thread dies with the program
@@ -94,13 +85,8 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     terminated = False
     while True:
         try:
-            c = q.get(True, timeout=DEFAULT_READ_TIMEOUT)
-            if c_last == b"\r" and buf and c != b"\n":
-                yield flush()
-            buf.append(c)
-            if c == b"\n":
-                yield flush()
-            c_last = c
+            line = q.get(True, timeout=DEFAULT_READ_TIMEOUT)
+            yield line.decode("utf8", "replace")
             if break_callback and break_callback():
                 proc.kill()
                 terminated = True
@@ -110,8 +96,6 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
                 terminated = True
             if not t.is_alive():
                 break
-    if buf:
-        yield flush()
 
     t.join()
 
