@@ -5,18 +5,50 @@ Contains build of a docker image from a git repository.
 from functools import partial
 import json
 import os
+# These methods are synchronous so don't use tornado.queue
+import queue
 import subprocess
-
+from threading import Event, Thread
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
 from .build import ProgressEvent, Build
 
 
+DEFAULT_READ_TIMEOUT = 1
+
+
+class ProcessTerminated(subprocess.CalledProcessError):
+    """
+    Thrown when a process was forcibly terminated
+    """
+
+    def __init__(self, message=None):
+        self.message = message
+
+    def __str__(self):
+        s = "ProcessTerminated: {}".format(self.message)
+        return s
+
+
 # https://github.com/jupyterhub/repo2docker/blob/2021.08.0/repo2docker/utils.py#L13-L58
-def _execute_cmd(cmd, capture=False, **kwargs):
+# With modifications to allow asynchronous termination of the process
+#
+# BinderHub runs asynchronously but the repo2docker or K8S calls are
+# synchronous- they are run inside a thread pool managed by BinderHub.
+# This means we can't use asyncio subprocesses here to provide a way to allow
+# a subprocess to be interrupted.
+# Instead we run the subprocess inside a thread, and use a queue to pass the
+# output of the subprocess to the caller.
+# Since it's running inside its own thread we can set/check a flag to
+# indicate whether the process should stop itself.
+def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     """
     Call given command, yielding output line by line if capture=True.
+
+    break_callback: A callable that returns a boolean indicating whether to
+    stop execution.
+    See https://stackoverflow.com/a/4896288
 
     Must be yielded from.
     """
@@ -35,31 +67,42 @@ def _execute_cmd(cmd, capture=False, **kwargs):
 
     # Capture output for logging.
     # Each line will be yielded as text.
-    # This should behave the same as .readline(), but splits on `\r` OR `\n`,
-    # not just `\n`.
-    buf = []
+    q = queue.Queue()
 
-    def flush():
-        """Flush next line of the buffer"""
-        line = b"".join(buf).decode("utf8", "replace")
-        buf[:] = []
-        return line
+    def read_to_queue(proc, capture, q):
+        try:
+            for line in proc.stdout:
+                q.put(line)
+        finally:
+            proc.wait()
+
+    t = Thread(target=read_to_queue, args=(proc, capture, q))
+    # thread dies with the program
+    t.daemon = True
+    t.start()
 
     c_last = ""
-    try:
-        for c in iter(partial(proc.stdout.read, 1), b""):
-            if c_last == b"\r" and buf and c != b"\n":
-                yield flush()
-            buf.append(c)
-            if c == b"\n":
-                yield flush()
-            c_last = c
-        if buf:
-            yield flush()
-    finally:
-        ret = proc.wait()
-        if ret != 0:
-            raise subprocess.CalledProcessError(ret, cmd)
+    terminated = False
+    while True:
+        try:
+            line = q.get(True, timeout=DEFAULT_READ_TIMEOUT)
+            yield line.decode("utf8", "replace")
+            if break_callback and break_callback():
+                proc.kill()
+                terminated = True
+        except queue.Empty:
+            if break_callback and break_callback():
+                proc.kill()
+                terminated = True
+            if not t.is_alive():
+                break
+
+    t.join()
+
+    if terminated:
+        raise ProcessTerminated(cmd)
+    if proc.returncode != 0:
+        raise subprocess.CalledProcessError(proc.returncode, cmd)
 
 
 class LocalRepo2dockerBuild(Build):
@@ -152,6 +195,7 @@ class LocalRepo2dockerBuild(Build):
         self.appendix = appendix
         self.log_tail_lines = log_tail_lines
 
+        self.stop_event = Event()
         self.git_credentials = git_credentials
 
     @classmethod
@@ -174,6 +218,9 @@ class LocalRepo2dockerBuild(Build):
         Progress of the build can be monitored by listening for items in
         the Queue passed to the constructor as `q`.
         """
+        def break_callback():
+            return self.stop_event.is_set()
+
         env = os.environ.copy()
         if self.git_credentials:
             env['GIT_CREDENTIAL_ENV'] = self.git_credentials
@@ -183,7 +230,7 @@ class LocalRepo2dockerBuild(Build):
 
         try:
             self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
-            for line in _execute_cmd(cmd, capture=True, env=env):
+            for line in _execute_cmd(cmd, capture=True, break_callback=break_callback, env=env):
                 self._handle_log(line)
             self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
         except subprocess.CalledProcessError:
@@ -215,4 +262,4 @@ class LocalRepo2dockerBuild(Build):
         pass
 
     def stop(self):
-        raise NotImplementedError()
+        self.stop_event.set()
