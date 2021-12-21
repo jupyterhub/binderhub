@@ -522,11 +522,11 @@ class BuildHandler(BaseHandler):
 
         # TODO: put busy users in a queue rather than fail?
         # That would be hard to do without in-memory state.
-        quota = repo_config.get('quota')
-        if quota:
+        repo_quota = repo_config.get("quota")
+        pod_quota = self.settings["pod_quota"]
+        if pod_quota is not None or repo_quota:
             # Fetch info on currently running users *only* if quotas are set
             matching_pods = 0
-            total_pods = 0
 
             # TODO: run a watch to keep this up to date in the background
             f = self.settings['executor'].submit(
@@ -538,8 +538,15 @@ class BuildHandler(BaseHandler):
             )
             resp = await asyncio.wrap_future(f)
             pods = json.loads(resp.read())
+            total_pods = len(pods)
+
+            if pod_quota is not None and total_pods >= pod_quota:
+                # check overall quota first
+                app_log.error(f"BinderHub is full: {total_pods}/{pod_quota}")
+                await self.fail(f"Too many users on this BinderHub! Try again soon.")
+                return
+
             for pod in pods["items"]:
-                total_pods += 1
                 for container in pod["spec"]["containers"]:
                     # is the container running the same image as us?
                     # if so, count one for the current repo.
@@ -547,12 +554,17 @@ class BuildHandler(BaseHandler):
                     if image == image_no_tag:
                         matching_pods += 1
                         break
-            if matching_pods >= quota:
-                app_log.error(f"{self.repo_url} has exceeded quota: {matching_pods}/{quota} ({total_pods} total)")
-                await self.fail(f"Too many users running {self.repo_url}! Try again soon.")
+
+            if repo_quota and matching_pods >= repo_quota:
+                app_log.error(
+                    f"{self.repo_url} has exceeded quota: {matching_pods}/{repo_quota} ({total_pods} total)"
+                )
+                await self.fail(
+                    f"Too many users running {self.repo_url}! Try again soon."
+                )
                 return
 
-            if matching_pods >= 0.5 * quota:
+            if matching_pods >= 0.5 * repo_quota:
                 log = app_log.warning
             else:
                 log = app_log.info
