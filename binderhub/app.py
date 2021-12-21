@@ -303,8 +303,9 @@ class BinderHub(Application):
         The number of concurrent pods this hub has been designed to support.
 
         This quota is used as an indication for how much above or below the
-        design capacity a hub is running. It is not used to reject new launch
-        requests when usage is above the quota.
+        design capacity a hub is running.
+
+        Attempts to launch new pods once the quota has been reached will fail.
 
         The default corresponds to no quota, 0 means the hub can't accept pods
         (maybe because it is in maintenance mode), and any positive integer
