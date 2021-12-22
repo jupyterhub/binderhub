@@ -542,8 +542,12 @@ class BuildHandler(BaseHandler):
 
             if pod_quota is not None and total_pods >= pod_quota:
                 # check overall quota first
+                LAUNCH_COUNT.labels(
+                    status="pod_quota",
+                    **self.repo_metric_labels,
+                ).inc()
                 app_log.error(f"BinderHub is full: {total_pods}/{pod_quota}")
-                await self.fail(f"Too many users on this BinderHub! Try again soon.")
+                await self.fail("Too many users on this BinderHub! Try again soon.")
                 return
 
             for pod in pods["items"]:
@@ -556,6 +560,10 @@ class BuildHandler(BaseHandler):
                         break
 
             if repo_quota and matching_pods >= repo_quota:
+                LAUNCH_COUNT.labels(
+                    status="repo_quota",
+                    **self.repo_metric_labels,
+                ).inc()
                 app_log.error(
                     f"{self.repo_url} has exceeded quota: {matching_pods}/{repo_quota} ({total_pods} total)"
                 )
