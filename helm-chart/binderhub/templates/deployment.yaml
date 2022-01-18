@@ -71,6 +71,12 @@ spec:
       {{- with .Values.extraVolumes }}
       {{- . | toYaml | nindent 6 }}
       {{- end }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
