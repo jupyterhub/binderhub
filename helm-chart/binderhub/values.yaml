@@ -243,7 +243,7 @@ dind:
   daemonset:
     image:
       name: docker
-      tag: 19.03.5-dind
+      tag: 20.10.12-dind
     # Additional command line arguments to pass to dockerd
     extraArgs: []
     lifecycle: {}
