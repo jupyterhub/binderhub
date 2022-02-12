@@ -51,10 +51,6 @@ grpcio==1.41.0
     # via google-api-core
 idna==3.2
     # via requests
-importlib-metadata==4.8.2
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 jinja2==3.0.2
     # via
     #   -r ../../../requirements.txt
@@ -65,7 +61,7 @@ jsonschema==4.1.0
     #   jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==1.4.2
+jupyterhub==1.5.0
     # via
     #   -r ../../../requirements.txt
     #   -r requirements.in
@@ -134,10 +130,8 @@ requests-oauthlib==1.3.0
     # via kubernetes
 rsa==4.7.2
     # via google-auth
-ruamel.yaml==0.17.16
+ruamel-yaml==0.17.16
     # via jupyter-telemetry
-ruamel.yaml.clib==0.2.6
-    # via ruamel.yaml
 six==1.16.0
     # via
     #   google-api-core
@@ -169,10 +163,6 @@ websocket-client==1.2.1
     # via
     #   docker
     #   kubernetes
-zipp==3.6.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
