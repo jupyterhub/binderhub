@@ -537,7 +537,7 @@ class BuildHandler(BaseHandler):
                 _preload_content=False,
             )
             resp = await asyncio.wrap_future(f)
-            pods = json.loads(resp.read())
+            pods = json.loads(resp.read())["items"]
             total_pods = len(pods)
 
             if pod_quota is not None and total_pods >= pod_quota:
@@ -550,7 +550,7 @@ class BuildHandler(BaseHandler):
                 await self.fail("Too many users on this BinderHub! Try again soon.")
                 return
 
-            for pod in pods["items"]:
+            for pod in pods:
                 for container in pod["spec"]["containers"]:
                     # is the container running the same image as us?
                     # if so, count one for the current repo.
