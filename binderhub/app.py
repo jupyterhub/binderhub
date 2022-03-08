@@ -47,7 +47,7 @@ from .config import ConfigHandler
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
-from .ratelimit import RateLimiter
+from .ratelimit import RequestRateLimiter
 from .repoproviders import RepoProvider
 from .registry import DockerRegistry
 from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
@@ -327,6 +327,18 @@ class BinderHub(Application):
         0 (default) means no quotas.
         """,
         config=True,
+    )
+
+    rate_limit_url = Unicode(
+        config=True,
+        help="""Use external rate-limiter service
+
+        Allows shared rate-limit state across a federation of BinderHub instances
+        """,
+    )
+
+    rate_limit_token = Unicode(
+        config=True, help="""Token used to access external rate limit service"""
     )
 
     log_tail_lines = Integer(
@@ -788,7 +800,8 @@ class BinderHub(Application):
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,
                 "repo_providers": self.repo_providers,
-                "rate_limiter": RateLimiter(parent=self),
+                "rate_limit_url": self.rate_limit_url,
+                "rate_limit_token": self.rate_limit_token,
                 "use_registry": self.use_registry,
                 "build_class": self.build_class,
                 "registry": registry,
@@ -814,6 +827,12 @@ class BinderHub(Application):
                 "normalized_origin": self.normalized_origin,
             }
         )
+        if not self.rate_limit_url:
+            self.tornado_settings["rate_limiters"] = {
+                "request": RequestRateLimiter(parent=self),
+                "repo": RepoRateLimiter(parent=self),
+            }
+
         if self.auth_enabled:
             self.tornado_settings['cookie_secret'] = os.urandom(32)
         if self.cors_allow_origin:

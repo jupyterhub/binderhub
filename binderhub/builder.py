@@ -14,7 +14,7 @@ import escapism
 import docker
 from tornado import gen
 from tornado.httpclient import HTTPClientError
-from tornado.web import Finish, authenticated
+from tornado.web import Finish, HTTPError, authenticated
 from tornado.queues import Queue
 from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
@@ -23,6 +23,7 @@ from prometheus_client import Counter, Histogram, Gauge
 
 from .base import BaseHandler
 from .build import ProgressEvent
+from .ratelimit import RateLimitExceeded
 from .utils import KUBE_REQUEST_TIMEOUT
 
 # Separate buckets for builds and launches.
@@ -242,7 +243,6 @@ class BuildHandler(BaseHandler):
         # verify the build token and rate limit
         build_token = self.get_argument("build_token", None)
         self.check_build_token(build_token, f"{provider_prefix}/{spec}")
-        self.check_rate_limit()
 
         # Verify if the provider is valid for EventSource.
         # EventSource cannot handle HTTP errors, so we must validate and send
@@ -279,6 +279,30 @@ class BuildHandler(BaseHandler):
             'provider': provider.name,
             'repo': repo_url,
         }
+
+        # check request (client ip) rate limit
+        try:
+            await self.check_request_rate_limit()
+        except RateLimitExceeded as e:
+            LAUNCH_COUNT.labels(
+                status="request_quota",
+            ).inc()
+            raise HTTPError(429, str(e))
+
+        # check repo rate limit
+        repo_config = provider.repo_config(self.settings)
+        # TODO: put busy users in a queue rather than fail?
+        # That would be hard to do without in-memory state.
+        try:
+            await self.check_repo_rate_limit(repo_url, quota=repo_config.get("quota"))
+        except RateLimitExceeded as e:
+            LAUNCH_COUNT.labels(
+                status="repo_quota",
+                **self.repo_metric_labels,
+            ).inc()
+            app_log.error(str(e))
+            await self.fail(f"Too many users running {self.repo_url}! Try again soon.")
+            return
 
         try:
             ref = await provider.get_resolved_ref()
@@ -511,20 +535,8 @@ class BuildHandler(BaseHandler):
 
     async def launch(self, provider):
         """Ask JupyterHub to launch the image."""
-        # Load the spec-specific configuration if it has been overridden
-        repo_config = provider.repo_config(self.settings)
-
-        # the image name (without tag) is unique per repo
-        # use this to count the number of pods running with a given repo
-        # if we added annotations/labels with the repo name via KubeSpawner
-        # we could do this better
-        image_no_tag = self.image_name.rsplit(':', 1)[0]
-
-        # TODO: put busy users in a queue rather than fail?
-        # That would be hard to do without in-memory state.
-        repo_quota = repo_config.get("quota")
         pod_quota = self.settings["pod_quota"]
-        if pod_quota is not None or repo_quota:
+        if pod_quota is not None:
             # Fetch info on currently running users *only* if quotas are set
             matching_pods = 0
 
@@ -559,25 +571,12 @@ class BuildHandler(BaseHandler):
                         matching_pods += 1
                         break
 
-            if repo_quota and matching_pods >= repo_quota:
-                LAUNCH_COUNT.labels(
-                    status="repo_quota",
-                    **self.repo_metric_labels,
-                ).inc()
-                app_log.error(
-                    f"{self.repo_url} has exceeded quota: {matching_pods}/{repo_quota} ({total_pods} total)"
-                )
-                await self.fail(
-                    f"Too many users running {self.repo_url}! Try again soon."
-                )
-                return
-
-            if matching_pods >= 0.5 * repo_quota:
-                log = app_log.warning
-            else:
-                log = app_log.info
-            log("Launching pod for %s: %s other pods running this repo (%s total)",
-                self.repo_url, matching_pods, total_pods)
+            app_log.info(
+                "Launching pod for %s: %s other pods running this repo (%s total)",
+                self.repo_url,
+                matching_pods,
+                total_pods,
+            )
 
         await self.emit({
             'phase': 'launching',
