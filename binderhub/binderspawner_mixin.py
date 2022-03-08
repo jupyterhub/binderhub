@@ -87,6 +87,11 @@ class BinderSpawnerMixin(Configurable):
         return args
 
     def start(self):
+        annotations = self.extra_annotations
+        if "repo_url" in self.user_options:
+            annotations["binder.hub.jupyter.org/repo_url"]: self.user_options["repo_url"]
+        if "binder_ref_url" in self.user_options:
+            annotations["binder.hub.jupyter.org/ref_url"]: self.user_options["binder_ref_url"]
         if not self.auth_enabled:
             if 'token' not in self.user_options:
                 raise web.HTTPError(400, "token required")
