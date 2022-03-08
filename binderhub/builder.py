@@ -553,6 +553,9 @@ class BuildHandler(BaseHandler):
             for pod in pods:
                 if pod["metadata"]["annotations"].get("binder.hub.jupyter.org/repo_url") == self.repo_url:
                     matching_pods += 1
+            for federation_id, fed_info in self.settings["federation_status"].items():
+                repo_counts = fed_info.get("repo_counts", {})
+                matching_pods += repo_counts.get(self.repo_url, 0)
 
             if repo_quota and matching_pods >= repo_quota:
                 LAUNCH_COUNT.labels(

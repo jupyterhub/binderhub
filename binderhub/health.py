@@ -165,10 +165,28 @@ class HealthHandler(BaseHandler):
 
         quota = self.settings["pod_quota"]
         total_pods = n_user_pods + n_build_pods
+        repo_counts = {}
+        for pod in user_pods:
+            # old way
+            repo_url = pod["metadata"]["annotations"].get(
+                "binder.hub.jupyter.org/repo_url", None
+            )
+            # old way, get it from container env
+            if not repo_url:
+                for container in pod["spec"]["containers"]:
+                    for env in container["env"]:
+                        if env["name"] == "BINDER_REPO_URL":
+                            repo_url = env.get("value")
+                            break
+            if repo_url:
+                repo_counts.setdefault(repo_url, 0)
+                repo_counts[repo_url] += 1
+
         usage = {
             "total_pods": total_pods,
             "build_pods": n_build_pods,
             "user_pods": n_user_pods,
+            "repo_counts": repo_counts,
             "quota": quota,
             "ok": total_pods <= quota if quota is not None else True,
         }
