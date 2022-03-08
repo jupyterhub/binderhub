@@ -68,12 +68,12 @@ jupyterhub:
         Helpers for creating BinderSpawners
 
         FIXME:
-        This file is defined in helm-chart/binderhub/values.yaml and is copied to
-        binderhub/binderspawner_mixin.py by setup.py so that it can be used by other JupyterHub
-        container spawners.
+        This file is defined in binderhub/binderspawner_mixin.py
+        and is copied to helm-chart/binderhub/values.yaml
+        by ci/check_embedded_chart_code.py
 
-        The BinderHub repo is just used as the distribution mechanism for this spawner, BinderHub
-        itself doesn't require this code.
+        The BinderHub repo is just used as the distribution mechanism for this spawner,
+        BinderHub itself doesn't require this code.
 
         Longer term options include:
         - Move BinderSpawnerMixin to a separate Python package and include it in the Z2JH Hub

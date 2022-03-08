@@ -14,7 +14,8 @@ import os
 
 from collections.abc import MutableMapping
 
-import yaml
+from ruamel.yaml import YAML
+yaml = YAML(typ="safe")
 
 here_dir = os.path.abspath(os.path.dirname(__file__))
 schema_yaml = os.path.join(
@@ -50,7 +51,7 @@ def run():
     # Using these sets, we can validate further manually by printing the results
     # of set operations.
     with open(schema_yaml) as f:
-        schema = yaml.safe_load(f)
+        schema = yaml.load(f)
 
     # Drop what isn't relevant for a values.schema.json file packaged with the
     # Helm chart, such as the description keys only relevant for our
