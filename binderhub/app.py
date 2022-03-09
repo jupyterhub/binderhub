@@ -698,7 +698,7 @@ class BinderHub(Application):
         try:
             AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
         except ImportError as e:
-            self.log.debug("Could not load pycurl: %s\npycurl is recommended if you have a large number of users.", e)
+            self.log.warning("Could not load pycurl: %s\npycurl is recommended if you have a large number of users.", e)
         # set max verbosity of curl_httpclient at INFO
         # because debug-logging from curl_httpclient
         # includes every full request and response

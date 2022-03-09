@@ -46,29 +46,28 @@ WORKDIR /
 # before SIGKILL when "docker stop" or "kubectl delete pod" is run. By doing
 # that the pod can terminate very quickly.
 COPY --from=build-stage /tini /tini
- 
+
 # The slim version doesn't include git as required by binderhub
+# or libcurl required by pycurl
 RUN apt-get update \
  && apt-get install --yes \
         git \
+        libcurl4 \
  && rm -rf /var/lib/apt/lists/*
 
 # Copy the built wheels from the build-stage. Also copy the image
 # requirements.txt built from the binderhub package requirements.txt and the
-# requirements.in file using the ./dependency script.
+# requirements.in file using pip-compile.
 COPY --from=build-stage /tmp/binderhub/dist/*.whl pre-built-wheels/
 COPY helm-chart/images/binderhub/requirements.txt .
 
 # Install pre-built wheels and the generated requirements.txt for the image.
+# make sure that imports work,
+# because wheels were built in the build-stage
 RUN pip install --no-cache-dir \
         pre-built-wheels/*.whl \
-        -r requirements.txt
-
-# When using the ./dependency script to output a frozen environment, we do it
-# from within this container. So below we conditionally install pip-tools for
-# use by the ./dependency script.
-ARG PIP_TOOLS=
-RUN test -z "$PIP_TOOLS" || pip install --no-cache pip-tools==$PIP_TOOLS
+        -r requirements.txt \
+ && python3 -c "import pycurl, binderhub.app"
 
 ENTRYPOINT ["/tini", "--", "python3", "-m", "binderhub"]
 CMD ["--config", "/etc/binderhub/config/binderhub_config.py"]
