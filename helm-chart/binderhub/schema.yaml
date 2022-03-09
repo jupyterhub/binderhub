@@ -36,6 +36,7 @@ required:
   - extraVolumeMounts
   - extraEnv
   - podAnnotations
+  - global
 properties:
 
   pdb: &pdb-spec
@@ -561,3 +562,8 @@ properties:
     additionalProperties: true
     description: |
       DEPRECATED.
+
+# A placeholder as global values that can be referenced from the same location
+# of any chart should be possible to provide, but aren't necessarily provided or
+# used.
+global: {}

@@ -302,3 +302,5 @@ podAnnotations: {}
 
 # Deprecated values, kept here so we can provide useful error messages
 cors: {}
+
+global: {}
