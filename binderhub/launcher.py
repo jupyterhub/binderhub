@@ -243,7 +243,7 @@ class Launcher(LoggingConfigurable):
                 else:
                     ready_event_future.cancel()
         try:
-            resp = await self.api_request(
+            await self.api_request(
                 'users/{}/servers/{}'.format(escaped_username, server_name),
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
