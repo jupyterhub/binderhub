@@ -2,7 +2,9 @@ from collections.abc import Mapping
 import os
 from functools import lru_cache
 from urllib.parse import urlparse
-import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML(typ="safe")
 
 
 def _merge_dictionaries(a, b):
@@ -34,7 +36,7 @@ def _load_values():
         if os.path.exists(path):
             print(f"Loading {path}")
             with open(path) as f:
-                values = yaml.safe_load(f)
+                values = yaml.load(f)
             cfg = _merge_dictionaries(cfg, values)
         else:
             print(f"No config at {path}")

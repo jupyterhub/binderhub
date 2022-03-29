@@ -11,7 +11,11 @@ import argparse
 import difflib
 import os
 import sys
-import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML(typ="rt")
+yaml.preserve_quotes = True
+yaml.indent(mapping=2, sequence=4, offset=2)
 
 parser = argparse.ArgumentParser(description='Check embedded chart code')
 parser.add_argument('--update', action='store_true', help='Update binderhub code from values.yaml')
@@ -21,21 +25,28 @@ root = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
 binderspawner_mixin_py = os.path.join(root, 'binderhub', 'binderspawner_mixin.py')
 values_yaml = os.path.join(root, 'helm-chart', 'binderhub', 'values.yaml')
 
-with open(values_yaml) as f:
-    values = yaml.safe_load(f)
-    values_code = values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin'].splitlines()
+with open(binderspawner_mixin_py, 'r') as f:
+    py_code = f.read()
+
 
 if args.update:
-    with open(binderspawner_mixin_py, 'w') as f:
-        f.write(values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin'])
+    with open(values_yaml) as f:
+        values = yaml.load(f)
+    values_code = values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin']
+    if values_code != py_code:
+        print(f"Generating {values_yaml} from {binderspawner_mixin_py}")
+        values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin'] = py_code
+        with open(values_yaml, "w") as f:
+            yaml.dump(values, f)
 else:
-    with open(binderspawner_mixin_py, 'r') as f:
-        py_code = f.read().splitlines()
+    with open(values_yaml) as f:
+        values = yaml.load(f)
+    values_code = values['jupyterhub']['hub']['extraConfig']['0-binderspawnermixin']
 
-    difflines = list(difflib.context_diff(values_code, py_code))
+    difflines = list(difflib.context_diff(values_code.splitlines(), py_code.splitlines()))
     if difflines:
         print('\n'.join(difflines))
         print('\n')
         print('Values code is not in sync with binderhub/binderspawner_mixin.py')
-        print('Run `python {} --update` to update binderhub/binderspawner_mixin.py from values.yaml'.format(sys.argv[0]))
+        print('Run `python {} --update` to update values.yaml from binderhub/binderspawner_mixin.py'.format(sys.argv[0]))
         sys.exit(1)
