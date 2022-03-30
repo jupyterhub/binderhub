@@ -1,0 +1,21 @@
+# This file can be used to disregard certain commits when using `git blame`, and
+# GitHub will automatically use it for that by file name convention.
+#
+# Reference 1: https://git-scm.com/docs/git-blame#Documentation/git-blame.txt---ignore-revs-fileltfilegt
+# Reference 2: https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+#
+
+# pre-commit: run requirements-txt-fixer
+da40927c5b187e37755901e675eee092e12ae2eb
+# pre-commit: run end-of-file-fixer
+b815163691eade7daeeb01549d0fc6bdf4a33186
+# pre-commit: run prettier
+9fefdc42ec4d1701117f8f2880a80695eeaad5c9
+# pre-commit: run update-values-based-on-bindarspawner-mixin
+d32e9efa34cf0ca8880939e82ff01d3edc35705b
+# pre-commit: run isort
+f0fe0257506fd667279e97354f0207168aa1368c
+# pre-commit: run black
+bb047d8bce89655e197a7fdf2bdec2cb9c79940a
+# pre-commit: run pyupgrade
+24da4e593461640aaa47dc008b1f657b92189085
