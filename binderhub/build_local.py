@@ -2,7 +2,6 @@
 Contains build of a docker image from a git repository.
 """
 
-from functools import partial
 import json
 import os
 # These methods are synchronous so don't use tornado.queue
@@ -81,7 +80,6 @@ def _execute_cmd(cmd, capture=False, break_callback=None, **kwargs):
     t.daemon = True
     t.start()
 
-    c_last = ""
     terminated = False
     while True:
         try:

@@ -321,7 +321,7 @@ class Launcher(LoggingConfigurable):
         # verify that the server is running!
         try:
             # this should already be done, but it's async so wait a finite time
-            ready_event = await gen.with_timeout(
+            await gen.with_timeout(
                 timedelta(seconds=5), ready_event_future
             )
         except (gen.TimeoutError, TimeoutError):

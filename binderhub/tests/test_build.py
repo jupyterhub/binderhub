@@ -234,7 +234,7 @@ async def test_local_repo2docker_build_stop(event_loop):
         docker_host=None,
         image_name=name
     )
-    run = event_loop.run_in_executor(None, build.submit)
+    event_loop.run_in_executor(None, build.submit)
 
     # Get first few log messages to check it successfully stared
     event = await q.get()
