@@ -114,7 +114,7 @@ function getBuildFormValues() {
 
   let ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
   if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
-      providerPrefix === 'hydroshare') {
+      providerPrefix === 'hydroshare' || providerPrefix === 'swh') {
     ref = "";
   }
   const path = $('#filepath').val().trim();
