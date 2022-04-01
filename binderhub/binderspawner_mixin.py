@@ -16,8 +16,8 @@ Longer term options include:
 - Duplicate the code here and in binderhub/binderspawner_mixin.py
 """
 from tornado import web
-from traitlets.config import Configurable
 from traitlets import Bool, Unicode
+from traitlets.config import Configurable
 
 
 class BinderSpawnerMixin(Configurable):

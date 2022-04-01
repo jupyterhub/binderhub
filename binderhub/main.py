@@ -6,9 +6,9 @@ import urllib.parse
 
 import jwt
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
-from tornado.web import HTTPError, authenticated
 from tornado.httputil import url_concat
 from tornado.log import app_log
+from tornado.web import HTTPError, authenticated
 
 from .base import BaseHandler
 

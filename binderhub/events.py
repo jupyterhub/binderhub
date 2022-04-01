@@ -1,14 +1,14 @@
 """
 Emit structured, discrete events when various actions happen.
 """
-from traitlets.config import Configurable
-
+import json
 import logging
 from datetime import datetime
+
 import jsonschema
-from pythonjsonlogger import jsonlogger
 from jupyterhub.traitlets import Callable
-import json
+from pythonjsonlogger import jsonlogger
+from traitlets.config import Configurable
 
 
 def _skip_message(record, **kwargs):

@@ -1,7 +1,8 @@
 """Rate limiting utilities"""
 
 import time
-from traitlets import Integer, Dict, Float, default
+
+from traitlets import Dict, Float, Integer, default
 from traitlets.config import LoggingConfigurable
 
 

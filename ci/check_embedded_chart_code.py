@@ -14,6 +14,7 @@ import argparse
 import difflib
 import os
 import sys
+
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="rt")

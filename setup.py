@@ -1,8 +1,8 @@
-from jupyter_packaging import wrap_installers, npm_builder
 import os
-
-from setuptools import setup, find_packages
 import sys
+
+from jupyter_packaging import npm_builder, wrap_installers
+from setuptools import find_packages, setup
 
 # ensure the current directory is on sys.path
 # so versioneer can be imported when pip uses
@@ -11,7 +11,6 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 import versioneer
-
 
 here = os.path.dirname(__file__)
 

@@ -1,9 +1,9 @@
 """Test launcher"""
 
 import pytest
+from tornado import web
 
 from binderhub.launcher import Launcher
-from tornado import web
 
 
 async def my_pre_launch_hook(launcher, *args):

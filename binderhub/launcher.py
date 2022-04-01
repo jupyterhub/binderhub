@@ -4,21 +4,21 @@ Launch an image with a temporary user via JupyterHub
 import asyncio
 import base64
 import json
+import os
 import random
 import re
 import string
-from urllib.parse import urlparse, quote
 import uuid
-import os
 from datetime import timedelta
+from urllib.parse import quote, urlparse
 
-from tornado.log import app_log
-from tornado import web, gen
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPError
-from traitlets.config import LoggingConfigurable
-from traitlets import Integer, Unicode, Bool, default
 from jupyterhub.traitlets import Callable
 from jupyterhub.utils import maybe_future
+from tornado import gen, web
+from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
+from tornado.log import app_log
+from traitlets import Bool, Integer, Unicode, default
+from traitlets.config import LoggingConfigurable
 
 from .utils import url_path_join
 

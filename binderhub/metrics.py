@@ -1,5 +1,6 @@
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, generate_latest
+
 from .base import BaseHandler
-from prometheus_client import REGISTRY, generate_latest, CONTENT_TYPE_LATEST
 
 
 class MetricsHandler(BaseHandler):

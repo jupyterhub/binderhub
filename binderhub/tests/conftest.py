@@ -1,14 +1,14 @@
 """pytest fixtures for binderhub"""
 
-from binascii import b2a_hex
-from collections import defaultdict
 import inspect
 import json
 import os
 import subprocess
 import time
-from urllib.parse import urlparse
+from binascii import b2a_hex
+from collections import defaultdict
 from unittest import mock
+from urllib.parse import urlparse
 
 import kubernetes.client
 import kubernetes.config
@@ -20,7 +20,6 @@ from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
 from .utils import MockAsyncHTTPClient
-
 
 here = os.path.abspath(os.path.dirname(__file__))
 root = os.path.join(here, os.pardir, os.pardir)

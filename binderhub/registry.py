@@ -8,8 +8,8 @@ from urllib.parse import urlparse
 
 from tornado import httpclient
 from tornado.httputil import url_concat
-from traitlets.config import LoggingConfigurable
 from traitlets import Dict, Unicode, default
+from traitlets.config import LoggingConfigurable
 
 DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
 DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"

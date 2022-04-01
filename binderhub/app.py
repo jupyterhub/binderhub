@@ -15,57 +15,55 @@ from urllib.parse import urlparse
 
 import kubernetes.client
 import kubernetes.config
-from jinja2 import Environment, FileSystemLoader, PrefixLoader, ChoiceLoader
+import tornado.ioloop
+import tornado.log
+import tornado.options
+import tornado.web
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
+from jupyterhub.services.auth import HubOAuthCallbackHandler
+from jupyterhub.traitlets import Callable
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpserver import HTTPServer
-import tornado.ioloop
-import tornado.options
-import tornado.log
 from tornado.log import app_log
-import tornado.web
 from traitlets import (
     Bool,
     Bytes,
     Dict,
     Integer,
     TraitError,
+    Type,
     Unicode,
     Union,
-    Type,
     default,
     observe,
     validate,
 )
 from traitlets.config import Application
-from jupyterhub.services.auth import HubOAuthCallbackHandler
-from jupyterhub.traitlets import Callable
 
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import Build
 from .builder import BuildHandler
 from .config import ConfigHandler
+from .events import EventLog
 from .health import HealthHandler
 from .launcher import Launcher
 from .log import log_request
-from .ratelimit import RateLimiter
-from .repoproviders import RepoProvider
-from .registry import DockerRegistry
-from .main import MainHandler, ParameterizedMainHandler, LegacyRedirectHandler
-from .repoproviders import (
-    GitHubRepoProvider,
-    GitRepoProvider,
-    GitLabRepoProvider,
-    GistRepoProvider,
-    ZenodoProvider,
-    FigshareProvider,
-    HydroshareProvider,
-    DataverseProvider,
-)
+from .main import LegacyRedirectHandler, MainHandler, ParameterizedMainHandler
 from .metrics import MetricsHandler
-
+from .ratelimit import RateLimiter
+from .registry import DockerRegistry
+from .repoproviders import (
+    DataverseProvider,
+    FigshareProvider,
+    GistRepoProvider,
+    GitHubRepoProvider,
+    GitLabRepoProvider,
+    GitRepoProvider,
+    HydroshareProvider,
+    RepoProvider,
+    ZenodoProvider,
+)
 from .utils import ByteSpecification, url_path_join
-from .events import EventLog
-
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 

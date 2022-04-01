@@ -1,7 +1,8 @@
-from collections.abc import Mapping
 import os
+from collections.abc import Mapping
 from functools import lru_cache
 from urllib.parse import urlparse
+
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="safe")

@@ -3,7 +3,7 @@ import base64
 import json
 import os
 
-from tornado.web import Application, RequestHandler, HTTPError
+from tornado.web import Application, HTTPError, RequestHandler
 
 from binderhub.registry import DockerRegistry
 

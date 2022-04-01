@@ -4,22 +4,22 @@ Handlers for working with version control services (i.e. GitHub) for builds.
 
 import asyncio
 import hashlib
-from http.client import responses
 import json
-import string
 import re
+import string
 import time
-import escapism
+from http.client import responses
 
 import docker
+import escapism
+from prometheus_client import Counter, Gauge, Histogram
 from tornado import gen
 from tornado.httpclient import HTTPClientError
-from tornado.web import Finish, authenticated
-from tornado.queues import Queue
-from tornado.iostream import StreamClosedError
 from tornado.ioloop import IOLoop
+from tornado.iostream import StreamClosedError
 from tornado.log import app_log
-from prometheus_client import Counter, Histogram, Gauge
+from tornado.queues import Queue
+from tornado.web import Finish, authenticated
 
 from .base import BaseHandler
 from .build import ProgressEvent

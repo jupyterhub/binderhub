@@ -11,7 +11,6 @@ we trim away everything that isn't needed.
 
 import json
 import os
-
 from collections.abc import MutableMapping
 
 from ruamel.yaml import YAML

@@ -1,13 +1,13 @@
 """Exercise the binderhub entrypoint"""
 
-from subprocess import check_output
 import sys
-import pytest
+from subprocess import check_output
 
+import pytest
 from traitlets import TraitError
 
 from binderhub.app import BinderHub
-from binderhub.repoproviders import RepoProvider, GitLabRepoProvider, GitHubRepoProvider
+from binderhub.repoproviders import GitHubRepoProvider, GitLabRepoProvider, RepoProvider
 
 
 def test_help():

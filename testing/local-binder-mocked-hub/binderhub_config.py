@@ -6,9 +6,9 @@
 # - BinderHub:  standalone local installation
 # - JupyterHub: mocked
 
-from binderhub.repoproviders import FakeProvider
-from binderhub.registry import FakeRegistry
 from binderhub.build import FakeBuild
+from binderhub.registry import FakeRegistry
+from binderhub.repoproviders import FakeProvider
 
 c.BinderHub.debug = True
 c.BinderHub.use_registry = True

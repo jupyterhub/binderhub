@@ -2,20 +2,20 @@
 Contains build of a docker image from a git repository.
 """
 
-from collections import defaultdict
 import datetime
 import json
 import threading
+import warnings
+from collections import defaultdict
+from enum import Enum
 from typing import Union
 from urllib.parse import urlparse
-from enum import Enum
-import warnings
 
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
-from .utils import rendezvous_rank, KUBE_REQUEST_TIMEOUT
+from .utils import KUBE_REQUEST_TIMEOUT, rendezvous_rank
 
 
 class ProgressEvent:

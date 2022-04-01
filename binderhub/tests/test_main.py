@@ -1,8 +1,7 @@
 """Test main handlers"""
 
 import time
-from urllib.parse import quote
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import jwt
 import pytest

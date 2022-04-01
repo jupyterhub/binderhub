@@ -1,10 +1,12 @@
-import tempfile
 import json
 import logging
-from binderhub.events import EventLog
-import pytest
-import jsonschema
 import os
+import tempfile
+
+import jsonschema
+import pytest
+
+from binderhub.events import EventLog
 
 
 def test_register_invalid():

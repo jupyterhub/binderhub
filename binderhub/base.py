@@ -2,12 +2,12 @@
 
 import json
 import urllib.parse
+from http.client import responses
 
 import jwt
-from http.client import responses
+from jupyterhub.services.auth import HubOAuth, HubOAuthenticated
 from tornado import web
 from tornado.log import app_log
-from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
 from .ratelimit import RateLimitExceeded

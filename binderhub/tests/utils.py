@@ -1,16 +1,14 @@
 """Testing utilities"""
+import asyncio
 import io
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
-from tornado import gen
-from tornado.httputil import HTTPHeaders
-from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
-
-from tornado.curl_httpclient import CurlAsyncHTTPClient
-
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import requests
+from tornado import gen
+from tornado.curl_httpclient import CurlAsyncHTTPClient
+from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
+from tornado.httputil import HTTPHeaders
 
 
 class MockAsyncHTTPClient(CurlAsyncHTTPClient):

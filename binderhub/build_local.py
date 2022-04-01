@@ -9,11 +9,11 @@ import os
 import queue
 import subprocess
 from threading import Event, Thread
+
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 
-from .build import ProgressEvent, Build
-
+from .build import Build, ProgressEvent
 
 DEFAULT_READ_TIMEOUT = 1
 

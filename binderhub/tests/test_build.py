@@ -1,6 +1,5 @@
 """Test building repos"""
 
-import docker
 import json
 import sys
 from time import monotonic
@@ -8,14 +7,15 @@ from unittest import mock
 from urllib.parse import quote
 from uuid import uuid4
 
+import docker
 import pytest
+from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
 
-from kubernetes import client
-
 from binderhub.build import Build, ProgressEvent
-from binderhub.build_local import _execute_cmd, LocalRepo2dockerBuild, ProcessTerminated
+from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
+
 from .utils import async_requests
 
 

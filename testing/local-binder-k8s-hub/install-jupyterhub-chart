@@ -5,12 +5,12 @@ specified in the BinderHub Helm chart's Chart.yaml file, and use the
 configuration for the JupyterHub Helm chart nested in the BinderHub helm chart's
 configuration.
 """
-from subprocess import check_call
 import os
 import sys
+from subprocess import check_call
+from tempfile import NamedTemporaryFile
 
 from ruamel import yaml
-from tempfile import NamedTemporaryFile
 
 here = os.path.abspath(os.path.dirname(__file__))
 helm_chart = os.path.join(here, os.pardir, os.pardir, "helm-chart")

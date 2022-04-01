@@ -7,22 +7,20 @@ control services and providers.
 .. note:: When adding a new repo provider, add it to the allowed values for
           repo providers in event-schemas/launch.json.
 """
-from datetime import timedelta, datetime, timezone
+import asyncio
 import json
 import os
+import re
 import time
 import urllib.parse
-import re
-import asyncio
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
 import escapism
 from prometheus_client import Gauge
-
 from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httputil import url_concat
-
-from traitlets import Dict, Unicode, Bool, default, List, Set
+from traitlets import Bool, Dict, List, Set, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from .utils import Cache
