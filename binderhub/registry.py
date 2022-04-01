@@ -191,10 +191,13 @@ class DockerRegistry(LoggingConfigurable):
         # first, get a token to perform the manifest request
         if self.token_url:
             auth_req = httpclient.HTTPRequest(
-                url_concat(self.token_url, {
-                    "scope": f"repository:{image}:pull",
-                    "service": "container_registry"
-                }),
+                url_concat(
+                    self.token_url,
+                    {
+                        "scope": f"repository:{image}:pull",
+                        "service": "container_registry",
+                    },
+                ),
                 auth_username=self.username,
                 auth_password=self.password,
             )
@@ -206,12 +209,14 @@ class DockerRegistry(LoggingConfigurable):
             elif "access_token" in response_body.keys():
                 token = response_body["access_token"]
 
-            req = httpclient.HTTPRequest(url,
+            req = httpclient.HTTPRequest(
+                url,
                 headers={"Authorization": f"Bearer {token}"},
             )
         else:
             # Use basic HTTP auth (htpasswd)
-            req = httpclient.HTTPRequest(url,
+            req = httpclient.HTTPRequest(
+                url,
                 auth_username=self.username,
                 auth_password=self.password,
             )
@@ -226,6 +231,7 @@ class DockerRegistry(LoggingConfigurable):
                 raise
         else:
             return json.loads(resp.body.decode("utf-8"))
+
 
 class FakeRegistry(DockerRegistry):
     """

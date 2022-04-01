@@ -45,7 +45,7 @@ class BinderSpawnerMixin(Configurable):
         Requires `jupyterhub-singleuser` to be available inside the repositories
         being built.
         """,
-        config=True
+        config=True,
     )
 
     cors_allow_origin = Unicode(
@@ -60,7 +60,7 @@ class BinderSpawnerMixin(Configurable):
         See also BinderHub.cors_allow_origin in binderhub config
         for controlling CORS policy for the BinderHub API endpoint.
         """,
-        config=True
+        config=True,
     )
 
     def get_args(self):
@@ -68,43 +68,44 @@ class BinderSpawnerMixin(Configurable):
             args = super().get_args()
         else:
             args = [
-                '--ip=0.0.0.0',
-                f'--port={self.port}',
-                f'--NotebookApp.base_url={self.server.base_url}',
+                "--ip=0.0.0.0",
+                f"--port={self.port}",
+                f"--NotebookApp.base_url={self.server.base_url}",
                 f"--NotebookApp.token={self.user_options['token']}",
-                '--NotebookApp.trust_xheaders=True',
+                "--NotebookApp.trust_xheaders=True",
             ]
             if self.default_url:
-                args.append(f'--NotebookApp.default_url={self.default_url}')
+                args.append(f"--NotebookApp.default_url={self.default_url}")
 
             if self.cors_allow_origin:
-                args.append('--NotebookApp.allow_origin=' + self.cors_allow_origin)
+                args.append("--NotebookApp.allow_origin=" + self.cors_allow_origin)
             # allow_origin=* doesn't properly allow cross-origin requests to single files
             # see https://github.com/jupyter/notebook/pull/5898
-            if self.cors_allow_origin == '*':
-                args.append('--NotebookApp.allow_origin_pat=.*')
+            if self.cors_allow_origin == "*":
+                args.append("--NotebookApp.allow_origin_pat=.*")
             args += self.args
         return args
 
     def start(self):
         if not self.auth_enabled:
-            if 'token' not in self.user_options:
+            if "token" not in self.user_options:
                 raise web.HTTPError(400, "token required")
-            if 'image' not in self.user_options:
+            if "image" not in self.user_options:
                 raise web.HTTPError(400, "image required")
-        if 'image' in self.user_options:
-            self.image = self.user_options['image']
+        if "image" in self.user_options:
+            self.image = self.user_options["image"]
         return super().start()
 
     def get_env(self):
         env = super().get_env()
-        if 'repo_url' in self.user_options:
-            env['BINDER_REPO_URL'] = self.user_options['repo_url']
+        if "repo_url" in self.user_options:
+            env["BINDER_REPO_URL"] = self.user_options["repo_url"]
         for key in (
-                'binder_ref_url',
-                'binder_launch_host',
-                'binder_persistent_request',
-                'binder_request'):
+            "binder_ref_url",
+            "binder_launch_host",
+            "binder_persistent_request",
+            "binder_request",
+        ):
             if key in self.user_options:
                 env[key.upper()] = self.user_options[key]
         return env

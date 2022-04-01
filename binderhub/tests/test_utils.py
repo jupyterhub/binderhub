@@ -66,16 +66,16 @@ def test_rendezvous_redistribution():
 
 def test_cache():
     cache = utils.Cache(max_size=2)
-    cache.set('a', 1)
-    cache.set('b', 2)
-    assert 'a' in cache
-    cache.set('c', 3)
-    assert 'a' not in cache
-    cache.set('b', 3)
-    assert 'b' in cache
-    cache.set('d', 4)
-    assert 'b' in cache
-    assert 'c' not in cache
+    cache.set("a", 1)
+    cache.set("b", 2)
+    assert "a" in cache
+    cache.set("c", 3)
+    assert "a" not in cache
+    cache.set("b", 3)
+    assert "b" in cache
+    cache.set("d", 4)
+    assert "b" in cache
+    assert "c" not in cache
     assert len(cache) == 2
 
 
@@ -86,26 +86,26 @@ def test_cache_expiry():
     def later():
         return before_now() + 20
 
-    expired = mock.patch.object(cache, '_now', later)
+    expired = mock.patch.object(cache, "_now", later)
 
-    cache.set('a', 1)
-    assert 'a' in cache
-    assert cache.get('a')
+    cache.set("a", 1)
+    assert "a" in cache
+    assert cache.get("a")
     with expired:
-        assert not cache.get('a')
-        assert 'a' not in cache
-        assert 'a' not in cache._ages
+        assert not cache.get("a")
+        assert "a" not in cache
+        assert "a" not in cache._ages
 
-    cache.set('a', 1)
+    cache.set("a", 1)
     # no max age means no expiry
-    with expired, mock.patch.object(cache, 'max_age', 0):
-        assert cache.get('a')
+    with expired, mock.patch.object(cache, "max_age", 0):
+        assert cache.get("a")
 
     # retrieving an item does *not* update the age
-    before_age = cache._ages['a']
-    with mock.patch.object(cache, '_now', lambda: before_now() + 1):
-        cache.get('a')
-    assert cache._ages['a'] == before_age
+    before_age = cache._ages["a"]
+    with mock.patch.object(cache, "_now", lambda: before_now() + 1):
+        cache.get("a")
+    assert cache._ages["a"] == before_age
 
 
 @pytest.mark.parametrize(

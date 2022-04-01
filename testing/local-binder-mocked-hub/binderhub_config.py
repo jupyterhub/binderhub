@@ -14,7 +14,7 @@ c.BinderHub.debug = True
 c.BinderHub.use_registry = True
 c.BinderHub.registry_class = FakeRegistry
 c.BinderHub.builder_required = False
-c.BinderHub.repo_providers = {'gh': FakeProvider}
+c.BinderHub.repo_providers = {"gh": FakeProvider}
 c.BinderHub.build_class = FakeBuild
 
 c.BinderHub.about_message = "<blink>Hello world.</blink>"

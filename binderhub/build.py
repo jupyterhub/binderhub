@@ -22,10 +22,12 @@ class ProgressEvent:
     """
     Represents an event that happened in the build process
     """
+
     class Kind(Enum):
         """
         The kind of event that happened
         """
+
         BUILD_STATUS_CHANGE = 1
         LOG_MESSAGE = 2
 
@@ -35,6 +37,7 @@ class ProgressEvent:
 
         Used when `kind` is `Kind.BUILD_STATUS_CHANGE`
         """
+
         PENDING = 1
         RUNNING = 2
         COMPLETED = 3
@@ -44,6 +47,7 @@ class ProgressEvent:
     def __init__(self, kind: Kind, payload: Union[str, BuildStatus]):
         self.kind = kind
         self.payload = payload
+
 
 class Build:
     """Represents a build of a git repository into a docker image.
@@ -185,13 +189,13 @@ class Build:
             "--user-id=1000",
         ]
         if self.appendix:
-            r2d_options.extend(['--appendix', self.appendix])
+            r2d_options.extend(["--appendix", self.appendix])
 
         if self.push_secret:
-            r2d_options.append('--push')
+            r2d_options.append("--push")
 
         if self.memory_limit:
-            r2d_options.append('--build-memory-limit')
+            r2d_options.append("--build-memory-limit")
             r2d_options.append(str(self.memory_limit))
 
         return r2d_options
@@ -199,7 +203,7 @@ class Build:
     def get_cmd(self):
         """Get the cmd to run to build the image"""
         cmd = [
-            'jupyter-repo2docker',
+            "jupyter-repo2docker",
         ] + self.get_r2d_cmd_options()
 
         # repo_url comes at the end, since otherwise our arguments
@@ -214,7 +218,7 @@ class Build:
         """Delete stopped build pods and build pods that have aged out"""
         builds = kube.list_namespaced_pod(
             namespace=namespace,
-            label_selector='component=binderhub-build',
+            label_selector="component=binderhub-build",
         ).items
         phases = defaultdict(int)
         app_log.debug("%i build pods", len(builds))
@@ -227,7 +231,7 @@ class Build:
             annotations = build.metadata.annotations or {}
             repo = annotations.get("binder-repo", "unknown")
             delete = False
-            if build.status.phase in {'Failed', 'Succeeded', 'Evicted'}:
+            if build.status.phase in {"Failed", "Succeeded", "Evicted"}:
                 # log Deleting Failed build build-image-...
                 # print(build.metadata)
                 app_log.info(
@@ -254,7 +258,8 @@ class Build:
                     kube.delete_namespaced_pod(
                         name=build.metadata.name,
                         namespace=namespace,
-                        body=client.V1DeleteOptions(grace_period_seconds=0))
+                        body=client.V1DeleteOptions(grace_period_seconds=0),
+                    )
                 except client.rest.ApiException as e:
                     if e.status == 404:
                         # Is ok, someone else has already deleted it
@@ -264,7 +269,9 @@ class Build:
 
         if deleted:
             app_log.info("Deleted %i/%i build pods", deleted, len(builds))
-        app_log.debug("Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1))
+        app_log.debug(
+            "Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1)
+        )
 
     def progress(self, kind: ProgressEvent.Kind, payload: str):
         """
@@ -326,11 +333,9 @@ class Build:
                             pod_affinity_term=client.V1PodAffinityTerm(
                                 topology_key="kubernetes.io/hostname",
                                 label_selector=client.V1LabelSelector(
-                                    match_labels=dict(
-                                        component=self._component_label
-                                    )
-                                )
-                            )
+                                    match_labels=dict(component=self._component_label)
+                                ),
+                            ),
                         )
                     ]
                 )
@@ -346,24 +351,36 @@ class Build:
         the Queue passed to the constructor as `q`.
         """
         volume_mounts = [
-            client.V1VolumeMount(mount_path="/var/run/docker.sock", name="docker-socket")
+            client.V1VolumeMount(
+                mount_path="/var/run/docker.sock", name="docker-socket"
+            )
         ]
         docker_socket_path = urlparse(self.docker_host).path
-        volumes = [client.V1Volume(
-            name="docker-socket",
-            host_path=client.V1HostPathVolumeSource(path=docker_socket_path, type='Socket')
-        )]
+        volumes = [
+            client.V1Volume(
+                name="docker-socket",
+                host_path=client.V1HostPathVolumeSource(
+                    path=docker_socket_path, type="Socket"
+                ),
+            )
+        ]
 
         if self.push_secret:
-            volume_mounts.append(client.V1VolumeMount(mount_path="/root/.docker", name='docker-config'))
-            volumes.append(client.V1Volume(
-                name='docker-config',
-                secret=client.V1SecretVolumeSource(secret_name=self.push_secret)
-            ))
+            volume_mounts.append(
+                client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
+            )
+            volumes.append(
+                client.V1Volume(
+                    name="docker-config",
+                    secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
+                )
+            )
 
         env = []
         if self.git_credentials:
-            env.append(client.V1EnvVar(name='GIT_CREDENTIAL_ENV', value=self.git_credentials))
+            env.append(
+                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
+            )
 
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
@@ -384,33 +401,33 @@ class Build:
                         args=self.get_cmd(),
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
-                            limits={'memory': self.memory_limit},
-                            requests={'memory': self.memory_request},
+                            limits={"memory": self.memory_limit},
+                            requests={"memory": self.memory_request},
                         ),
-                        env=env
+                        env=env,
                     )
                 ],
                 tolerations=[
                     client.V1Toleration(
-                        key='hub.jupyter.org/dedicated',
-                        operator='Equal',
-                        value='user',
-                        effect='NoSchedule',
+                        key="hub.jupyter.org/dedicated",
+                        operator="Equal",
+                        value="user",
+                        effect="NoSchedule",
                     ),
                     # GKE currently does not permit creating taints on a node pool
                     # with a `/` in the key field
                     client.V1Toleration(
-                        key='hub.jupyter.org_dedicated',
-                        operator='Equal',
-                        value='user',
-                        effect='NoSchedule',
+                        key="hub.jupyter.org_dedicated",
+                        operator="Equal",
+                        value="user",
+                        effect="NoSchedule",
                     ),
                 ],
                 node_selector=self.node_selector,
                 volumes=volumes,
                 restart_policy="Never",
-                affinity=self.get_affinity()
-            )
+                affinity=self.get_affinity(),
+            ),
         )
 
         try:
@@ -440,35 +457,52 @@ class Build:
                     timeout_seconds=30,
                     _request_timeout=KUBE_REQUEST_TIMEOUT,
                 ):
-                    if f['type'] == 'DELETED':
+                    if f["type"] == "DELETED":
                         # Assume this is a successful completion
-                        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
+                        self.progress(
+                            ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                            ProgressEvent.BuildStatus.COMPLETED,
+                        )
                         return
-                    self.pod = f['object']
+                    self.pod = f["object"]
                     if not self.stop_event.is_set():
                         # Account for all the phases kubernetes pods can be in
                         # Pending, Running, Succeeded, Failed, Unknown
                         # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
                         phase = self.pod.status.phase
-                        if phase == 'Pending':
-                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.PENDING)
-                        elif phase == 'Running':
-                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
-                        elif phase == 'Succeeded':
+                        if phase == "Pending":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.PENDING,
+                            )
+                        elif phase == "Running":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.RUNNING,
+                            )
+                        elif phase == "Succeeded":
                             # Do nothing! We will clean this up, and send a 'Completed' progress event
                             # when the pod has been deleted
                             pass
-                        elif phase == 'Failed':
-                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.FAILED)
-                        elif phase == 'Unknown':
-                            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.UNKNOWN)
+                        elif phase == "Failed":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.FAILED,
+                            )
+                        elif phase == "Unknown":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.UNKNOWN,
+                            )
                         else:
                             # This shouldn't happen, unless k8s introduces new Phase types
-                            warnings.warn(f"Found unknown phase {phase} when building {self.name}")
+                            warnings.warn(
+                                f"Found unknown phase {phase} when building {self.name}"
+                            )
 
-                    if self.pod.status.phase == 'Succeeded':
+                    if self.pod.status.phase == "Succeeded":
                         self.cleanup()
-                    elif self.pod.status.phase == 'Failed':
+                    elif self.pod.status.phase == "Failed":
                         self.cleanup()
             except Exception:
                 app_log.exception("Error in watch stream for %s", self.name)
@@ -496,7 +530,7 @@ class Build:
                 app_log.info("Stopping logs of %s", self.name)
                 return
             # verify that the line is JSON
-            line = line.decode('utf-8')
+            line = line.decode("utf-8")
             try:
                 json.loads(line)
             except ValueError:
@@ -506,10 +540,12 @@ class Build:
                 # If it was a fatal error, presumably a 'failure'
                 # message will arrive shortly.
                 app_log.error("log event not json: %r", line)
-                line = json.dumps({
-                    'phase': 'unknown',
-                    'message': line,
-                })
+                line = json.dumps(
+                    {
+                        "phase": "unknown",
+                        "message": line,
+                    }
+                )
 
             self.progress(ProgressEvent.Kind.LOG_MESSAGE, line)
         else:
@@ -539,41 +575,58 @@ class Build:
         """
         self.stop_event.set()
 
+
 class FakeBuild(Build):
     """
     Fake Building process to be able to work on the UI without a running Minikube.
     """
+
     def submit(self):
-        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
+        self.progress(
+            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING
+        )
         return
 
     def stream_logs(self):
         import time
+
         time.sleep(3)
-        for phase in ('Pending', 'Running', 'Succeed', 'Building'):
+        for phase in ("Pending", "Running", "Succeed", "Building"):
             if self.stop_event.is_set():
                 app_log.warning("Stopping logs of %s", self.name)
                 return
-            self.progress(ProgressEvent.Kind.LOG_MESSAGE,
-                json.dumps({
-                    'phase': phase,
-                    'message': f"{phase}...\n",
-                })
+            self.progress(
+                ProgressEvent.Kind.LOG_MESSAGE,
+                json.dumps(
+                    {
+                        "phase": phase,
+                        "message": f"{phase}...\n",
+                    }
+                ),
             )
         for i in range(5):
             if self.stop_event.is_set():
                 app_log.warning("Stopping logs of %s", self.name)
                 return
             time.sleep(1)
-            self.progress('log',
-                json.dumps({
-                    'phase': 'unknown',
-                    'message': f"Step {i+1}/10\n",
-                })
+            self.progress(
+                "log",
+                json.dumps(
+                    {
+                        "phase": "unknown",
+                        "message": f"Step {i+1}/10\n",
+                    }
+                ),
             )
-        self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
-        self.progress('log', json.dumps({
-                'phase': 'Deleted',
-                'message': "Deleted...\n",
-             })
+        self.progress(
+            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED
+        )
+        self.progress(
+            "log",
+            json.dumps(
+                {
+                    "phase": "Deleted",
+                    "message": "Deleted...\n",
+                }
+            ),
         )

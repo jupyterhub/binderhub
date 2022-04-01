@@ -4,6 +4,7 @@ Contains build of a docker image from a git repository.
 
 import json
 import os
+
 # These methods are synchronous so don't use tornado.queue
 import queue
 import subprocess
@@ -216,23 +217,34 @@ class LocalRepo2dockerBuild(Build):
         Progress of the build can be monitored by listening for items in
         the Queue passed to the constructor as `q`.
         """
+
         def break_callback():
             return self.stop_event.is_set()
 
         env = os.environ.copy()
         if self.git_credentials:
-            env['GIT_CREDENTIAL_ENV'] = self.git_credentials
+            env["GIT_CREDENTIAL_ENV"] = self.git_credentials
 
         cmd = self.get_cmd()
         app_log.info("Starting build: %s", " ".join(cmd))
 
         try:
-            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.RUNNING)
-            for line in _execute_cmd(cmd, capture=True, break_callback=break_callback, env=env):
+            self.progress(
+                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                ProgressEvent.BuildStatus.RUNNING,
+            )
+            for line in _execute_cmd(
+                cmd, capture=True, break_callback=break_callback, env=env
+            ):
                 self._handle_log(line)
-            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED)
+            self.progress(
+                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                ProgressEvent.BuildStatus.COMPLETED,
+            )
         except subprocess.CalledProcessError:
-            self.progress(ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.FAILED)
+            self.progress(
+                ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.FAILED
+            )
         except Exception:
             app_log.exception("Error in watch stream for %s", self.name)
             raise
@@ -247,10 +259,12 @@ class LocalRepo2dockerBuild(Build):
             # If it was a fatal error, presumably a 'failure'
             # message will arrive shortly.
             app_log.error("log event not json: %r", line)
-            line = json.dumps({
-                'phase': 'unknown',
-                'message': line,
-            })
+            line = json.dumps(
+                {
+                    "phase": "unknown",
+                    "message": line,
+                }
+            )
         self.progress(ProgressEvent.Kind.LOG_MESSAGE, line)
 
     def stream_logs(self):
