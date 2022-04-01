@@ -20,11 +20,11 @@ if in_github_actions:
 
 else:
     try:
-        jupyterhub_ip = subprocess.check_output(['minikube', 'ip'], text=True).strip()
+        jupyterhub_ip = subprocess.check_output(["minikube", "ip"], text=True).strip()
     except (subprocess.SubprocessError, FileNotFoundError):
-        jupyterhub_ip = '192.168.1.100'
+        jupyterhub_ip = "192.168.1.100"
 
 c.BinderHub.debug = True
-c.BinderHub.hub_url = 'http://{}:30902'.format(jupyterhub_ip)
-c.BinderHub.hub_api_token = 'dummy-binder-secret-token'
+c.BinderHub.hub_url = f"http://{jupyterhub_ip}:30902"
+c.BinderHub.hub_api_token = "dummy-binder-secret-token"
 c.BinderHub.use_registry = False

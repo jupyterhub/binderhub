@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
 
-
 jobs:
   # Builds and pushes docker images to DockerHub, packages the Helm chart and
   # pushes it to jupyterhub/helm-chart@gh-pages where index.yaml represents the
@@ -23,7 +22,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Set up QEMU (for docker buildx)
         uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480 # dependabot updates to latest release
@@ -91,7 +90,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - name: Install pypa/build
         run: python -mpip install build
       - name: Build a sdist, and a binary wheel from the sdist

@@ -3,7 +3,7 @@ import base64
 import json
 import os
 
-from tornado.web import Application, RequestHandler, HTTPError
+from tornado.web import Application, HTTPError, RequestHandler
 
 from binderhub.registry import DockerRegistry
 
@@ -58,7 +58,9 @@ def test_registry_gcr_defaults(tmpdir):
     assert registry.username == "_json_key"
     assert registry.password == "{...}"
 
+
 # Mock the registry API calls made by get_image_manifest
+
 
 class MockTokenHandler(RequestHandler):
     """Mock handler for the registry token handler"""
@@ -78,9 +80,9 @@ class MockTokenHandler(RequestHandler):
             raise HTTPError(403, "Bad username %r" % username)
         if password != self.test_handle["password"]:
             raise HTTPError(403, "Bad password %r" % password)
-        self.test_handle["token"] = token = base64.encodebytes(os.urandom(5)).decode(
-            "ascii"
-        ).rstrip()
+        self.test_handle["token"] = token = (
+            base64.encodebytes(os.urandom(5)).decode("ascii").rstrip()
+        )
         self.set_header("Content-Type", "application/json")
         self.write(json.dumps({"token": token}))
 
@@ -97,7 +99,7 @@ class MockManifestHandler(RequestHandler):
             raise HTTPError(401, "No bearer auth")
         token = auth_header[7:]
         if token != self.test_handle["token"]:
-            raise HTTPError(403, "%s != %s" % (token, self.test_handle["token"]))
+            raise HTTPError(403, "{} != {}".format(token, self.test_handle["token"]))
         self.set_header("Content-Type", "application/json")
         # get_image_manifest never looks at the contents here
         self.write(json.dumps({"image": image, "tag": tag}))
@@ -128,7 +130,7 @@ async def test_get_image_manifest(tmpdir, request):
                 "auths": {
                     url: {
                         "auth": base64.encodebytes(
-                            f"{username}:{password}".encode("utf8")
+                            f"{username}:{password}".encode()
                         ).decode("ascii")
                     }
                 }

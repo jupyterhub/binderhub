@@ -22,13 +22,29 @@ repos:
     rev: 22.1.0
     hooks:
       - id: black
-        args: [--target-version=py37]
+        # args are not passed, but see the config in pyproject.toml
 
   # Autoformat: Python code
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.0.1
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
     hooks:
-      - id: reorder-python-imports
+      - id: isort
+        # args are not passed, but see the config in pyproject.toml
+
+  # Generated code:
+  #   An entry in helm-chart/binderhub/values.yaml should be generated based on
+  #   binderhub/binderspawner_mixin.py. See ci/check_embedded_chart_code.py for
+  #   more details.
+  - repo: local
+    hooks:
+      - id: update-values-based-on-bindarspawner-mixin
+        name: Update helm-chart/binderhub/values.yaml based on binderhub/binderspawner_mixin.py
+        language: system
+        entry: python ci/check_embedded_chart_code.py
+        args:
+          - --update
+        files: binderhub/binderspawner_mixin.py|helm-chart/binderhub/values.yaml
+        pass_filenames: false
 
   # Autoformat: js, html, markdown, yaml, json
   - repo: https://github.com/pre-commit/mirrors-prettier

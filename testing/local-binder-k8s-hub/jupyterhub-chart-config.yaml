@@ -7,11 +7,10 @@
 debug:
   enabled: true
 
-
 hub:
   config:
     BinderSpawner:
-      cors_allow_origin: '*'
+      cors_allow_origin: "*"
   db:
     type: "sqlite-memory"
   services:

@@ -1,7 +1,6 @@
 import asyncio
 import json
 import time
-
 from functools import wraps
 
 from tornado.httpclient import AsyncHTTPClient
@@ -152,7 +151,7 @@ class HealthHandler(BaseHandler):
         # don't care if the image actually exists or not
         image_name = self.settings["image_prefix"] + "some-image-name:12345"
         await registry.get_image_manifest(
-            *'/'.join(image_name.split('/')[-2:]).split(':', 1)
+            *"/".join(image_name.split("/")[-2:]).split(":", 1)
         )
         return True
 

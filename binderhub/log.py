@@ -7,13 +7,10 @@
 import json
 import logging
 from http.cookies import SimpleCookie
-from urllib.parse import urlparse
-from urllib.parse import urlunparse
+from urllib.parse import urlparse, urlunparse
 
 from tornado.log import access_log
-from tornado.web import HTTPError
-from tornado.web import StaticFileHandler
-
+from tornado.web import HTTPError, StaticFileHandler
 
 # url params to be scrubbed if seen
 # any url param that *contains* one of these
@@ -53,12 +50,12 @@ def _scrub_headers(headers):
         else:
             # no space, hide the whole thing in case there was a mistake
             auth_type = ""
-        headers["Authorization"] = "{} [secret]".format(auth_type)
+        headers["Authorization"] = f"{auth_type} [secret]"
     if "Cookie" in headers:
         c = SimpleCookie(headers["Cookie"])
         redacted = []
         for name in c.keys():
-            redacted.append("{}=[secret]".format(name))
+            redacted.append(f"{name}=[secret]")
         headers["Cookie"] = "; ".join(redacted)
     return headers
 
@@ -134,5 +131,5 @@ def log_request(handler):
         # to get headers from tornado
         location = handler._headers.get("Location")
         if location:
-            ns["location"] = " -> {}".format(_scrub_uri(location))
+            ns["location"] = f" -> {_scrub_uri(location)}"
     access_log.log(log_level, msg.format(**ns))

@@ -12,7 +12,6 @@ which are managed by [`pip-compile`][].
 
 [pip-compile]: https://pip-tools.readthedocs.io
 
-
 `requirements.in` contains our loosely specified direct requirements.
 This is the file we edit to change what should be in the image.
 

@@ -30,12 +30,12 @@ jobs:
       fail-fast: false
       matrix:
         k3s-channel:
-        # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
-        - latest
+          # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
+          - latest
         test:
-        - main
-        - auth
-        - helm
+          - main
+          - auth
+          - helm
         include:
           # Chart.yaml contains the chart's oldest supported k8s version, we
           # want to test against that. We also test against the oldest known
@@ -68,16 +68,16 @@ jobs:
 
       - name: Setup OS level dependencies
         run: |
-            sudo apt-get update
-            sudo apt-get install --yes \
-              build-essential \
-              curl \
-              libcurl4-openssl-dev \
-              libssl-dev
+          sudo apt-get update
+          sudo apt-get install --yes \
+            build-essential \
+            curl \
+            libcurl4-openssl-dev \
+            libssl-dev
 
       - uses: actions/setup-node@v2-beta
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Cache npm
         uses: actions/cache@v2
@@ -89,12 +89,12 @@ jobs:
 
       - name: Run webpack to build static assets
         run: |
-            npm install
-            npm run webpack
+          npm install
+          npm run webpack
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Cache pip
         uses: actions/cache@v2
@@ -107,8 +107,8 @@ jobs:
 
       - name: Update pip
         run: |
-            pip install --upgrade pip
-            pip install --upgrade setuptools wheel
+          pip install --upgrade pip
+          pip install --upgrade setuptools wheel
 
       - name: Setup Python package dependencies
         run: |
@@ -118,20 +118,20 @@ jobs:
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
         run: |
-            ./testing/local-binder-k8s-hub/install-jupyterhub-chart
+          ./testing/local-binder-k8s-hub/install-jupyterhub-chart
 
       - name: Install JupyterHub chart for auth tests
         if: matrix.test == 'auth'
         run: |
-            ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
+          ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
 
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
-            # Use chartpress to create the helm chart and build its images
-            helm dependency update ./helm-chart/binderhub
-            (cd helm-chart && chartpress)
-            git --no-pager diff --color=always
+          # Use chartpress to create the helm chart and build its images
+          helm dependency update ./helm-chart/binderhub
+          (cd helm-chart && chartpress)
+          git --no-pager diff --color=always
 
       - name: Generate values.schema.json from schema.yaml
         if: matrix.test == 'helm'
@@ -147,10 +147,10 @@ jobs:
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'
         run: |
-            helm template --validate binderhub-test helm-chart/binderhub \
-                --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-                --set config.BinderHub.hub_url=http://localhost:30902 \
-                --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
+          helm template --validate binderhub-test helm-chart/binderhub \
+              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --set config.BinderHub.hub_url=http://localhost:30902 \
+              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
 
       - name: "(Upgrade) Install ${{ matrix.upgrade-from }} chart"
         if: matrix.test-variation == 'upgrade'
@@ -210,20 +210,20 @@ jobs:
 
       - name: Await and curl JupyterHub
         run: |
-            . ci/common
-            await_jupyterhub
+          . ci/common
+          await_jupyterhub
 
-            echo curl http://localhost:30902/hub/api/ should print the JupyterHub version
-            curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          echo curl http://localhost:30902/hub/api/ should print the JupyterHub version
+          curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
 
       - name: Await and curl BinderHub
         if: matrix.test == 'helm'
         run: |
-            . ci/common
-            await_binderhub binderhub-test
+          . ci/common
+          await_binderhub binderhub-test
 
-            echo curl http://localhost:30901/health to check BinderHub\'s health
-            curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          echo curl http://localhost:30901/health to check BinderHub\'s health
+          curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
 
       - name: Run main tests
         if: matrix.test == 'main'
@@ -238,8 +238,8 @@ jobs:
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
-            export BINDER_URL=http://localhost:30901
-            pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+          export BINDER_URL=http://localhost:30901
+          pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
 
       # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
@@ -260,16 +260,16 @@ jobs:
 
       - name: Setup OS level dependencies
         run: |
-            sudo apt-get update
-            sudo apt-get install --yes \
-              build-essential \
-              curl \
-              libcurl4-openssl-dev \
-              libssl-dev
+          sudo apt-get update
+          sudo apt-get install --yes \
+            build-essential \
+            curl \
+            libcurl4-openssl-dev \
+            libssl-dev
 
       - uses: actions/setup-node@v2-beta
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Cache npm
         uses: actions/cache@v2
@@ -281,7 +281,7 @@ jobs:
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Cache pip
         uses: actions/cache@v2
@@ -294,8 +294,8 @@ jobs:
 
       - name: Update pip
         run: |
-            pip install --upgrade pip
-            pip install --upgrade setuptools wheel
+          pip install --upgrade pip
+          pip install --upgrade setuptools wheel
 
       - name: Setup Python package dependencies
         run: |
@@ -307,12 +307,12 @@ jobs:
 
       - name: Await and curl JupyterHub
         run: |
-            cd testing/local-binder-local-hub
-            jupyterhub --config=jupyterhub_config.py > jupyterhub.log 2>&1 &
-            sleep 5
+          cd testing/local-binder-local-hub
+          jupyterhub --config=jupyterhub_config.py > jupyterhub.log 2>&1 &
+          sleep 5
 
-            echo curl http://localhost:8000/hub/api/ should print the JupyterHub version
-            curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          echo curl http://localhost:8000/hub/api/ should print the JupyterHub version
+          curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
 
       - name: Run remote tests
         run: |

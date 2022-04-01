@@ -5,15 +5,15 @@ specified in the BinderHub Helm chart's Chart.yaml file, and use the
 configuration for the JupyterHub Helm chart nested in the BinderHub helm chart's
 configuration.
 """
-from subprocess import check_call
 import os
 import sys
-
-from ruamel import yaml
+from subprocess import check_call
 from tempfile import NamedTemporaryFile
 
+from ruamel import yaml
+
 here = os.path.abspath(os.path.dirname(__file__))
-helm_chart = os.path.join(here, os.pardir, os.pardir, 'helm-chart')
+helm_chart = os.path.join(here, os.pardir, os.pardir, "helm-chart")
 
 
 def _get_jupyterhub_dependency_version():
@@ -21,33 +21,39 @@ def _get_jupyterhub_dependency_version():
     Extract JupyterHub Helm chart version from the BinderHub chart's
     Chart.yaml file that lists its chart dependencies.
     """
-    chart_yaml = os.path.join(helm_chart, 'binderhub', 'Chart.yaml')
+    chart_yaml = os.path.join(helm_chart, "binderhub", "Chart.yaml")
 
     with open(chart_yaml) as f:
         dependecies = yaml.safe_load(f)
-    for dep in dependecies['dependencies']:
-        if dep['name'] == 'jupyterhub':
-            return dep['version']
+    for dep in dependecies["dependencies"]:
+        if dep["name"] == "jupyterhub":
+            return dep["version"]
     else:
-        raise ValueError(f"JupyterHub as a Helm chart dependency not found in {chart_yaml}:\n{dependecies}")
+        raise ValueError(
+            f"JupyterHub as a Helm chart dependency not found in {chart_yaml}:\n{dependecies}"
+        )
 
 
 with NamedTemporaryFile(mode="w") as tmp:
-    with open(os.path.join(helm_chart, 'binderhub', 'values.yaml')) as values_in:
-        yaml.safe_dump(yaml.safe_load(values_in)['jupyterhub'], tmp.file)
+    with open(os.path.join(helm_chart, "binderhub", "values.yaml")) as values_in:
+        yaml.safe_dump(yaml.safe_load(values_in)["jupyterhub"], tmp.file)
 
-    cmd = ['helm', 'upgrade', '--install', 'binderhub-test']
-    cmd.extend([
-        'jupyterhub',
-        '--repo=https://jupyterhub.github.io/helm-chart/',
-        f'--version={_get_jupyterhub_dependency_version()}',
-        f'--values={tmp.name}',
-        f'--values={os.path.join(here, "jupyterhub-chart-config.yaml")}',
-    ])
-    if '--auth' in sys.argv:
-        cmd.extend([
-            f'--values={os.path.join(here, "jupyterhub-chart-config-auth-additions.yaml")}'
-        ])
+    cmd = ["helm", "upgrade", "--install", "binderhub-test"]
+    cmd.extend(
+        [
+            "jupyterhub",
+            "--repo=https://jupyterhub.github.io/helm-chart/",
+            f"--version={_get_jupyterhub_dependency_version()}",
+            f"--values={tmp.name}",
+            f'--values={os.path.join(here, "jupyterhub-chart-config.yaml")}',
+        ]
+    )
+    if "--auth" in sys.argv:
+        cmd.extend(
+            [
+                f'--values={os.path.join(here, "jupyterhub-chart-config-auth-additions.yaml")}'
+            ]
+        )
     print("Installing the JupyterHub Helm chart by itself")
     print(" ".join(cmd))
     check_call(cmd)

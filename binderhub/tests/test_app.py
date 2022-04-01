@@ -1,20 +1,22 @@
 """Exercise the binderhub entrypoint"""
 
-from subprocess import check_output
 import sys
-import pytest
+from subprocess import check_output
 
+import pytest
 from traitlets import TraitError
 
 from binderhub.app import BinderHub
-from binderhub.repoproviders import (RepoProvider, GitLabRepoProvider, GitHubRepoProvider)
+from binderhub.repoproviders import GitHubRepoProvider, GitLabRepoProvider, RepoProvider
 
 
 def test_help():
-    check_output([sys.executable, '-m', 'binderhub', '-h'])
+    check_output([sys.executable, "-m", "binderhub", "-h"])
+
 
 def test_help_all():
-    check_output([sys.executable, '-m', 'binderhub', '--help-all'])
+    check_output([sys.executable, "-m", "binderhub", "--help-all"])
+
 
 def test_repo_providers():
     # Check that repo_providers property is validated by traitlets.validate
@@ -28,11 +30,11 @@ def test_repo_providers():
     b.repo_providers = dict(gh=GitHubRepoProvider, gl=GitLabRepoProvider)
     b.repo_providers = dict(p=Provider)
 
-    class BadProvider():
+    class BadProvider:
         pass
 
     # Setting providers that don't inherit from 'RepoProvider` should raise an error
-    wrong_repo_providers = [GitHubRepoProvider, {}, 'GitHub', BadProvider]
+    wrong_repo_providers = [GitHubRepoProvider, {}, "GitHub", BadProvider]
     for repo_providers in wrong_repo_providers:
         with pytest.raises(TraitError):
             b.repo_providers = repo_providers
