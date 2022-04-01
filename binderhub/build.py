@@ -81,6 +81,8 @@ class Build:
         image_name,
         git_credentials=None,
         push_secret=None,
+        cpu_limit=0,
+        cpu_request=0,
         memory_limit=0,
         memory_request=0,
         node_selector=None,
@@ -125,6 +127,18 @@ class Build:
             https://git-scm.com/docs/gitcredentials for more information.
         push_secret : str
             Kubernetes secret containing credentials to push docker image to registry.
+        cpu_limit
+            CPU limit for the docker build process. Can be an integer (1), fraction (0.5) or
+            millicore specification (100m). Value should adhere to K8s specification
+            for CPU meaning. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu
+            for more information
+        cpu_request
+            CPU request of the build pod. The actual building happens in the
+            docker daemon, but setting request in the build pod makes sure that
+            cpu is reserved for the docker build in the node by the kubernetes
+            scheduler. Value should adhere to K8s specification for CPU meaning.
+            See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu
+            for more information
         memory_limit
             Memory limit for the docker build process. Can be an integer in
             bytes, or a byte specification (like 6M).
@@ -159,6 +173,8 @@ class Build:
         self.push_secret = push_secret
         self.build_image = build_image
         self.main_loop = IOLoop.current()
+        self.cpu_limit = cpu_limit
+        self.cpu_request = cpu_request
         self.memory_limit = memory_limit
         self.memory_request = memory_request
         self.docker_host = docker_host
@@ -384,8 +400,8 @@ class Build:
                         args=self.get_cmd(),
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
-                            limits={'memory': self.memory_limit},
-                            requests={'memory': self.memory_request},
+                            limits={'memory': self.memory_limit, 'cpu': self.cpu_limit},
+                            requests={'memory': self.memory_request, 'cpu': self.cpu_request},
                         ),
                         env=env
                     )

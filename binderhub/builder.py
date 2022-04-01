@@ -410,6 +410,8 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             push_secret=push_secret,
             build_image=self.settings['build_image'],
+            cpu_limit=self.settings['build_cpu_limit'],
+            cpu_request=self.settings['build_cpu_request'],
             memory_limit=self.settings['build_memory_limit'],
             memory_request=self.settings['build_memory_request'],
             docker_host=self.settings['build_docker_host'],
