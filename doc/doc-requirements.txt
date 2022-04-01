@@ -8,14 +8,14 @@
 # first. This is only relevant if sphinx==1.* is already installed in the
 # environment, which it is on ReadTheDocs.
 
-# Documentation specific packages
-https://github.com/jupyterhub/autodoc-traits/archive/HEAD.zip
-myst-parser
-pydata-sphinx-theme
-sphinx-copybutton
 
 # sphinx.ext.autodoc as configured in conf.py and autodo_traits.py is
 # automatically building documentation based on inspection of the binderhub
 # package, which means we need to install it on RTD so it is available for
 # inspection.
 -r ../requirements.txt
+# Documentation specific packages
+https://github.com/jupyterhub/autodoc-traits/archive/HEAD.zip
+myst-parser
+pydata-sphinx-theme
+sphinx-copybutton

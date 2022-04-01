@@ -12,7 +12,7 @@ jsonschema
 jupyterhub
 kubernetes
 prometheus_client
+pyjwt>=2
 python-json-logger
 tornado>=5.1
 traitlets
-pyjwt>=2
