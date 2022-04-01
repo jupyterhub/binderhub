@@ -128,7 +128,7 @@ class LegacyRedirectHandler(BaseHandler):
 
     @authenticated
     def get(self, user, repo, urlpath=None):
-        url = '/v2/gh/{user}/{repo}/master'.format(user=user, repo=repo)
+        url = f'/v2/gh/{user}/{repo}/master'
         if urlpath is not None and urlpath.strip('/'):
             url = url_concat(url, dict(urlpath=urlpath))
         self.redirect(url)

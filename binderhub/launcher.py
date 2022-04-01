@@ -154,7 +154,7 @@ class Launcher(LoggingConfigurable):
 
         if len(prefix) > 32:
             # if it's long, truncate
-            prefix = '{}-{}'.format(prefix[:15], prefix[-15:])
+            prefix = f'{prefix[:15]}-{prefix[-15:]}'
 
         # add a random suffix to avoid collisions for users on the same image
         return '{}-{}'.format(prefix, ''.join(random.choices(SUFFIX_CHARS, k=SUFFIX_LENGTH)))
@@ -230,7 +230,7 @@ class Launcher(LoggingConfigurable):
             data.update(extra_args)
 
         # server name to be used in logs
-        _server_name = " {}".format(server_name) if server_name else ''
+        _server_name = f" {server_name}" if server_name else ''
 
         # start server
         app_log.info(f"Starting server{_server_name} for user {username} with image {image}")
@@ -244,7 +244,7 @@ class Launcher(LoggingConfigurable):
                     ready_event_future.cancel()
         try:
             await self.api_request(
-                'users/{}/servers/{}'.format(escaped_username, server_name),
+                f'users/{escaped_username}/servers/{server_name}',
                 method='POST',
                 body=json.dumps(data).encode('utf8'),
             )

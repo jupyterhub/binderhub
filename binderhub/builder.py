@@ -149,7 +149,7 @@ class BuildHandler(BaseHandler):
         else:
             serialized_data = data
         try:
-            self.write('data: {}\n\n'.format(serialized_data))
+            self.write(f'data: {serialized_data}\n\n')
             await self.flush()
         except StreamClosedError:
             app_log.warning("Stream closed while handling %s", self.request.uri)
@@ -196,7 +196,7 @@ class BuildHandler(BaseHandler):
             'status_code': status_code,
             'message': message + '\n',
         })
-        self.write('data: {}\n\n'.format(evt))
+        self.write(f'data: {evt}\n\n')
         self.finish()
 
     def initialize(self):
@@ -255,7 +255,7 @@ class BuildHandler(BaseHandler):
         IOLoop.current().spawn_callback(self.keep_alive)
 
         spec = spec.rstrip("/")
-        key = '%s:%s' % (provider_prefix, spec)
+        key = f'{provider_prefix}:{spec}'
 
         # get a provider object that encapsulates the provider and the spec
         try:
@@ -268,7 +268,7 @@ class BuildHandler(BaseHandler):
         if provider.is_banned():
             await self.emit({
                 'phase': 'failed',
-                'message': 'Sorry, {} has been temporarily disabled from launching. Please contact admins for more info!'.format(spec)
+                'message': f'Sorry, {spec} has been temporarily disabled from launching. Please contact admins for more info!'
             })
             return
 
@@ -283,7 +283,7 @@ class BuildHandler(BaseHandler):
         try:
             ref = await provider.get_resolved_ref()
         except Exception as e:
-            await self.fail("Error resolving ref for %s: %s" % (key, e))
+            await self.fail(f"Error resolving ref for {key}: {e}")
             return
 
         if ref is None:

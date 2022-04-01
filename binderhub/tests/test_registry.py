@@ -97,7 +97,7 @@ class MockManifestHandler(RequestHandler):
             raise HTTPError(401, "No bearer auth")
         token = auth_header[7:]
         if token != self.test_handle["token"]:
-            raise HTTPError(403, "%s != %s" % (token, self.test_handle["token"]))
+            raise HTTPError(403, "{} != {}".format(token, self.test_handle["token"]))
         self.set_header("Content-Type", "application/json")
         # get_image_manifest never looks at the contents here
         self.write(json.dumps({"image": image, "tag": tag}))
@@ -128,7 +128,7 @@ async def test_get_image_manifest(tmpdir, request):
                 "auths": {
                     url: {
                         "auth": base64.encodebytes(
-                            f"{username}:{password}".encode("utf8")
+                            f"{username}:{password}".encode()
                         ).decode("ascii")
                     }
                 }

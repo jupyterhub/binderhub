@@ -26,7 +26,7 @@ class ProcessTerminated(subprocess.CalledProcessError):
         self.message = message
 
     def __str__(self):
-        s = "ProcessTerminated: {}".format(self.message)
+        s = f"ProcessTerminated: {self.message}"
         return s
 
 

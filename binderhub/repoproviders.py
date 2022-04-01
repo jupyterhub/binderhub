@@ -37,9 +37,9 @@ def tokenize_spec(spec):
 
     spec_parts = spec.split('/', 2)  # allow ref to contain "/"
     if len(spec_parts) != 3:
-        msg = 'Spec is not of the form "user/repo/ref", provided: "{spec}".'.format(spec=spec)
+        msg = f'Spec is not of the form "user/repo/ref", provided: "{spec}".'
         if len(spec_parts) == 2 and spec_parts[-1] != 'master':
-            msg += ' Did you mean "{spec}/master"?'.format(spec=spec)
+            msg += f' Did you mean "{spec}/master"?'
         raise ValueError(msg)
 
     return spec_parts
@@ -230,7 +230,7 @@ class ZenodoProvider(RepoProvider):
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
-        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+        req = HTTPRequest(f"https://doi.org/{self.spec}",
                           user_agent="BinderHub")
         r = await client.fetch(req)
         self.record_id = r.effective_url.rsplit("/", maxsplit=1)[1]
@@ -256,7 +256,7 @@ class ZenodoProvider(RepoProvider):
         return f"https://doi.org/{resolved_spec}"
 
     def get_build_slug(self):
-        return "zenodo-{}".format(self.record_id)
+        return f"zenodo-{self.record_id}"
 
 
 class FigshareProvider(RepoProvider):
@@ -279,7 +279,7 @@ class FigshareProvider(RepoProvider):
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
-        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+        req = HTTPRequest(f"https://doi.org/{self.spec}",
                           user_agent="BinderHub")
         r = await client.fetch(req)
 
@@ -288,7 +288,7 @@ class FigshareProvider(RepoProvider):
         article_version = match.groups()[5]
         if not article_version:
             article_version = "1"
-        self.record_id = "{}.v{}".format(article_id, article_version)
+        self.record_id = f"{article_id}.v{article_version}"
 
         return self.record_id
 
@@ -312,7 +312,7 @@ class FigshareProvider(RepoProvider):
         return f"https://doi.org/{resolved_spec}"
 
     def get_build_slug(self):
-        return "figshare-{}".format(self.record_id)
+        return f"figshare-{self.record_id}"
 
 
 class DataverseProvider(RepoProvider):
@@ -329,7 +329,7 @@ class DataverseProvider(RepoProvider):
 
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
-        req = HTTPRequest("https://doi.org/{}".format(self.spec),
+        req = HTTPRequest(f"https://doi.org/{self.spec}",
                           user_agent="BinderHub")
         r = await client.fetch(req)
 
@@ -406,7 +406,7 @@ class HydroshareProvider(RepoProvider):
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
         self.resource_id = self._parse_resource_id(self.spec)
-        req = HTTPRequest("https://www.hydroshare.org/hsapi/resource/{}/scimeta/elements".format(self.resource_id),
+        req = HTTPRequest(f"https://www.hydroshare.org/hsapi/resource/{self.resource_id}/scimeta/elements",
                           user_agent="BinderHub")
         r = await client.fetch(req)
 
@@ -422,7 +422,7 @@ class HydroshareProvider(RepoProvider):
             # truncate the timestamp
             return str(int(epoch))
         # date last updated is only good for the day... probably need something finer eventually
-        self.record_id = "{}.v{}".format(self.resource_id, parse_date(r.body))
+        self.record_id = f"{self.resource_id}.v{parse_date(r.body)}"
         return self.record_id
 
     async def get_resolved_spec(self):
@@ -435,10 +435,10 @@ class HydroshareProvider(RepoProvider):
 
     def get_repo_url(self):
         self.resource_id = self._parse_resource_id(self.spec)
-        return "https://www.hydroshare.org/resource/{}".format(self.resource_id)
+        return f"https://www.hydroshare.org/resource/{self.resource_id}"
 
     def get_build_slug(self):
-        return "hydroshare-{}".format(self.record_id)
+        return f"hydroshare-{self.record_id}"
 
 
 class GitRepoProvider(RepoProvider):
@@ -519,7 +519,7 @@ class GitRepoProvider(RepoProvider):
             stdout, stderr = await proc.communicate()
             retcode = await proc.wait()
             if retcode:
-                raise RuntimeError("Unable to run git ls-remote to get the `resolved_ref`: {}".format(stderr.decode()))
+                raise RuntimeError(f"Unable to run git ls-remote to get the `resolved_ref`: {stderr.decode()}")
             if not stdout:
                 return None
             resolved_ref = stdout.decode().split(None, 1)[0]
@@ -607,7 +607,7 @@ class GitLabRepoProvider(RepoProvider):
     @default('git_credentials')
     def _default_git_credentials(self):
         if self.private_token:
-            return r'username=binderhub\npassword={token}'.format(token=self.private_token)
+            return fr'username=binderhub\npassword={self.private_token}'
         return ""
 
     labels = {
@@ -748,7 +748,7 @@ class GitHubRepoProvider(RepoProvider):
                 return r'username={client_id}\npassword={token}'.format(
                     client_id=self.client_id, token=self.access_token)
             else:
-                return r'username={token}\npassword=x-oauth-basic'.format(token=self.access_token)
+                return fr'username={self.access_token}\npassword=x-oauth-basic'
         return ""
 
     labels = {
@@ -783,7 +783,7 @@ class GitHubRepoProvider(RepoProvider):
         headers = {}
         # based on: https://developer.github.com/v3/#oauth2-token-sent-in-a-header
         if self.access_token:
-            headers['Authorization'] = "token {token}".format(token=self.access_token)
+            headers['Authorization'] = f"token {self.access_token}"
 
         if etag:
             headers['If-None-Match'] = etag
@@ -905,7 +905,7 @@ class GitHubRepoProvider(RepoProvider):
         return f"{self.user}/{self.repo}/{self.resolved_ref}"
 
     def get_build_slug(self):
-        return '{user}-{repo}'.format(user=self.user, repo=self.repo)
+        return f'{self.user}-{self.repo}'
 
 
 class GistRepoProvider(GitHubRepoProvider):

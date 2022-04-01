@@ -35,7 +35,7 @@ class BinderSpawnerMixin(Configurable):
         # classes using traitlets?
         # https://stackoverflow.com/questions/9575409/calling-parent-class-init-with-multiple-inheritance-whats-the-right-way
         # https://github.com/ipython/traitlets/pull/175
-        super(BinderSpawnerMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     auth_enabled = Bool(
         False,

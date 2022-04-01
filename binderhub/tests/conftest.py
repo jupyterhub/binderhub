@@ -69,8 +69,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
         hosts[host][url] = response
     # save records to files
     for host, records in hosts.items():
-        fname = 'http-record.{}.json'.format(host)
-        print("Recorded http responses for {} in {}".format(host, fname))
+        fname = f'http-record.{host}.json'
+        print(f"Recorded http responses for {host} in {fname}")
         print("To update the recordings used by the tests you will have"
               " to move or merge the newly created recordings with existing"
               f" recordings in {here}.")
@@ -83,7 +83,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
 
 
 def load_mock_responses(host):
-    fname = os.path.join(here, 'http-record.{}.json'.format(host))
+    fname = os.path.join(here, f'http-record.{host}.json')
     if not os.path.exists(fname):
         return {}
     with open(fname) as f:
@@ -166,7 +166,7 @@ def _binderhub_config():
     return cfg
 
 
-class RemoteBinderHub(object):
+class RemoteBinderHub:
     """Mock class for the app fixture when Binder is remote
 
     Has a URL for the binder location and a configured BinderHub instance

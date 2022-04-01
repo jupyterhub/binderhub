@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # BinderHub documentation build configuration file, created by
 # sphinx-quickstart on Tue May 16 07:17:16 2017.

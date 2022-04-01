@@ -74,11 +74,11 @@ if get_value('dind.enabled', False) and get_value('dind.hostSocketDir'):
 
 if c.BinderHub.auth_enabled:
     hub_url = urlparse(c.BinderHub.hub_url)
-    c.HubOAuth.hub_host = '{}://{}'.format(hub_url.scheme, hub_url.netloc)
+    c.HubOAuth.hub_host = f'{hub_url.scheme}://{hub_url.netloc}'
     if 'base_url' in c.BinderHub:
         c.HubOAuth.base_url = c.BinderHub.base_url
 
 # load extra config snippets
 for key, snippet in sorted((get_value('extraConfig') or {}).items()):
-    print("Loading extra config: {}".format(key))
+    print(f"Loading extra config: {key}")
     exec(snippet)

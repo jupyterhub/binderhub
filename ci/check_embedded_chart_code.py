@@ -28,7 +28,7 @@ root = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
 binderspawner_mixin_py = os.path.join(root, 'binderhub', 'binderspawner_mixin.py')
 values_yaml = os.path.join(root, 'helm-chart', 'binderhub', 'values.yaml')
 
-with open(binderspawner_mixin_py, 'r') as f:
+with open(binderspawner_mixin_py) as f:
     py_code = f.read()
 
 
@@ -51,5 +51,5 @@ else:
         print('\n'.join(difflines))
         print('\n')
         print('Values code is not in sync with binderhub/binderspawner_mixin.py')
-        print('Run `python {} --update` to update values.yaml from binderhub/binderspawner_mixin.py'.format(sys.argv[0]))
+        print(f'Run `python {sys.argv[0]} --update` to update values.yaml from binderhub/binderspawner_mixin.py')
         sys.exit(1)

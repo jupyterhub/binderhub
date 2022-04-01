@@ -436,7 +436,7 @@ class Build:
                 for f in w.stream(
                     self.api.list_namespaced_pod,
                     self.namespace,
-                    label_selector="name={}".format(self.name),
+                    label_selector=f"name={self.name}",
                     timeout_seconds=30,
                     _request_timeout=KUBE_REQUEST_TIMEOUT,
                 ):

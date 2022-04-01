@@ -23,8 +23,8 @@ def build_binder(repo,
 
     Yields Binder's event-stream events (dicts)
     """
-    print("Building binder for {repo}@{ref}".format(repo=repo, ref=ref))
-    url = binder_url + '/build/gh/{repo}/{ref}'.format(repo=repo, ref=ref)
+    print(f"Building binder for {repo}@{ref}")
+    url = binder_url + f'/build/gh/{repo}/{ref}'
     r = requests.get(url, stream=True)
     r.raise_for_status()
     for line in r.iter_lines():
