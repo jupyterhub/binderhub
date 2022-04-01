@@ -1,42 +1,42 @@
 {
-    "$id": "binderhub.jupyter.org/launch",
-    "version": 5,
-    "title": "BinderHub Launch Events",
-    "description": "BinderHub emits this event whenever a new repo is launched",
-    "type": "object",
-    "properties": {
-        "provider": {
-            "enum": [
-                "GitHub",
-                "Gist",
-                "GitLab",
-                "Git",
-                "Zenodo",
-                "Figshare",
-                "Hydroshare",
-                "Dataverse"
-            ],
-            "description": "Provider for the repository being launched"
-        },
-        "spec": {
-            "type": "string",
-            "description": "Provider specification for the repo being launched. Usually, <reponame>/<commit-specification>"
-        },
-        "ref": {
-            "type": "string",
-            "description": "Resolved reference for the repo at the time of launch"
-        },
-        "status": {
-            "enum": ["success", "failure"],
-            "description": "Success/Failure of the launch"
-        },
-        "build_token": {
-            "type": "boolean",
-            "description": "Whether a build token was used for the launch"
-        },
-        "origin": {
-          "type": "string",
-          "description": "BinderHub host where the event originated"
-        }
+  "$id": "binderhub.jupyter.org/launch",
+  "version": 5,
+  "title": "BinderHub Launch Events",
+  "description": "BinderHub emits this event whenever a new repo is launched",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "enum": [
+        "GitHub",
+        "Gist",
+        "GitLab",
+        "Git",
+        "Zenodo",
+        "Figshare",
+        "Hydroshare",
+        "Dataverse"
+      ],
+      "description": "Provider for the repository being launched"
+    },
+    "spec": {
+      "type": "string",
+      "description": "Provider specification for the repo being launched. Usually, <reponame>/<commit-specification>"
+    },
+    "ref": {
+      "type": "string",
+      "description": "Resolved reference for the repo at the time of launch"
+    },
+    "status": {
+      "enum": ["success", "failure"],
+      "description": "Success/Failure of the launch"
+    },
+    "build_token": {
+      "type": "boolean",
+      "description": "Whether a build token was used for the launch"
+    },
+    "origin": {
+      "type": "string",
+      "description": "BinderHub host where the event originated"
     }
+  }
 }

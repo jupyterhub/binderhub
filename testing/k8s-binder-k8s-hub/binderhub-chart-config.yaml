@@ -12,7 +12,7 @@ config:
     hub_url_local: http://proxy-public
     use_registry: false
     log_level: 10
-    cors_allow_origin: '*'
+    cors_allow_origin: "*"
 
 ingress:
   # Enabled to test the creation/update of the k8s Ingress resource, but not
