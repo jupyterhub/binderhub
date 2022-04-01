@@ -6,12 +6,13 @@ import urllib.parse
 import jwt
 from http.client import responses
 from tornado import web
+from tornado.httpclient import AsyncHTTPClient, HTTPClientError
 from tornado.log import app_log
 from jupyterhub.services.auth import HubOAuthenticated, HubOAuth
 
 from . import __version__ as binder_version
 from .ratelimit import RateLimitExceeded
-from .utils import ip_in_networks
+from .utils import ip_in_networks, url_path_join
 
 
 class BaseHandler(HubOAuthenticated, web.RequestHandler):
@@ -98,12 +99,51 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         self._have_build_token = True
         return decoded
 
-    def check_rate_limit(self):
-        rate_limiter = self.settings["rate_limiter"]
-        if rate_limiter.limit == 0:
-            # no limit enabled
-            return
+    async def _check_rate_limit(self, which, key, quota=None):
 
+        if self.settings["rate_limit_url"]:
+            # check with remote rate-limiter service
+            # defined in binderhub/ratelimitapp
+            if quota:
+                body = json.dumps({"quota": quota})
+            else:
+                body = ""
+            try:
+                response = await AsyncHTTPClient().fetch(
+                    url_path_join(self.settings["rate_limit_url"], which, key),
+                    method="POST",
+                    body=body,
+                    headers={
+                        "Authorization": f"Bearer {self.settings['rate_limit_token']}",
+                    },
+                )
+                limit = json.loads(response.body)["limit"]
+            except HTTPClientError as e:
+                if e.code == 429:
+                    # turn remote 429 back into RateLimitExceeded
+                    response = json.loads(e.response.body)
+                    raise RateLimitExceeded(response["message"])
+                else:
+                    app_log.warning(f"Failed to check external rate limit: {e}")
+                    return
+        else:
+            # check with internal rate limiter
+            rate_limiter = self.settings["rate_limiters"][which]
+            if rate_limiter.limit == 0:
+                # no limit enabled
+                return
+
+            limit = rate_limiter.increment(key, quota)
+
+        app_log.debug(f"Rate limit for {which}/{key}: {limit}")
+
+        self.set_header("x-ratelimit-remaining", str(limit["remaining"]))
+        self.set_header("x-ratelimit-reset", str(limit["reset"]))
+        self.set_header("x-ratelimit-limit", str(limit["limit"]))
+
+        return limit
+
+    async def check_request_rate_limit(self):
         if self.settings['auth_enabled'] and self.current_user:
             # authenticated, no limit
             # TODO: separate authenticated limit
@@ -116,19 +156,12 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
         # rate limit is applied per-ip
         request_ip = self.request.remote_ip
-        try:
-            limit = rate_limiter.increment(request_ip)
-        except RateLimitExceeded:
-            raise web.HTTPError(
-                429,
-                f"Rate limit exceeded. Try again in {rate_limiter.period_seconds} seconds.",
-            )
-        else:
-            app_log.debug(f"Rate limit for {request_ip}: {limit}")
+        return self._check_rate_limit("request", request_ip)
 
-        self.set_header("x-ratelimit-remaining", str(limit["remaining"]))
-        self.set_header("x-ratelimit-reset", str(limit["reset"]))
-        self.set_header("x-ratelimit-limit", str(rate_limiter.limit))
+    def check_repo_rate_limit(self, repo_url, quota):
+        return self._check_rate_limit(
+            "repo", urllib.parse.quote(repo_url, safe=""), quota
+        )
 
     def get_current_user(self):
         if not self.settings['auth_enabled']:
