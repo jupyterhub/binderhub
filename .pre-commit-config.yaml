@@ -31,6 +31,21 @@ repos:
       - id: isort
         # args are not passed, but see the config in pyproject.toml
 
+  # Generated code:
+  #   An entry in helm-chart/binderhub/values.yaml should be generated based on
+  #   binderhub/binderspawner_mixin.py. See ci/check_embedded_chart_code.py for
+  #   more details.
+  - repo: local
+    hooks:
+      - id: update-values-based-on-bindarspawner-mixin
+        name: Update helm-chart/binderhub/values.yaml based on binderhub/binderspawner_mixin.py
+        language: system
+        entry: python ci/check_embedded_chart_code.py
+        args:
+          - --update
+        files: binderhub/binderspawner_mixin.py|helm-chart/binderhub/values.yaml
+        pass_filenames: false
+
   # Autoformat: js, html, markdown, yaml, json
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.6.1

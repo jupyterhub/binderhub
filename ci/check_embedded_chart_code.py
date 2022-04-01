@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
-# FIXME:
-# We currently have some code duplicated in binderhub/binderspawner_mixin.py and
-# helm-chart/binderhub/values.yaml
-# We should remove the embedded code from values.yaml and install the required
-# BinderSpawner code in the JupyterHub container.
+# FIXME: We currently have some code duplicated in
+#        binderhub/binderspawner_mixin.py and helm-chart/binderhub/values.yaml
+#        and we use a pre-commit hook to automatically update the values in
+#        values.yaml whenever binderhub/binderspawner_mixin.py is changed.
+#
+#        We should remove the embedded code from values.yaml and install the required
+#        BinderSpawner code in the JupyterHub container.
+#
 
 # For now just check that the two are in sync
 import argparse
