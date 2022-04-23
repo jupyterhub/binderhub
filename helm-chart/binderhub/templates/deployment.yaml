@@ -27,6 +27,7 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
       annotations:
+        # This lets us autorestart when the secret's pass-through config changes
         checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- . | toYaml | nindent 8 }}
