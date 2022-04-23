@@ -195,7 +195,15 @@
 {% endblock main %}
 
 {% block footer %}
+
+{% if main_footer_message %}
+<div class="container">
+  {{ main_footer_message | safe }}
+</div>
+{% else %}
 {{ super () }}
+{% endif %}
+
 <script type="text/javascript">
 indexMain();
 </script>

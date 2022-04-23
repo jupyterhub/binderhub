@@ -29,6 +29,7 @@ c.BinderHub.about_message = "This is a local dev deployment without Kubernetes"
 c.BinderHub.banner_message = (
     'See <a href="https://github.com/jupyterhub/binderhub">BinderHub on GitHub</a>'
 )
+c.BinderHub.main_footer_message = '<div class="row text-center" style="transform:rotate(10deg);padding-top:3em;"><h3>This is a custom footer message.</h3></div>'
 
 c.BinderHub.hub_url_local = "http://localhost:8000"
 

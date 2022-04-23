@@ -145,6 +145,16 @@ class BinderHub(Application):
         config=True,
     )
 
+    main_footer_message = Unicode(
+        "",
+        help="""
+        Override the footer on the main page.
+
+        The value will be inserted "as is". Raw HTML is supported.
+        """,
+        config=True,
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -822,6 +832,7 @@ class BinderHub(Application):
                 "google_analytics_domain": self.google_analytics_domain,
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
+                "main_footer_message": self.main_footer_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
                 "jinja2_env": jinja_env,
                 "build_memory_limit": self.build_memory_limit,
