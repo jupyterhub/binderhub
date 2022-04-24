@@ -36,7 +36,7 @@ class MainHandler(BaseHandler):
             submit=False,
             google_analytics_code=self.settings["google_analytics_code"],
             google_analytics_domain=self.settings["google_analytics_domain"],
-            main_footer_message=self.settings["main_footer_message"],
+            about_summary_message=self.settings["about_summary_message"],
             extra_footer_scripts=self.settings["extra_footer_scripts"],
             repo_providers=self.settings["repo_providers"],
         )
@@ -123,6 +123,7 @@ class ParameterizedMainHandler(BaseHandler):
             submit=True,
             google_analytics_code=self.settings["google_analytics_code"],
             google_analytics_domain=self.settings["google_analytics_domain"],
+            about_summary_message=self.settings["about_summary_message"],
             extra_footer_scripts=self.settings["extra_footer_scripts"],
         )
 

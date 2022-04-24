@@ -39,6 +39,14 @@
   {% block main %}
   {% endblock main %}
 
+  {% block about_summary %}
+  {% if about_summary_message %}
+  <div class="container">
+    {{ about_summary_message | safe }}
+  </div>
+  {% endif %}
+  {% endblock about_summary %}
+
   {% block footer %}
   <div class="container">
     <div class="row text-center">
