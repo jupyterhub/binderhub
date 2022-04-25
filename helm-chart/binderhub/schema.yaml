@@ -25,7 +25,6 @@ required:
   - service
   - config
   - extraConfig
-  - templates
   - jupyterhub
   - deployment
   - dind
@@ -33,6 +32,7 @@ required:
   - ingress
   - initContainers
   - lifecycle
+  - extraFiles
   - extraVolumes
   - extraVolumeMounts
   - extraEnv
@@ -261,13 +261,36 @@ properties:
       manifest as either the binder pod going into `Error` or `CrashLoopBackoff` states, or in
       some special cases, the binder pod running but... just doing very random things. Be careful!
 
-  templates:
+  extraFiles:
     type: object
-    additionalProperties:
-      type: string
+    additionalProperties: false
     description: |
-      Custom HTML page templates for BinderHub,
-      e.g. page.html.
+      A dictionary with extra files to be injected into the binder pod's container
+      on startup. This can for example be used to inject: configuration
+      files, custom user interface templates, images, and more.
+
+      See zero-to-jupyterhub's extraFiles documentation for reference.
+    patternProperties:
+      ".*":
+        type: object
+        additionalProperties: false
+        required: [mountPath]
+        oneOf:
+          - required: [data]
+          - required: [stringData]
+          - required: [binaryData]
+        properties:
+          mountPath:
+            type: string
+          data:
+            type: object
+            additionalProperties: true
+          stringData:
+            type: string
+          binaryData:
+            type: string
+          mode:
+            type: number
 
   jupyterhub:
     type: object

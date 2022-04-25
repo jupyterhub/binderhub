@@ -45,14 +45,19 @@ spec:
       - name: config
         secret:
           secretName: binder-secret
-      - name: templates
+      {{- if .Values.extraFiles }}
+      - name: files
         secret:
           secretName: binder-secret
           items:
-            {{- range $filename, $contents := .Values.templates }}
-            - key: "templates-{{ $filename }}"
-              path: {{ $filename | quote }}
+            {{- range $file_key, $file_details := .Values.extraFiles }}
+            - key: {{ $file_key | quote }}
+              path: {{ $file_key | quote }}
+              {{- with $file_details.mode }}
+              mode: {{ . }}
+              {{- end }}
             {{- end }}
+      {{- end }}
       {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
@@ -80,9 +85,14 @@ spec:
           - mountPath: /etc/binderhub/config/
             name: config
             readOnly: true
-          - mountPath: /etc/binderhub/templates/
-            name: templates
-            readOnly: true
+          {{- range $file_key, $file_details := .Values.extraFiles }}
+          - mountPath: {{ $file_details.mountPath }}
+            subPath: {{ $file_key | quote }}
+            {{- with $file_details.mode }}
+            mode: {{ . }}
+            {{- end }}
+            name: files
+          {{- end }}
           {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
             name: docker-secret
