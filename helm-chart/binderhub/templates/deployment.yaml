@@ -45,6 +45,14 @@ spec:
       - name: config
         secret:
           secretName: binder-secret
+      - name: templates
+        secret:
+          secretName: binder-secret
+          items:
+            {{- range $filename, $contents := .Values.templates }}
+            - key: "templates-{{ $filename }}"
+              path: {{ $filename | quote }}
+            {{- end }}
       {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
@@ -54,6 +62,7 @@ spec:
         hostPath:
           path: /var/run/docker.sock
       {{- end }}
+
       {{- with .Values.extraVolumes }}
       {{- . | toYaml | nindent 6 }}
       {{- end }}
@@ -70,6 +79,9 @@ spec:
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
+            readOnly: true
+          - mountPath: /etc/binderhub/templates/
+            name: templates
             readOnly: true
           {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
