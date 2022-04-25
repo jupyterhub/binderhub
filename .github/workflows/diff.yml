@@ -37,11 +37,20 @@ jobs:
 
           # NOTE: We change the directory so binderhub the chart name won't be
           #       misunderstood as the local folder name.
+          # validation is disabled, because the config is for a different version!
           cd testing
 
+          old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config-old.yaml"
+          if [ -f "$old_config" ]; then
+            echo "using old config"
+          else
+            old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml"
+          fi
+
           helm install binderhub-test binderhub \
-              --values ./k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --values "$old_config" \
               --repo https://jupyterhub.github.io/helm-chart/ \
+              --disable-openapi-validation \
               --version=$UPGRADE_FROM_VERSION
 
       - name: "Helm diff latest released dev chart with local chart"
