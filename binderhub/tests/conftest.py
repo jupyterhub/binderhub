@@ -49,14 +49,22 @@ def pytest_configure(config):
         "markers", "auth: mark test to run only on auth environments"
     )
     config.addinivalue_line(
-        "markers", "remote: mark test to run only on remote environments"
-    )
-    config.addinivalue_line(
         "markers", "github_api: mark test to run only with GitHub API credentials"
     )
     config.addinivalue_line(
         "markers", "remote: mark test for when BinderHub is already running somewhere."
     )
+    config.addinivalue_line(
+        "markers",
+        "helm: mark test to only run when BinderHub is launched with our k8s-binderhub test config.",
+    )
+
+
+def pytest_runtest_setup(item):
+    is_helm_test = any(mark for mark in item.iter_markers(name="helm"))
+    if not item.config.getoption("--helm"):
+        if is_helm_test:
+            pytest.skip("Skipping test marked as 'helm'")
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus):

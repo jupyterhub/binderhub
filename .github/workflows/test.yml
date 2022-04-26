@@ -248,7 +248,7 @@ jobs:
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+          pytest --helm -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
 
       # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
