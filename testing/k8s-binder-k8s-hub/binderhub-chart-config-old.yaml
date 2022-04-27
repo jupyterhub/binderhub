@@ -1,8 +1,5 @@
-# This config is used when both BinderHub and the JupyterHub it uses are
-# deployed to a kubernetes cluster.
-# note: when changing the config schema,
-# the old version of this file may need to be copied to ./binderhub-chart-config-old.yaml
-# before updating, and then deleted in a subsequent PR.
+# (DELETE ME)
+# this file should be removed immediately after merging PR #1472
 
 service:
   type: NodePort
@@ -17,16 +14,6 @@ config:
     use_registry: false
     log_level: 10
     cors_allow_origin: "*"
-
-extraFiles:
-  page.html:
-    mountPath: /etc/binderhub/templates/page.html
-    stringData: |
-      {% extends "templates/page.html" %}
-      {% block footer %}
-      {{ super() }}
-      <span>test-template</span>
-      {% endblock %}
 
 ingress:
   # Enabled to test the creation/update of the k8s Ingress resource, but not

@@ -45,6 +45,19 @@ spec:
       - name: config
         secret:
           secretName: binder-secret
+      {{- if .Values.extraFiles }}
+      - name: files
+        secret:
+          secretName: binder-secret
+          items:
+            {{- range $file_key, $file_details := .Values.extraFiles }}
+            - key: {{ $file_key | quote }}
+              path: {{ $file_key | quote }}
+              {{- with $file_details.mode }}
+              mode: {{ . }}
+              {{- end }}
+            {{- end }}
+      {{- end }}
       {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
@@ -54,6 +67,7 @@ spec:
         hostPath:
           path: /var/run/docker.sock
       {{- end }}
+
       {{- with .Values.extraVolumes }}
       {{- . | toYaml | nindent 6 }}
       {{- end }}
@@ -71,6 +85,14 @@ spec:
           - mountPath: /etc/binderhub/config/
             name: config
             readOnly: true
+          {{- range $file_key, $file_details := .Values.extraFiles }}
+          - mountPath: {{ $file_details.mountPath }}
+            subPath: {{ $file_key | quote }}
+            {{- with $file_details.mode }}
+            mode: {{ . }}
+            {{- end }}
+            name: files
+          {{- end }}
           {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
             name: docker-secret

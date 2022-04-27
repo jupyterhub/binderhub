@@ -32,6 +32,7 @@ required:
   - ingress
   - initContainers
   - lifecycle
+  - extraFiles
   - extraVolumes
   - extraVolumeMounts
   - extraEnv
@@ -260,6 +261,37 @@ properties:
       manifest as either the binder pod going into `Error` or `CrashLoopBackoff` states, or in
       some special cases, the binder pod running but... just doing very random things. Be careful!
 
+  extraFiles:
+    type: object
+    additionalProperties: false
+    description: |
+      A dictionary with extra files to be injected into the binder pod's container
+      on startup. This can for example be used to inject: configuration
+      files, custom user interface templates, images, and more.
+
+      See zero-to-jupyterhub's extraFiles documentation for reference.
+    patternProperties:
+      ".*":
+        type: object
+        additionalProperties: false
+        required: [mountPath]
+        oneOf:
+          - required: [data]
+          - required: [stringData]
+          - required: [binaryData]
+        properties:
+          mountPath:
+            type: string
+          data:
+            type: object
+            additionalProperties: true
+          stringData:
+            type: string
+          binaryData:
+            type: string
+          mode:
+            type: number
+
   jupyterhub:
     type: object
     additionalProperties: true
@@ -479,7 +511,7 @@ properties:
         description: |
           The path type to use. The default value is 'Prefix'. Only applies on Kubernetes v1.18+.
 
-          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) 
+          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
           for more details about path types.
       tls:
         type: array

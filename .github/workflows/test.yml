@@ -167,10 +167,19 @@ jobs:
           #
           #        https://github.com/helm/helm/issues/9244
           cd ci
+
+          old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config-old.yaml"
+          if [ -f "$old_config" ]; then
+            echo "using old config"
+          else
+            old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml"
+          fi
+
           helm install binderhub-test \
               --repo https://jupyterhub.github.io/helm-chart/ binderhub \
+              --disable-openapi-validation \
               --version=$UPGRADE_FROM_VERSION \
-              --values ../testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
+              --values "$old_config" \
               --set config.BinderHub.hub_url=http://localhost:30902 \
               --set config.BinderHub.hub_url_local=http://proxy-public \
               --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
@@ -239,7 +248,7 @@ jobs:
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+          pytest --helm -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
 
       # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report

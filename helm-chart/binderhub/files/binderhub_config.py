@@ -39,6 +39,9 @@ def get_value(key, default=None):
     return value
 
 
+# load custom templates, by default
+c.BinderHub.template_path = "/etc/binderhub/templates"
+
 # load config from values.yaml
 for section, sub_cfg in get_value("config", {}).items():
     c[section].update(sub_cfg)
