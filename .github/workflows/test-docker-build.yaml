@@ -20,6 +20,7 @@ on:
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
+      - "update-*"
   workflow_dispatch:
 
 jobs:
