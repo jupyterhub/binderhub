@@ -7,11 +7,11 @@ on:
   pull_request:
     paths:
       - ".github/workflows/diff.yml"
-      - "helm-chart/binderhub/"
+      - "helm-chart/binderhub/**"
   push:
     paths:
       - ".github/workflows/diff.yml"
-      - "helm-chart/binderhub/"
+      - "helm-chart/binderhub/**"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
