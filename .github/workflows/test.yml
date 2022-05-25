@@ -12,7 +12,7 @@ jobs:
   lint:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: install requirements
         run: pip install ruamel.yaml
@@ -53,7 +53,7 @@ jobs:
             upgrade-from: dev
             upgrade-from-extra-args: ""
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # chartpress requires the full history
           fetch-depth: 0
@@ -265,7 +265,7 @@ jobs:
   test-local:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup OS level dependencies
         run: |
