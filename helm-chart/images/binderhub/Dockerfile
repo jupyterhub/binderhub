@@ -1,6 +1,6 @@
 # We use a build stage to package binderhub and pycurl into a wheel which we
 # then install by itself in the final image which is relatively slimmed.
-ARG DIST=buster
+ARG DIST=bullseye
 
 
 # The build stage

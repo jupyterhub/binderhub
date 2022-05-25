@@ -28,7 +28,7 @@ docker run --rm \
     --volume=$PWD:/io \
     --workdir=/io/helm-chart/images/binderhub \
     --user=root \
-    python:3.9-slim-buster \
+    python:3.9-slim-bullseye \
     sh -c 'pip install pip-tools==6.* && pip-compile --upgrade'
 ```
 
