@@ -94,6 +94,7 @@ jobs:
             libssl-dev
 
       - uses: actions/setup-node@v3
+        id: setup-node
         with:
           node-version: "14"
 
@@ -101,9 +102,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
 
       - name: Run webpack to build static assets
         run: |
@@ -111,6 +110,7 @@ jobs:
           npm run webpack
 
       - uses: actions/setup-python@v3
+        id: setup-python
         with:
           python-version: "3.8"
 
@@ -118,10 +118,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
-            ${{ runner.os }}-python-
+          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
 
       - name: Update pip
         run: |
@@ -295,6 +292,7 @@ jobs:
             libssl-dev
 
       - uses: actions/setup-node@v3
+        id: setup-node
         with:
           node-version: "14"
 
@@ -302,11 +300,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
 
       - uses: actions/setup-python@v3
+        id: setup-python
         with:
           python-version: "3.8"
 
@@ -314,10 +311,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-python-${{ hashFiles('**/*requirements.txt') }}
-            ${{ runner.os }}-python-
+          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
 
       - name: Update pip
         run: |
