@@ -75,7 +75,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3.2.0
         with:
           node-version: "14"
 
@@ -276,7 +276,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3.2.0
         with:
           node-version: "14"
 
