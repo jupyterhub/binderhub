@@ -9,17 +9,18 @@ name: Test docker multiarch build
 on:
   pull_request:
     paths:
-      - "helm-chart/images/**"
+      - "helm-chart/images/"
       - "helm-chart/chartpress.yaml"
       - ".github/workflows/test-docker-build.yaml"
   push:
     paths:
-      - "helm-chart/images/**"
+      - "helm-chart/images/"
       - "helm-chart/chartpress.yaml"
       - ".github/workflows/test-docker-build.yaml"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
+      - "update-*"
   workflow_dispatch:
 
 jobs:
@@ -35,7 +36,7 @@ jobs:
           # correctly
           fetch-depth: 0
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.8"
 

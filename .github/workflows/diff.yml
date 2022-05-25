@@ -1,11 +1,21 @@
 # This workflow provides a diff of the rendered Helm chart's templates with the
 # latest released dev version of the chart.
----
+#
 name: Helm diff
 
 on:
   pull_request:
+    paths:
+      - ".github/workflows/diff.yml"
+      - "helm-chart/binderhub/"
   push:
+    paths:
+      - ".github/workflows/diff.yml"
+      - "helm-chart/binderhub/"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+      - "update-*"
   workflow_dispatch:
 
 jobs:
@@ -16,14 +26,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: jupyterhub/action-k3s-helm@v1
+      - uses: jupyterhub/action-k3s-helm@v2
         with:
-          k3s-channel: v1.19
+          k3s-channel: stable
           metrics-enabled: false
           traefik-enabled: false
           docker-enabled: true
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.8"
       - name: Install helm diff plugin, update local chart dependencies
