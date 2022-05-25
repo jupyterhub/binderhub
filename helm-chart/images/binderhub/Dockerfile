@@ -5,7 +5,7 @@ ARG DIST=buster
 
 # The build stage
 # ---------------
-FROM python:3.8-$DIST as build-stage
+FROM python:3.9-$DIST as build-stage
 # ARG DIST is defined again to be made available in this build stage's scope.
 # ref: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG DIST
@@ -39,7 +39,7 @@ RUN ARCH=$(uname -m); \
 
 # The final stage
 # ---------------
-FROM python:3.8-slim-$DIST
+FROM python:3.9-slim-$DIST
 WORKDIR /
 
 # We use tini as an entrypoint to not loose track of SIGTERM signals as sent
