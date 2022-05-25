@@ -5,17 +5,17 @@ on:
     paths-ignore:
       - "**.md"
       - "**.rst"
-      - "doc/"
-      - "examples/"
-      - ".github/workflows/"
+      - "doc/**"
+      - "examples/**"
+      - ".github/workflows/**"
       - "!.github/workflows/publish.yml"
   push:
     paths-ignore:
       - "**.md"
       - "**.rst"
-      - "doc/"
-      - "examples/"
-      - ".github/workflows/"
+      - "doc/**"
+      - "examples/**"
+      - ".github/workflows/**"
       - "!.github/workflows/publish.yml"
     branches-ignore:
       - "dependabot/**"

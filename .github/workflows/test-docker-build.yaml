@@ -9,12 +9,12 @@ name: Test docker multiarch build
 on:
   pull_request:
     paths:
-      - "helm-chart/images/"
+      - "helm-chart/images/**"
       - "helm-chart/chartpress.yaml"
       - ".github/workflows/test-docker-build.yaml"
   push:
     paths:
-      - "helm-chart/images/"
+      - "helm-chart/images/**"
       - "helm-chart/chartpress.yaml"
       - ".github/workflows/test-docker-build.yaml"
     branches-ignore:
