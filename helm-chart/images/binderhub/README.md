@@ -1,7 +1,7 @@
 # binderhub image
 
 The image for running binderhub itself.
-Built with [chartpres][].
+Built with [chartpress][].
 
 [chartpress]: https://github.com/jupyterhub/chartpress
 
@@ -23,12 +23,13 @@ it must be run on the same Python version and platform as our Dockerfile.
 This can be done from anywhere, by running `pip-compile` in docker from the top-level of the binderhub repo:
 
 ```shell
-docker run --rm -it \
-    -e CUSTOM_COMPILE_COMMAND="see README.md" \
-    -v$PWD:/io \
-    -w /io/helm-chart/images/binderhub \
-    python:3.8 \
-    sh -c 'pip install pip-tools==6.* && pip-compile'
+docker run --rm \
+    --env=CUSTOM_COMPILE_COMMAND="see README.md" \
+    --volume=$PWD:/io \
+    --workdir=/io/helm-chart/images/binderhub \
+    --user=root \
+    python:3.8-slim-buster \
+    sh -c 'pip install pip-tools==6.* && pip-compile --upgrade'
 ```
 
 or you can just run `CUSTOM_COMPILE_COMMAND="see README.md" pip-compile` if you are already using Python 3.8 on linux.

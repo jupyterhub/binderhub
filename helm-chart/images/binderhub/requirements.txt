@@ -4,58 +4,70 @@
 #
 #    see README.md
 #
-alembic==1.7.4
+alembic==1.7.7
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
-attrs==21.2.0
+attrs==21.4.0
     # via jsonschema
-cachetools==4.2.4
+cachetools==5.1.0
     # via google-auth
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via
     #   kubernetes
     #   requests
 certipy==0.1.3
     # via jupyterhub
-cffi==1.14.6
+cffi==1.15.0
     # via cryptography
-charset-normalizer==2.0.6
+charset-normalizer==2.0.12
     # via requests
-cryptography==35.0.0
+cryptography==37.0.2
     # via pyopenssl
 docker==5.0.3
     # via -r ../../../requirements.txt
-entrypoints==0.3
+entrypoints==0.4
     # via jupyterhub
 escapism==1.0.1
     # via -r ../../../requirements.txt
-google-api-core[grpc]==1.31.3
+google-api-core[grpc]==2.8.0
     # via
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==1.35.0
+google-auth==2.6.6
     # via
     #   google-api-core
     #   google-cloud-core
     #   kubernetes
-google-cloud-core==1.7.2
+google-cloud-core==2.3.0
     # via google-cloud-logging
-google-cloud-logging==1.15.1
+google-cloud-logging==1.15.2
     # via -r requirements.in
-googleapis-common-protos==1.53.0
-    # via google-api-core
+googleapis-common-protos==1.56.1
+    # via
+    #   google-api-core
+    #   grpcio-status
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.41.0
+grpcio==1.46.3
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio-status==1.46.3
     # via google-api-core
-idna==3.2
+idna==3.3
     # via requests
-jinja2==3.0.2
+importlib-metadata==4.11.4
+    # via alembic
+importlib-resources==5.7.1
+    # via
+    #   alembic
+    #   jsonschema
+jinja2==3.1.2
     # via
     #   -r ../../../requirements.txt
     #   jupyterhub
-jsonschema==4.1.0
+jsonschema==4.5.1
     # via
     #   -r ../../../requirements.txt
     #   jupyter-telemetry
@@ -69,43 +81,40 @@ kubernetes==9.0.1
     # via
     #   -r ../../../requirements.txt
     #   -r requirements.in
-mako==1.1.5
+mako==1.2.0
     # via alembic
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via
     #   jinja2
     #   mako
-oauthlib==3.1.1
+oauthlib==3.2.0
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==21.0
-    # via google-api-core
 pamela==1.0.0
     # via jupyterhub
-prometheus-client==0.11.0
+prometheus-client==0.14.1
     # via
     #   -r ../../../requirements.txt
     #   jupyterhub
-protobuf==3.17.3
+protobuf==3.20.1
     # via
     #   google-api-core
     #   googleapis-common-protos
+    #   grpcio-status
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
 pyasn1-modules==0.2.8
     # via google-auth
-pycparser==2.20
+pycparser==2.21
     # via cffi
-pyjwt==2.2.0
+pyjwt==2.4.0
     # via -r ../../../requirements.txt
-pyopenssl==21.0.0
+pyopenssl==22.0.0
     # via certipy
-pyparsing==2.4.7
-    # via packaging
-pyrsistent==0.18.0
+pyrsistent==0.18.1
     # via jsonschema
 python-dateutil==2.8.2
     # via
@@ -115,34 +124,30 @@ python-json-logger==2.0.2
     # via
     #   -r ../../../requirements.txt
     #   jupyter-telemetry
-pytz==2021.3
-    # via google-api-core
-pyyaml==5.4.1
+pyyaml==6.0
     # via kubernetes
-requests==2.26.0
+requests==2.27.1
     # via
     #   docker
     #   google-api-core
     #   jupyterhub
     #   kubernetes
     #   requests-oauthlib
-requests-oauthlib==1.3.0
+requests-oauthlib==1.3.1
     # via kubernetes
-rsa==4.7.2
+rsa==4.8
     # via google-auth
-ruamel-yaml==0.17.16
+ruamel-yaml==0.17.21
     # via jupyter-telemetry
+ruamel-yaml-clib==0.2.6
+    # via ruamel-yaml
 six==1.16.0
     # via
-    #   google-api-core
     #   google-auth
-    #   google-cloud-core
     #   grpcio
     #   kubernetes
-    #   protobuf
-    #   pyopenssl
     #   python-dateutil
-sqlalchemy==1.4.25
+sqlalchemy==1.4.36
     # via
     #   alembic
     #   jupyterhub
@@ -150,19 +155,23 @@ tornado==6.1
     # via
     #   -r ../../../requirements.txt
     #   jupyterhub
-traitlets==5.1.0
+traitlets==5.2.1.post0
     # via
     #   -r ../../../requirements.txt
     #   jupyter-telemetry
     #   jupyterhub
-urllib3==1.26.7
+urllib3==1.26.9
     # via
     #   kubernetes
     #   requests
-websocket-client==1.2.1
+websocket-client==1.3.2
     # via
     #   docker
     #   kubernetes
+zipp==3.8.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
