@@ -56,15 +56,14 @@ jobs:
           - helm
         include:
           # Chart.yaml contains the chart's oldest supported k8s version, we
-          # want to test against that. We also test against the oldest known
-          # supported helm cli version which isn't documented anywhere, but is
-          # currently at 3.5.0. Currently we have listed 1.17 in Chart.yaml, but
-          # due to a k3s issue with their k8s 1.17 release, we can't test
-          # against k8s 1.17 and settle for k8s 1.18 for now.
-          - k3s-channel: v1.18
+          # test against that and the oldest known supported helm cli version
+          # which isn't documented anywhere, but is currently at 3.5.0. We also
+          # test with the latest k8s and helm versions.
+          #
+          - k3s-channel: v1.20
             helm-version: v3.5.0
             test: helm
-          - k3s-channel: stable
+          - k3s-channel: latest
             test: helm
             test-variation: upgrade
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
