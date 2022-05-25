@@ -128,7 +128,7 @@ Ready
 When your notebook is ready! You get a endpoint URL and a token used to
 access it. You can access the notebook / API by using the token in one
 of the ways the `notebook accepts security
-tokens <http://jupyter-notebook.readthedocs.io/en/stable/security.html>`__.
+tokens <https://jupyter-notebook.readthedocs.io/en/stable/security.html>`__.
 
 ::
 

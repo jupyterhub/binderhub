@@ -25,7 +25,7 @@ you need to add the following into ``config.yaml``:
         services:
           binder:
             oauth_no_confirm: true
-            oauth_redirect_uri: "http://<binderhub_url>/oauth_callback"
+            oauth_redirect_uri: "https://<binderhub_url>/oauth_callback"
             oauth_client_id: "binder-oauth-client-test"
 
       singleuser:

@@ -3,7 +3,7 @@
 Set up the prerequisites
 ========================
 
-BinderHub is built to run in a `Kubernetes cluster <http://kubernetes.io/>`_. It
+BinderHub is built to run in a `Kubernetes cluster <https://kubernetes.io/>`_. It
 relies on JupyterHub to launch and manage user servers, as well as a docker
 registry to cache docker images it builds.
 
