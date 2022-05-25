@@ -11,7 +11,7 @@ FROM python:3.9-$DIST as build-stage
 ARG DIST
 
 # Install node as required to package binderhub to a wheel
-RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
+RUN echo "deb https://deb.nodesource.com/node_16.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN apt-get update \
  && apt-get install --yes \
