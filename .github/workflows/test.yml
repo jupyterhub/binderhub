@@ -259,7 +259,7 @@ jobs:
 
       # GitHub action reference: https://github.com/codecov/codecov-action
       - name: Upload coverage stats
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         if: ${{ always() }}
 
   test-local:
