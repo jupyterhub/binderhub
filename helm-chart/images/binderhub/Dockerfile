@@ -1,17 +1,17 @@
 # We use a build stage to package binderhub and pycurl into a wheel which we
 # then install by itself in the final image which is relatively slimmed.
-ARG DIST=buster
+ARG DIST=bullseye
 
 
 # The build stage
 # ---------------
-FROM python:3.8-$DIST as build-stage
+FROM python:3.9-$DIST as build-stage
 # ARG DIST is defined again to be made available in this build stage's scope.
 # ref: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG DIST
 
 # Install node as required to package binderhub to a wheel
-RUN echo "deb http://deb.nodesource.com/node_14.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
+RUN echo "deb https://deb.nodesource.com/node_16.x $DIST main" > /etc/apt/sources.list.d/nodesource.list \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN apt-get update \
  && apt-get install --yes \
@@ -39,7 +39,7 @@ RUN ARCH=$(uname -m); \
 
 # The final stage
 # ---------------
-FROM python:3.8-slim-$DIST
+FROM python:3.9-slim-$DIST
 WORKDIR /
 
 # We use tini as an entrypoint to not loose track of SIGTERM signals as sent

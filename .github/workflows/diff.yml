@@ -35,7 +35,8 @@ jobs:
 
       - uses: actions/setup-python@v3
         with:
-          python-version: "3.8"
+          python-version: "3.9"
+
       - name: Install helm diff plugin, update local chart dependencies
         run: |
           helm plugin install https://github.com/databus23/helm-diff

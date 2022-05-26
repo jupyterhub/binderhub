@@ -28,11 +28,11 @@ docker run --rm \
     --volume=$PWD:/io \
     --workdir=/io/helm-chart/images/binderhub \
     --user=root \
-    python:3.8-slim-buster \
+    python:3.9-slim-bullseye \
     sh -c 'pip install pip-tools==6.* && pip-compile --upgrade'
 ```
 
-or you can just run `CUSTOM_COMPILE_COMMAND="see README.md" pip-compile` if you are already using Python 3.8 on linux.
+or you can just run `CUSTOM_COMPILE_COMMAND="see README.md" pip-compile --upgrade` if you are already using Python 3.9 on linux.
 
 See the [pip-compile docs][updating] for options to control the upgrading of packages.
 
