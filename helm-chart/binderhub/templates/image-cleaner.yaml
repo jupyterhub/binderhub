@@ -43,19 +43,19 @@ spec:
         - name: dockersocket-{{ $kind }}
           mountPath: /var/run/docker.sock
         env:
-        - name: NODE_NAME
+        - name: DOCKER_IMAGE_CLEANER_NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: PATH_TO_CHECK
+        - name: DOCKER_IMAGE_CLEANER_PATH_TO_CHECK
           value: /var/lib/docker
-        - name: IMAGE_GC_DELAY
+        - name: DOCKER_IMAGE_CLEANER_DELAY_SECONDS
           value: {{ $Values.imageCleaner.delay | quote }}
-        - name: IMAGE_GC_THRESHOLD_TYPE
+        - name: DOCKER_IMAGE_CLEANER_THRESHOLD_TYPE
           value: {{ $Values.imageCleaner.imageGCThresholdType | quote }}
-        - name: IMAGE_GC_THRESHOLD_HIGH
+        - name: DOCKER_IMAGE_CLEANER_THRESHOLD_HIGH
           value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
-        - name: IMAGE_GC_THRESHOLD_LOW
+        - name: DOCKER_IMAGE_CLEANER_THRESHOLD_LOW
           value: {{ $Values.imageCleaner.imageGCThresholdLow | quote }}
       {{- end }}
       {{- end }}
