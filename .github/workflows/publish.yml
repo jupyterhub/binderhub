@@ -39,7 +39,7 @@ jobs:
         with:
           # chartpress requires the full history
           fetch-depth: 0
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
@@ -107,7 +107,7 @@ jobs:
         with:
           # Versioneer requires past tags
           fetch-depth: 0
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
       - name: Install pypa/build
