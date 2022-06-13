@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: jupyterhub/action-k3s-helm@v2
+      - uses: jupyterhub/action-k3s-helm@v3
         with:
           k3s-channel: stable
           metrics-enabled: false
