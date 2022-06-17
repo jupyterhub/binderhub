@@ -33,7 +33,7 @@ Installation is done by using the following command:
 
 .. code::
 
-    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.8.1/cert-manager.yaml
 
 For installations of Kubernetes v1.15 or below, you also need to supply
 ``--validate=false`` to the above command. For more detail on this, see
