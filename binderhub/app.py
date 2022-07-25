@@ -410,16 +410,19 @@ class BinderHub(Application):
 
         Currently, only paths are supported, and they are expected to be available on
         all the hosts.
+
+        Set to empty to disable the docker socket mount.
         """,
     )
 
     @validate("build_docker_host")
     def docker_build_host_validate(self, proposal):
-        parts = urlparse(proposal.value)
-        if parts.scheme != "unix" or parts.netloc != "":
-            raise TraitError(
-                "Only unix domain sockets on same node are supported for build_docker_host"
-            )
+        if proposal.value:
+            parts = urlparse(proposal.value)
+            if parts.scheme != "unix" or parts.netloc != "":
+                raise TraitError(
+                    "Only unix domain sockets on same node are supported for build_docker_host"
+                )
         return proposal.value
 
     build_docker_config = Dict(

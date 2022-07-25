@@ -118,6 +118,7 @@ class Build:
             The docker socket to use for building the image.
             Must be a unix domain socket on a filesystem path accessible on the
             node in which the build pod is running.
+            If empty no socket is mounted.
         image_name : str
             Full name of the image to build. Includes the tag.
             Passed through to repo2docker.
@@ -350,20 +351,24 @@ class Build:
         Progress of the build can be monitored by listening for items in
         the Queue passed to the constructor as `q`.
         """
-        volume_mounts = [
-            client.V1VolumeMount(
-                mount_path="/var/run/docker.sock", name="docker-socket"
+        volume_mounts = []
+        volumes = []
+
+        if self.docker_host:
+            volume_mounts.append(
+                client.V1VolumeMount(
+                    mount_path="/var/run/docker.sock", name="docker-socket"
+                )
             )
-        ]
-        docker_socket_path = urlparse(self.docker_host).path
-        volumes = [
-            client.V1Volume(
-                name="docker-socket",
-                host_path=client.V1HostPathVolumeSource(
-                    path=docker_socket_path, type="Socket"
-                ),
+            docker_socket_path = urlparse(self.docker_host).path
+            volumes.append(
+                client.V1Volume(
+                    name="docker-socket",
+                    host_path=client.V1HostPathVolumeSource(
+                        path=docker_socket_path, type="Socket"
+                    ),
+                )
             )
-        ]
 
         if self.push_secret:
             volume_mounts.append(
