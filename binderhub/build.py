@@ -393,6 +393,13 @@ class Build:
                 client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
             )
 
+        if "privileged" in self.build_capabilities:
+            security_context = client.V1SecurityContext(privileged=True)
+        else:
+            security_context = client.V1SecurityContext(
+                capabilities=client.V1Capabilities(add=self.build_capabilities)
+            )
+
         self.pod = client.V1Pod(
             metadata=client.V1ObjectMeta(
                 name=self.name,
@@ -416,11 +423,7 @@ class Build:
                             requests={"memory": self.memory_request},
                         ),
                         env=env,
-                        security_context=client.V1SecurityContext(
-                            capabilities=client.V1Capabilities(
-                                add=self.build_capabilities
-                            )
-                        ),
+                        security_context=security_context,
                     )
                 ],
                 tolerations=[
