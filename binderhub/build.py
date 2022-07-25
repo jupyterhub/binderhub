@@ -83,6 +83,7 @@ class Build:
         build_image,
         docker_host,
         image_name,
+        build_capabilities=None,
         git_credentials=None,
         push_secret=None,
         memory_limit=0,
@@ -122,6 +123,10 @@ class Build:
         image_name : str
             Full name of the image to build. Includes the tag.
             Passed through to repo2docker.
+        build_capabilities: [str]
+            Capabilities to add to the build pod.
+            If the special string "privileged" is found the container is run in
+            privileged mode and other capabilities are ignored.
         git_credentials : str
             Git credentials to use to clone private repositories. Passed
             through to repo2docker via the GIT_CREDENTIAL_ENV environment
@@ -163,6 +168,7 @@ class Build:
         self.image_name = image_name
         self.push_secret = push_secret
         self.build_image = build_image
+        self.build_capabilities = build_capabilities or []
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.memory_request = memory_request
@@ -410,6 +416,11 @@ class Build:
                             requests={"memory": self.memory_request},
                         ),
                         env=env,
+                        security_context=client.V1SecurityContext(
+                            capabilities=client.V1Capabilities(
+                                add=self.build_capabilities
+                            )
+                        ),
                     )
                 ],
                 tolerations=[

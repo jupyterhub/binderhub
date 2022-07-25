@@ -30,6 +30,7 @@ from traitlets import (
     Bytes,
     Dict,
     Integer,
+    List,
     TraitError,
     Type,
     Unicode,
@@ -502,6 +503,17 @@ class BinderHub(Application):
         config=True,
     )
 
+    build_capabilities = List(
+        [],
+        help="""
+        Additional Kubernetes capabilities to add to the build container
+
+        If the special string "privileged" is found the container is run in
+        privileged mode and other capabilities are ignored.
+        """,
+        config=True,
+    )
+
     build_node_selector = Dict(
         {},
         config=True,
@@ -805,6 +817,7 @@ class BinderHub(Application):
                 "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
                 "build_namespace": self.build_namespace,
                 "build_image": self.build_image,
+                "build_capabilities": self.build_capabilities,
                 "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
                 "build_token_check_origin": self.build_token_check_origin,
