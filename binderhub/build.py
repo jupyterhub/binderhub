@@ -274,66 +274,6 @@ class KubernetesBuildExecutor(BuildExecutor):
 
     _component_label = Unicode("binderhub-build")
 
-    @classmethod
-    def cleanup_builds(cls, kube, namespace, max_age):
-        """Delete stopped build pods and build pods that have aged out"""
-        builds = kube.list_namespaced_pod(
-            namespace=namespace,
-            label_selector="component=binderhub-build",
-        ).items
-        phases = defaultdict(int)
-        app_log.debug("%i build pods", len(builds))
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
-        start_cutoff = now - datetime.timedelta(seconds=max_age)
-        deleted = 0
-        for build in builds:
-            phase = build.status.phase
-            phases[phase] += 1
-            annotations = build.metadata.annotations or {}
-            repo = annotations.get("binder-repo", "unknown")
-            delete = False
-            if build.status.phase in {"Failed", "Succeeded", "Evicted"}:
-                # log Deleting Failed build build-image-...
-                # print(build.metadata)
-                app_log.info(
-                    "Deleting %s build %s (repo=%s)",
-                    build.status.phase,
-                    build.metadata.name,
-                    repo,
-                )
-                delete = True
-            else:
-                # check age
-                started = build.status.start_time
-                if max_age and started and started < start_cutoff:
-                    app_log.info(
-                        "Deleting long-running build %s (repo=%s)",
-                        build.metadata.name,
-                        repo,
-                    )
-                    delete = True
-
-            if delete:
-                deleted += 1
-                try:
-                    kube.delete_namespaced_pod(
-                        name=build.metadata.name,
-                        namespace=namespace,
-                        body=client.V1DeleteOptions(grace_period_seconds=0),
-                    )
-                except client.rest.ApiException as e:
-                    if e.status == 404:
-                        # Is ok, someone else has already deleted it
-                        pass
-                    else:
-                        raise
-
-        if deleted:
-            app_log.info("Deleted %i/%i build pods", deleted, len(builds))
-        app_log.debug(
-            "Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1)
-        )
-
     def get_affinity(self):
         """Determine the affinity term for the build pod.
 
@@ -625,6 +565,86 @@ class KubernetesBuildExecutor(BuildExecutor):
                 raise
 
 
+class KubernetesCleaner(LoggingConfigurable):
+    """Regular cleanup utility for kubernetes builds
+
+    Instantiate this class, and call cleanup() periodically.
+    """
+
+    kube = Any(help="kubernetes API client")
+
+    @default("kube")
+    def _default_kube(self):
+        try:
+            kubernetes.config.load_incluster_config()
+        except kubernetes.config.ConfigException:
+            kubernetes.config.load_kube_config()
+        return client.CoreV1Api()
+
+    namespace = Unicode(help="Kubernetes namespace", config=True)
+
+    max_age = Integer(help="Maximum age of build pods to keep", config=True)
+
+    def cleanup(self):
+        """Delete stopped build pods and build pods that have aged out"""
+        builds = self.kube.list_namespaced_pod(
+            namespace=self.namespace,
+            label_selector="component=binderhub-build",
+        ).items
+        phases = defaultdict(int)
+        app_log.debug("%i build pods", len(builds))
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        start_cutoff = now - datetime.timedelta(seconds=self.max_age)
+        deleted = 0
+        for build in builds:
+            phase = build.status.phase
+            phases[phase] += 1
+            annotations = build.metadata.annotations or {}
+            repo = annotations.get("binder-repo", "unknown")
+            delete = False
+            if build.status.phase in {"Failed", "Succeeded", "Evicted"}:
+                # log Deleting Failed build build-image-...
+                # print(build.metadata)
+                app_log.info(
+                    "Deleting %s build %s (repo=%s)",
+                    build.status.phase,
+                    build.metadata.name,
+                    repo,
+                )
+                delete = True
+            else:
+                # check age
+                started = build.status.start_time
+                if self.max_age and started and started < start_cutoff:
+                    app_log.info(
+                        "Deleting long-running build %s (repo=%s)",
+                        build.metadata.name,
+                        repo,
+                    )
+                    delete = True
+
+            if delete:
+                deleted += 1
+                try:
+                    self.kube.delete_namespaced_pod(
+                        name=build.metadata.name,
+                        namespace=self.namespace,
+                        body=client.V1DeleteOptions(grace_period_seconds=0),
+                    )
+                except client.rest.ApiException as e:
+                    if e.status == 404:
+                        # Is ok, someone else has already deleted it
+                        pass
+                    else:
+                        raise
+
+        if deleted:
+            app_log.info("Deleted %i/%i build pods", deleted, len(builds))
+        app_log.debug(
+            "Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1)
+        )
+
+
 class FakeBuild(BuildExecutor):
     """
     Fake Building process to be able to work on the UI without a builder.
@@ -705,6 +725,11 @@ class Build(KubernetesBuildExecutor):
 
     """
 
+    """
+    For backwards compatibility: BinderHub previously assumed a single cleaner for all builds
+    """
+    _cleaners = {}
+
     def __init__(
         self,
         q,
@@ -750,3 +775,13 @@ class Build(KubernetesBuildExecutor):
         self.log_tail_lines = log_tail_lines
         self.git_credentials = git_credentials
         self.sticky_builds = sticky_builds
+
+    @classmethod
+    def cleanup_builds(cls, kube, namespace, max_age):
+        """Delete stopped build pods and build pods that have aged out"""
+        key = (kube, namespace, max_age)
+        if key not in Build._cleaners:
+            Build._cleaners[key] = KubernetesCleaner(
+                kube=kube, namespace=namespace, max_age=max_age
+            )
+        Build._cleaners[key].cleanup()
