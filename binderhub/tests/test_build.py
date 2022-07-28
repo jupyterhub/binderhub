@@ -222,14 +222,10 @@ async def test_local_repo2docker_build():
     name = str(uuid4())
 
     build = LocalRepo2dockerBuild(
-        q,
-        None,
-        name,
-        namespace=None,
+        q=q,
+        name=name,
         repo_url=repo_url,
         ref=ref,
-        build_image=None,
-        docker_host=None,
         image_name=name,
     )
     build.submit()
@@ -259,14 +255,10 @@ async def test_local_repo2docker_build_stop(event_loop):
     name = str(uuid4())
 
     build = LocalRepo2dockerBuild(
-        q,
-        None,
-        name,
-        namespace=None,
+        q=q,
+        name=name,
         repo_url=repo_url,
         ref=ref,
-        build_image=None,
-        docker_host=None,
         image_name=name,
     )
     event_loop.run_in_executor(None, build.submit)

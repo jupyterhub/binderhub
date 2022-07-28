@@ -11,9 +11,12 @@ from enum import Enum
 from typing import Union
 from urllib.parse import urlparse
 
+import kubernetes.config
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
+from traitlets import Any, Bool, Dict, Integer, Unicode, default
+from traitlets.config import LoggingConfigurable
 
 from .utils import KUBE_REQUEST_TIMEOUT, rendezvous_rank
 
@@ -49,133 +52,66 @@ class ProgressEvent:
         self.payload = payload
 
 
-class Build:
-    """Represents a build of a git repository into a docker image.
-
-    This ultimately maps to a single pod on a kubernetes cluster. Many
-    different build objects can point to this single pod and perform
-    operations on the pod. The code in this class needs to be careful and take
-    this into account.
-
-    For example, operations a Build object tries might not succeed because
-    another Build object pointing to the same pod might have done something
-    else. This should be handled gracefully, and the build object should
-    reflect the state of the pod as quickly as possible.
-
-    ``name``
-        The ``name`` should be unique and immutable since it is used to
-        sync to the pod. The ``name`` should be unique for a
-        ``(repo_url, ref)`` tuple, and the same tuple should correspond
-        to the same ``name``. This allows use of the locking provided by k8s
-        API instead of having to invent our own locking code.
-
+class BuildExecutor(LoggingConfigurable):
+    """Base class for a build of a version controlled repository to a self-contained
+    environment
     """
 
-    def __init__(
-        self,
-        q,
-        api,
-        name,
-        *,
-        namespace,
-        repo_url,
-        ref,
-        build_image,
-        docker_host,
-        image_name,
-        git_credentials=None,
-        push_secret=None,
-        memory_limit=0,
-        memory_request=0,
-        node_selector=None,
-        appendix="",
-        log_tail_lines=100,
-        sticky_builds=False,
-    ):
-        """
-        Parameters
-        ----------
+    q = Any(
+        allow_none=True,
+        help="Queue that receives progress events after the build has been submitted",
+    )
 
-        q : tornado.queues.Queue
-            Queue that receives progress events after the build has been submitted
-        api : kubernetes.client.CoreV1Api()
-            Api object to make kubernetes requests via
-        name : str
-            A unique name for the thing (repo, ref) being built. Used to coalesce
-            builds, make sure they are not being unnecessarily repeated
-        namespace : str
-            Kubernetes namespace to spawn build pods into
-        repo_url : str
-            URL of repository to build.
-            Passed through to repo2docker.
-        ref : str
-            Ref of repository to build
-            Passed through to repo2docker.
-        build_image : str
-            Docker image containing repo2docker that is used to spawn the build
-            pods.
-        docker_host : str
-            The docker socket to use for building the image.
-            Must be a unix domain socket on a filesystem path accessible on the
-            node in which the build pod is running.
-        image_name : str
-            Full name of the image to build. Includes the tag.
-            Passed through to repo2docker.
-        git_credentials : str
-            Git credentials to use to clone private repositories. Passed
-            through to repo2docker via the GIT_CREDENTIAL_ENV environment
-            variable. Can be anything that will be accepted by git as
-            a valid output from a git-credential helper. See
-            https://git-scm.com/docs/gitcredentials for more information.
-        push_secret : str
-            Kubernetes secret containing credentials to push docker image to registry.
-        memory_limit
-            Memory limit for the docker build process. Can be an integer in
-            bytes, or a byte specification (like 6M).
-            Passed through to repo2docker.
-        memory_request
-            Memory request of the build pod. The actual building happens in the
-            docker daemon, but setting request in the build pod makes sure that
-            memory is reserved for the docker build in the node by the kubernetes
-            scheduler.
-        node_selector : dict
-            Node selector for the kubernetes build pod.
-        appendix : str
-            Appendix to be added at the end of the Dockerfile used by repo2docker.
-            Passed through to repo2docker.
-        log_tail_lines : int
-            Number of log lines to fetch from a currently running build.
-            If a build with the same name is already running when submitted,
-            only the last `log_tail_lines` number of lines will be fetched and
-            displayed to the end user. If not, all log lines will be streamed.
-        sticky_builds : bool
-            If true, builds for the same repo (but different refs) will try to
-            schedule on the same node, to reuse cache layers in the docker daemon
-            being used.
-        """
-        self.q = q
-        self.api = api
-        self.repo_url = repo_url
-        self.ref = ref
-        self.name = name
-        self.namespace = namespace
-        self.image_name = image_name
-        self.push_secret = push_secret
-        self.build_image = build_image
-        self.main_loop = IOLoop.current()
-        self.memory_limit = memory_limit
-        self.memory_request = memory_request
-        self.docker_host = docker_host
-        self.node_selector = node_selector
-        self.appendix = appendix
-        self.log_tail_lines = log_tail_lines
+    name = Unicode(
+        help=(
+            "A unique name for the thing (repo, ref) being built."
+            "Used to coalesce builds, make sure they are not being unnecessarily repeated."
+        ),
+    )
 
-        self.stop_event = threading.Event()
-        self.git_credentials = git_credentials
+    repo_url = Unicode(help="URL of repository to build.")
 
-        self.sticky_builds = sticky_builds
+    ref = Unicode(help="Ref of repository to build.")
 
-        self._component_label = "binderhub-build"
+    image_name = Unicode(help="Full name of the image to build. Includes the tag.")
+
+    git_credentials = Any(
+        allow_none=True,
+        help=(
+            "Git credentials to use when cloning the repository, passed via the GIT_CREDENTIAL_ENV environment variable."
+            "Can be anything that will be accepted by git as a valid output from a git-credential helper. "
+            "See https://git-scm.com/docs/gitcredentials for more information."
+        ),
+        config=True,
+    )
+
+    push_secret = Unicode(
+        allow_none=True,
+        help="Implementation dependent name of a secret for pushing image to a registry.",
+        config=True,
+    )
+
+    memory_limit = Integer(
+        0, help="Memory limit for the build process in bytes", config=True
+    )
+
+    appendix = Unicode(
+        allow_none=True,
+        help="Appendix to be added at the end of the Dockerfile used by repo2docker.",
+        config=True,
+    )
+
+    main_loop = Any()
+
+    @default("main_loop")
+    def _default_main_loop(self):
+        return IOLoop.current()
+
+    stop_event = Any()
+
+    @default("stop_event")
+    def _default_stop_event(self):
+        return threading.Event()
 
     def get_r2d_cmd_options(self):
         """Get options/flags for repo2docker"""
@@ -212,6 +148,131 @@ class Build:
         cmd.append(self.repo_url)
 
         return cmd
+
+    def progress(self, kind: ProgressEvent.Kind, payload: str):
+        """
+        Put current progress info into the queue on the main thread
+        """
+        self.main_loop.add_callback(self.q.put, ProgressEvent(kind, payload))
+
+    def submit(self):
+        """
+        Run a build to create the image for the repository.
+
+        Progress of the build can be monitored by listening for items in
+        the Queue passed to the constructor as `q`.
+        """
+        raise NotImplementedError()
+
+    def stream_logs(self):
+        """
+        Stream build logs to the queue in self.q
+        """
+        pass
+
+    def cleanup(self):
+        """
+        Stream build logs to the queue in self.q
+        """
+        pass
+
+    def stop(self):
+        """
+        Stop watching progress of build
+
+        TODO: What exactly is the purpose of this method?
+        """
+        self.stop_event.set()
+
+
+class KubernetesBuildExecutor(BuildExecutor):
+    """Represents a build of a git repository into a docker image.
+
+    This ultimately maps to a single pod on a kubernetes cluster. Many
+    different build objects can point to this single pod and perform
+    operations on the pod. The code in this class needs to be careful and take
+    this into account.
+
+    For example, operations a Build object tries might not succeed because
+    another Build object pointing to the same pod might have done something
+    else. This should be handled gracefully, and the build object should
+    reflect the state of the pod as quickly as possible.
+
+    ``name``
+        The ``name`` should be unique and immutable since it is used to
+        sync to the pod. The ``name`` should be unique for a
+        ``(repo_url, ref)`` tuple, and the same tuple should correspond
+        to the same ``name``. This allows use of the locking provided by k8s
+        API instead of having to invent our own locking code.
+
+    """
+
+    api = Any(
+        help="Kubernetes API object to make requests (kubernetes.client.CoreV1Api())",
+    )
+
+    @default("api")
+    def _default_api(self):
+        try:
+            kubernetes.config.load_incluster_config()
+        except kubernetes.config.ConfigException:
+            kubernetes.config.load_kube_config()
+        return client.CoreV1Api()
+
+    namespace = Unicode(
+        help="Kubernetes namespace to spawn build pods into", config=True
+    )
+
+    build_image = Unicode(
+        help="Docker image containing repo2docker that is used to spawn the build pods.",
+        config=True,
+    )
+
+    docker_host = Unicode(
+        help=(
+            "The docker socket to use for building the image. "
+            "Must be a unix domain socket on a filesystem path accessible on the node "
+            "in which the build pod is running."
+        ),
+        config=True,
+    )
+
+    memory_request = Integer(
+        0,
+        help=(
+            "Memory request of the build pod. "
+            "The actual building happens in the docker daemon, "
+            "but setting request in the build pod makes sure that memory is reserved for the docker build "
+            "in the node by the kubernetes scheduler."
+        ),
+        config=True,
+    )
+
+    node_selector = Dict(
+        allow_none=True, help="Node selector for the kubernetes build pod.", config=True
+    )
+
+    log_tail_lines = Integer(
+        100,
+        help=(
+            "Number of log lines to fetch from a currently running build. "
+            "If a build with the same name is already running when submitted, "
+            "only the last `log_tail_lines` number of lines will be fetched and displayed to the end user. "
+            "If not, all log lines will be streamed."
+        ),
+        config=True,
+    )
+
+    sticky_builds = Bool(
+        False,
+        help=(
+            "If true, builds for the same repo (but different refs) will try to schedule on the same node, "
+            "to reuse cache layers in the docker daemon being used."
+        ),
+        config=True,
+    )
+
+    _component_label = Unicode("binderhub-build")
 
     @classmethod
     def cleanup_builds(cls, kube, namespace, max_age):
@@ -272,12 +333,6 @@ class Build:
         app_log.debug(
             "Build phase summary: %s", json.dumps(phases, sort_keys=True, indent=1)
         )
-
-    def progress(self, kind: ProgressEvent.Kind, payload: str):
-        """
-        Put current progress info into the queue on the main thread
-        """
-        self.main_loop.add_callback(self.q.put, ProgressEvent(kind, payload))
 
     def get_affinity(self):
         """Determine the affinity term for the build pod.
@@ -569,16 +624,10 @@ class Build:
             else:
                 raise
 
-    def stop(self):
-        """
-        Stop wathcing for progress of build.
-        """
-        self.stop_event.set()
 
-
-class FakeBuild(Build):
+class FakeBuild(BuildExecutor):
     """
-    Fake Building process to be able to work on the UI without a running Minikube.
+    Fake Building process to be able to work on the UI without a builder.
     """
 
     def submit(self):
@@ -630,3 +679,74 @@ class FakeBuild(Build):
                 }
             ),
         )
+
+
+class Build(KubernetesBuildExecutor):
+    """DEPRECATED: Use KubernetesBuildExecutor and configure with Traitlets
+
+    Represents a build of a git repository into a docker image.
+
+    This ultimately maps to a single pod on a kubernetes cluster. Many
+    different build objects can point to this single pod and perform
+    operations on the pod. The code in this class needs to be careful and take
+    this into account.
+
+    For example, operations a Build object tries might not succeed because
+    another Build object pointing to the same pod might have done something
+    else. This should be handled gracefully, and the build object should
+    reflect the state of the pod as quickly as possible.
+
+    ``name``
+        The ``name`` should be unique and immutable since it is used to
+        sync to the pod. The ``name`` should be unique for a
+        ``(repo_url, ref)`` tuple, and the same tuple should correspond
+        to the same ``name``. This allows use of the locking provided by k8s
+        API instead of having to invent our own locking code.
+
+    """
+
+    def __init__(
+        self,
+        q,
+        api,
+        name,
+        *,
+        namespace,
+        repo_url,
+        ref,
+        build_image,
+        docker_host,
+        image_name,
+        git_credentials=None,
+        push_secret=None,
+        memory_limit=0,
+        memory_request=0,
+        node_selector=None,
+        appendix="",
+        log_tail_lines=100,
+        sticky_builds=False,
+    ):
+        warnings.warn(
+            "Class Build is deprecated, use KubernetesBuildExecutor and configure with Traitlets",
+            DeprecationWarning,
+        )
+
+        super().__init__()
+
+        self.q = q
+        self.api = api
+        self.repo_url = repo_url
+        self.ref = ref
+        self.name = name
+        self.namespace = namespace
+        self.image_name = image_name
+        self.push_secret = push_secret
+        self.build_image = build_image
+        self.memory_limit = memory_limit
+        self.memory_request = memory_request
+        self.docker_host = docker_host
+        self.node_selector = node_selector
+        self.appendix = appendix
+        self.log_tail_lines = log_tail_lines
+        self.git_credentials = git_credentials
+        self.sticky_builds = sticky_builds
