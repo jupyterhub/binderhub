@@ -41,7 +41,7 @@ from traitlets import (
 from traitlets.config import Application
 
 from .base import AboutHandler, Custom404, VersionHandler
-from .build import Build
+from .build import Build, BuildExecutor
 from .builder import BuildHandler
 from .config import ConfigHandler
 from .events import EventLog
@@ -270,10 +270,11 @@ class BinderHub(Application):
 
     build_class = Type(
         Build,
+        klass=BuildExecutor,
         help="""
         The class used to build repo2docker images.
 
-        Must inherit from binderhub.build.Build
+        Must inherit from binderhub.build.BuildExecutor
         """,
         config=True,
     )
@@ -818,6 +819,7 @@ class BinderHub(Application):
                 "build_class": self.build_class,
                 "registry": registry,
                 "traitlets_config": self.config,
+                "traitlets_parent": self,
                 "google_analytics_code": self.google_analytics_code,
                 "google_analytics_domain": self.google_analytics_domain,
                 "about_message": self.about_message,
