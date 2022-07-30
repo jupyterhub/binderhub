@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 
 import kubernetes.config
 from kubernetes import client, watch
-from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from traitlets import Any, Bool, Dict, Integer, Unicode, default
 from traitlets.config import LoggingConfigurable
@@ -101,11 +100,7 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
-    main_loop = Any()
-
-    @default("main_loop")
-    def _default_main_loop(self):
-        return IOLoop.current()
+    main_loop = Any(allow_none=False)
 
     stop_event = Any()
 

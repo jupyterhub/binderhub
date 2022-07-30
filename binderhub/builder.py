@@ -15,7 +15,6 @@ import escapism
 from prometheus_client import Counter, Gauge, Histogram
 from tornado import gen
 from tornado.httpclient import HTTPClientError
-from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
 from tornado.queues import Queue
@@ -260,7 +259,7 @@ class BuildHandler(BaseHandler):
             return
 
         # create a heartbeat
-        IOLoop.current().spawn_callback(self.keep_alive)
+        self.settings["ioloop"].spawn_callback(self.keep_alive)
 
         spec = spec.rstrip("/")
         key = f"{provider_prefix}:{spec}"
@@ -447,6 +446,7 @@ class BuildHandler(BaseHandler):
                 git_credentials=provider.git_credentials,
                 sticky_builds=self.settings["sticky_builds"],
             )
+            build.main_loop = self.settings["ioloop"]
         else:
             build = BuildClass(
                 # Commented properties should be set in traitlets config
@@ -467,6 +467,7 @@ class BuildHandler(BaseHandler):
                 # log_tail_lines=self.settings["log_tail_lines"],
                 git_credentials=provider.git_credentials,
                 # sticky_builds=self.settings["sticky_builds"],
+                main_loop=self.settings["ioloop"],
             )
         self.build = build
 
@@ -491,7 +492,7 @@ class BuildHandler(BaseHandler):
             # Start building
             submit_future = pool.submit(build.submit)
             submit_future.add_done_callback(_check_result)
-            IOLoop.current().add_callback(lambda: submit_future)
+            self.settings["ioloop"].add_callback(lambda: submit_future)
 
             log_future = None
 
