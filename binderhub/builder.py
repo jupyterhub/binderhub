@@ -457,7 +457,7 @@ class BuildHandler(BaseHandler):
                     r = future.result()
                     app_log.debug("task completed: %s", r)
                 except Exception:
-                    app_log.error("task failed: %s", exc_info=True)
+                    app_log.error("task failed", exc_info=True)
                     done = True
                     failed = True
                     # TODO: Propagate error to front-end
