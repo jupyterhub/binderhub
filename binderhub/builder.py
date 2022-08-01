@@ -460,6 +460,7 @@ class BuildHandler(BaseHandler):
                     app_log.error("task failed: %s", exc_info=True)
                     done = True
                     failed = True
+                    # TODO: Propagate error to front-end
 
             build_starttime = time.perf_counter()
             pool = self.settings["build_pool"]
