@@ -128,7 +128,7 @@ def mock_asynchttpclient(request):
 
 
 @pytest.fixture
-async def io_loop(event_loop, request):
+def io_loop(event_loop, request):
     """Same as pytest-tornado.io_loop, but runs with pytest-asyncio"""
     io_loop = AsyncIOMainLoop()
     assert io_loop.asyncio_loop is event_loop

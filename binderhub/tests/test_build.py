@@ -122,15 +122,15 @@ def test_default_affinity():
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
-        repo_url=mock.MagicMock(),
-        ref=mock.MagicMock(),
-        build_image=mock.MagicMock(),
-        image_name=mock.MagicMock(),
-        push_secret=mock.MagicMock(),
-        memory_limit=mock.MagicMock(),
+        repo_url=mock.MagicMock(spec=str),
+        ref=mock.MagicMock(spec=str),
+        build_image=mock.MagicMock(spec=str),
+        image_name=mock.MagicMock(spec=str),
+        push_secret=mock.MagicMock(spec=str),
+        memory_limit=mock.MagicMock(spec=int),
         git_credentials=None,
         docker_host="http://mydockerregistry.local",
-        node_selector=mock.MagicMock(),
+        node_selector=mock.MagicMock(spec=dict),
     )
 
     affinity = build.get_affinity()
@@ -150,15 +150,15 @@ def test_sticky_builds_affinity():
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
-        repo_url=mock.MagicMock(),
-        ref=mock.MagicMock(),
-        build_image=mock.MagicMock(),
-        image_name=mock.MagicMock(),
-        push_secret=mock.MagicMock(),
-        memory_limit=mock.MagicMock(),
+        repo_url=mock.MagicMock(spec=str),
+        ref=mock.MagicMock(spec=str),
+        build_image=mock.MagicMock(spec=str),
+        image_name=mock.MagicMock(spec=str),
+        push_secret=mock.MagicMock(spec=str),
+        memory_limit=mock.MagicMock(spec=int),
         git_credentials=None,
         docker_host="http://mydockerregistry.local",
-        node_selector=mock.MagicMock(),
+        node_selector=mock.MagicMock(spec=dict),
         sticky_builds=True,
     )
 
@@ -188,15 +188,15 @@ def test_git_credentials_passed_to_podspec_upon_submit():
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
-        repo_url=mock.MagicMock(),
-        ref=mock.MagicMock(),
+        repo_url=mock.MagicMock(spec=str),
+        ref=mock.MagicMock(spec=str),
         git_credentials=git_credentials,
-        build_image=mock.MagicMock(),
-        image_name=mock.MagicMock(),
-        push_secret=mock.MagicMock(),
-        memory_limit=mock.MagicMock(),
+        build_image=mock.MagicMock(spec=str),
+        image_name=mock.MagicMock(spec=str),
+        push_secret=mock.MagicMock(spec=str),
+        memory_limit=mock.MagicMock(spec=int),
         docker_host="http://mydockerregistry.local",
-        node_selector=mock.MagicMock(),
+        node_selector=mock.MagicMock(spec=dict),
     )
 
     with mock.patch.object(build.stop_event, "is_set", return_value=True):
@@ -215,7 +215,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     assert env["GIT_CREDENTIAL_ENV"] == git_credentials
 
 
-async def test_local_repo2docker_build():
+async def test_local_repo2docker_build(io_loop):
     q = Queue()
     repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
     ref = "HEAD"
@@ -227,6 +227,7 @@ async def test_local_repo2docker_build():
         repo_url=repo_url,
         ref=ref,
         image_name=name,
+        main_loop=io_loop,
     )
     build.submit()
 
@@ -246,7 +247,7 @@ async def test_local_repo2docker_build():
 
 
 @pytest.mark.asyncio(timeout=20)
-async def test_local_repo2docker_build_stop(event_loop):
+async def test_local_repo2docker_build_stop(io_loop):
     q = Queue()
     # We need a slow build here so that we can interrupt it, so pick a large repo that
     # will take several seconds to clone
@@ -260,8 +261,9 @@ async def test_local_repo2docker_build_stop(event_loop):
         repo_url=repo_url,
         ref=ref,
         image_name=name,
+        main_loop=io_loop,
     )
-    event_loop.run_in_executor(None, build.submit)
+    io_loop.run_in_executor(None, build.submit)
 
     # Get first few log messages to check it successfully stared
     event = await q.get()
