@@ -4,6 +4,7 @@ Contains build of a docker image from a git repository.
 
 import datetime
 import json
+import os
 import threading
 import warnings
 from collections import defaultdict
@@ -218,12 +219,18 @@ class KubernetesBuildExecutor(BuildExecutor):
         help="Kubernetes namespace to spawn build pods into", config=True
     )
 
+    @default("namespace")
+    def _default_namespace(self):
+        return os.getenv("BUILD_NAMESPACE", "default")
+
     build_image = Unicode(
+        "quay.io/jupyterhub/repo2docker:2022.02.0",
         help="Docker image containing repo2docker that is used to spawn the build pods.",
         config=True,
     )
 
     docker_host = Unicode(
+        "/var/run/docker.sock",
         help=(
             "The docker socket to use for building the image. "
             "Must be a unix domain socket on a filesystem path accessible on the node "
@@ -244,7 +251,7 @@ class KubernetesBuildExecutor(BuildExecutor):
     )
 
     node_selector = Dict(
-        allow_none=True, help="Node selector for the kubernetes build pod.", config=True
+        {}, help="Node selector for the kubernetes build pod.", config=True
     )
 
     log_tail_lines = Integer(
@@ -577,6 +584,10 @@ class KubernetesCleaner(LoggingConfigurable):
         return client.CoreV1Api()
 
     namespace = Unicode(help="Kubernetes namespace", config=True)
+
+    @default("namespace")
+    def _default_namespace(self):
+        return os.getenv("BUILD_NAMESPACE", "default")
 
     max_age = Integer(help="Maximum age of build pods to keep", config=True)
 
