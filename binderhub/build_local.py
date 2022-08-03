@@ -124,6 +124,7 @@ class LocalRepo2dockerBuild(Build):
         build_image,
         docker_host,
         image_name,
+        build_capabilities=None,
         git_credentials=None,
         push_secret=None,
         memory_limit=0,
@@ -151,6 +152,7 @@ class LocalRepo2dockerBuild(Build):
             Ref of repository to build
             Passed through to repo2docker.
         build_image : ignored
+        build_capabilities: ignored
         docker_host : ignored
         image_name : str
             Full name of the image to build. Includes the tag.

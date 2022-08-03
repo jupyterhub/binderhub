@@ -83,6 +83,7 @@ class Build:
         build_image,
         docker_host,
         image_name,
+        build_capabilities=None,
         git_credentials=None,
         push_secret=None,
         memory_limit=0,
@@ -118,9 +119,14 @@ class Build:
             The docker socket to use for building the image.
             Must be a unix domain socket on a filesystem path accessible on the
             node in which the build pod is running.
+            If empty no socket is mounted.
         image_name : str
             Full name of the image to build. Includes the tag.
             Passed through to repo2docker.
+        build_capabilities: [str]
+            Capabilities to add to the build pod.
+            If the special string "privileged" is found the container is run in
+            privileged mode and other capabilities are ignored.
         git_credentials : str
             Git credentials to use to clone private repositories. Passed
             through to repo2docker via the GIT_CREDENTIAL_ENV environment
@@ -162,6 +168,7 @@ class Build:
         self.image_name = image_name
         self.push_secret = push_secret
         self.build_image = build_image
+        self.build_capabilities = build_capabilities or []
         self.main_loop = IOLoop.current()
         self.memory_limit = memory_limit
         self.memory_request = memory_request
@@ -350,20 +357,24 @@ class Build:
         Progress of the build can be monitored by listening for items in
         the Queue passed to the constructor as `q`.
         """
-        volume_mounts = [
-            client.V1VolumeMount(
-                mount_path="/var/run/docker.sock", name="docker-socket"
+        volume_mounts = []
+        volumes = []
+
+        if self.docker_host:
+            volume_mounts.append(
+                client.V1VolumeMount(
+                    mount_path="/var/run/docker.sock", name="docker-socket"
+                )
             )
-        ]
-        docker_socket_path = urlparse(self.docker_host).path
-        volumes = [
-            client.V1Volume(
-                name="docker-socket",
-                host_path=client.V1HostPathVolumeSource(
-                    path=docker_socket_path, type="Socket"
-                ),
+            docker_socket_path = urlparse(self.docker_host).path
+            volumes.append(
+                client.V1Volume(
+                    name="docker-socket",
+                    host_path=client.V1HostPathVolumeSource(
+                        path=docker_socket_path, type="Socket"
+                    ),
+                )
             )
-        ]
 
         if self.push_secret:
             volume_mounts.append(
@@ -380,6 +391,13 @@ class Build:
         if self.git_credentials:
             env.append(
                 client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
+            )
+
+        if "privileged" in self.build_capabilities:
+            security_context = client.V1SecurityContext(privileged=True)
+        else:
+            security_context = client.V1SecurityContext(
+                capabilities=client.V1Capabilities(add=self.build_capabilities)
             )
 
         self.pod = client.V1Pod(
@@ -405,6 +423,7 @@ class Build:
                             requests={"memory": self.memory_request},
                         ),
                         env=env,
+                        security_context=security_context,
                     )
                 ],
                 tolerations=[

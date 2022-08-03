@@ -30,6 +30,7 @@ from traitlets import (
     Bytes,
     Dict,
     Integer,
+    List,
     TraitError,
     Type,
     Unicode,
@@ -410,16 +411,19 @@ class BinderHub(Application):
 
         Currently, only paths are supported, and they are expected to be available on
         all the hosts.
+
+        Set to empty to disable the docker socket mount.
         """,
     )
 
     @validate("build_docker_host")
     def docker_build_host_validate(self, proposal):
-        parts = urlparse(proposal.value)
-        if parts.scheme != "unix" or parts.netloc != "":
-            raise TraitError(
-                "Only unix domain sockets on same node are supported for build_docker_host"
-            )
+        if proposal.value:
+            parts = urlparse(proposal.value)
+            if parts.scheme != "unix" or parts.netloc != "":
+                raise TraitError(
+                    "Only unix domain sockets on same node are supported for build_docker_host"
+                )
         return proposal.value
 
     build_docker_config = Dict(
@@ -495,6 +499,17 @@ class BinderHub(Application):
         "quay.io/jupyterhub/repo2docker:2022.02.0",
         help="""
         The repo2docker image to be used for doing builds
+        """,
+        config=True,
+    )
+
+    build_capabilities = List(
+        [],
+        help="""
+        Additional Kubernetes capabilities to add to the build container
+
+        If the special string "privileged" is found the container is run in
+        privileged mode and other capabilities are ignored.
         """,
         config=True,
     )
@@ -802,6 +817,7 @@ class BinderHub(Application):
                 "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
                 "build_namespace": self.build_namespace,
                 "build_image": self.build_image,
+                "build_capabilities": self.build_capabilities,
                 "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
                 "build_token_check_origin": self.build_token_check_origin,
