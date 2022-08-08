@@ -216,6 +216,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
 
 
 async def test_local_repo2docker_build(io_loop):
+    io_loop = await io_loop
     q = Queue()
     repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
     ref = "HEAD"
@@ -248,6 +249,7 @@ async def test_local_repo2docker_build(io_loop):
 
 @pytest.mark.asyncio(timeout=20)
 async def test_local_repo2docker_build_stop(io_loop):
+    io_loop = await io_loop
     q = Queue()
     # We need a slow build here so that we can interrupt it, so pick a large repo that
     # will take several seconds to clone
