@@ -103,11 +103,9 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
-    main_loop = Any(allow_none=False)
-
-    @default("main_loop")
-    def _default_main_loop(self):
-        return IOLoop.current()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.main_loop = IOLoop.current()
 
     stop_event = Any()
 
