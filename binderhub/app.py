@@ -26,7 +26,6 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.httpserver import HTTPServer
 from tornado.log import app_log
 from traitlets import (
-    Any,
     Bool,
     Bytes,
     Dict,
@@ -701,8 +700,6 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
-    ioloop = Any(help="Event loop to use")
-
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -730,7 +727,6 @@ class BinderHub(Application):
     def initialize(self, *args, **kwargs):
         """Load configuration settings."""
         super().initialize(*args, **kwargs)
-        self.ioloop = tornado.ioloop.IOLoop.current()
         self.load_config_file(self.config_file)
         # hook up tornado logging
         if self.debug:
@@ -843,7 +839,6 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
-                "ioloop": self.ioloop,
             }
         )
         if self.auth_enabled:
@@ -965,7 +960,7 @@ class BinderHub(Application):
         if self.builder_required:
             asyncio.ensure_future(self.watch_build_pods())
         if run_loop:
-            self.ioloop.start()
+            tornado.ioloop.IOLoop.current().start()
 
 
 main = BinderHub.launch_instance
