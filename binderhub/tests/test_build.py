@@ -215,8 +215,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     assert env["GIT_CREDENTIAL_ENV"] == str(git_credentials)
 
 
-async def test_local_repo2docker_build(io_loop):
-    io_loop = await io_loop
+async def test_local_repo2docker_build():
     q = Queue()
     repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
     ref = "HEAD"
@@ -228,7 +227,6 @@ async def test_local_repo2docker_build(io_loop):
         repo_url=repo_url,
         ref=ref,
         image_name=name,
-        main_loop=io_loop,
     )
     build.submit()
 
@@ -263,7 +261,6 @@ async def test_local_repo2docker_build_stop(io_loop):
         repo_url=repo_url,
         ref=ref,
         image_name=name,
-        main_loop=io_loop,
     )
     io_loop.run_in_executor(None, build.submit)
 

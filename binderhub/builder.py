@@ -447,7 +447,6 @@ class BuildHandler(BaseHandler):
                 git_credentials=provider.git_credentials,
                 sticky_builds=self.settings["sticky_builds"],
             )
-            build.main_loop = IOLoop.current()
         else:
             build = BuildClass(
                 # Commented properties should be set in traitlets config
@@ -468,7 +467,6 @@ class BuildHandler(BaseHandler):
                 # log_tail_lines=self.settings["log_tail_lines"],
                 git_credentials=provider.git_credentials,
                 # sticky_builds=self.settings["sticky_builds"],
-                main_loop=IOLoop.current(),
             )
         self.build = build
 
