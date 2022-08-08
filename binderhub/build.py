@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 import kubernetes.config
 from kubernetes import client, watch
 from tornado.log import app_log
-from traitlets import Any, Bool, Dict, Integer, Unicode, default
+from traitlets import Any, Bool, CUnicode, Dict, Integer, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from .utils import KUBE_REQUEST_TIMEOUT, rendezvous_rank
@@ -58,7 +58,6 @@ class BuildExecutor(LoggingConfigurable):
     """
 
     q = Any(
-        allow_none=True,
         help="Queue that receives progress events after the build has been submitted",
     )
 
@@ -75,7 +74,8 @@ class BuildExecutor(LoggingConfigurable):
 
     image_name = Unicode(help="Full name of the image to build. Includes the tag.")
 
-    git_credentials = Any(
+    git_credentials = CUnicode(
+        "",
         allow_none=True,
         help=(
             "Git credentials to use when cloning the repository, passed via the GIT_CREDENTIAL_ENV environment variable."
@@ -86,8 +86,9 @@ class BuildExecutor(LoggingConfigurable):
     )
 
     push_secret = Unicode(
+        "",
         allow_none=True,
-        help="Implementation dependent name of a secret for pushing image to a registry.",
+        help="Implementation dependent secret for pushing image to a registry.",
         config=True,
     )
 
@@ -96,7 +97,7 @@ class BuildExecutor(LoggingConfigurable):
     )
 
     appendix = Unicode(
-        allow_none=True,
+        "",
         help="Appendix to be added at the end of the Dockerfile used by repo2docker.",
         config=True,
     )
