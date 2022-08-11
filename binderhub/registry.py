@@ -8,7 +8,6 @@ import json
 import os
 from urllib.parse import urlparse
 
-import boto3
 import kubernetes.client
 import kubernetes.config
 from tornado import httpclient
@@ -239,6 +238,8 @@ class DockerRegistry(LoggingConfigurable):
 
 
 class AWSElasticContainerRegistry(DockerRegistry):
+    import boto3
+
     aws_region = Unicode(
         config=True,
         help="""
