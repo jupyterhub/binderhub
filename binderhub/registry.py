@@ -265,17 +265,6 @@ class AWSElasticContainerRegistry(DockerRegistry):
         """,
     )
 
-    executor_threads = Integer(
-        5,
-        config=True,
-        help="""The number of threads to use for blocking calls
-
-        Should generaly be a small number because we don't
-        care about high concurrency here, just not blocking the webserver.
-        This executor is not used for long-running tasks (e.g. builds).
-        """,
-    )
-
     executor = Any()
 
     @default("executor")
