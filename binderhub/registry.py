@@ -302,10 +302,11 @@ class AWSElasticContainerRegistry(DockerRegistry):
         auths = self.ecr_client.get_authorization_token()["authorizationData"]
         auth = next(x for x in auths if x["proxyEndpoint"] == self.url)
         self._patch_docker_config_secret(auth)
-        self.password = base64.b64decode(auth['authorizationToken']).decode("utf-8").split(':')[1]
-    
+        self.password = base64.b64decode(auth["authorizationToken"]).decode("utf-8").split(':')[1]
+
     def _patch_docker_config_secret(self, auth):
-        """Patch binder-push-secret"""
+        """Patch push_secret. Necessary because AWS rotates auth tokens.
+        ref: https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html """
         secret_data = {"auths": {self.url: {"auth": auth["authorizationToken"]}}}
         secret_data = base64.b64encode(json.dumps(secret_data).encode("utf8")).decode(
             "utf8"
@@ -313,7 +314,7 @@ class AWSElasticContainerRegistry(DockerRegistry):
         with open("/var/run/secrets/kubernetes.io/serviceaccount/namespace") as f:
             namespace = f.read()
         self.kube_client.patch_namespaced_secret(
-            "binder-push-secret", namespace, {"data": {"config.json": secret_data}}
+            self.parent.push_secret, namespace, {"data": {"config.json": secret_data}}
         )
 
 
