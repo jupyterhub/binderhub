@@ -463,7 +463,7 @@ class BuildHandler(BaseHandler):
                 # memory_request=self.settings["build_memory_request"],
                 # docker_host=self.settings["build_docker_host"],
                 # node_selector=self.settings["build_node_selector"],
-                appendix=appendix,
+                # appendix=appendix,
                 # log_tail_lines=self.settings["log_tail_lines"],
                 git_credentials=provider.git_credentials,
                 # sticky_builds=self.settings["sticky_builds"],
