@@ -14,9 +14,11 @@ rules:
 - apiGroups: [""]
   resources: ["pods/log"]
   verbs: ["get"]
+{{- if .Values.rbac.augmented -}}
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "patch"]
+{{- end }}
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
