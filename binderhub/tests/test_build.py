@@ -176,10 +176,10 @@ def test_sticky_builds_affinity():
 
 
 def test_git_credentials_passed_to_podspec_upon_submit():
-    git_credentials = {
+    git_credentials = """{
         "client_id": "my_username",
         "access_token": "my_access_token",
-    }
+    }"""
 
     mock_k8s_api = _list_dind_pods_mock()
 
@@ -212,7 +212,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
 
     env = {env_var.name: env_var.value for env_var in pod.spec.containers[0].env}
 
-    assert env["GIT_CREDENTIAL_ENV"] == str(git_credentials)
+    assert env["GIT_CREDENTIAL_ENV"] == git_credentials
 
 
 async def test_local_repo2docker_build():

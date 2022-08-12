@@ -16,7 +16,7 @@ import kubernetes.config
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from traitlets import Any, Bool, CUnicode, Dict, Integer, Unicode, default
+from traitlets import Any, Bool, Dict, Integer, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from .utils import KUBE_REQUEST_TIMEOUT, rendezvous_rank
@@ -75,7 +75,7 @@ class BuildExecutor(LoggingConfigurable):
 
     image_name = Unicode(help="Full name of the image to build. Includes the tag.")
 
-    git_credentials = CUnicode(
+    git_credentials = Unicode(
         "",
         allow_none=True,
         help=(
