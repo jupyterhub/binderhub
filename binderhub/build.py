@@ -180,7 +180,8 @@ class BuildExecutor(LoggingConfigurable):
         """
         Stop watching progress of build
 
-        TODO: What exactly is the purpose of this method?
+        Frees up build watchers that are no longer hooked up to any current requests.
+        This is not related to stopping the build.
         """
         self.stop_event.set()
 
