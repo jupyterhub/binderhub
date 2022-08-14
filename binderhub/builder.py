@@ -447,11 +447,26 @@ class BuildHandler(BaseHandler):
         )
 
         with BUILDS_INPROGRESS.track_inprogress():
+            done = False
+            failed = False
+
+            def _check_result(future):
+                nonlocal done
+                nonlocal failed
+                try:
+                    r = future.result()
+                    app_log.debug("task completed: %s", r)
+                except Exception:
+                    app_log.error("task failed", exc_info=True)
+                    done = True
+                    failed = True
+                    # TODO: Propagate error to front-end
+
             build_starttime = time.perf_counter()
             pool = self.settings["build_pool"]
             # Start building
             submit_future = pool.submit(build.submit)
-            # TODO: hook up actual error handling when this fails
+            submit_future.add_done_callback(_check_result)
             IOLoop.current().add_callback(lambda: submit_future)
 
             log_future = None
@@ -464,8 +479,6 @@ class BuildHandler(BaseHandler):
                 }
             )
 
-            done = False
-            failed = False
             while not done:
                 progress = await q.get()
 
@@ -486,6 +499,7 @@ class BuildHandler(BaseHandler):
                         # start capturing build logs once the pod is running
                         if log_future is None:
                             log_future = pool.submit(build.stream_logs)
+                            log_future.add_done_callback(_check_result)
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
                         # Do nothing, is ok!
