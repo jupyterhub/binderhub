@@ -426,7 +426,7 @@ class BuildHandler(BaseHandler):
         )
 
         if issubclass(BuildClass, Build):
-            # Deprecated
+            # Deprecated, see docstring of the Build class for more details
             build = BuildClass(
                 q=q,
                 # api object can be None if we are using FakeBuild
