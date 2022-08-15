@@ -48,6 +48,7 @@ config:
     # hub_url:
     # hub_url_local:
     use_registry: true
+  KubernetesBuildExecutor: {}
 
 extraConfig: {}
 
