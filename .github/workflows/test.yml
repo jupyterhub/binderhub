@@ -43,6 +43,7 @@ jobs:
   # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
     runs-on: ubuntu-20.04
+    timeout-minutes: 10
     strategy:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
@@ -278,6 +279,7 @@ jobs:
 
   test-local:
     runs-on: ubuntu-20.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
 
