@@ -1,3 +1,4 @@
+boto3
 # About pycurl:
 # - pycurl is an optional dependency which improves performance
 # - pycurl requires both `curl-config` and `gcc` to be available when installing
@@ -16,4 +17,3 @@ pyjwt>=2
 python-json-logger
 tornado>=5.1
 traitlets
-boto3

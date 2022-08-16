@@ -3,16 +3,16 @@ Interaction with the Docker Registry
 """
 import asyncio
 import base64
-from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
 import kubernetes.client
 import kubernetes.config
 from tornado import httpclient
 from tornado.httputil import url_concat
-from traitlets import Dict, Unicode, default, Any, Integer
+from traitlets import Any, Dict, Integer, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
@@ -281,7 +281,9 @@ class AWSElasticContainerRegistry(DockerRegistry):
 
     async def get_image_manifest(self, image, tag):
         image = image.split("/", 1)[1]
-        await asyncio.wrap_future(self.executor.submit(self._pre_get_image_manifest, image, tag))
+        await asyncio.wrap_future(
+            self.executor.submit(self._pre_get_image_manifest, image, tag)
+        )
         return await super().get_image_manifest(image, tag)
 
     def _pre_get_image_manifest(self, image, tag):
@@ -291,9 +293,9 @@ class AWSElasticContainerRegistry(DockerRegistry):
     def _create_repository(self, image, tag):
         try:
             self.ecr_client.create_repository(repositoryName=image)
-            self.log.info("ECR repo {} created".format(image))
+            self.log.info(f"ECR repo {image} created")
         except self.ecr_client.exceptions.RepositoryAlreadyExistsException:
-            self.log.info("ECR repo {} already exists".format(image))
+            self.log.info(f"ECR repo {image} already exists")
 
     # An IAM principal is used to generate an auth token that is valid for 12 hours
     # ref: https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html
@@ -302,11 +304,13 @@ class AWSElasticContainerRegistry(DockerRegistry):
         auths = self.ecr_client.get_authorization_token()["authorizationData"]
         auth = next(x for x in auths if x["proxyEndpoint"] == self.url)
         self._patch_docker_config_secret(auth)
-        self.password = base64.b64decode(auth["authorizationToken"]).decode("utf-8").split(':')[1]
+        self.password = (
+            base64.b64decode(auth["authorizationToken"]).decode("utf-8").split(":")[1]
+        )
 
     def _patch_docker_config_secret(self, auth):
         """Patch push_secret. Necessary because AWS rotates auth tokens.
-        ref: https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html """
+        ref: https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html"""
         secret_data = {"auths": {self.url: {"auth": auth["authorizationToken"]}}}
         secret_data = base64.b64encode(json.dumps(secret_data).encode("utf8")).decode(
             "utf8"
