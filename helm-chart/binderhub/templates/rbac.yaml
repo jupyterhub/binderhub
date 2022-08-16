@@ -1,6 +1,6 @@
-{{ if .Values.rbac.enabled -}}
+{{- if .Values.rbac.enabled -}}
 kind: Role
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
@@ -14,12 +14,14 @@ rules:
 - apiGroups: [""]
   resources: ["pods/log"]
   verbs: ["get"]
+{{- if .Values.rbac.patchSecrets -}}
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "patch"]
+{{- end }}
 ---
 kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     app: binderhub
@@ -45,12 +47,12 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: binderhub
-{{ if .Values.imageCleaner.enabled -}}
+{{- if .Values.imageCleaner.enabled }}
 ---
 # image-cleaner role
 # needs to cordon nodes during image cleaning
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     app: binderhub
@@ -64,7 +66,7 @@ rules:
   verbs: ["get", "patch"]
 ---
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     app: binderhub

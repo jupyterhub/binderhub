@@ -12,18 +12,24 @@ charts:
     resetTag: local
     resetVersion: 0.2.0
     images:
-      image-cleaner:
-        valuesPath: imageCleaner.image
       binderhub:
+        # We will not use the default build contextPath, and must therefore
+        # specify the dockerfilePath explicitly.
+        dockerfilePath: images/binderhub/Dockerfile
         # Context to send to docker build for use by the Dockerfile. We pass the
         # root folder in order to allow the image to access and build the python
-        # package. Since we do that, chartpress will always react to changes in
-        # documentation and other things, and always consider the chart version
-        # to change along with the image version.
+        # package.
         contextPath: ..
-        # Since we changed the contextPath, we must also change the
-        # dockerfilePath. This is because chartpress assume the Dockerfile will
-        # reside in the contextPath folder, and since we overrode the default of
-        # images/binderhub it will be the wrong folder.
-        dockerfilePath: images/binderhub/Dockerfile
+        # To avoid chartpress to react to changes in documentation and other
+        # things, we ask it to not trigger on changes to the contextPath, which
+        # means we manually should add paths rebuild should be triggered on
+        rebuildOnContextPathChanges: false
+        # We manually specify the paths which chartpress should monitor for
+        # changes that should trigger a rebuild of this image.
+        paths:
+          - images/binderhub/requirements.txt
+          - ../setup.py
+          - ../binderhub
+          - ../package.json
+          - ../webpack.config.js
         valuesPath: image

@@ -1,14 +1,19 @@
-# When you change this file please also update `doc/doc-requirements.txt`
-# which needs to be kept in sync manually.
-kubernetes==9.0.*
-escapism
-traitlets
+# About pycurl:
+# - pycurl is an optional dependency which improves performance
+# - pycurl requires both `curl-config` and `gcc` to be available when installing
+#   it from source.
+# - the reason we do not list pycurl here is that it is not needed when our
+#   code is imported to generate the documentation and it is tricky to install
+#   in the ReadTheDocs build environment.
 docker
+escapism
 jinja2
-prometheus_client
-python-json-logger
-jupyterhub
 jsonschema
-pycurl
+jupyterhub
+kubernetes
+prometheus_client
+pyjwt>=2
+python-json-logger
 tornado>=5.1
+traitlets
 boto3

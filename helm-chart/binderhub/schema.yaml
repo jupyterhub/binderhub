@@ -1,0 +1,607 @@
+# This schema (a jsonschema in YAML format) is used to generate
+# values.schema.json which is packaged with the Helm chart for client side
+# validation by Helm of values before template rendering.
+#
+# This schema is also used by our documentation system to build the
+# configuration reference section based on the description fields. See
+# doc/source/conf.py for that logic!
+#
+# We look to document everything we have default values for in values.yaml, but
+# we don't look to enforce the perfect validation logic within this file.
+#
+# ref: https://json-schema.org/learn/getting-started-step-by-step.html
+#
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+additionalProperties: false
+required:
+  - pdb
+  - replicas
+  - resources
+  - rbac
+  - nodeSelector
+  - image
+  - registry
+  - service
+  - config
+  - extraConfig
+  - jupyterhub
+  - deployment
+  - dind
+  - imageCleaner
+  - ingress
+  - initContainers
+  - lifecycle
+  - extraFiles
+  - extraVolumes
+  - extraVolumeMounts
+  - extraEnv
+  - podAnnotations
+  - global
+properties:
+  pdb: &pdb-spec
+    type: object
+    additionalProperties: false
+    description: |
+      Configure a PodDisruptionBudget for this Deployment.
+
+      See [the Kubernetes
+      documentation](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/)
+      for more details.
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          Decides if a PodDisruptionBudget is created targeting the
+          Deployment's pods.
+      maxUnavailable:
+        type: [integer, "null"]
+        description: |
+          The maximum number of pods that can be unavailable during voluntary
+          disruptions.
+      minAvailable:
+        type: [integer, "null"]
+        description: |
+          The minimum number of pods required to be available during voluntary
+          disruptions.
+
+  replicas:
+    type: integer
+    description: |
+      You can have multiple binder pods to share the workload or improve
+      availability on node failure.
+
+  resources: &resources-spec
+    type: object
+    additionalProperties: true
+    description: |
+      A k8s native specification of resources, see [the
+      documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#resourcerequirements-v1-core).
+
+  rbac:
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          Decides if RBAC resources are to be created and referenced by the the
+          Helm chart's workloads.
+      patchSecrets:
+        type: boolean
+        description: |
+          Allows get and patch Secrets if set to true. 
+          This should only be needed if using the AWSElasticContainerRegistry
+          registry class, because AWS rotates auth tokens. See [the
+          documentation](https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry_auth.html)
+
+  nodeSelector: &nodeSelector-spec
+    type: object
+    additionalProperties: true
+    description: |
+      An object with key value pairs representing labels. K8s Nodes are required
+      to have match all these labels for this Pod to scheduled on them.
+
+      ```yaml
+      disktype: ssd
+      nodetype: awesome
+      ```
+
+      See [the Kubernetes
+      documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
+      for more details.
+
+  image: &image-spec
+    type: object
+    additionalProperties: false
+    required: [name, tag]
+    properties:
+      name:
+        type: string
+        description: |
+          The name of the image, without the tag.
+      tag:
+        type: string
+        description: |
+          The tag of the image to pull. This is the value following `:` in
+          complete image specifications.
+      pullPolicy:
+        enum: [null, "", IfNotPresent, Always, Never]
+        description: |
+          Configures the Pod's `spec.imagePullPolicy`.
+
+          See the [Kubernetes
+          docs](https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+          for more info.
+      pullSecrets:
+        type: array
+        description: |
+          A list of references to existing Kubernetes Secrets with credentials
+          to pull the image.
+
+  registry:
+    type: object
+    additionalProperties: false
+    description: |
+      TODO
+    properties:
+      url:
+        type: [string, "null"]
+        description: |
+          TODO
+      username:
+        type: [string, "null"]
+        description: |
+          TODO
+      password:
+        type: [string, "null"]
+        description: |
+          TODO
+
+  service:
+    type: object
+    additionalProperties: false
+    description: |
+      Configuration of the Kubernetes Service resource exposing the BinderHub
+      web server.
+    properties:
+      type:
+        enum: [ClusterIP, NodePort, LoadBalancer, ExternalName]
+        description: |
+          The Kubernetes ServiceType to be used.
+
+          The default type is `ClusterIP`.
+          See the [Kubernetes docs](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+          to learn more about service types.
+      labels:
+        type: object
+        additionalProperties: false
+        patternProperties: &labels-and-annotations-patternProperties
+          ".*":
+            type: string
+        description: |
+          Labels to add to the binder Service.
+      annotations:
+        type: object
+        additionalProperties: false
+        patternProperties: *labels-and-annotations-patternProperties
+        description: |
+          Annotations to add to the binder Service.
+      nodePort:
+        type: [integer, "null"]
+        description: |
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport)
+          for more details about NodePorts.
+      loadBalancerIP:
+        type: [string, "null"]
+        description: |
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+          for more details about loadBalancerIP.
+
+  config:
+    type: object
+    additionalProperties: true
+    description: |
+      BinderHub and its components are Python classes that expose its
+      configuration through
+      [_traitlets_](https://traitlets.readthedocs.io/en/stable/). With this Helm
+      chart configuration you can directly configure the Python classes through
+      _static_ YAML values. To _dynamically_ set values, you need to use
+      `extraConfig` instead.
+
+      __Example__
+
+      If you inspect documentation or some `binderhub_config.py` to contain the
+      following section:
+
+      ```python
+      c.binderhub.some_config_option = True
+      ```
+
+      Then, you would be able to represent it with this configuration like:
+
+      ```yaml
+      config:
+        BinderHub:
+          some_config_option: true
+      ```
+
+      ```{admonition} YAML limitations
+      :class: tip
+      You can't represent Python `Bytes` or `Set` objects in YAML directly.
+      ```
+
+      ```{admonition} Helm value merging
+      :class: tip
+      `helm` merges a Helm chart's default values with values passed with the
+      `--values` or `-f` flag. During merging, lists are replaced while
+      dictionaries are updated.
+      ```
+
+  extraConfig:
+    type: object
+    additionalProperties: true
+    description: |
+      Arbitrary extra python based configuration that should be in `binderhub_config.py`.
+
+      This is the *escape hatch* - if you want to configure BinderHub to do something specific
+      that is not present here as an option, you can write the raw Python to do it here.
+
+      extraConfig is a *dict*, so there can be multiple configuration snippets
+      under different names.
+      The configuration sections are run in alphabetical order.
+
+      Since this is usually a multi-line string, you want to format it using YAML's
+      [| operator](https://yaml.org/spec/1.2/spec.html#id2795688).
+
+      For example:
+        ```yaml
+        extraConfig:
+          my_binderhub_config.py: |
+            c.BinderHub.something = 'something'
+        ```
+
+      No validation of this python is performed! If you make a mistake here, it will probably
+      manifest as either the binder pod going into `Error` or `CrashLoopBackoff` states, or in
+      some special cases, the binder pod running but... just doing very random things. Be careful!
+
+  extraFiles:
+    type: object
+    additionalProperties: false
+    description: |
+      A dictionary with extra files to be injected into the binder pod's container
+      on startup. This can for example be used to inject: configuration
+      files, custom user interface templates, images, and more.
+
+      See zero-to-jupyterhub's extraFiles documentation for reference.
+    patternProperties:
+      ".*":
+        type: object
+        additionalProperties: false
+        required: [mountPath]
+        oneOf:
+          - required: [data]
+          - required: [stringData]
+          - required: [binaryData]
+        properties:
+          mountPath:
+            type: string
+          data:
+            type: object
+            additionalProperties: true
+          stringData:
+            type: string
+          binaryData:
+            type: string
+          mode:
+            type: number
+
+  jupyterhub:
+    type: object
+    additionalProperties: true
+    description: |
+      Configuration for the JupyterHub Helm chart that is a dependency of the
+      BinderHub Helm chart.
+    required: [hub]
+    properties:
+      hub:
+        type: object
+        additionalProperties: true
+        required: [services]
+        properties:
+          services:
+            type: object
+            additionalProperties: true
+            required: [binder]
+            properties:
+              binder:
+                type: object
+                additionalProperties: true
+                properties:
+                  apiToken:
+                    type: [string, "null"]
+                    description: |
+                      TODO
+
+  deployment:
+    type: object
+    additionalProperties: false
+    properties:
+      readinessProbe: &probe-spec
+        type: object
+        additionalProperties: true
+        description: |
+          This config option is exactly like the k8s native specification of a
+          container probe, except that it also supports an `enabled` boolean
+          flag.
+
+          See [the k8s
+          documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#probe-v1-core)
+          for more details.
+        required: [enabled]
+        properties:
+          enabled:
+            type: [boolean]
+      livenessProbe: *probe-spec
+      labels:
+        type: object
+        additionalProperties: false
+        patternProperties: *labels-and-annotations-patternProperties
+        description: |
+          Extra labels to add to the binder pod.
+
+          See the [Kubernetes docs](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+          to learn more about labels.
+
+  dind:
+    type: object
+    additionalProperties: false
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          TODO
+      initContainers: &initContainers-spec
+        type: array
+        description: |
+          List of additional initContainers.
+
+          See the [Kubernetes
+          docs](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+          for more info.
+      daemonset:
+        type: object
+        additionalProperties: false
+        properties:
+          image: *image-spec
+          extraArgs:
+            type: array
+            description: |
+              TODO
+          lifecycle: &lifecycle-spec
+            type: object
+            additionalProperties: false
+            description: |
+              A k8s native specification of lifecycle hooks on the container, see [the
+              documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#lifecycle-v1-core).
+            properties:
+              postStart:
+                type: object
+                additionalProperties: true
+              preStop:
+                type: object
+                additionalProperties: true
+          extraVolumes: &extraVolumes-spec
+            type: array
+            description: |
+              Additional volumes for the Pod. Use a k8s native syntax.
+          extraVolumeMounts: &extraVolumeMounts-spec
+            type: array
+            description: |
+              Additional volume mounts for the Container. Use a k8s native syntax.
+      storageDriver:
+        type: string
+        description: |
+          TODO
+      resources: *resources-spec
+      hostSocketDir:
+        type: string
+        description: |
+          TODO
+      hostLibDir:
+        type: string
+        description: |
+          TODO
+
+  imageCleaner:
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          TODO
+      image: *image-spec
+      delay:
+        type: integer
+        description: |
+          TODO
+      imageGCThresholdType:
+        type: string
+        description: |
+          TODO
+      imageGCThresholdHigh:
+        type: integer
+        description: |
+          TODO
+      imageGCThresholdLow:
+        type: integer
+        description: |
+          TODO
+      host:
+        type: object
+        additionalProperties: false
+        required: [enabled, dockerSocket, dockerLibDir]
+        properties:
+          enabled:
+            type: boolean
+            description: |
+              TODO
+          dockerSocket:
+            type: string
+            description: |
+              TODO
+          dockerLibDir:
+            type: string
+            description: |
+              TODO
+
+  ingress:
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          Enable the creation of a Kubernetes Ingress referencing incoming
+          network network traffic to the binder k8s Service.
+      https:
+        type: object
+        additionalProperties: false
+        description: |
+          TODO
+        properties:
+          enabled:
+            type: boolean
+            description: |
+              TODO
+          type:
+            type: string
+            description: |
+              TODO
+      annotations:
+        type: object
+        additionalProperties: false
+        patternProperties: *labels-and-annotations-patternProperties
+        description: |
+          Annotations to apply to the Ingress resource.
+
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)
+          for more details about annotations.
+      hosts:
+        type: array
+        description: |
+          List of hosts to route requests to the proxy.
+      ingressClassName:
+        type: [string, "null"]
+        description: |
+          Maps directly to the Ingress resource's spec.ingressClassName. To
+          configure this, your k8s cluster must have version 1.18+ or above.
+
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class)
+          for more details.
+      pathSuffix:
+        type: [string, "null"]
+        description: |
+          Suffix added to Ingress's routing path pattern.
+
+          Specify `*` if your ingress matches path by glob pattern.
+      pathType:
+        enum: [Prefix, Exact, ImplementationSpecific]
+        description: |
+          The path type to use. The default value is 'Prefix'. Only applies on Kubernetes v1.18+.
+
+          See [the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
+          for more details about path types.
+      tls:
+        type: array
+        description: |
+          TLS configurations for Ingress.
+
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)
+          for more details about annotations.
+
+  initContainers: *initContainers-spec
+  lifecycle: *lifecycle-spec
+  extraVolumes: *extraVolumes-spec
+  extraVolumeMounts: *extraVolumeMounts-spec
+  extraEnv:
+    type: [object, array]
+    additionalProperties: true
+    description: |
+      Environment variables to add to the binder pods.
+
+      String literals with `$(ENV_VAR_NAME)` will be expanded by Kubelet which
+      is a part of Kubernetes.
+
+      ```yaml
+      extraEnv:
+        # basic notation (for literal values only)
+        MY_ENV_VARS_NAME1: "my env var value 1"
+
+        # explicit notation (the "name" field takes precedence)
+        BINDER_NAMESPACE:
+          name: BINDER_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
+        # implicit notation (the "name" field is implied)
+        PREFIXED_BINDER_NAMESPACE:
+          value: "my-prefix-$(BINDER_NAMESPACE)"
+        SECRET_VALUE:
+          valueFrom:
+            secretKeyRef:
+              name: my-k8s-secret
+              key: password
+      ```
+
+      For more information, see the [Kubernetes EnvVar
+      specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvar-v1-core).
+  podAnnotations:
+    type: object
+    additionalProperties: false
+    patternProperties: *labels-and-annotations-patternProperties
+    description: |
+      Annotations to add to the binder Pods.
+
+  global:
+    type: object
+    additionalProperties: true
+
+  hpa:
+    type: object
+    additionalProperties: true
+    description: |
+      This is not a supported configuration yet by this Helm chart, but may be
+      in the future. This schema entry was added because
+      jupyterhub/mybinder.org-deploy configured a HorizontalPodAutoscaler
+      resource here.
+
+  networkPolicy:
+    type: object
+    additionalProperties: true
+    description: |
+      This is not a supported configuration yet by this Helm chart, but may be
+      in the future. This schema entry was added because
+      jupyterhub/mybinder.org-deploy configured a Networkpolicy resource here.
+
+  # Deprecated
+  cors:
+    type: object
+    additionalProperties: true
+    description: |
+      DEPRECATED.
+
+# A placeholder as global values that can be referenced from the same location
+# of any chart should be possible to provide, but aren't necessarily provided or
+# used.
+global: {}

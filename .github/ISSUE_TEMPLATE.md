@@ -11,4 +11,3 @@ If you aren't sure where to go use https://github.com/jupyterhub/binder/issues/n
 
 Thank you for being awesome!
 -->
-

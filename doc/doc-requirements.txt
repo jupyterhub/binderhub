@@ -1,23 +1,21 @@
-# documentation specific extra packages
-sphinx>=1.7
-recommonmark==0.4.0
+# Order matters:
+# - myst-parser depends on "sphinx>=2,<4"
+# - pydata-sphinx-theme depends on "sphinx"
+# - sphinx-copybutton depends on "sphinx>=1.8"
+#
+# Listing either pydata-sphinx-theme or sphinx-copybutton first will make the
+# myst-parser constraints on sphinx be ignored, so myst-parser should go
+# first. This is only relevant if sphinx==1.* is already installed in the
+# environment, which it is on ReadTheDocs.
+
+
+# sphinx.ext.autodoc as configured in conf.py and autodo_traits.py is
+# automatically building documentation based on inspection of the binderhub
+# package, which means we need to install it on RTD so it is available for
+# inspection.
+-r ../requirements.txt
+# Documentation specific packages
+https://github.com/jupyterhub/autodoc-traits/archive/HEAD.zip
+myst-parser
+pydata-sphinx-theme
 sphinx-copybutton
-traitlets
-pandas
-ruamel.yaml
-pydata_sphinx_theme
-# install BinderHub dependencies. We manually list them here because some
-# dependencies (like pycurl) can't be installed on ReadTheDocs and aren't
-# needed to build the docs.
-kubernetes==9.0.*
-escapism
-traitlets
-docker
-jinja2
-prometheus_client
-python-json-logger
-jupyterhub
-jsonschema
-tornado>=5.1
-#pycurl Do not install for docs as it breaks the RTD build. Its primary use is for mocks in testing .
-boto3

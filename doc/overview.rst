@@ -19,7 +19,7 @@ and registry of Docker images. It utilizes the following tools:
 - **Docker** to use containers that standardize computing environments
 - A **BinderHub UI** that users can access to specify Git repos they want
   built
-- **BinderHub** to generate Docker images using the URL of a Git repository
+- **repo2docker** to generate Docker images using the URL of a Git repository
 - A **Docker registry** (such as gcr.io) that hosts container images
 - **JupyterHub** to deploy temporary containers for users
 

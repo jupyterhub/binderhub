@@ -23,65 +23,89 @@ spec:
         component: binder
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
-        {{ if .Values.deployment.labels -}}
-        # Because toYaml + indent is super flaky
-        {{ range $key, $value := .Values.deployment.labels -}}
-        {{ $key }}: {{ $value | quote }}
-        {{- end }}
+        {{- with .Values.deployment.labels }}
+        {{- . | toYaml | nindent 8 }}
         {{- end }}
       annotations:
-        # This lets us autorestart when the configmap changes!
-        checksum/config-map: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        # This lets us autorestart when the secret's pass-through config changes
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
     spec:
-      {{ if .Values.initContainers -}}
+      {{- with .Values.initContainers }}
       initContainers:
-{{ toYaml .Values.initContainers | indent 6 }}
+        {{- . | toYaml | nindent 8 }}
       {{- end }}
-      nodeSelector: {{ toJson .Values.nodeSelector }}
+      nodeSelector: {{ .Values.nodeSelector | toJson }}
       {{- if .Values.rbac.enabled }}
       serviceAccountName: binderhub
       {{- end }}
       volumes:
       - name: config
-        configMap:
-          name: binder-config
-      - name: secret-config
         secret:
           secretName: binder-secret
-      {{ if .Values.config.BinderHub.use_registry -}}
+      {{- if .Values.extraFiles }}
+      - name: files
+        secret:
+          secretName: binder-secret
+          items:
+            {{- range $file_key, $file_details := .Values.extraFiles }}
+            - key: {{ $file_key | quote }}
+              path: {{ $file_key | quote }}
+              {{- with $file_details.mode }}
+              mode: {{ . }}
+              {{- end }}
+            {{- end }}
+      {{- end }}
+      {{- if .Values.config.BinderHub.use_registry }}
       - name: docker-secret
         secret:
-          secretName: binder-push-secret
-      {{ else -}}
+          secretName: binder-build-docker-config
+      {{- else }}
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
       {{- end }}
-      {{ if .Values.extraVolumes }}
-{{ toYaml .Values.extraVolumes | indent 6 }}
-      {{ end }}
+
+      {{- with .Values.extraVolumes }}
+      {{- . | toYaml | nindent 6 }}
+      {{- end }}
       containers:
       - name: binder
         image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        args:
+          - --config
+          - /etc/binderhub/config/binderhub_config.py
+        {{- with .Values.lifecycle }}
+        lifecycle:
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
           - mountPath: /etc/binderhub/config/
             name: config
-          - mountPath: /etc/binderhub/secret/
-            name: secret-config
-          {{ if .Values.config.BinderHub.use_registry -}}
+            readOnly: true
+          {{- range $file_key, $file_details := .Values.extraFiles }}
+          - mountPath: {{ $file_details.mountPath }}
+            subPath: {{ $file_key | quote }}
+            {{- with $file_details.mode }}
+            mode: {{ . }}
+            {{- end }}
+            name: files
+          {{- end }}
+          {{- if .Values.config.BinderHub.use_registry }}
           - mountPath: /root/.docker
             name: docker-secret
             readOnly: true
-          {{ else -}}
+          {{- else }}
           - mountPath: /var/run/docker.sock
             name: docker-socket
           {{- end }}
-          {{ if .Values.extraVolumeMounts }}
-{{ toYaml .Values.extraVolumeMounts | indent 10 }}
-          {{ end }}
+          {{- with .Values.extraVolumeMounts }}
+          {{- . | toYaml | nindent 10 }}
+          {{- end }}
         resources:
-{{ toYaml .Values.resources | indent 12}}
+          {{- .Values.resources | toYaml | nindent 10 }}
         imagePullPolicy: IfNotPresent
         env:
         - name: BUILD_NAMESPACE
@@ -91,34 +115,47 @@ spec:
         - name: JUPYTERHUB_API_TOKEN
           valueFrom:
             secretKeyRef:
-              name: binder-secret
-              key: "binder.hub-token"
+              name: "{{ include "jupyterhub.hub.fullname" . }}"
+              key: hub.services.binder.apiToken
         {{- if .Values.config.BinderHub.auth_enabled }}
         - name: JUPYTERHUB_API_URL
-          value: {{ (print (.Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
+          value: {{ (print (.Values.config.BinderHub.hub_url_local | default .Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
         - name: JUPYTERHUB_BASE_URL
           value: {{ .Values.jupyterhub.hub.baseUrl | quote }}
         - name: JUPYTERHUB_CLIENT_ID
-          value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote}}
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_client_id | quote }}
         - name: JUPYTERHUB_OAUTH_CALLBACK_URL
-          value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote}}
+          value: {{ .Values.jupyterhub.hub.services.binder.oauth_redirect_uri | quote }}
         {{- if .Values.jupyterhub.hub.allowNamedServers }}
         - name: JUPYTERHUB_ALLOW_NAMED_SERVERS
           value: "true"
         - name: JUPYTERHUB_NAMED_SERVER_LIMIT_PER_USER
-          value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser | quote  }}
+          value: {{ .Values.jupyterhub.hub.namedServerLimitPerUser | quote }}
         {{- end }}
         {{- end }}
-        {{ if .Values.extraEnv }}
-{{ toYaml .Values.extraEnv | indent 8 }}
-        {{ end }}
+        {{- with .Values.extraEnv }}
+        {{- include "jupyterhub.extraEnv" . | nindent 8 }}
+        {{- end }}
         ports:
           - containerPort: 8585
             name: binder
+        {{- if .Values.deployment.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
+            port: binder
+          initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.deployment.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
-            path: {{ default "/" .Values.config.BinderHub.base_url }}about
+            path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
             port: binder
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
+          initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+        {{- end }}

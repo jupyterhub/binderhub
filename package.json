@@ -3,20 +3,28 @@
   "version": "0.1.0",
   "description": "`BinderHub`",
   "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.6",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^6.2.0",
+    "eslint": "^7.32.0",
+    "mini-css-extract-plugin": "^2.3.0",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0"
+  },
+  "dependencies": {
     "bootstrap": "^3.4.0",
-    "clipboard": "^1.7.1",
-    "css-loader": "^0.28.7",
-    "event-source-polyfill": "^0.0.12",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.6",
-    "jquery": "^3.2.1",
-    "style-loader": "^0.19.1",
-    "webpack": "^3.10.0",
-    "xterm": "^2.9.2"
+    "clipboard": "^2.0.8",
+    "event-source-polyfill": "^1.0.25",
+    "jquery": "^3.6.0",
+    "xterm": "^4.14.1",
+    "xterm-addon-fit": "^0.5.0"
   },
   "scripts": {
     "webpack": "webpack",
-    "webpack:watch": "webpack --watch"
+    "webpack:watch": "webpack --watch",
+    "lint": "eslint binderhub/static/js"
   },
   "repository": {
     "type": "git",

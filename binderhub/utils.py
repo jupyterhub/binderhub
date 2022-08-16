@@ -1,9 +1,19 @@
 """Miscellaneous utilities"""
+import ipaddress
+import time
 from collections import OrderedDict
 from hashlib import blake2b
-import time
+from unittest.mock import Mock
 
+from kubernetes.client import api_client
 from traitlets import Integer, TraitError
+
+# default _request_timeout for kubernetes api requests
+# tuple of two timeouts: (connect_timeout, read_timeout)
+# the most important of these is the connect_timeout,
+# which can hang for a *very* long time when there are internal
+# kubernetes connection issues
+KUBE_REQUEST_TIMEOUT = (3, 30)
 
 
 def blake2b_hash_as_int(b):
@@ -156,15 +166,40 @@ def url_path_join(*pieces):
     return result
 
 
+def ip_in_networks(ip, networks, min_prefix_len=1):
+    """Return whether `ip` is in the dict of networks
+
+    This is O(1) regardless of the size of networks
+
+    Implementation based on netaddr.IPSet.__contains__
+
+    Repeatedly checks if ip/32; ip/31; ip/30; etc. is in networks
+    for all netmasks that match the given ip,
+    for a max of 32 dict key lookups for ipv4.
+
+    If all netmasks have a prefix length of e.g. 24 or greater,
+    min_prefix_len prevents checking wider network masks that can't possibly match.
+
+    Returns `(netmask, networks[netmask])` for matching netmask
+    in networks, if found; False, otherwise.
+    """
+    if min_prefix_len < 1:
+        raise ValueError(f"min_prefix_len must be >= 1, got {min_prefix_len}")
+    if not networks:
+        return False
+    check_net = ipaddress.ip_network(ip)
+    while check_net.prefixlen >= min_prefix_len:
+        if check_net in networks:
+            return check_net, networks[check_net]
+        check_net = check_net.supernet(1)
+    return False
+
+
 # FIXME: remove when instantiating a kubernetes client
 # doesn't create N-CPUs threads unconditionally.
 # monkeypatch threadpool in kubernetes api_client
 # to avoid instantiating ThreadPools.
 # This is known to work for kubernetes-4.0
 # and may need updating with later kubernetes clients
-
-from unittest.mock import Mock
-from kubernetes.client import api_client
-
 _dummy_pool = Mock()
 api_client.ThreadPool = lambda *args, **kwargs: _dummy_pool

@@ -1,9 +1,0 @@
-name: binderhub
-channels:
-  - conda-forge
-dependencies:
-  - python=3.6
-  - traitlets>=4.1
-  - tornado>=4.1
-  - pip:
-      - -r doc-requirements.txt

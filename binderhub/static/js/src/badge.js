@@ -1,19 +1,16 @@
-var BASE_URL = $("#base-url").data().url;
-var BADGE_BASE_URL = $('#badge-base-url').data().url;
+export function makeBadgeMarkup(badgeBaseUrl, baseUrl, url, syntax) {
+  let badgeImageUrl;
 
-if (BADGE_BASE_URL) {
-  var BADGE_URL = BADGE_BASE_URL + "badge_logo.svg";
-}
-else {
-  var BADGE_URL = window.location.origin + BASE_URL + "badge_logo.svg";
-}
+  if (badgeBaseUrl) {
+    badgeImageUrl = badgeBaseUrl + "badge_logo.svg";
+  } else {
+    badgeImageUrl = window.location.origin + baseUrl + "badge_logo.svg";
+  }
 
-export function markdownBadge(url) {
-  // return markdown badge snippet
-  return "[![Binder](" + BADGE_URL + ")](" + url + ")";
-}
+  if (syntax === 'markdown') {
+    return "[![Binder](" + badgeImageUrl + ")](" + url + ")";
+  } else if (syntax === 'rst') {
+    return ".. image:: " + badgeImageUrl + "\n :target: " + url;
 
-export function rstBadge(url) {
-  // return rst badge snippet
-  return ".. image:: " + BADGE_URL + "\n :target: " + url;
+  }
 }

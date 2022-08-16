@@ -17,14 +17,15 @@ you need to add the following into ``config.yaml``:
       cull:
         # don't cull authenticated users
         users: False
-      custom:
-        binderauth_enabled: true
       hub:
         redirectToServer: false
+        config:
+          BinderSpawner:
+            auth_enabled: false
         services:
           binder:
             oauth_no_confirm: true
-            oauth_redirect_uri: "http://<binderhub_url>/oauth_callback"
+            oauth_redirect_uri: "https://<binderhub_url>/oauth_callback"
             oauth_client_id: "binder-oauth-client-test"
 
       singleuser:

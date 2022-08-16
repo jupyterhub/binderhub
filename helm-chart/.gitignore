@@ -1,3 +1,5 @@
+binderhub/values.schema.json
+
 ### macOS ###
 *.DS_Store
 .AppleDouble

@@ -3,16 +3,14 @@ import base64
 import json
 import os
 
-import pytest
-
-from tornado.web import Application, RequestHandler, HTTPError
+from tornado.web import Application, HTTPError, RequestHandler
 
 from binderhub.registry import DockerRegistry
 
 
 def test_registry_defaults(tmpdir):
     registry = DockerRegistry(docker_config_path=str(tmpdir.join("doesntexist.json")))
-    assert registry.url == "https://registry.hub.docker.com"
+    assert registry.url == "https://registry-1.docker.io"
     assert registry.auth_config_url == "https://index.docker.io/v1"
     assert (
         registry.token_url == "https://auth.docker.io/token?service=registry.docker.io"
@@ -37,7 +35,7 @@ def test_registry_username_password(tmpdir):
     registry = DockerRegistry(docker_config_path=str(config_json))
     assert registry.username == "user"
     assert registry.password == "pass"
-    assert registry.url == "https://registry.hub.docker.com"
+    assert registry.url == "https://registry-1.docker.io"
 
 
 def test_registry_gcr_defaults(tmpdir):
@@ -60,7 +58,9 @@ def test_registry_gcr_defaults(tmpdir):
     assert registry.username == "_json_key"
     assert registry.password == "{...}"
 
+
 # Mock the registry API calls made by get_image_manifest
+
 
 class MockTokenHandler(RequestHandler):
     """Mock handler for the registry token handler"""
@@ -69,7 +69,7 @@ class MockTokenHandler(RequestHandler):
         self.test_handle = test_handle
 
     def get(self):
-        scope = self.get_argument("scope")
+        self.get_argument("scope")
         auth_header = self.request.headers.get("Authorization", "")
         if not auth_header.startswith("Basic "):
             raise HTTPError(401, "No basic auth")
@@ -80,9 +80,9 @@ class MockTokenHandler(RequestHandler):
             raise HTTPError(403, "Bad username %r" % username)
         if password != self.test_handle["password"]:
             raise HTTPError(403, "Bad password %r" % password)
-        self.test_handle["token"] = token = base64.encodebytes(os.urandom(5)).decode(
-            "ascii"
-        ).rstrip()
+        self.test_handle["token"] = token = (
+            base64.encodebytes(os.urandom(5)).decode("ascii").rstrip()
+        )
         self.set_header("Content-Type", "application/json")
         self.write(json.dumps({"token": token}))
 
@@ -99,7 +99,7 @@ class MockManifestHandler(RequestHandler):
             raise HTTPError(401, "No bearer auth")
         token = auth_header[7:]
         if token != self.test_handle["token"]:
-            raise HTTPError(403, "%s != %s" % (token, self.test_handle["token"]))
+            raise HTTPError(403, "{} != {}".format(token, self.test_handle["token"]))
         self.set_header("Content-Type", "application/json")
         # get_image_manifest never looks at the contents here
         self.write(json.dumps({"image": image, "tag": tag}))
@@ -130,7 +130,7 @@ async def test_get_image_manifest(tmpdir, request):
                 "auths": {
                     url: {
                         "auth": base64.encodebytes(
-                            f"{username}:{password}".encode("utf8")
+                            f"{username}:{password}".encode()
                         ).decode("ascii")
                     }
                 }

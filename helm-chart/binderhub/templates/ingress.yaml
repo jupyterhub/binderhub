@@ -1,9 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
-apiVersion: networking.k8s.io/v1beta1
-{{- else }}
-apiVersion: extensions/v1beta1
-{{- end }}
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: binderhub
@@ -12,20 +8,28 @@ metadata:
     {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
     kubernetes.io/tls-acme: "true"
     {{- end }}
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- . | toYaml | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:
+  {{- with .Values.ingress.ingressClassName }}
+  ingressClassName: {{ . | quote }}
+  {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
-      http:
+    {{- range $host := .Values.ingress.hosts | default (list "") }}
+    - http:
         paths:
-          - path: /
+          - path: /{{ $.Values.ingress.pathSuffix }}
+            pathType: {{ $.Values.ingress.pathType }}
             backend:
-              serviceName: binder
-              servicePort: 80
+              service:
+                name: binder
+                port:
+                  number: 80
+      {{- with $host }}
+      host: {{ . | quote }}
+      {{- end }}
     {{- end }}
   {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
   tls:
@@ -44,4 +48,4 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
-{{- end -}}
+{{- end }}

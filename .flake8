@@ -1,0 +1,16 @@
+# flake8 is a Python linting tool run by pre-commit as declared by our
+# pre-commit-config.yaml file.
+#
+# This configuration is compatible with the autoformatter tool black, and
+# further relaxed to not bug us with too small details.
+#
+# flake8 configuration reference:
+# https://flake8.pycqa.org/en/latest/user/configuration.html
+#
+[flake8]
+max-line-length = 88
+extend-ignore = C, E, W
+
+# Adjustments to linting the binderhub repo
+builtins = c, load_subconfig
+exclude = versioneer.py,binderhub/_version.py

@@ -17,13 +17,14 @@ const help_messages = [
 
 // Set a launch timeout beyond-which we'll stop cycling messages
 export function nextHelpText () {
-    var text = $('div#loader-links p.text-center');
+    const text = $('div#loader-links p.text-center');
+    let msg;
     if (text !== null) {
         if (!text.hasClass('longLaunch')) {
             // Pick a random help message and update
-            var msg = help_messages[Math.floor(Math.random() * help_messages.length)];
+            msg = help_messages[Math.floor(Math.random() * help_messages.length)];
         } else {
-            var msg = 'Your session is taking longer than usual to start!<br />Check the log messages below to see what is happening.';
+            msg = 'Your session is taking longer than usual to start!<br />Check the log messages below to see what is happening.';
         }
         text.html(msg);
     }

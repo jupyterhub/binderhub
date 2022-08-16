@@ -265,4 +265,4 @@ Next step
 
 Now that our cloud resources are set up, it's time to :doc:`setup-binderhub`.
 
-.. _console.cloud.google.com: http://console.cloud.google.com
+.. _console.cloud.google.com: https://console.cloud.google.com

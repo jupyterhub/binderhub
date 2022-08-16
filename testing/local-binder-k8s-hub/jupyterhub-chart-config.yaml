@@ -1,0 +1,32 @@
+# A JupyterHub Helm chart config for use whenever JupyterHub is deployed on
+# a kubernetes cluster.
+
+# NOTE: This is a mirror of the jupyterhub section in
+#       binderhub-chart-config.yaml in testing/k8s-binder-k8s-hub, keep these
+#       two files synced please.
+debug:
+  enabled: true
+
+hub:
+  config:
+    BinderSpawner:
+      cors_allow_origin: "*"
+  db:
+    type: "sqlite-memory"
+  services:
+    binder:
+      # apiToken is also configured in
+      # testing/local-binder-k8s-hub/binderhub_config.py
+      apiToken: "dummy-binder-secret-token"
+
+proxy:
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30902
+
+singleuser:
+  storage:
+    type: none
+  memory:
+    guarantee: null

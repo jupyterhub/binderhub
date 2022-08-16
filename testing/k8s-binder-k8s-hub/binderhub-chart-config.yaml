@@ -1,0 +1,68 @@
+# This config is used when both BinderHub and the JupyterHub it uses are
+# deployed to a kubernetes cluster.
+# note: when changing the config schema,
+# the old version of this file may need to be copied to ./binderhub-chart-config-old.yaml
+# before updating, and then deleted in a subsequent PR.
+
+service:
+  type: NodePort
+  nodePort: 30901
+
+config:
+  BinderHub:
+    # Use the internal host name for Pod to Pod communication
+    # We can't use `hub_url` here because that is set to localhost which
+    # works on the host but not from within a Pod
+    hub_url_local: http://proxy-public
+    use_registry: false
+    log_level: 10
+    cors_allow_origin: "*"
+
+extraFiles:
+  page.html:
+    mountPath: /etc/binderhub/templates/page.html
+    stringData: |
+      {% extends "templates/page.html" %}
+      {% block footer %}
+      {{ super() }}
+      <span>test-template</span>
+      {% endblock %}
+
+ingress:
+  # Enabled to test the creation/update of the k8s Ingress resource, but not
+  # used actively in our CI system.
+  enabled: true
+
+dind:
+  # Not enabled to test the creation/update of the image-cleaner DaemonSet
+  # resource because it also requires us to setup a container registry to test
+  # against which we haven't. We currently only test this via
+  # lint-and-validate-values.yaml that makes sure our rendered templates are
+  # valid against a k8s api-server.
+  enabled: false
+
+# NOTE: This is a mirror of the jupyterhub section in
+#       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
+#       two files synced please.
+jupyterhub:
+  debug:
+    enabled: true
+
+  hub:
+    config:
+      BinderSpawner:
+        cors_allow_origin: "*"
+    db:
+      type: "sqlite-memory"
+
+  proxy:
+    service:
+      type: NodePort
+      nodePorts:
+        http: 30902
+
+  singleuser:
+    storage:
+      type: none
+    memory:
+      guarantee: null

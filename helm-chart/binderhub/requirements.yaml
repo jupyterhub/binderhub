@@ -1,4 +1,0 @@
-dependencies:
-- name: jupyterhub
-  version: "0.9.0"
-  repository: "https://jupyterhub.github.io/helm-chart"

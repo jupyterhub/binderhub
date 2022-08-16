@@ -1,14 +1,16 @@
-Customization
-=============
+Customize and Maintain
+======================
 
-Information on how to customize your BinderHub as well as explore what others
-in the community have done.
+These pages cover common use-cases and needs when deploying your own BinderHub.
+This includes configuring and customizing your BinderHub deployment, as well as
+best-practices in debugging issues.
 
 .. toctree::
    :maxdepth: 2
    :caption: Customization and deployment
 
-   ../debug
    ../customizing
+   ../debug
    ../authentication
    ../https
+   ../cors

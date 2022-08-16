@@ -8,15 +8,14 @@ import json
 import os
 from urllib.parse import urlparse
 
-import boto3
 import kubernetes.client
 import kubernetes.config
-from tornado import gen, httpclient
+from tornado import httpclient
 from tornado.httputil import url_concat
-from traitlets import default, Dict, Unicode, Any, Integer
+from traitlets import Dict, Unicode, default, Any, Integer
 from traitlets.config import LoggingConfigurable
 
-DEFAULT_DOCKER_REGISTRY_URL = "https://registry.hub.docker.com"
+DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
 DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"
 
 
@@ -133,7 +132,7 @@ class DockerRegistry(LoggingConfigurable):
         url = urlparse(self.url)
         if ("." + url.hostname).endswith(".gcr.io"):
             return "https://{0}/v2/token?service={0}".format(url.hostname)
-        elif self.url.endswith(".docker.com"):
+        elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
             # is gcr.io's token url common? If so, it might be worth defaulting
@@ -190,18 +189,23 @@ class DockerRegistry(LoggingConfigurable):
             base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
         )
 
-    @gen.coroutine
-    def get_image_manifest(self, image, tag):
+    async def get_image_manifest(self, image, tag):
         client = httpclient.AsyncHTTPClient()
-        url = "{}/v2/{}/manifests/{}".format(self.url, image, tag)
+        url = f"{self.url}/v2/{image}/manifests/{tag}"
         # first, get a token to perform the manifest request
         if self.token_url:
             auth_req = httpclient.HTTPRequest(
-                url_concat(self.token_url, {"scope": "repository:{}:pull".format(image)}),
+                url_concat(
+                    self.token_url,
+                    {
+                        "scope": f"repository:{image}:pull",
+                        "service": "container_registry",
+                    },
+                ),
                 auth_username=self.username,
                 auth_password=self.password,
             )
-            auth_resp = yield client.fetch(auth_req)
+            auth_resp = await client.fetch(auth_req)
             response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
 
             if "token" in response_body.keys():
@@ -209,18 +213,20 @@ class DockerRegistry(LoggingConfigurable):
             elif "access_token" in response_body.keys():
                 token = response_body["access_token"]
 
-            req = httpclient.HTTPRequest(url,
-                headers={"Authorization": "Bearer {}".format(token)},
+            req = httpclient.HTTPRequest(
+                url,
+                headers={"Authorization": f"Bearer {token}"},
             )
         else:
             # Use basic HTTP auth (htpasswd)
-            req = httpclient.HTTPRequest(url,
+            req = httpclient.HTTPRequest(
+                url,
                 auth_username=self.username,
                 auth_password=self.password,
             )
 
         try:
-            resp = yield client.fetch(req)
+            resp = await client.fetch(req)
         except httpclient.HTTPError as e:
             if e.code == 404:
                 # 404 means it doesn't exist
@@ -232,6 +238,8 @@ class DockerRegistry(LoggingConfigurable):
 
 
 class AWSElasticContainerRegistry(DockerRegistry):
+    import boto3
+
     aws_region = Unicode(
         config=True,
         help="""
@@ -294,10 +302,11 @@ class AWSElasticContainerRegistry(DockerRegistry):
         auths = self.ecr_client.get_authorization_token()["authorizationData"]
         auth = next(x for x in auths if x["proxyEndpoint"] == self.url)
         self._patch_docker_config_secret(auth)
-        self.password = base64.b64decode(auth['authorizationToken']).decode("utf-8").split(':')[1]
-    
+        self.password = base64.b64decode(auth["authorizationToken"]).decode("utf-8").split(':')[1]
+
     def _patch_docker_config_secret(self, auth):
-        """Patch binder-push-secret"""
+        """Patch push_secret. Necessary because AWS rotates auth tokens.
+        ref: https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html """
         secret_data = {"auths": {self.url: {"auth": auth["authorizationToken"]}}}
         secret_data = base64.b64encode(json.dumps(secret_data).encode("utf8")).decode(
             "utf8"
@@ -305,5 +314,14 @@ class AWSElasticContainerRegistry(DockerRegistry):
         with open("/var/run/secrets/kubernetes.io/serviceaccount/namespace") as f:
             namespace = f.read()
         self.kube_client.patch_namespaced_secret(
-            "binder-push-secret", namespace, {"data": {"config.json": secret_data}}
+            self.parent.push_secret, namespace, {"data": {"config.json": secret_data}}
         )
+
+
+class FakeRegistry(DockerRegistry):
+    """
+    Fake registry that contains no images
+    """
+
+    async def get_image_manifest(self, image, tag):
+        return None
