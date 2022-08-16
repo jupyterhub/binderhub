@@ -22,7 +22,7 @@ from tornado.queues import Queue
 from tornado.web import Finish, authenticated
 
 from .base import BaseHandler
-from .build import ProgressEvent
+from .build import Build, ProgressEvent
 from .utils import KUBE_REQUEST_TIMEOUT
 
 # Separate buckets for builds and launches.
@@ -425,33 +425,72 @@ class BuildHandler(BaseHandler):
             ref_url=self.ref_url,
         )
 
-        self.build = build = BuildClass(
-            q=q,
-            # api object can be None if we are using FakeBuild
-            api=self.settings.get("kubernetes_client"),
-            name=build_name,
-            namespace=self.settings["build_namespace"],
-            repo_url=repo_url,
-            ref=ref,
-            image_name=image_name,
-            push_secret=push_secret,
-            build_image=self.settings["build_image"],
-            memory_limit=self.settings["build_memory_limit"],
-            memory_request=self.settings["build_memory_request"],
-            docker_host=self.settings["build_docker_host"],
-            node_selector=self.settings["build_node_selector"],
-            appendix=appendix,
-            log_tail_lines=self.settings["log_tail_lines"],
-            git_credentials=provider.git_credentials,
-            sticky_builds=self.settings["sticky_builds"],
-        )
+        if issubclass(BuildClass, Build):
+            # Deprecated, see docstring of the Build class for more details
+            build = BuildClass(
+                q=q,
+                # api object can be None if we are using FakeBuild
+                api=self.settings.get("kubernetes_client"),
+                name=build_name,
+                namespace=self.settings["build_namespace"],
+                repo_url=repo_url,
+                ref=ref,
+                image_name=image_name,
+                push_secret=push_secret,
+                build_image=self.settings["build_image"],
+                memory_limit=self.settings["build_memory_limit"],
+                memory_request=self.settings["build_memory_request"],
+                docker_host=self.settings["build_docker_host"],
+                node_selector=self.settings["build_node_selector"],
+                appendix=appendix,
+                log_tail_lines=self.settings["log_tail_lines"],
+                git_credentials=provider.git_credentials,
+                sticky_builds=self.settings["sticky_builds"],
+            )
+        else:
+            build = BuildClass(
+                # Commented properties should be set in traitlets config
+                parent=self.settings["traitlets_parent"],
+                q=q,
+                name=build_name,
+                # namespace=self.settings["build_namespace"],
+                repo_url=repo_url,
+                ref=ref,
+                image_name=image_name,
+                # push_secret=push_secret,
+                # build_image=self.settings["build_image"],
+                # memory_limit=self.settings["build_memory_limit"],
+                # memory_request=self.settings["build_memory_request"],
+                # docker_host=self.settings["build_docker_host"],
+                # node_selector=self.settings["build_node_selector"],
+                # appendix=appendix,
+                # log_tail_lines=self.settings["log_tail_lines"],
+                git_credentials=provider.git_credentials,
+                # sticky_builds=self.settings["sticky_builds"],
+            )
+        self.build = build
 
         with BUILDS_INPROGRESS.track_inprogress():
+            done = False
+            failed = False
+
+            def _check_result(future):
+                nonlocal done
+                nonlocal failed
+                try:
+                    r = future.result()
+                    app_log.debug("task completed: %s", r)
+                except Exception:
+                    app_log.error("task failed", exc_info=True)
+                    done = True
+                    failed = True
+                    # TODO: Propagate error to front-end
+
             build_starttime = time.perf_counter()
             pool = self.settings["build_pool"]
             # Start building
             submit_future = pool.submit(build.submit)
-            # TODO: hook up actual error handling when this fails
+            submit_future.add_done_callback(_check_result)
             IOLoop.current().add_callback(lambda: submit_future)
 
             log_future = None
@@ -464,8 +503,6 @@ class BuildHandler(BaseHandler):
                 }
             )
 
-            done = False
-            failed = False
             while not done:
                 progress = await q.get()
 
@@ -486,6 +523,7 @@ class BuildHandler(BaseHandler):
                         # start capturing build logs once the pod is running
                         if log_future is None:
                             log_future = pool.submit(build.stream_logs)
+                            log_future.add_done_callback(_check_result)
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
                         # Do nothing, is ok!
