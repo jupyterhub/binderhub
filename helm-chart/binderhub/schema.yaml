@@ -88,10 +88,10 @@ properties:
         description: |
           Decides if RBAC resources are to be created and referenced by the the
           Helm chart's workloads.
-      augmented:
+      patchSecrets:
         type: boolean
         description: |
-          Allows manipulation of Secrets if set to true. 
+          Allows get and patch Secrets if set to true. 
           This should only be needed if using the AWSElasticContainerRegistry
           registry class, because AWS rotates auth tokens. See [the
           documentation](https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry_auth.html)

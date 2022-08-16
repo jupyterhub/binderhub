@@ -228,7 +228,7 @@ If you want your BinderHub to push and pull images from an Amazon Elastic
 Container Registry (ECR), then your `config.yaml` file will look as follows::
 
     rbac:
-      augmented: true
+      patchSecrets: true
     config:
       BinderHub:
         use_registry: true
