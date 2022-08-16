@@ -460,11 +460,22 @@ class KubernetesBuildExecutor(BuildExecutor):
                     _request_timeout=KUBE_REQUEST_TIMEOUT,
                 ):
                     if f["type"] == "DELETED":
-                        # Assume this is a successful completion
-                        self.progress(
-                            ProgressEvent.Kind.BUILD_STATUS_CHANGE,
-                            ProgressEvent.BuildStatus.COMPLETED,
+                        phase = f["object"].status.phase
+                        app_log.debug(
+                            "Pod %s was deleted with phase %s",
+                            f["object"].metadata.name,
+                            phase,
                         )
+                        if phase == "Succeeded":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.COMPLETED,
+                            )
+                        else:
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.FAILED,
+                            )
                         return
                     self.pod = f["object"]
                     if not self.stop_event.is_set():
