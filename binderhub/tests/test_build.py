@@ -94,6 +94,30 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     assert r.url.startswith(final["url"])
 
 
+@pytest.mark.asyncio(timeout=120)
+@pytest.mark.remote
+async def test_build_fail(app, needs_build, needs_launch, always_build, pytestconfig):
+    """
+    Test build a repo that should fail immediately.
+    """
+    slug = "gist/manics/cc003c8264db20d22b5fa437770f655e"
+    build_url = f"{app.url}/build/{slug}"
+    r = await async_requests.get(build_url, stream=True)
+    r.raise_for_status()
+    failed_events = 0
+    async for line in async_requests.iter_lines(r):
+        line = line.decode("utf8", "replace")
+        if line.startswith("data:"):
+            event = json.loads(line.split(":", 1)[1])
+            assert event.get("phase") not in ("launching", "ready")
+            if event.get("phase") == "failed":
+                failed_events += 1
+                break
+    r.close()
+
+    assert failed_events > 0, "Should have seen phase 'failed'"
+
+
 def _list_dind_pods_mock():
     """Mock list of DIND pods"""
     mock_response = mock.MagicMock()

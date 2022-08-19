@@ -40,13 +40,16 @@ class ProgressEvent:
         The state the build is now in
 
         Used when `kind` is `Kind.BUILD_STATUS_CHANGE`
+
+        These enum values are referenced in the front-end to display the build status,
+        hence the mismatch between the Enum name (backend) and value (frontend).
         """
 
-        PENDING = 1
-        RUNNING = 2
-        COMPLETED = 3
-        FAILED = 4
-        UNKNOWN = 5
+        PENDING = "pending"
+        RUNNING = "running"
+        COMPLETED = "built"
+        FAILED = "failed"
+        UNKNOWN = "unknown"
 
     def __init__(self, kind: Kind, payload: Union[str, BuildStatus]):
         self.kind = kind

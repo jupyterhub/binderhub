@@ -509,12 +509,13 @@ class BuildHandler(BaseHandler):
                 # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
                 # whatever, we should fail properly.
                 if progress.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE:
+                    phase = progress.payload.value
                     if progress.payload == ProgressEvent.BuildStatus.PENDING:
                         # nothing to do, just waiting
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
                         event = {
-                            "phase": "built",
+                            "phase": phase,
                             "message": "Built image, launching...\n",
                             "imageName": image_name,
                         }
@@ -529,9 +530,13 @@ class BuildHandler(BaseHandler):
                         # Do nothing, is ok!
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.FAILED:
-                        event = {"phase": "failure"}
+                        event = {"phase": phase}
                     elif progress.payload == ProgressEvent.BuildStatus.UNKNOWN:
-                        event = {"phase": "unknown"}
+                        event = {"phase": phase}
+                    else:
+                        raise ValueError(
+                            f"Found unknown phase {phase} in ProgressEvent"
+                        )
                 elif progress.kind == ProgressEvent.Kind.LOG_MESSAGE:
                     # The logs are coming out of repo2docker, so we expect
                     # them to be JSON structured anyway
