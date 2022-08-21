@@ -33,6 +33,28 @@ If you were previously disabling the image cleaner replace:
 
 - `imageCleaner.host.enabled: false` ➡️ `imageCleaner.enabled: false`
 
+### `binderhub.build.Build` class replaced by `binderhub.build.KubernetesBuildExecutor`
+
+The `binderhub.build.Build` class is replaced by the Traitlets based `binderhub.build.KubernetesBuildExecutor` class
+[#1518](https://github.com/jupyterhub/binderhub/pull/1518),
+[#1521](https://github.com/jupyterhub/binderhub/pull/1521).
+
+The following build configuration properties should be set using Traitlets in the BinderHub configuration:
+
+- `c.BinderHub.appendix` ➡️ `c.BuildExecutor.appendix`
+- `c.BinderHub.sticky_builds` ➡️ `c.KubernetesBuildExecutor.sticky_builds`
+- `c.BinderHub.log_tail_lines` ➡️ `c.KubernetesBuildExecutor.log_tail_lines`
+- `c.BinderHub.push_secret` ➡️ `c.BuildExecutor.push_secret`
+- `c.BinderHub.build_memory_request` ➡️ `c.KubernetesBuildExecutor.memory_request`
+- `c.BinderHub.build_memory_limit` ➡️ `c.BuildExecutor.memory_limit`
+- `c.BinderHub.build_docker_host` ➡️ `c.KubernetesBuildExecutor.docker_host`
+- `c.BinderHub.build_namespace` ➡️ `c.KubernetesBuildExecutor.namespace`
+- `c.BinderHub.build_image` ➡️ `c.KubernetesBuildExecutor.build_image`
+- `c.BinderHub.build_node_selector` ➡️ `c.KubernetesBuildExecutor.node_selector`
+
+If you have subclassed `binderhub.build.Build` you must update your subclass (including `__init__()` if defined) to inherit from `binderhub.build.KubernetesBuildExecutor`.
+The behaviour of the class is otherwise unchanged.
+
 # 0.2.0
 
 # master@{2019-07-01}...master@{2019-10-01}
