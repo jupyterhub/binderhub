@@ -2,7 +2,6 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
-import asyncio
 import hashlib
 import json
 import re
@@ -23,7 +22,7 @@ from tornado.web import Finish, authenticated
 
 from .base import BaseHandler
 from .build import Build, ProgressEvent
-from .utils import KUBE_REQUEST_TIMEOUT
+from .quota import LaunchQuotaExceeded
 
 # Separate buckets for builds and launches.
 # Builds and launches have very different characteristic times,
@@ -586,73 +585,29 @@ class BuildHandler(BaseHandler):
         # Load the spec-specific configuration if it has been overridden
         repo_config = provider.repo_config(self.settings)
 
-        # the image name (without tag) is unique per repo
-        # use this to count the number of pods running with a given repo
-        # if we added annotations/labels with the repo name via KubeSpawner
-        # we could do this better
-        image_no_tag = self.image_name.rsplit(":", 1)[0]
-
-        # TODO: put busy users in a queue rather than fail?
-        # That would be hard to do without in-memory state.
-        repo_quota = repo_config.get("quota")
-        pod_quota = self.settings["pod_quota"]
-        if pod_quota is not None or repo_quota:
-            # Fetch info on currently running users *only* if quotas are set
-            matching_pods = 0
-
-            # TODO: run a watch to keep this up to date in the background
-            f = self.settings["executor"].submit(
-                self.settings["kubernetes_client"].list_namespaced_pod,
-                self.settings["build_namespace"],
-                label_selector="app=jupyterhub,component=singleuser-server",
-                _request_timeout=KUBE_REQUEST_TIMEOUT,
-                _preload_content=False,
+        launch_quota = self.settings["launch_quota"]
+        try:
+            quota_check = await launch_quota.check_repo_quota(
+                self.image_name, repo_config, self.repo_url
             )
-            resp = await asyncio.wrap_future(f)
-            pods = json.loads(resp.read())["items"]
-            total_pods = len(pods)
+        except LaunchQuotaExceeded as e:
+            LAUNCH_COUNT.labels(
+                status=e.status,
+                **self.repo_metric_labels,
+            ).inc()
+            await self.fail(e.message)
+            return
 
-            if pod_quota is not None and total_pods >= pod_quota:
-                # check overall quota first
-                LAUNCH_COUNT.labels(
-                    status="pod_quota",
-                    **self.repo_metric_labels,
-                ).inc()
-                app_log.error(f"BinderHub is full: {total_pods}/{pod_quota}")
-                await self.fail("Too many users on this BinderHub! Try again soon.")
-                return
-
-            for pod in pods:
-                for container in pod["spec"]["containers"]:
-                    # is the container running the same image as us?
-                    # if so, count one for the current repo.
-                    image = container["image"].rsplit(":", 1)[0]
-                    if image == image_no_tag:
-                        matching_pods += 1
-                        break
-
-            if repo_quota and matching_pods >= repo_quota:
-                LAUNCH_COUNT.labels(
-                    status="repo_quota",
-                    **self.repo_metric_labels,
-                ).inc()
-                app_log.error(
-                    f"{self.repo_url} has exceeded quota: {matching_pods}/{repo_quota} ({total_pods} total)"
-                )
-                await self.fail(
-                    f"Too many users running {self.repo_url}! Try again soon."
-                )
-                return
-
-            if matching_pods >= 0.5 * repo_quota:
+        if quota_check:
+            if quota_check.matching >= 0.5 * quota_check.quota:
                 log = app_log.warning
             else:
                 log = app_log.info
             log(
-                "Launching pod for %s: %s other pods running this repo (%s total)",
+                "Launching server for %s: %s other servers running this repo (%s total)",
                 self.repo_url,
-                matching_pods,
-                total_pods,
+                quota_check.matching,
+                quota_check.total,
             )
 
         await self.emit(
