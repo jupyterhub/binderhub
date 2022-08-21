@@ -13,7 +13,7 @@ from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
 
-from binderhub.build import Build, KubernetesBuildExecutor, ProgressEvent
+from binderhub.build import KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
 
 from .utils import async_requests
@@ -143,8 +143,8 @@ def test_default_affinity():
 
     mock_k8s_api = _list_image_builder_pods_mock()
 
-    build = Build(
-        mock.MagicMock(),
+    build = KubernetesBuildExecutor(
+        q=mock.MagicMock(),
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
@@ -154,7 +154,7 @@ def test_default_affinity():
         image_name="name",
         push_secret="",
         memory_limit=0,
-        git_credentials=None,
+        git_credentials="",
         docker_host="http://mydockerregistry.local",
         node_selector={},
     )
@@ -171,8 +171,8 @@ def test_sticky_builds_affinity():
     # Setup some mock objects for the response from the k8s API
     mock_k8s_api = _list_image_builder_pods_mock()
 
-    build = Build(
-        mock.MagicMock(),
+    build = KubernetesBuildExecutor(
+        q=mock.MagicMock(),
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
@@ -182,7 +182,7 @@ def test_sticky_builds_affinity():
         image_name="name",
         push_secret="",
         memory_limit=0,
-        git_credentials=None,
+        git_credentials="",
         docker_host="http://mydockerregistry.local",
         node_selector={},
         sticky_builds=True,
@@ -209,8 +209,8 @@ def test_git_credentials_passed_to_podspec_upon_submit():
 
     mock_k8s_api = _list_image_builder_pods_mock()
 
-    build = Build(
-        mock.MagicMock(),
+    build = KubernetesBuildExecutor(
+        q=mock.MagicMock(),
         api=mock_k8s_api,
         name="test_build",
         namespace="build_namespace",
