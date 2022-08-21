@@ -12,6 +12,7 @@ import os
 import socket
 
 from binderhub.build_local import LocalRepo2dockerBuild
+from binderhub.quota import LaunchQuota
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("8.8.8.8", 80))
@@ -24,6 +25,7 @@ c.BinderHub.builder_required = False
 
 c.BinderHub.build_class = LocalRepo2dockerBuild
 c.BinderHub.push_secret = None
+c.BinderHub.launch_quota_class = LaunchQuota
 
 c.BinderHub.about_message = "This is a local dev deployment without Kubernetes"
 c.BinderHub.banner_message = (
