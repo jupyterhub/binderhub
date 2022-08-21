@@ -767,6 +767,27 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
+    _build_config_deprecated_map = {
+        "appendix": ("BuildExecutor", "appendix"),
+        "push_secret": ("BuildExecutor", "push_secret"),
+        "build_memory_limit": ("BuildExecutor", "memory_limit"),
+        "sticky_builds": ("KubernetesBuildExecutor", "sticky_builds"),
+        "log_tail_lines": ("KubernetesBuildExecutor", "log_tail_lines"),
+        "build_memory_request": ("KubernetesBuildExecutor", "memory_request"),
+        "build_docker_host": ("KubernetesBuildExecutor", "docker_host"),
+        "build_namespace": ("KubernetesBuildExecutor", "namespace"),
+        "build_image": ("KubernetesBuildExecutor", "build_image"),
+        "build_node_selector": ("KubernetesBuildExecutor", "node_selector"),
+    }
+
+    @observe(*_build_config_deprecated_map)
+    def _build_config_deprecated(self, change):
+        dest_cls, dest_name = self._build_config_deprecated_map[change.name]
+        self.log.warning(
+            "BinderHub.%s is deprecated, use %s.%s", change.name, dest_cls, dest_name
+        )
+        self.config.get(dest_cls)[dest_name] = change.new
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
