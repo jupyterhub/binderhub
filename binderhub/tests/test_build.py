@@ -100,7 +100,7 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
     """
     Test build a repo that should fail immediately.
     """
-    slug = "gist/manics/cc003c8264db20d22b5fa437770f655e"
+    slug = "gh/binderhub-ci-repos/minimal-dockerfile/failed"
     build_url = f"{app.url}/build/{slug}"
     r = await async_requests.get(build_url, stream=True)
     r.raise_for_status()
