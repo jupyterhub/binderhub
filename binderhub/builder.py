@@ -513,7 +513,7 @@ class BuildHandler(BaseHandler):
                     if progress.payload == ProgressEvent.BuildStatus.PENDING:
                         # nothing to do, just waiting
                         continue
-                    elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
+                    elif progress.payload == ProgressEvent.BuildStatus.BUILT:
                         event = {
                             "phase": phase,
                             "message": "Built image, launching...\n",
@@ -526,7 +526,7 @@ class BuildHandler(BaseHandler):
                             log_future = pool.submit(build.stream_logs)
                             log_future.add_done_callback(_check_result)
                         continue
-                    elif progress.payload == ProgressEvent.BuildStatus.COMPLETED:
+                    elif progress.payload == ProgressEvent.BuildStatus.BUILT:
                         # Do nothing, is ok!
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.FAILED:

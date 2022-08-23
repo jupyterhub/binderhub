@@ -47,7 +47,7 @@ class ProgressEvent:
 
         PENDING = "pending"
         RUNNING = "running"
-        COMPLETED = "built"
+        BUILT = "built"
         FAILED = "failed"
         UNKNOWN = "unknown"
 

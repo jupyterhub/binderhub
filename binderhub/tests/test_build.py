@@ -259,7 +259,7 @@ async def test_local_repo2docker_build():
         event = await q.get(10)
         if (
             event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE
-            and event.payload == ProgressEvent.BuildStatus.COMPLETED
+            and event.payload == ProgressEvent.BuildStatus.BUILT
         ):
             break
         events.append(event)
