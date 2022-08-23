@@ -472,7 +472,7 @@ class KubernetesBuildExecutor(BuildExecutor):
                         if phase == "Succeeded":
                             self.progress(
                                 ProgressEvent.Kind.BUILD_STATUS_CHANGE,
-                                ProgressEvent.BuildStatus.COMPLETED,
+                                ProgressEvent.BuildStatus.BUILT,
                             )
                         else:
                             self.progress(
@@ -713,7 +713,7 @@ class FakeBuild(BuildExecutor):
                 ),
             )
         self.progress(
-            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED
+            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.BUILT
         )
         self.progress(
             "log",
