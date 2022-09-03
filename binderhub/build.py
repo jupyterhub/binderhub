@@ -40,9 +40,6 @@ class ProgressEvent:
         The state the build is now in
 
         Used when `kind` is `Kind.BUILD_STATUS_CHANGE`
-
-        These enum values are referenced in the front-end to display the build status,
-        hence the mismatch between the Enum name (backend) and value (frontend).
         """
 
         PENDING = "pending"
