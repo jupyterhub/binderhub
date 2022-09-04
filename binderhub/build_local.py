@@ -140,7 +140,7 @@ class LocalRepo2dockerBuild(BuildExecutor):
                 self._handle_log(line)
             self.progress(
                 ProgressEvent.Kind.BUILD_STATUS_CHANGE,
-                ProgressEvent.BuildStatus.COMPLETED,
+                ProgressEvent.BuildStatus.BUILT,
             )
         except subprocess.CalledProcessError:
             self.progress(

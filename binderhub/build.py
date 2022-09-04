@@ -42,11 +42,11 @@ class ProgressEvent:
         Used when `kind` is `Kind.BUILD_STATUS_CHANGE`
         """
 
-        PENDING = 1
-        RUNNING = 2
-        COMPLETED = 3
-        FAILED = 4
-        UNKNOWN = 5
+        PENDING = "pending"
+        RUNNING = "running"
+        BUILT = "built"
+        FAILED = "failed"
+        UNKNOWN = "unknown"
 
     def __init__(self, kind: Kind, payload: Union[str, BuildStatus]):
         self.kind = kind
@@ -460,11 +460,22 @@ class KubernetesBuildExecutor(BuildExecutor):
                     _request_timeout=KUBE_REQUEST_TIMEOUT,
                 ):
                     if f["type"] == "DELETED":
-                        # Assume this is a successful completion
-                        self.progress(
-                            ProgressEvent.Kind.BUILD_STATUS_CHANGE,
-                            ProgressEvent.BuildStatus.COMPLETED,
+                        phase = f["object"].status.phase
+                        app_log.debug(
+                            "Pod %s was deleted with phase %s",
+                            f["object"].metadata.name,
+                            phase,
                         )
+                        if phase == "Succeeded":
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.BUILT,
+                            )
+                        else:
+                            self.progress(
+                                ProgressEvent.Kind.BUILD_STATUS_CHANGE,
+                                ProgressEvent.BuildStatus.FAILED,
+                            )
                         return
                     self.pod = f["object"]
                     if not self.stop_event.is_set():
@@ -699,7 +710,7 @@ class FakeBuild(BuildExecutor):
                 ),
             )
         self.progress(
-            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.COMPLETED
+            ProgressEvent.Kind.BUILD_STATUS_CHANGE, ProgressEvent.BuildStatus.BUILT
         )
         self.progress(
             "log",

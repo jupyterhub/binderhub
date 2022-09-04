@@ -94,6 +94,30 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     assert r.url.startswith(final["url"])
 
 
+@pytest.mark.asyncio(timeout=120)
+@pytest.mark.remote
+async def test_build_fail(app, needs_build, needs_launch, always_build, pytestconfig):
+    """
+    Test build a repo that should fail immediately.
+    """
+    slug = "gh/binderhub-ci-repos/minimal-dockerfile/failed"
+    build_url = f"{app.url}/build/{slug}"
+    r = await async_requests.get(build_url, stream=True)
+    r.raise_for_status()
+    failed_events = 0
+    async for line in async_requests.iter_lines(r):
+        line = line.decode("utf8", "replace")
+        if line.startswith("data:"):
+            event = json.loads(line.split(":", 1)[1])
+            assert event.get("phase") not in ("launching", "ready")
+            if event.get("phase") == "failed":
+                failed_events += 1
+                break
+    r.close()
+
+    assert failed_events > 0, "Should have seen phase 'failed'"
+
+
 def _list_dind_pods_mock():
     """Mock list of DIND pods"""
     mock_response = mock.MagicMock()
@@ -235,7 +259,7 @@ async def test_local_repo2docker_build():
         event = await q.get(10)
         if (
             event.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE
-            and event.payload == ProgressEvent.BuildStatus.COMPLETED
+            and event.payload == ProgressEvent.BuildStatus.BUILT
         ):
             break
         events.append(event)
