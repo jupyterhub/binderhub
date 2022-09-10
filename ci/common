@@ -4,7 +4,7 @@
 setup_helm() {
     helm_version="${1}"
     echo "setup helm ${helm_version}"
-    curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | DESIRED_VERSION="${helm_version}" bash
+    curl -sf https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | DESIRED_VERSION="${helm_version}" bash
 }
 
 await_jupyterhub() {
