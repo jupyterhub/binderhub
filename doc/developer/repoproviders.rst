@@ -24,7 +24,7 @@ Currently supported providers, their prefixes and specs are:
     | GitHub     | ``gh``             | ``<user>/<repo>/<commit-sha-or-tag-or-branch>``             | `GitHub <https://github.com/>`_ is a website for hosting and sharing git repositories.                                                    |
     +------------+--------------------+-------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
     | GitLab     | ``gl``             | ``<url-escaped-namespace>/<unresolved_ref>``                | `GitLab <https://about.gitlab.com/>`_ offers hosted as well as self-hosted git repositories.                                              |
-    |            |                    | (e.g. ``group%2Fproject%2Frepo/master``)                    |                                                                                                                                           |
+    |            |                    | (e.g. ``group%2Fproject%2Frepo/main``)                    |                                                                                                                                           |
     +------------+--------------------+-------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
     | Gist       | ``gist``           | ``<github-username>/<gist-id><commit-sha-or-tag>``          | `Gists <https://gist.github.com/>`_ are small collections of files stored on GitHub. They behave like lightweight repositories.           |
     +------------+--------------------+-------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
@@ -47,7 +47,7 @@ a BinderHub deployment to fetch repositories from new locations
 on the web. Doing so involves defining your own RepoProvider sub-class
 and modifying a set of methods/attributes to interface with the online
 provider to which you are providing access. It also often involves
-`building a new repo2docker content provider <https://github.com/jupyter/repo2docker/tree/master/repo2docker/contentproviders>`_.
+`building a new repo2docker content provider <https://github.com/jupyter/repo2docker/tree/HEAD/repo2docker/contentproviders>`_.
 
 In order to extend the supported repository providers,
 follow these instructions. We'll provide example links for each step to a
@@ -56,7 +56,7 @@ that implements the ``DataverseProvider`` class.
 
 #. Review the `repoprovider module <https://github.com/jupyterhub/binderhub/blob/HEAD/binderhub/repoproviders.py>`_.
    This shows a number of example repository providers.
-#. Check whether repo2docker has a `ContentProvider class <https://github.com/jupyter/repo2docker/tree/master/repo2docker/contentproviders>`_
+#. Check whether repo2docker has a `ContentProvider class <https://github.com/jupyter/repo2docker/tree/HEAD/repo2docker/contentproviders>`_
    that will work with your repository provider. If not, then you'll need to create one first.
 #. Create a new class that sub-classes the ``RepoProvider`` class.
    Define your own methods for actions that are repository provider-specific.

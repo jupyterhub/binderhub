@@ -283,7 +283,7 @@ You are assumed to have a modern version of [Python](https://www.python.org/),
 1. Install `helm` - the Kubernetes package manager.
 
    ```bash
-   curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+   curl -sf https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
    ```
 
    Here are the [official installation instructions](https://helm.sh/docs/intro/install/).

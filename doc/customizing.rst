@@ -98,7 +98,7 @@ To do that add the following into your ``config.yaml``::
         args:
           - clone
           - --single-branch
-          - --branch=master
+          - --branch=main
           - --depth=1
           - --
           - <repo_url>

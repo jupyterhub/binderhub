@@ -52,6 +52,6 @@ to build the docker images and rerender the helm chart.
 [kubernetes]: https://kubernetes.io
 [helm]: https://helm.sh/
 [helm repo]: https://github.com/kubernetes/helm
-[chart]: https://github.com/kubernetes/helm/blob/master/docs/charts.md
-[kubernetes introduction to charts]: https://github.com/kubernetes/helm/blob/master/docs/charts.md
+[chart]: https://helm.sh/docs/topics/charts/
+[kubernetes introduction to charts]: https://helm.sh/docs/topics/charts/
 [zero to jupyterhub with kubernetes]: https://zero-to-jupyterhub.readthedocs.io/en/latest/
