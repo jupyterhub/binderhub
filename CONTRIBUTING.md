@@ -368,7 +368,7 @@ it with another version from the [JupyterHub Helm chart
 repository](https://jupyterhub.github.io/helm-chart/).
 
 Use the [JupyterHub Helm chart's
-changelog](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/CHANGELOG.md)
+changelog](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/HEAD/CHANGELOG.md)
 to prepare for breaking changes associated with the version bump.
 
 ### Releasing

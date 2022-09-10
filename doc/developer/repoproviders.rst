@@ -54,7 +54,7 @@ follow these instructions. We'll provide example links for each step to a
 recent `BinderHub pull-request <https://github.com/jupyterhub/binderhub/pull/969>`_
 that implements the ``DataverseProvider`` class.
 
-#. Review the `repoprovider module <https://github.com/jupyterhub/binderhub/blob/master/binderhub/repoproviders.py>`_.
+#. Review the `repoprovider module <https://github.com/jupyterhub/binderhub/blob/HEAD/binderhub/repoproviders.py>`_.
    This shows a number of example repository providers.
 #. Check whether repo2docker has a `ContentProvider class <https://github.com/jupyter/repo2docker/tree/master/repo2docker/contentproviders>`_
    that will work with your repository provider. If not, then you'll need to create one first.
