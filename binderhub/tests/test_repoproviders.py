@@ -367,7 +367,7 @@ class TestSpecErrorHandling(TestCase):
 
     def test_spec_with_suggestion(self):
         spec = "short/suggestion"
-        error = f'Did you mean "{spec}/master"?'
+        error = f'Did you mean "{spec}/main"?'
         with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
