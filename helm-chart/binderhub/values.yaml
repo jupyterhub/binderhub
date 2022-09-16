@@ -257,6 +257,21 @@ dind:
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
 
+# Podman in Kubernetes
+pink:
+  enabled: false
+  initContainers: []
+  daemonset:
+    image:
+      name: quay.io/podman/stable
+      tag: v4.2.0
+    lifecycle: {}
+    extraVolumes: []
+    extraVolumeMounts: []
+  resources: {}
+  hostStorageDir: /var/lib/pink/storage
+  hostSocketDir: /var/run/pink
+
 imageCleaner:
   enabled: true
   image:

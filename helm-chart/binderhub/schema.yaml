@@ -28,6 +28,7 @@ required:
   - jupyterhub
   - deployment
   - dind
+  - pink
   - imageCleaner
   - ingress
   - initContainers
@@ -408,6 +409,33 @@ properties:
         type: string
         description: |
           TODO
+
+  pink:
+    type: object
+    additionalProperties: false
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          Whether a pod acting as remote podman service will be spun.
+      initContainers: *initContainers-spec
+      daemonset:
+        type: object
+        additionalProperties: false
+        properties:
+          image: *image-spec
+          lifecycle: *lifecycle-spec
+          extraVolumes: *extraVolumes-spec
+          extraVolumeMounts: *extraVolumeMounts-spec
+      resources: *resources-spec
+      hostStorageDir:
+        type: string
+        description: |
+          Host path where the containers storage will be located
+      hostSocketDir:
+        type: string
+        description: |
+          Host path where the podman socket will be located
 
   imageCleaner:
     type: object
