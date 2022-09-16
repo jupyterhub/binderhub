@@ -75,7 +75,7 @@ kubernetes==9.0.1
     # via
     #   -r ../../../requirements.txt
     #   -r requirements.in
-mako==1.2.0
+mako==1.2.2
     # via alembic
 markupsafe==2.1.1
     # via
