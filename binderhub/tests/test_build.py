@@ -239,6 +239,48 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     assert env["GIT_CREDENTIAL_ENV"] == git_credentials
 
 
+def test_extra_environment_variables_passed_to_podspec_upon_submit():
+    extra_environments = {
+        "CONTAINER_HOST": "unix:///var/run/docker.sock",
+        "REGISTRY_AUTH_FILE": "/root/.docker/config.json",
+    }
+
+    mock_k8s_api = _list_dind_pods_mock()
+
+    class EnvBuild(Build):
+        extra_envs = extra_environments
+
+    build = EnvBuild(
+        mock.MagicMock(),
+        api=mock_k8s_api,
+        name="test_build",
+        namespace="build_namespace",
+        repo_url="repo",
+        ref="ref",
+        build_image="image",
+        image_name="name",
+        push_secret="",
+        memory_limit=0,
+        docker_host="http://mydockerregistry.local",
+        node_selector={},
+    )
+
+    with mock.patch.object(build.stop_event, "is_set", return_value=True):
+        build.submit()
+
+    call_args_list = mock_k8s_api.create_namespaced_pod.call_args_list
+    assert len(call_args_list) == 1
+
+    args = call_args_list[0][0]
+    pod = args[1]
+
+    assert len(pod.spec.containers) == 1
+
+    env = {env_var.name: env_var.value for env_var in pod.spec.containers[0].env}
+
+    assert env == extra_environments
+
+
 async def test_local_repo2docker_build():
     q = Queue()
     repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"
