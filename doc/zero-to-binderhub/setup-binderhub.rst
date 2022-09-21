@@ -355,7 +355,7 @@ You now have a functioning BinderHub at the above IP address.
 Customizing your Deployment
 ---------------------------
 
-The Helm chart used to install your BinderHub deployemnt exposes a number of
+The Helm chart used to install your BinderHub deployment exposes a number of
 optional features. Below we describe a few of the most common customizations
 and how you can configure them.
 
@@ -431,7 +431,7 @@ time at `the token administration page <https://github.com/settings/tokens>`_.
 GitLab
 ^^^^^^
 
-To access private GitLab repos, create an API token for your binderhub user
+To access private GitLab repos, create an API token for your BinderHub user
 under "User Settings" > "Access tokens". It at least needs the scopes "api" and
 "read_repository".
 
@@ -452,7 +452,7 @@ clone a repo.
 Use Docker-inside-Docker (DinD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default, BinderHub will build pods with the host Docker installation.
+By default, BinderHub will build images with the host Docker installation.
 This often means you are stuck with whatever version of Docker provided by your
 cloud provider. BinderHub supports an alternative that uses `Docker-in-Docker
 (DinD) <https://hub.docker.com/_/docker>`_. To turn `dind` on, you'll need to set
@@ -465,7 +465,7 @@ the following configuration in your ``config.yaml`` file::
           name: docker
           tag: 18.09.2-dind
 
-If you plan to host multiple BinderHub deployments on the same kubernetes
+If you plan to host multiple BinderHub deployments on the same Kubernetes
 cluster, you'll also need to isolate the host socket and library directory
 for each DinD application::
 
