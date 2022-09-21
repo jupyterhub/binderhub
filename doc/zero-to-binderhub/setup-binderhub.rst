@@ -474,4 +474,29 @@ for each DinD application::
       hostSocketDir: /var/run/dind/"<name of deployment, e.g. staging>"
 
 
+Use Podman-inside-Kubernetes (PinK)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In case Docker is not an option, Podman can be used as drop in replacement.
+Note that the implications about using a host installation of Podman are the same
+as with Docker. BinderHub supports an alternative that uses `Podman-in-Kubernetes
+(PinK) <https://www.redhat.com/sysadmin/podman-inside-kubernetes>`_. To turn
+`pink` on, you'll need to set the following configuration in your ``config.yaml`` file::
+
+    pink:
+      enabled: true
+      daemonset:
+        image:
+          name: quay.io/podman/stable
+          tag: v4.2.0
+
+If you plan to host multiple BinderHub deployments on the same Kubernetes
+cluster, you'll also need to isolate the host socket and library directory
+for each DinD application::
+
+    pink:
+      hostStorageDir: /var/lib/pink/"<name of deployment, e.g. staging>"
+      hostSocketDir: /var/run/pink/"<name of deployment, e.g. staging>"
+
+
 For next steps, see :doc:`../debug` and :doc:`turn-off`.
