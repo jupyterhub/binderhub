@@ -6,6 +6,7 @@ import ipaddress
 import json
 import logging
 import os
+import random
 import re
 import secrets
 from binascii import a2b_hex
@@ -627,6 +628,41 @@ class BinderHub(Application):
         """,
     )
 
+    federation_id = Unicode(
+        config=True,
+        help="""
+        My id in the federation.
+
+        Used to exclude myself when checking federation members,
+        so all federation members can share the same federation config.
+        """,
+    )
+    federation_members = Dict(
+        key_trait=Unicode(),
+        value_trait=Unicode(),
+        config=True,
+        help="""
+        Dict of "federation-id": "url" for federation members.
+
+        Used for federation-wide application of quotas.
+        """,
+    )
+    federation_check_seconds = Integer(
+        180,
+        config=True,
+        help="""
+        Interval (in seconds) on which to check the health of other federtion members.
+        """,
+    )
+    federation_status = Dict(
+        key_trait=Unicode(),
+        value_trait=Dict(),
+        help="""status dict of federation members
+
+        Includes current counts of repos
+        """
+    )
+
     ban_networks = Dict(
         config=True,
         help="""
@@ -839,6 +875,7 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
+                "federation_status": self.federation_status,
             }
         )
         if self.auth_enabled:
@@ -928,6 +965,56 @@ class BinderHub(Application):
         self.http_server.stop()
         self.build_pool.shutdown()
 
+    def watch_federation(self):
+        """Watch federation members for their health, repo counts"""
+        if not self.federation_members:
+            # nothing to do
+            return
+        if not self.federation_id:
+            self.log.warning(
+                "BinderHub.federation_id not set, I don't know who I am in the federation!"
+            )
+
+        for federation_id, url in self.federation_members.items():
+            if federation_id != self.federation_id:
+                health_url = url_path_join(url, "health")
+                self.log.info(
+                    f"Watching federation member {federation_id} at {health_url}"
+                )
+                asyncio.ensure_future(
+                    self.watch_federation_member(federation_id, health_url)
+                )
+
+    async def watch_federation_member(self, federation_id, health_url):
+        """Long-running coroutine for checking health of one federation member"""
+        while True:
+            repo_counts = {}
+            try:
+                self.log.debug(
+                    f"Checking federation member {federation_id} at {health_url}"
+                )
+                response = await AsyncHTTPClient().fetch(health_url)
+                status = json.loads(response.body)
+                for check in status["checks"]:
+                    if check.get("service") == "Pod quota":
+                        print(check)
+                        total = check["total_pods"]
+                        quota  = check["quota"]
+                        self.log.debug(f"Federation member {federation_id} running {total}/{quota} pods")
+                        repo_counts = check.get("repo_counts", {})
+                        break
+                else:
+                    self.log.warning(f"No Pod quota check for {federation_id}: {status}")
+            except Exception as e:
+                self.log.error(f"Error checking federation member {federation_id}: {e}")
+
+            self.federation_status[federation_id] = {
+                "repo_counts": repo_counts,
+            }
+            # add some jitter, +/- 10%
+            t = self.federation_check_seconds * (0.9 + 0.2 * random.random())
+            await asyncio.sleep(t)
+
     async def watch_build_pods(self):
         """Watch build pods
 
@@ -959,6 +1046,9 @@ class BinderHub(Application):
         self.http_server.listen(self.port)
         if self.builder_required:
             asyncio.ensure_future(self.watch_build_pods())
+        if self.federation_members:
+            self.watch_federation()
+
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 

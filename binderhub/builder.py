@@ -628,13 +628,11 @@ class BuildHandler(BaseHandler):
                 return
 
             for pod in pods:
-                for container in pod["spec"]["containers"]:
-                    # is the container running the same image as us?
-                    # if so, count one for the current repo.
-                    image = container["image"].rsplit(":", 1)[0]
-                    if image == image_no_tag:
-                        matching_pods += 1
-                        break
+                if pod["metadata"]["annotations"].get("binder.hub.jupyter.org/repo_url") == self.repo_url:
+                    matching_pods += 1
+            for federation_id, fed_info in self.settings["federation_status"].items():
+                repo_counts = fed_info.get("repo_counts", {})
+                matching_pods += repo_counts.get(self.repo_url, 0)
 
             if repo_quota and matching_pods >= repo_quota:
                 LAUNCH_COUNT.labels(
