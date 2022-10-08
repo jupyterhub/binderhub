@@ -143,6 +143,8 @@ jobs:
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
+          export DOCKER_BUILDKIT=1
+
           # Use chartpress to create the helm chart and build its images
           helm dependency update ./helm-chart/binderhub
           (cd helm-chart && chartpress)
