@@ -87,3 +87,35 @@ jobs:
           body: >-
             A new ${{ matrix.repository }} image version has been detected, version
             `${{ steps.latest.outputs.tag }}`.
+
+  refreeze-dockerfile-requirements-txt:
+    # Don't run this job on forks, but also not on the daily schedule to reduce
+    # noise. If we could run this weekly that would be reasonable, but updating
+    # these dependencies every day is too much noise.
+    #
+    if: github.repository == 'jupyterhub/binderhub' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Refreeze helm-chart/images/binderhub/requirements.txt based on requirements.in
+        run: ci/refreeze
+
+      - name: git diff
+        run: git --no-pager diff --color=always
+
+      # ref: https://github.com/peter-evans/create-pull-request
+      - name: Create a PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: "${{ secrets.jupyterhub_bot_pat }}"
+          author: JupyterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          committer: JupyterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          branch: update-image-requirements
+          labels: dependencies
+          commit-message: "binderhub image: refreeze requirements.txt"
+          title: "binderhub image: refreeze requirements.txt"
+          body: >-
+            The binderhub image's requirements.txt has been refrozen based on
+            requirements.in.
