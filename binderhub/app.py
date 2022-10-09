@@ -50,6 +50,7 @@ from .launcher import Launcher
 from .log import log_request
 from .main import LegacyRedirectHandler, MainHandler, ParameterizedMainHandler
 from .metrics import MetricsHandler
+from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
 from .registry import DockerRegistry
 from .repoproviders import (
@@ -304,6 +305,8 @@ class BinderHub(Application):
     pod_quota = Integer(
         None,
         help="""
+        DEPRECATED: Use c.LaunchQuota.total_quota
+
         The number of concurrent pods this hub has been designed to support.
 
         This quota is used as an indication for how much above or below the
@@ -319,6 +322,13 @@ class BinderHub(Application):
         config=True,
     )
 
+    @observe("pod_quota")
+    def _pod_quota_deprecated(self, change):
+        self.log.warning(
+            "BinderHub.pod_quota is deprecated, use LaunchQuota.total_quota"
+        )
+        self.config.LaunchQuota.total_quota = change.new
+
     per_repo_quota_higher = Integer(
         0,
         help="""
@@ -329,6 +339,17 @@ class BinderHub(Application):
         `high_quota_specs` parameter of RepoProvider classes for usage.
 
         0 (default) means no quotas.
+        """,
+        config=True,
+    )
+
+    launch_quota_class = Type(
+        LaunchQuota,
+        default=KubernetesLaunchQuota,
+        help="""
+        The class used to check quotas for launched servers.
+
+        Must inherit from binderhub.quota.LaunchQuota
         """,
         config=True,
     )
@@ -791,6 +812,8 @@ class BinderHub(Application):
             with open(schema_file) as f:
                 self.event_log.register_schema(json.load(f))
 
+        launch_quota = self.launch_quota_class(parent=self, executor=self.executor)
+
         self.tornado_settings.update(
             {
                 "log_function": log_request,
@@ -814,6 +837,7 @@ class BinderHub(Application):
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,
                 "repo_providers": self.repo_providers,
+                "launch_quota": launch_quota,
                 "rate_limiter": RateLimiter(parent=self),
                 "use_registry": self.use_registry,
                 "build_class": self.build_class,
