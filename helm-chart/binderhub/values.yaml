@@ -56,8 +56,6 @@ jupyterhub:
   cull:
     enabled: true
     users: true
-  rbac:
-    enabled: true
   hub:
     config:
       JupyterHub:
@@ -189,7 +187,7 @@ jupyterhub:
     services:
       binder:
         admin: true
-        apiToken:
+        display: false
   singleuser:
     # start notebook server with lab ui as default
     # *if available*
