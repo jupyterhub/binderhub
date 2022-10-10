@@ -14,7 +14,7 @@ spec:
       labels:
         name: {{ .Release.Name }}-dind
         app: binder
-        component: dind
+        component: image-builder
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
