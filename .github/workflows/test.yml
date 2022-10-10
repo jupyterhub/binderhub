@@ -43,7 +43,7 @@ jobs:
   # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
     runs-on: ubuntu-20.04
-    timeout-minutes: 10
+    timeout-minutes: 5
     strategy:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
@@ -273,6 +273,10 @@ jobs:
         if: always()
         with:
           important-workloads: deploy/binder deploy/hub deploy/proxy
+
+      - name: debug
+        run: |
+          kubectl get pod -l component=singleuser-server -o yaml
 
       # GitHub action reference: https://github.com/codecov/codecov-action
       - name: Upload coverage stats
