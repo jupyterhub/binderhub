@@ -25,4 +25,4 @@ c.HubOAuth.api_url = c.BinderHub.hub_url + "/hub/api/"
 c.HubOAuth.base_url = c.BinderHub.base_url
 c.HubOAuth.hub_prefix = c.BinderHub.base_url + "hub/"
 c.HubOAuth.oauth_redirect_uri = "http://127.0.0.1:8585/oauth_callback"
-c.HubOAuth.oauth_client_id = "binder-oauth-client-test"
+c.HubOAuth.oauth_client_id = "service-binder"
