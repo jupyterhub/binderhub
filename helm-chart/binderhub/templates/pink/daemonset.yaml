@@ -74,11 +74,11 @@ spec:
       - name: podman-containers
         hostPath:
           path: {{ .Values.pink.hostStorageDir }}
-          type: Directory
+          type: DirectoryOrCreate
       - name: podman-socket
         hostPath:
           path: {{ .Values.pink.hostSocketDir }}
-          type: Directory
+          type: DirectoryOrCreate
 
       {{- with .Values.pink.daemonset.extraVolumes }}
       {{- . | toYaml | nindent 6 }}
