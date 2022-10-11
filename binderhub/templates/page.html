@@ -2,8 +2,9 @@
 <html lang="en"> 
   <!-- adding language description for accessibility  -->
 <head>
+  <meta charset="utf-8">
   <title>{% block title %}Binder{% endblock %}</title>
-  {% block meta_social %}
+  </head>{% block meta_social %}
   {# Social media previews #}
   <meta property="og:title" content="The Binder Project">
   <meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
@@ -31,7 +32,7 @@
   <div class="container">
     <div class="row">
       <div id="logo-container">
-        <img id="logo" src={% block logo_image %}"{{static_url("logo.svg")}}"{% endblock logo_image %} width="390px"  />
+        <img id="logo" src={% block logo_image %}"{{static_url("logo.svg")}}"{% endblock logo_image %} width="390px" alt="BinderHub's logo" />
       </div>
     </div>
   </div>
