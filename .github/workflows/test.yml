@@ -43,7 +43,7 @@ jobs:
   # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
     runs-on: ubuntu-20.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
