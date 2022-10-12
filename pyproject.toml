@@ -12,3 +12,10 @@ requires = [
   "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+timeout = "60"
+addopts = [
+  "--durations=10"
+]
