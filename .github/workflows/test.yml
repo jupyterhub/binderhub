@@ -50,7 +50,7 @@ jobs:
       matrix:
         k3s-channel:
           # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
-          - latest
+          - v1.24
         test:
           - main
           - auth
@@ -64,7 +64,7 @@ jobs:
           - k3s-channel: v1.20
             helm-version: v3.5.0
             test: helm
-          - k3s-channel: latest
+          - k3s-channel: v1.24
             test: helm
             test-variation: upgrade
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
