@@ -26,9 +26,4 @@ c.HubOAuth.base_url = c.BinderHub.base_url
 c.HubOAuth.hub_prefix = c.BinderHub.base_url + "hub/"
 c.HubOAuth.oauth_redirect_uri = "http://127.0.0.1:8585/oauth_callback"
 c.HubOAuth.oauth_client_id = "service-binder"
-# We declare this environment variable, as it is used to set
-# c.HubAuth.access_scopes's default value of relevance.
-#
-# ref: https://github.com/jupyterhub/jupyterhub/blob/5997614f452a3cfebfa541800012a914d37f3ec8/jupyterhub/services/auth.py#L358-L378
-#
-os.environ["JUPYTERHUB_SERVICE_NAME"] = "binder"
+c.HubOAuth.access_scopes = {"access:services!service=binder"}

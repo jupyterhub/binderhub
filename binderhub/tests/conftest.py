@@ -207,7 +207,6 @@ class RemoteBinderHub:
 
 
 @pytest.fixture
-@mock.patch.dict(os.environ, {"JUPYTERHUB_SERVICE_NAME": "binder"})
 def app(request, io_loop, _binderhub_config):
     """Launch the BinderHub app
 
