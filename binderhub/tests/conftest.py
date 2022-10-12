@@ -247,6 +247,7 @@ def app(request, io_loop, _binderhub_config):
         cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
         _binderhub_config.merge(cfg)
     bhub = BinderHub.instance(config=_binderhub_config)
+    os.environ["JUPYTERHUB_SERVICE_NAME"] = "binder"
     bhub.initialize([])
     bhub.start(run_loop=False)
     # instantiating binderhub configures this
