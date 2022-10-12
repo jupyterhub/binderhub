@@ -11,5 +11,6 @@ pycurl
 pytest
 pytest-asyncio
 pytest-cov
+pytest-timeout
 requests
 ruamel.yaml>=0.15
