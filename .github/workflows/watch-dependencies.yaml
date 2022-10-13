@@ -1,0 +1,121 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
+# - Watch multiple images tags referenced in values.yaml to match the latest
+#   stable image tag (ignoring pre-releases).
+#
+name: Watch dependencies
+
+on:
+  push:
+    paths:
+      - ".github/workflows/watch-dependencies.yaml"
+  schedule:
+    # Run at 05:00 every day, ref: https://crontab.guru/#0_5_*_*_*
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-image-dependencies:
+    # Don't run this job on forks
+    if: github.repository == 'jupyterhub/binderhub'
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: docker
+            registry: registry.hub.docker.com
+            repository: library/docker
+            values_path: dind.daemonset.image.tag
+
+          # FIXME: After docker-image-cleaner 1.0.0 is released, we can enable
+          #        this. So far, there isn't any available stable release, and
+          #        due to that our regexp fails to match anything at all.
+          #
+          # - name: docker-image-cleaner
+          #   registry: quay.io
+          #   repository: jupyterhub/docker-image-cleaner
+          #   values_path: imageCleaner.image.tag
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get values.yaml pinned tag of ${{ matrix.registry }}/${{ matrix.repository }}
+        id: local
+        run: |
+          local_tag=$(cat helm-chart/binderhub/values.yaml | yq e '.${{ matrix.values_path }}' -)
+          echo "::set-output name=tag::$local_tag"
+
+      - name: Get latest tag of ${{ matrix.registry }}/${{ matrix.repository }}
+        id: latest
+        # The skopeo image helps us list tags consistently from different docker
+        # registries. We use jq to filter out tags of the x.y or x.y.z format
+        # with the optional v prefix or version_startswith filter, and then sort
+        # based on the numerical x, y, and z values. Finally, we pick the last
+        # value in the list.
+        #
+        run: |
+          latest_tag=$(
+              docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
+            | jq -r '[.Tags[] | select(. | match("^\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(tonumber)) | last'
+          )
+          echo "::set-output name=tag::$latest_tag"
+
+      - name: Update values.yaml pinned tag
+        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        run: |
+          sed --in-place 's/tag: "${{ steps.local.outputs.tag }}"/tag: "${{ steps.latest.outputs.tag }}"/g' helm-chart/binderhub/values.yaml
+
+      - name: git diff
+        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        run: git --no-pager diff --color=always
+
+      # ref: https://github.com/peter-evans/create-pull-request
+      - name: Create a PR
+        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        uses: peter-evans/create-pull-request@v4.1.3
+        with:
+          token: "${{ secrets.jupyterhub_bot_pat }}"
+          author: JupterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          committer: JupterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          branch: update-image-${{ matrix.name }}
+          labels: maintenance,dependencies
+          commit-message: Update ${{ matrix.repository }} version from ${{ steps.local.outputs.tag }} to ${{ steps.latest.outputs.tag }}
+          title: Update ${{ matrix.repository }} version from ${{ steps.local.outputs.tag }} to ${{ steps.latest.outputs.tag }}
+          body: >-
+            A new ${{ matrix.repository }} image version has been detected, version
+            `${{ steps.latest.outputs.tag }}`.
+
+  refreeze-dockerfile-requirements-txt:
+    # Don't run this job on forks, but also not on the daily schedule to reduce
+    # noise. If we could run this weekly that would be reasonable, but updating
+    # these dependencies every day is too much noise.
+    #
+    if: github.repository == 'jupyterhub/binderhub' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Refreeze helm-chart/images/binderhub/requirements.txt based on requirements.in
+        run: ci/refreeze
+
+      - name: git diff
+        run: git --no-pager diff --color=always
+
+      # ref: https://github.com/peter-evans/create-pull-request
+      - name: Create a PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: "${{ secrets.jupyterhub_bot_pat }}"
+          author: JupyterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          committer: JupyterHub Bot Account <105740858+jupyterhub-bot@users.noreply.github.com>
+          branch: update-image-requirements
+          labels: dependencies
+          commit-message: "binderhub image: refreeze requirements.txt"
+          title: "binderhub image: refreeze requirements.txt"
+          body: >-
+            The binderhub image's requirements.txt has been refrozen based on
+            requirements.in.
