@@ -13,3 +13,8 @@ hub:
       password: "dummy"
     BinderSpawner:
       auth_enabled: true
+  loadRoles:
+    users:
+      scopes:
+        - self
+        - "access:services"
