@@ -14,7 +14,7 @@ hub:
     BinderSpawner:
       auth_enabled: true
   loadRoles:
-    users:
+    user:
       scopes:
         - self
         - "access:services"
