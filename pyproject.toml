@@ -1,0 +1,21 @@
+[tool.black]
+# target-version should be all supported versions
+target-version = ['py37', 'py38', 'py39', 'py310']
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = [
+  "jupyter-packaging >= 0.10",
+  "setuptools >= 40.9.0",
+  "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+timeout = "60"
+addopts = [
+  "--durations=10"
+]

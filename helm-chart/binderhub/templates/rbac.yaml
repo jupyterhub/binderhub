@@ -1,0 +1,91 @@
+{{- if .Values.rbac.enabled -}}
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: binderhub
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: binderhub
+subjects:
+- kind: ServiceAccount
+  namespace: {{ .Release.Namespace }}
+  name: binderhub
+roleRef:
+  kind: Role
+  name: binderhub
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: binderhub
+{{- if .Values.imageCleaner.enabled }}
+---
+# image-cleaner role
+# needs to cordon nodes during image cleaning
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["nodes"]
+  verbs: ["get", "patch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
+subjects:
+- kind: ServiceAccount
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-image-cleaner
+roleRef:
+  kind: ClusterRole
+  name: {{ .Release.Name }}-image-cleaner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: binderhub
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ .Release.Name }}-image-cleaner
+{{- end }}
+{{- end }}

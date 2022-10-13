@@ -1,0 +1,154 @@
+pdb:
+  enabled: true
+  maxUnavailable: 1
+  minAvailable: null
+
+replicas: 1
+
+resources: &resources
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 200m
+    memory: 1Gi
+
+rbac:
+  enabled: true
+
+nodeSelector: &nodeSelector
+  node-type: mock
+
+image: &image
+  name: dummy-name
+  tag: dummy-tag
+  pullPolicy: Always
+  pullSecrets: [c]
+
+registry:
+  url: mock-url
+  username: mock-username
+  password: mock-password
+
+service:
+  type: ClusterIP
+  labels: &labels
+    mock-label1-key: mock-label1-value
+    mock-label2-key: mock-label2-value
+  annotations: &annotations
+    mock-annotation1-key: mock-annotation1-value
+    mock-annotation2-key: mock-annotation2-value
+  nodePort: 1234
+  loadBalancerIP: 123.123.123.123
+
+config:
+  BinderHub:
+    some_dummy_config: true
+
+extraConfig:
+  binder-test-config: |-
+    dummy binderhub python code ...
+
+jupyterhub:
+  cull:
+    enabled: true
+    users: true
+  rbac:
+    enabled: true
+  hub:
+    config:
+      JupyterHub:
+        authenticator_class: nullauthenticator.NullAuthenticator
+    extraConfig:
+      hub-test-config: |
+        dummy jupyterhub python code...
+    services:
+      binder:
+        admin: true
+  singleuser:
+    cmd: jupyter-notebook
+    events: false
+    storage:
+      type: none
+    memory:
+      guarantee:
+  prePuller:
+    hook:
+      enabled: false
+    continuous:
+      enabled: false
+
+deployment:
+  readinessProbe: &probe
+    enabled: true
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    failureThreshold: 1000
+    timeoutSeconds: 3
+  livenessProbe: *probe
+  labels: *labels
+
+dind:
+  enabled: true
+  initContainers: &initContainers
+    - name: mock-init-container-name
+      image: mock-init-container-image
+  daemonset:
+    image: *image
+    extraArgs: []
+    lifecycle: &lifecycle
+      postStart:
+        exec:
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "echo Hello from the postStart handler >> /usr/share/message"
+    extraVolumes: []
+    extraVolumeMounts: []
+  storageDriver: overlay2
+  resources: *resources
+  hostSocketDir: /var/run/dind
+  hostLibDir: /var/lib/dind
+
+imageCleaner:
+  enabled: true
+  image: *image
+  delay: 5
+  imageGCThresholdType: "relative"
+  imageGCThresholdHigh: 2
+  imageGCThresholdLow: 1
+  host:
+    enabled: true
+    dockerSocket: /var/run/docker.sock
+    dockerLibDir: /var/lib/docker
+
+ingress:
+  enabled: true
+  https:
+    enabled: false
+    type: kube-lego
+  hosts: [domain.com]
+  annotations: *annotations
+  ingressClassName: mock-ingress-class-name
+  pathSuffix: dummy-pathSuffix
+  pathType: ImplementationSpecific
+  tls:
+    - secretName: binderhub-tls
+      hosts:
+        - mocked1.domain.name
+        - mocked2.domain.name
+
+initContainers: *initContainers
+lifecycle: *lifecycle
+extraVolumes: []
+extraVolumeMounts: []
+extraEnv: &extraEnv
+  IGNORED_KEY_NAME:
+    name: MOCK_ENV_VAR_NAME1
+    value: MOCK_ENV_VAR_VALUE1
+  MOCK_ENV_VAR_NAME2:
+    value: MOCK_ENV_VAR_VALUE2
+podAnnotations: *annotations
+
+global:
+  dummyConfigKey: "test"

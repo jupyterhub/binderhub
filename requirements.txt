@@ -1,0 +1,18 @@
+# About pycurl:
+# - pycurl is an optional dependency which improves performance
+# - pycurl requires both `curl-config` and `gcc` to be available when installing
+#   it from source.
+# - the reason we do not list pycurl here is that it is not needed when our
+#   code is imported to generate the documentation and it is tricky to install
+#   in the ReadTheDocs build environment.
+docker
+escapism
+jinja2
+jsonschema
+jupyterhub
+kubernetes
+prometheus_client
+pyjwt>=2
+python-json-logger
+tornado>=5.1
+traitlets

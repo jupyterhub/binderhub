@@ -1,0 +1,29 @@
+{{- if .Values.pdb.enabled -}}
+{{- if .Capabilities.APIVersions.Has "policy/v1/PodDisruptionBudget" }}
+apiVersion: policy/v1
+{{- else }}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: binderhub
+  labels:
+    app: binder
+    name: binder
+    component: binder
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  {{- if not (.Values.pdb.maxUnavailable | typeIs "<nil>") }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
+  {{- end }}
+  {{- if not (.Values.pdb.minAvailable | typeIs "<nil>") }}
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: binder
+      name: binder
+      component: binder
+      release: {{ .Release.Name }}
+{{- end }}

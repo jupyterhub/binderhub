@@ -1,0 +1,34 @@
+# Lints the binderhub/static/js folders content with eslint, influenced by
+# ".eslintrc.js", by running "npm run lint" where "lint" is a command defined in
+# package.json.
+#
+name: eslint
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/eslint.yml"
+      - ".eslintrc.js"
+      - "package.json"
+      - "binderhub/static/js/**"
+  push:
+    paths:
+      - ".github/workflows/eslint.yml"
+      - ".eslintrc.js"
+      - "package.json"
+      - "binderhub/static/js/**"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+      - "update-*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: npm install
+
+      - run: npm run lint

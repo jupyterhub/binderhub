@@ -1,0 +1,311 @@
+pdb:
+  enabled: true
+  maxUnavailable: 1
+  minAvailable:
+
+replicas: 1
+
+resources:
+  requests:
+    cpu: 0.2
+    memory: 512Mi
+
+rbac:
+  enabled: true
+
+nodeSelector: {}
+
+image:
+  name: jupyterhub/k8s-binderhub
+  tag: "local"
+
+# registry here is only used to create docker config.json
+registry:
+  # key in 'auths' in docker config.json,
+  # ~always the registry url
+  url:
+  # registry username+password
+  username:
+  password:
+
+service:
+  type: LoadBalancer
+  labels: {}
+  annotations:
+    prometheus.io/scrape: "true"
+  nodePort:
+  loadBalancerIP:
+
+config:
+  BinderHub: {}
+
+extraConfig: {}
+
+extraFiles: {}
+
+# Two bits of config need to be set to fully enable cors.
+# config.BinderHub.cors_allow_origin controls the allowed origins for the
+# binderhub api, and jupyterhub.hub.config.BinderSpawner.cors_allow_origin
+# controls the allowed origins for the spawned user notebooks. You most
+# likely want to set both of those to the same value.
+
+jupyterhub:
+  # Deprecated values, kept here so we can provide useful error messages
+  custom:
+    cors: {}
+  cull:
+    enabled: true
+    users: true
+  rbac:
+    enabled: true
+  hub:
+    config:
+      JupyterHub:
+        authenticator_class: nullauthenticator.NullAuthenticator
+      BinderSpawner:
+        auth_enabled: false
+    extraConfig:
+      0-binderspawnermixin: |
+        """
+        Helpers for creating BinderSpawners
+
+        FIXME:
+        This file is defined in binderhub/binderspawner_mixin.py
+        and is copied to helm-chart/binderhub/values.yaml
+        by ci/check_embedded_chart_code.py
+
+        The BinderHub repo is just used as the distribution mechanism for this spawner,
+        BinderHub itself doesn't require this code.
+
+        Longer term options include:
+        - Move BinderSpawnerMixin to a separate Python package and include it in the Z2JH Hub
+          image
+        - Override the Z2JH hub with a custom image built in this repository
+        - Duplicate the code here and in binderhub/binderspawner_mixin.py
+        """
+        from tornado import web
+        from traitlets import Bool, Unicode
+        from traitlets.config import Configurable
+
+
+        class BinderSpawnerMixin(Configurable):
+            """
+            Mixin to convert a JupyterHub container spawner to a BinderHub spawner
+
+            Container spawner must support the following properties that will be set
+            via spawn options:
+            - image: Container image to launch
+            - token: JupyterHub API token
+            """
+
+            def __init__(self, *args, **kwargs):
+                # Is this right? Is it possible to having multiple inheritance with both
+                # classes using traitlets?
+                # https://stackoverflow.com/questions/9575409/calling-parent-class-init-with-multiple-inheritance-whats-the-right-way
+                # https://github.com/ipython/traitlets/pull/175
+                super().__init__(*args, **kwargs)
+
+            auth_enabled = Bool(
+                False,
+                help="""
+                Enable authenticated binderhub setup.
+
+                Requires `jupyterhub-singleuser` to be available inside the repositories
+                being built.
+                """,
+                config=True,
+            )
+
+            cors_allow_origin = Unicode(
+                "",
+                help="""
+                Origins that can access the spawned notebooks.
+
+                Sets the Access-Control-Allow-Origin header in the spawned
+                notebooks. Set to '*' to allow any origin to access spawned
+                notebook servers.
+
+                See also BinderHub.cors_allow_origin in binderhub config
+                for controlling CORS policy for the BinderHub API endpoint.
+                """,
+                config=True,
+            )
+
+            def get_args(self):
+                if self.auth_enabled:
+                    args = super().get_args()
+                else:
+                    args = [
+                        "--ip=0.0.0.0",
+                        f"--port={self.port}",
+                        f"--NotebookApp.base_url={self.server.base_url}",
+                        f"--NotebookApp.token={self.user_options['token']}",
+                        "--NotebookApp.trust_xheaders=True",
+                    ]
+                    if self.default_url:
+                        args.append(f"--NotebookApp.default_url={self.default_url}")
+
+                    if self.cors_allow_origin:
+                        args.append("--NotebookApp.allow_origin=" + self.cors_allow_origin)
+                    # allow_origin=* doesn't properly allow cross-origin requests to single files
+                    # see https://github.com/jupyter/notebook/pull/5898
+                    if self.cors_allow_origin == "*":
+                        args.append("--NotebookApp.allow_origin_pat=.*")
+                    args += self.args
+                return args
+
+            def start(self):
+                if not self.auth_enabled:
+                    if "token" not in self.user_options:
+                        raise web.HTTPError(400, "token required")
+                    if "image" not in self.user_options:
+                        raise web.HTTPError(400, "image required")
+                if "image" in self.user_options:
+                    self.image = self.user_options["image"]
+                return super().start()
+
+            def get_env(self):
+                env = super().get_env()
+                if "repo_url" in self.user_options:
+                    env["BINDER_REPO_URL"] = self.user_options["repo_url"]
+                for key in (
+                    "binder_ref_url",
+                    "binder_launch_host",
+                    "binder_persistent_request",
+                    "binder_request",
+                ):
+                    if key in self.user_options:
+                        env[key.upper()] = self.user_options[key]
+                return env
+
+      00-binder: |
+        # image & token are set via spawn options
+        from kubespawner import KubeSpawner
+
+        class BinderSpawner(BinderSpawnerMixin, KubeSpawner):
+            pass
+
+        c.JupyterHub.spawner_class = BinderSpawner
+    services:
+      binder:
+        admin: true
+        apiToken:
+  singleuser:
+    # start notebook server with lab ui as default
+    # *if available*
+    cmd:
+      - python3
+      - "-c"
+      - |
+        import os
+        import sys
+
+        try:
+            import jupyterlab
+            major = int(jupyterlab.__version__.split(".", 1)[0])
+        except Exception:
+            have_lab = False
+        else:
+            have_lab = major >= 3
+
+        if have_lab and "NotebookApp.default_url" not in " ".join(sys.argv):
+            # if recent-enough lab is available, make it the default UI
+            sys.argv.insert(1, "--NotebookApp.default_url=/lab/")
+
+        # launch the notebook server
+        os.execvp("jupyter-notebook", sys.argv)
+    events: true
+    storage:
+      type: none
+    memory:
+      guarantee:
+  prePuller:
+    hook:
+      enabled: false
+    continuous:
+      enabled: false
+
+deployment:
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    failureThreshold: 1000 # we rely on the liveness probe to resolve issues if needed
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 3
+    timeoutSeconds: 10
+  labels: {}
+
+dind:
+  enabled: false
+  initContainers: []
+  daemonset:
+    image:
+      name: docker
+      tag: 20.10.12-dind
+    # Additional command line arguments to pass to dockerd
+    extraArgs: []
+    lifecycle: {}
+    extraVolumes: []
+    extraVolumeMounts: []
+  storageDriver: overlay2
+  resources: {}
+  hostSocketDir: /var/run/dind
+  hostLibDir: /var/lib/dind
+
+imageCleaner:
+  enabled: true
+  image:
+    name: quay.io/jupyterhub/docker-image-cleaner
+    tag: 1.0.0-beta.2
+  # delete an image at most every 5 seconds
+  delay: 5
+  # Interpret threshold values as percentage or bytes
+  imageGCThresholdType: "relative"
+  # when 80% of inodes are used,
+  # cull images until it drops below 60%
+  imageGCThresholdHigh: 80
+  imageGCThresholdLow: 60
+  # cull images on the host docker as well as dind
+  host:
+    enabled: true
+    dockerSocket: /var/run/docker.sock
+    dockerLibDir: /var/lib/docker
+
+ingress:
+  enabled: false
+  https:
+    enabled: false
+    type: kube-lego
+  hosts: []
+  ingressClassName:
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  pathSuffix:
+    # Suffix added to Ingress's routing path pattern.
+    # Specify `*` if your ingress matches path by glob pattern.
+  pathType: Prefix
+  tls:
+    []
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+
+initContainers: []
+lifecycle: {}
+extraVolumes: []
+extraVolumeMounts: []
+extraEnv: {}
+podAnnotations: {}
+
+# Deprecated values, kept here so we can provide useful error messages
+cors: {}
+
+global: {}

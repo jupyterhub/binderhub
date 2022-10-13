@@ -1,0 +1,24 @@
+# Configuration on how ReadTheDocs (RTD) builds our documentation
+# ref: https://docs.readthedocs.io/en/stable/config-file/v2.html
+
+# Required (RTD configuration version)
+version: 2
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: doc/conf.py
+
+# Optionally build your docs in additional formats such as PDF and ePub
+formats: []
+
+# Optionally set the version of Python and requirements required to build your docs
+python:
+  version: 3.7
+  install:
+    # WARNING: This requirements file will be installed without the pip
+    #          --upgrade flag in an existing environment. This means that if a
+    #          package is specified without a lower boundary, we may end up
+    #          accepting the existing version.
+    #
+    #          ref: https://github.com/readthedocs/readthedocs.org/blob/0e3df509e7810e46603be47d268273c596e68455/readthedocs/doc_builder/python_environments.py#L335-L344
+    - requirements: doc/doc-requirements.txt

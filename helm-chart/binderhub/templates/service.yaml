@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: binder
+  annotations: {{ .Values.service.annotations | toJson }}
+  labels: {{ .Values.service.labels | toJson }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- with .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ . | quote }}
+  {{- end }}
+  selector:
+    app: binder
+    name: binder
+    component: binder
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8585
+      {{- with .Values.service.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}

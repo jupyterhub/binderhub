@@ -1,0 +1,73 @@
+.right-next {
+    float: right;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right-next::after{
+    content: ' »';
+}
+
+.left-prev {
+    float: left;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.left-prev::before{
+    content: '« ';
+}
+
+.prev-next-bottom {
+  margin-top: 3em;
+}
+
+.prev-next-top {
+  margin-bottom: 1em;
+}
+
+
+/* Federation page CSS */
+.contrib_entry p {
+  margin: 2px;
+  text-align: center;
+}
+
+p.contrib_affiliation {
+  font-size: .7em;
+  font-weight: bold;
+}
+
+.contribs_text {
+  font-size: .8em;
+}
+
+.contrib_entry p.contribs {
+  float: left;
+  margin: 0px;
+}
+
+td.contrib_entry {
+  width: 200px;
+  height: 200px;
+  padding: 1em !important;
+  vertical-align: top;
+  text-align: center;
+  border: 1px solid #888 !important;
+}
+
+td.contrib_entry a {
+  text-decoration: none;
+}
+
+td.contrib_entry img {
+  width: 100%;
+}
+
+table.contributors {
+  margin: 0px auto;
+}

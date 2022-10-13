@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+set -x
+appendix_dir="$(dirname "$0")"
+mkdir -p /etc/jupyter
+# add and register custom templates and config
+cp -r "${appendix_dir}/templates" /etc/jupyter/binder_templates
+cat "${appendix_dir}/extra_notebook_config.py" >> /etc/jupyter/jupyter_notebook_config.py
+# ensure /etc/jupyter has read+listdir permissions for all
+chmod -R a+rX /etc/jupyter
+
+# add custom.js.
+# it is executed when the notebook app starts and adds binder buttons next to Quit button in the UI.
+sed -i 's|{binder_url}|'"$BINDER_URL"'|g' "${appendix_dir}/static/custom.js"
+sed -i 's|{repo_url}|'"$REPO_URL"'|g' "${appendix_dir}/static/custom.js"
+mkdir -p ~/.jupyter/custom
+cat "${appendix_dir}/static/custom.js" >> ~/.jupyter/custom/custom.js
+chown -R $NB_USER:$NB_USER $HOME/.jupyter

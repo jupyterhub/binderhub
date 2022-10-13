@@ -1,0 +1,16 @@
+# A JupyterHub Helm chart config containing only auth relevant config, and is
+# meant to be used alongside another configuration.
+
+hub:
+  services:
+    binder:
+      oauth_no_confirm: true
+      oauth_redirect_uri: "http://127.0.0.1:8585/oauth_callback"
+      oauth_client_id: "binder-oauth-client-test"
+  config:
+    JupyterHub:
+      authenticator_class: "dummy"
+    DummyAuthenticator:
+      password: "dummy"
+    BinderSpawner:
+      auth_enabled: true

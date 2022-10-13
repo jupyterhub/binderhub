@@ -1,0 +1,16 @@
+beautifulsoup4
+chartpress>=1.2
+click
+codecov
+html5lib
+jsonschema
+jupyter-repo2docker>=2021.08.0
+jupyter_packaging>=0.10.4,<2
+jupyterhub
+pycurl
+pytest
+pytest-asyncio
+pytest-cov
+pytest-timeout
+requests
+ruamel.yaml>=0.15

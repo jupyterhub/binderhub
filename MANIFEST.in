@@ -1,0 +1,11 @@
+recursive-include binderhub/static *
+recursive-include binderhub/templates *
+recursive-include binderhub/event-schemas *
+graft testing
+graft doc
+include LICENSE
+include package.json
+include requirements.txt
+include versioneer.py
+include webpack.config.js
+include binderhub/_version.py
