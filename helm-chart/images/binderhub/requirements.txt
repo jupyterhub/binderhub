@@ -26,8 +26,6 @@ cryptography==38.0.1
     # via pyopenssl
 docker==6.0.0
     # via -r helm-chart/images/binderhub/../../../requirements.txt
-entrypoints==0.4
-    # via jupyterhub
 escapism==1.0.1
     # via -r helm-chart/images/binderhub/../../../requirements.txt
 google-api-core[grpc]==2.10.2
@@ -68,6 +66,8 @@ grpcio-status==1.49.1
     # via google-api-core
 idna==3.4
     # via requests
+importlib-metadata==5.0.0
+    # via jupyterhub
 jinja2==3.1.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
@@ -78,7 +78,7 @@ jsonschema==4.16.0
     #   jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==1.5.0
+jupyterhub==3.0.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   -r helm-chart/images/binderhub/requirements.in
@@ -97,7 +97,9 @@ oauthlib==3.2.1
     #   jupyterhub
     #   requests-oauthlib
 packaging==21.3
-    # via docker
+    # via
+    #   docker
+    #   jupyterhub
 pamela==1.0.0
     # via jupyterhub
 prometheus-client==0.14.1
@@ -186,6 +188,8 @@ websocket-client==1.4.1
     # via
     #   docker
     #   kubernetes
+zipp==3.9.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
