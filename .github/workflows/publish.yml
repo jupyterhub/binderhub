@@ -53,7 +53,7 @@ jobs:
         run: |
           . ./ci/common
           setup_helm v3.5.4
-          pip install --no-cache-dir chartpress>=1.2 pyyaml
+          pip install --no-cache-dir chartpress>=2.1 pyyaml
 
       - name: Setup push rights to jupyterhub/helm-chart
         # This was setup by...
