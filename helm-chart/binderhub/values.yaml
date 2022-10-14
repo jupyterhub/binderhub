@@ -17,7 +17,7 @@ nodeSelector: {}
 
 image:
   name: jupyterhub/k8s-binderhub
-  tag: "local"
+  tag: "set-by-chartpress"
 
 # registry here is only used to create docker config.json
 registry:

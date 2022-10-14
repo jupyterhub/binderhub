@@ -1,7 +1,7 @@
 # Chart.yaml v2 reference: https://helm.sh/docs/topics/charts/#the-chartyaml-file
 apiVersion: v2
 name: binderhub
-version: 0.2.0-set.by.chartpress
+version: 0.0.1-set.by.chartpress
 dependencies:
   # Source code:    https://github.com/jupyterhub/zero-to-jupyterhub-k8s
   # Latest version: https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tags
