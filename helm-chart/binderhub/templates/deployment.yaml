@@ -118,6 +118,8 @@ spec:
               name: "{{ include "jupyterhub.hub.fullname" . }}"
               key: hub.services.binder.apiToken
         {{- if .Values.config.BinderHub.auth_enabled }}
+        - name: JUPYTERHUB_SERVICE_NAME
+          value: binder
         - name: JUPYTERHUB_API_URL
           value: {{ (print (.Values.config.BinderHub.hub_url_local | default .Values.config.BinderHub.hub_url | trimSuffix "/") "/hub/api/") }}
         - name: JUPYTERHUB_BASE_URL
