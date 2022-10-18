@@ -250,6 +250,15 @@ h4 {
     color: rgb(41, 124, 184);
 }
 
+/*reduce font size of h1 and h2 so the initial design when h3 and h4 tags were used respectively is retained*/
+.first-level-header{
+    font-size:1.25em;
+}
+
+.second-level-header{
+    font-size:1.125em;
+}
+
 span.front-em {
     font-size: 1.5em;
 }
