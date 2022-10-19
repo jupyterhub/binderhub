@@ -18,6 +18,9 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" .Values.dind.daemonset.image) }}
+      imagePullSecrets: {{ . }}
+      {{- end }}
       tolerations:
       - effect: NoSchedule
         key: hub.jupyter.org/dedicated
@@ -35,6 +38,9 @@ spec:
       containers:
       - name: dind
         image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
+        {{- with .Values.dind.daemonset.image.pullPolicy }}
+        imagePullPolicy: {{ . }}
+        {{- end }}
         resources:
           {{- .Values.dind.resources | toYaml | nindent 10 }}
         args:
