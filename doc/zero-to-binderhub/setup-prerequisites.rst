@@ -31,12 +31,12 @@ render the templates into valid k8s resources. Each installation of a chart is
 called a *release*, and each version of the release is called a *revision*.
 
 Several `methods to install Helm
-<https://github.com/helm/helm/blob/master/docs/install.md>`_ exist, the simplest
+<https://helm.sh/docs/intro/install/>`_ exist, the simplest
 way to install Helm is to run Helm's installer script in a terminal.
 
 .. code:: bash
 
-   curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+   curl -sf https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 
 Verifying the setup
 ~~~~~~~~~~~~~~~~~~~

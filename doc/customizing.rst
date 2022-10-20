@@ -72,7 +72,7 @@ Firstly assume that you have a Git repo ``binderhub_custom_files`` which holds y
         └── page.html
 
 where ``page.html`` extends the `base page.html
-<https://github.com/jupyterhub/binderhub/blob/master/binderhub/templates/page.html>`_ and
+<https://github.com/jupyterhub/binderhub/blob/HEAD/binderhub/templates/page.html>`_ and
 updates only the source url of the logo in order to use your custom logo::
 
     {% extends "templates/page.html" %}
@@ -82,7 +82,7 @@ updates only the source url of the logo in order to use your custom logo::
 .. note::
 
     If you want to extend `any other base template
-    <https://github.com/jupyterhub/binderhub/tree/master/binderhub/templates>`_,
+    <https://github.com/jupyterhub/binderhub/tree/HEAD/binderhub/templates>`_,
     you have to include ``{% extends "templates/<base_template_name>.html" %}``
     in the beginning of your custom template.
     It is also possible to have completely new template instead of extending the base one.
@@ -98,7 +98,7 @@ To do that add the following into your ``config.yaml``::
         args:
           - clone
           - --single-branch
-          - --branch=master
+          - --branch=main
           - --depth=1
           - --
           - <repo_url>
