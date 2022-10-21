@@ -57,8 +57,8 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 source_suffix = [".rst", ".md"]
 
-# The master toctree document.
-master_doc = "index"
+# The root toctree document.
+root_doc = "index"
 
 # Set the default role so we can use `foo` instead of ``foo``
 default_role = "literal"
@@ -107,7 +107,7 @@ html_theme_options = {
 html_context = {
     "github_user": "jupyterhub",
     "github_repo": "binderhub",
-    "github_version": "master",
+    "github_version": "main",
     "doc_path": "doc",
 }
 
@@ -145,7 +145,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, "BinderHub.tex", "BinderHub Documentation", "Yuvi Panda", "manual"),
+    (root_doc, "BinderHub.tex", "BinderHub Documentation", "Yuvi Panda", "manual"),
 ]
 
 
@@ -153,7 +153,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "binderhub", "BinderHub Documentation", [author], 1)]
+man_pages = [(root_doc, "binderhub", "BinderHub Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -163,7 +163,7 @@ man_pages = [(master_doc, "binderhub", "BinderHub Documentation", [author], 1)]
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        master_doc,
+        root_doc,
         "BinderHub",
         "BinderHub Documentation",
         author,

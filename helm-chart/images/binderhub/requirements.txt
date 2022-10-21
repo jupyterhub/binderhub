@@ -33,7 +33,7 @@ google-api-core[grpc]==2.10.2
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.12.0
+google-auth==2.13.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -56,13 +56,13 @@ greenlet==1.1.3.post0
     # via sqlalchemy
 grpc-google-iam-v1==0.12.4
     # via google-cloud-logging
-grpcio==1.49.1
+grpcio==1.50.0
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.49.1
+grpcio-status==1.50.0
     # via google-api-core
 idna==3.4
     # via requests
@@ -92,7 +92,7 @@ markupsafe==2.1.1
     # via
     #   jinja2
     #   mako
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
@@ -102,7 +102,7 @@ packaging==21.3
     #   jupyterhub
 pamela==1.0.0
     # via jupyterhub
-prometheus-client==0.14.1
+prometheus-client==0.15.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
@@ -110,7 +110,7 @@ proto-plus==1.22.1
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==4.21.7
+protobuf==4.21.8
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -127,7 +127,7 @@ pyasn1-modules==0.2.8
     # via google-auth
 pycparser==2.21
     # via cffi
-pyjwt==2.5.0
+pyjwt==2.6.0
     # via -r helm-chart/images/binderhub/../../../requirements.txt
 pyopenssl==22.1.0
     # via certipy
@@ -158,7 +158,7 @@ rsa==4.9
     # via google-auth
 ruamel-yaml==0.17.21
     # via jupyter-telemetry
-ruamel-yaml-clib==0.2.6
+ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
 six==1.16.0
     # via
@@ -166,7 +166,7 @@ six==1.16.0
     #   grpcio
     #   kubernetes
     #   python-dateutil
-sqlalchemy==1.4.41
+sqlalchemy==1.4.42
     # via
     #   alembic
     #   jupyterhub
@@ -174,7 +174,7 @@ tornado==6.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.4.0
+traitlets==5.5.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
