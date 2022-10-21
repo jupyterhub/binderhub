@@ -251,11 +251,11 @@ h4 {
 }
 
 /*reduce font size of h1 and h2 so the initial design when h3 and h4 tags were used respectively is retained*/
-.first-level-header{
+h1{
     font-size:1.25em;
 }
 
-.second-level-header{
+h2{
     font-size:1.125em;
 }
 
