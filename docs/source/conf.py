@@ -28,7 +28,7 @@ docs = dirname(dirname(__file__))
 root = dirname(docs)
 sys.path.insert(0, root)
 sys.path.insert(0, "sphinxext")
-sys.path.insert(0, "..")
+sys.path.insert(0, "../..")
 
 # -- General configuration ------------------------------------------------
 
@@ -108,7 +108,7 @@ html_context = {
     "github_user": "jupyterhub",
     "github_repo": "binderhub",
     "github_version": "main",
-    "doc_path": "doc",
+    "doc_path": "docs/source",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

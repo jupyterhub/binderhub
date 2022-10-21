@@ -32,13 +32,13 @@ language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 1. Install BinderHub and the documentation tools:
 
    ```bash
-   python3 -m pip install -r doc/requirements.txt
+   python3 -m pip install -r docs/requirements.txt
    ```
 
-1. The documentation is located in the `doc/` sub-directory, `cd` into it:
+1. The documentation is located in the `docs/` sub-directory, `cd` into it:
 
    ```bash
-   cd ./doc
+   cd ./docs
    ```
 
 1. To build the documentation run:

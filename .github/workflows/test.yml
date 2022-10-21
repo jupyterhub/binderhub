@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - "**.md"
       - "**.rst"
-      - "doc/**"
+      - "docs/**"
       - "examples/**"
       - ".github/workflows/**"
       - "!.github/workflows/test.yml"
@@ -16,7 +16,7 @@ on:
     paths-ignore:
       - "**.md"
       - "**.rst"
-      - "doc/**"
+      - "docs/**"
       - "examples/**"
       - ".github/workflows/**"
       - "!.github/workflows/test.yml"
