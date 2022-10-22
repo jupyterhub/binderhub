@@ -32,6 +32,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinxext.opengraph",
     "sphinxext.rediraffe",
 ]
 root_doc = "index"
@@ -78,6 +79,18 @@ linkcheck_anchors_ignore = [
     "/#!",
     "/#%21",
 ]
+
+
+# -- Options for the opengraph extension -------------------------------------
+# ref: https://github.com/wpilibsuite/sphinxext-opengraph#options
+#
+# This extension help others provide better thumbnails and link descriptions
+# when they link to this documentation from other websites, such as
+# https://discourse.jupyter.org.
+#
+# ogp_site_url is set automatically by RTD
+ogp_image = "_static/images/logo.png"
+ogp_use_first_image = True
 
 
 # -- Options for the rediraffe extension -------------------------------------
