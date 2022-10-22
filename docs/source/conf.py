@@ -64,6 +64,22 @@ html_context = {
 }
 
 
+# -- Options for linkcheck builder -------------------------------------------
+# ref: https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-the-linkcheck-builder
+#
+linkcheck_ignore = [
+    r"(.*)github\.com(.*)#",  # javascript based anchors
+    r"(.*)/#%21(.*)/(.*)",  # /#!forum/jupyter - encoded anchor edge case
+    r"https://github.com/[^/]*$",  # too many github usernames / searches in changelog
+    "https://github.com/jupyterhub/binderhub/pull/",  # too many PRs in changelog
+    "https://github.com/jupyterhub/binderhub/compare/",  # too many comparisons in changelog
+]
+linkcheck_anchors_ignore = [
+    "/#!",
+    "/#%21",
+]
+
+
 # -- Options for the rediraffe extension -------------------------------------
 # ref: https://github.com/wpilibsuite/sphinxext-rediraffe#readme
 #
