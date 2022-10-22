@@ -20,9 +20,6 @@ import os
 import sys
 from os.path import dirname
 
-curdir = dirname(__file__)
-sys.path.append(os.path.abspath(os.path.join(curdir, "script")))
-
 # set paths
 docs = dirname(dirname(__file__))
 root = dirname(docs)
