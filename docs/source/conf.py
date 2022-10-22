@@ -12,20 +12,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
 from os.path import dirname
 
-# set paths
-docs = dirname(dirname(__file__))
-root = dirname(docs)
-sys.path.insert(0, root)
-sys.path.insert(0, "sphinxext")
-sys.path.insert(0, "../..")
+# -- Setup system path for autodoc extensions --------------------------------
+#
+# We use autodoc to generate documentation in reference/, so we configure the
+# system path to help autodoc detect the binderhub module.
+#
+git_repo_root = dirname(dirname(dirname(__file__)))
+sys.path.insert(0, git_repo_root)
 
 # -- General configuration ------------------------------------------------
 
