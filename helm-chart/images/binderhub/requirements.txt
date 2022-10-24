@@ -188,7 +188,7 @@ websocket-client==1.4.1
     # via
     #   docker
     #   kubernetes
-zipp==3.9.0
+zipp==3.10.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
