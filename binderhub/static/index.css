@@ -77,7 +77,7 @@ p > a:hover {
 }
 
 .btn-submit{
-    background-color:rgb(243, 162, 83);
+    background-color:rgb(223, 132, 41);
     box-shadow: 1px 1px rgba(0,0,0,.075);
     color:white;
     border:none;
@@ -236,18 +236,27 @@ h4 {
 }
 
 .point-orange {
-    border-color: rgb(243, 162, 83);
-    color: rgb(243, 162, 83);
+    border-color: rgb(247, 144, 42);
+    color: rgb(247, 144, 42);
 }
 
 .point-red {
-    border-color: rgb(208, 102, 129);
-    color: rgb(208, 102, 129);
+    border-color: rgb(204, 67, 101);
+    color: rgb(204, 67, 101);
 }
 
 .point-blue {
-    border-color: rgb(87, 154, 202);
-    color: rgb(87, 154, 202);
+    border-color: rgb(41, 124, 184);
+    color: rgb(41, 124, 184);
+}
+
+/*reduce font size of h1 and h2 so the initial design when h3 and h4 tags were used respectively is retained*/
+h1{
+    font-size:1.25em;
+}
+
+h2{
+    font-size:1.125em;
 }
 
 span.front-em {
