@@ -15,7 +15,16 @@ properly configure BinderHub to use one of these registries.
 Set up Google Container Registry
 --------------------------------
 
-To use Google Container Registry (``gcr.io``), you'll need to provide BinderHub
+To use Google Container Registry (``gcr.io``), first you need to activate it
+under your Google Cloud account:
+
+* Go to the [API Library](https://console.cloud.google.com/apis/library)
+* Search for Google Container Registry API
+* Click on Enable
+* Follow the instructions to configure billing if you haven't already
+* Go to the [Google Container registry settings](https://console.cloud.google.com/gcr/settings), set the images to public, so that they can be pulled back from BinderHub to the container dedicated to execution
+
+Next you'll need to provide BinderHub
 with proper credentials so it can push images. You can do so by creating a
 service account that has authorization to push to Google Container Registry:
 
