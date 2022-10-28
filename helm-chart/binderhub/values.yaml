@@ -248,7 +248,6 @@ deployment:
 containerBuilderPod: "disabled" # One of: dind, pink or disabled
 
 dind:
-  enabled: false
   initContainers: []
   daemonset:
     image:
@@ -266,7 +265,6 @@ dind:
 
 # Podman in Kubernetes
 pink:
-  enabled: false
   initContainers: []
   daemonset:
     image:
