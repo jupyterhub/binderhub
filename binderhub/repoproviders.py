@@ -38,8 +38,8 @@ def tokenize_spec(spec):
     spec_parts = spec.split("/", 2)  # allow ref to contain "/"
     if len(spec_parts) != 3:
         msg = f'Spec is not of the form "user/repo/ref", provided: "{spec}".'
-        if len(spec_parts) == 2 and spec_parts[-1] != "master":
-            msg += f' Did you mean "{spec}/master"?'
+        if len(spec_parts) == 2 and spec_parts[-1] not in ("main", "master"):
+            msg += f' Did you mean "{spec}/main"?'
         raise ValueError(msg)
 
     return spec_parts
@@ -456,8 +456,8 @@ class GitRepoProvider(RepoProvider):
     <url-escaped-namespace>/<resolved_ref>
 
     eg:
-    https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/master
-    https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fzero-to-jupyterhub-k8s/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603
+    https%3A%2F%2Fgithub.com%2Fbinder-examples%2Fconda/main
+    https%3A%2F%2Fgithub.com%2Fbinder-examples%2Fconda/034931911e853252322f2309f1246a4f1076fd7d
 
     This provider is typically used if you are deploying binderhub yourself and you require access to repositories that
     are not in one of the supported providers.
@@ -957,6 +957,7 @@ class GistRepoProvider(GitHubRepoProvider):
     The ref is optional, valid values are
         - a full sha1 of a ref in the history
         - master
+        - HEAD for the default branch
 
     If master or no ref is specified the latest revision will be used.
     """

@@ -17,7 +17,7 @@ nodeSelector: {}
 
 image:
   name: jupyterhub/k8s-binderhub
-  tag: "local"
+  tag: "set-by-chartpress"
 
 # registry here is only used to create docker config.json
 registry:
@@ -56,14 +56,20 @@ jupyterhub:
   cull:
     enabled: true
     users: true
-  rbac:
-    enabled: true
   hub:
     config:
       JupyterHub:
         authenticator_class: nullauthenticator.NullAuthenticator
       BinderSpawner:
         auth_enabled: false
+    loadRoles:
+      binder:
+        services:
+          - binder
+        scopes:
+          - servers
+          # we don't need admin:users if auth is not enabled!
+          - "admin:users"
     extraConfig:
       0-binderspawnermixin: |
         """
@@ -188,8 +194,7 @@ jupyterhub:
         c.JupyterHub.spawner_class = BinderSpawner
     services:
       binder:
-        admin: true
-        apiToken:
+        display: false
   singleuser:
     # start notebook server with lab ui as default
     # *if available*

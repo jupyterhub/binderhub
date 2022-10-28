@@ -1,0 +1,14 @@
+#!/bin/bash
+set -xeuo pipefail
+
+# Because `pip-compile` resolves `requirements.txt` with the current
+# Python for the current platform, it should be run on the same Python
+# version and platform as our Dockerfile.
+
+docker run --rm \
+    --env=CUSTOM_COMPILE_COMMAND='Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml' \
+    --volume="$PWD:/io" \
+    --workdir=/io \
+    --user=root \
+    python:3.9-bullseye \
+    sh -c 'pip install pip-tools==6.* && pip-compile --upgrade helm-chart/images/binderhub/requirements.in'

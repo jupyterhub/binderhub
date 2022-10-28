@@ -83,7 +83,7 @@ file ``nginx-ingress.yaml``:
         loadBalancerIP: <STATIC-IP>
 
 Afterwards we install the ingress proxy using
-``helm install stable/nginx-ingress --name binderhub-proxy --namespace <same-namespace-as-binderhub> -f nginx-ingress.yaml``.
+``helm install binderhub-proxy stable/nginx-ingress --namespace <same-namespace-as-binderhub> -f nginx-ingress.yaml``.
 Then wait until it is ready and showing the correct IP when looking at the output of
 ``kubectl --namespace <same-namespace-as-binderhub> get services binderhub-proxy-nginx-ingress-controller``.
 

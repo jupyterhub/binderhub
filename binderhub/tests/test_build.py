@@ -313,7 +313,6 @@ async def test_local_repo2docker_build():
 
 @pytest.mark.asyncio(timeout=20)
 async def test_local_repo2docker_build_stop(io_loop):
-    io_loop = await io_loop
     q = Queue()
     # We need a slow build here so that we can interrupt it, so pick a large repo that
     # will take several seconds to clone
