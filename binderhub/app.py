@@ -344,8 +344,8 @@ class BinderHub(Application):
     )
 
     launch_quota_class = Type(
-        LaunchQuota,
-        default=KubernetesLaunchQuota,
+        klass=LaunchQuota,
+        default_value=KubernetesLaunchQuota,
         help="""
         The class used to check quotas for launched servers.
 

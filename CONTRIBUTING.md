@@ -283,7 +283,7 @@ You are assumed to have a modern version of [Python](https://www.python.org/),
 1. Install `helm` - the Kubernetes package manager.
 
    ```bash
-   curl -sf https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+   curl -sf https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
    ```
 
    Here are the [official installation instructions](https://helm.sh/docs/intro/install/).
@@ -368,7 +368,7 @@ it with another version from the [JupyterHub Helm chart
 repository](https://jupyterhub.github.io/helm-chart/).
 
 Use the [JupyterHub Helm chart's
-changelog](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/master/CHANGELOG.md)
+changelog](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/blob/HEAD/CHANGELOG.md)
 to prepare for breaking changes associated with the version bump.
 
 ### Releasing
