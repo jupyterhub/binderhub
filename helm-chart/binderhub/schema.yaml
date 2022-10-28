@@ -361,10 +361,6 @@ properties:
     type: object
     additionalProperties: false
     properties:
-      enabled:
-        type: boolean
-        description: |
-          TODO
       initContainers: &initContainers-spec
         type: array
         description: |
@@ -421,10 +417,6 @@ properties:
     type: object
     additionalProperties: false
     properties:
-      enabled:
-        type: boolean
-        description: |
-          Whether a pod acting as remote podman service will be spun.
       initContainers: *initContainers-spec
       daemonset:
         type: object

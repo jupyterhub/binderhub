@@ -34,7 +34,7 @@ spec:
       {{- end }}
       containers:
       {{- range $i, $kind := tuple "host" "dind" }}
-      {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
+      {{- if or (and (eq $kind "dind") (eq $Values.containerBuilderPod "dind")) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
       - name: image-cleaner-{{ $kind }}
         image: {{ $Values.imageCleaner.image.name }}:{{ $Values.imageCleaner.image.tag }}
         volumeMounts:
