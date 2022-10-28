@@ -1,0 +1,42 @@
+{{- if ne .Values.containerBuilderPod "disabled" -}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name:  {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+        app: binder
+        component: dind
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: hub.jupyter.org/dedicated
+        operator: Equal
+        value: user
+      - effect: NoSchedule
+        key: hub.jupyter.org_dedicated
+        operator: Equal
+        value: user
+      nodeSelector: {{ .Values.config.BinderHub.build_node_selector | default dict | toJson }}
+
+      {{ template "binderhub.builder.initContainers" . }}
+
+      containers:
+      - name: {{ .Values.containerBuilderPod }}
+        {{ include "binderhub.builder.containers" . }}
+
+      volumes:
+      {{ include "binderhub.builder.volumes" . }}
+
+      terminationGracePeriodSeconds: 30
+{{- end }}

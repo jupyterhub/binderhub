@@ -350,6 +350,13 @@ properties:
           See the [Kubernetes docs](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
           to learn more about labels.
 
+  containerBuilderPod:
+    type: string
+    enum: ["disabled", "dind", "pink"]
+    default: "disabled"
+    description: |
+      Selected builder pod type
+
   dind:
     type: object
     additionalProperties: false
