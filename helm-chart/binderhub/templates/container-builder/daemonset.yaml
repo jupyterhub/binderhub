@@ -28,13 +28,9 @@ spec:
         operator: Equal
         value: user
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | default dict | toJson }}
-
-      {{ template "binderhub.builder.initContainers" . }}
-
+      {{- template "binderhub.builder.initContainers" . }}
       containers:
-      - name: {{ .Values.containerBuilderPod }}
-        {{ include "binderhub.builder.containers" . }}
-
+        {{- include "binderhub.builder.containers" . }}
       volumes:
       {{ include "binderhub.builder.volumes" . }}
 

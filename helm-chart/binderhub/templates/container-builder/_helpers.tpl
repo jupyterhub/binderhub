@@ -2,27 +2,25 @@
 
 {{/* Generate init containers */}}
 {{- define "binderhub.builder.initContainers" }}
-  {{- if eq .Values.containerBuilderPod "dind" -}}
-      {{- with .Values.dind.initContainers }}
+    {{- $builder := (index .Values .Values.containerBuilderPod) }}
+    {{- with $builder.initContainers }}
       initContainers:
         {{- . | toYaml | nindent 8 }}
-      {{- end }}
-  {{- end }}
-  {{- if eq .Values.containerBuilderPod "pink" -}}
-      {{- with .Values.pink.initContainers }}
-      initContainers:
-        {{- . | toYaml | nindent 8 }}
-      {{- end }}
-  {{- end }}
+    {{- end }}
 {{- end }}
 
 {{/* Generate containers */}}
-{{- define "binderhub.builder.containers" }}
-  {{- if eq .Values.containerBuilderPod "dind" -}}
-        image: {{ .Values.dind.daemonset.image.name }}:{{ .Values.dind.daemonset.image.tag }}
-        imagePullPolicy: {{ .Values.dind.daemonset.image.pullPolicy }}
-        resources:
-          {{- .Values.dind.resources | toYaml | nindent 10 }}
+{{- define "binderhub.builder.containers"}}
+  {{- $builder := (index .Values .Values.containerBuilderPod) }}
+  {{- $daemonset := $builder.daemonset }}
+      - name: {{ .Values.containerBuilderPod }}
+        image: {{ $daemonset.image.name }}:{{ $daemonset.image.tag }}
+        imagePullPolicy: {{ $daemonset.image.pullPolicy }}
+        {{- with $daemonset.resources }}
+          resources:
+            {{- $daemonset.resources | toYaml | nindent 10 }}
+        {{- end }}
+  {{- if eq .Values.containerBuilderPod "dind" }}
         args:
           - dockerd
           - --storage-driver={{ .Values.dind.storageDriver }}
@@ -36,20 +34,9 @@
         - name: dockerlib-dind
           mountPath: /var/lib/docker
         - name: rundind
-          mountPath: {{ .Values.dind.hostSocketDir }}
-        {{- with .Values.dind.daemonset.extraVolumeMounts }}
-        {{- . | toYaml | nindent 8 }}
-        {{- end }}
-        {{- with .Values.dind.daemonset.lifecycle }}
-        lifecycle:
-          {{- . | toYaml | nindent 10 }}
-        {{- end }}
+          mountPath: {{ $builder.hostSocketDir }}
   {{- end }}
-  {{- if eq .Values.containerBuilderPod "pink" -}}
-        image: {{ .Values.pink.daemonset.image.name }}:{{ .Values.pink.daemonset.image.tag }}
-        imagePullPolicy: {{ .Values.pink.daemonset.image.pullPolicy }}
-        resources:
-          {{- .Values.pink.resources | toYaml | nindent 10 }}
+  {{- if eq .Values.containerBuilderPod "pink" }}
         args:
           - podman
           - system
@@ -64,14 +51,14 @@
           name: podman-containers
         - mountPath: /var/run/pink/
           name: podman-socket
-        {{- with .Values.pink.daemonset.extraVolumeMounts }}
+  {{- end }}
+        {{- with $daemonset.extraVolumeMounts }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
-        {{- with .Values.pink.daemonset.lifecycle }}
+        {{- with $daemonset.lifecycle }}
         lifecycle:
           {{- . | toYaml | nindent 10 }}
         {{- end }}
-  {{- end }}
 {{- end }}
 
 {{/* Generate volumes */}}
