@@ -360,14 +360,14 @@ class TestSpecErrorHandling(TestCase):
         assert len(spec_parts) == 3
 
     def test_spec_with_no_suggestion(self):
-        spec = "short/master"
+        spec = "short/HEAD"
         error = "^((?!Did you mean).)*$"  # negative match
         with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 
     def test_spec_with_suggestion(self):
         spec = "short/suggestion"
-        error = f'Did you mean "{spec}/main"?'
+        error = f'Did you mean "{spec}/HEAD"?'
         with self.assertRaisesRegex(ValueError, error):
             user, repo, unresolved_ref = tokenize_spec(spec)
 

@@ -2,6 +2,7 @@
 Handlers for working with version control services (i.e. GitHub) for builds.
 """
 
+import asyncio
 import hashlib
 import json
 import re
@@ -303,16 +304,43 @@ class BuildHandler(BaseHandler):
                     'GitHub recently changed default branches from "master" to "main".'
                 )
 
-                if provider.unresolved_ref == "master":
-                    error_message.append('Did you mean the "main" branch?')
-                elif provider.unresolved_ref == "main":
-                    error_message.append('Did you mean the "master" branch?')
+                if provider.unresolved_ref in {"master", "main"}:
+                    error_message.append(
+                        "Tip: HEAD will always resolve to a repo's default branch."
+                    )
+
+                    # keep old links working for default branch names
+                    # by substituting 'master' or 'main' with 'HEAD'
+                    pre_ref_spec, _ = spec.rsplit("/", 1)
+                    spec = f"{pre_ref_spec}/HEAD"
+                    unresolved_ref = provider.unresolved_ref
+                    try:
+                        provider = self.get_provider(provider_prefix, spec=spec)
+                        ref = await provider.get_resolved_ref()
+                    except Exception as e:
+                        # if this fails, leave ref as None, which will fail below
+                        self.log.error(f"Error redirecting {key} to HEAD: {e}")
+                    else:
+                        # delayed redirect for deleted default branches
+                        await self.emit(
+                            {
+                                "phase": "waiting",
+                                "message": (
+                                    " ".join(error_message) + "\n"
+                                    f"Trying again with HEAD instead of {unresolved_ref}. Please update your links.\n"
+                                ),
+                            }
+                        )
+                        # artificial delay for what should be broken links
+                        await asyncio.sleep(10)
 
             else:
                 error_message.append("Is your repo public?")
 
-            await self.fail(" ".join(error_message))
-            return
+            if ref is None:
+                # ref can become non-None if redirected to HEAD
+                await self.fail(" ".join(error_message))
+                return
 
         self.ref_url = await provider.get_resolved_ref_url()
         resolved_spec = await provider.get_resolved_spec()
