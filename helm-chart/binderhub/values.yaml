@@ -18,6 +18,8 @@ nodeSelector: {}
 image:
   name: jupyterhub/k8s-binderhub
   tag: "set-by-chartpress"
+  pullPolicy: ""
+  pullSecrets: []
 
 # registry here is only used to create docker config.json
 registry:
@@ -252,6 +254,8 @@ dind:
     image:
       name: docker
       tag: 20.10.12-dind
+      pullPolicy: ""
+      pullSecrets: []
     # Additional command line arguments to pass to dockerd
     extraArgs: []
     lifecycle: {}
@@ -267,6 +271,8 @@ imageCleaner:
   image:
     name: quay.io/jupyterhub/docker-image-cleaner
     tag: 1.0.0-beta.2
+    pullPolicy: ""
+    pullSecrets: []
   # delete an image at most every 5 seconds
   delay: 5
   # Interpret threshold values as percentage or bytes

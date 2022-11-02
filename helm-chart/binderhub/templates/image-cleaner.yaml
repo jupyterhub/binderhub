@@ -19,6 +19,9 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" .Values.imageCleaner.image) }}
+      imagePullSecrets: {{ . }}
+      {{- end }}
       tolerations:
       - effect: NoSchedule
         key: hub.jupyter.org/dedicated
@@ -37,6 +40,9 @@ spec:
       {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
       - name: image-cleaner-{{ $kind }}
         image: {{ $Values.imageCleaner.image.name }}:{{ $Values.imageCleaner.image.tag }}
+        {{- with $Values.imageCleaner.image.pullPolicy }}
+        imagePullPolicy: {{ . }}
+        {{- end }}
         volumeMounts:
         - name: dockerlib-{{ $kind }}
           mountPath: /var/lib/docker

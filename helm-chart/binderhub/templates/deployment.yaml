@@ -33,6 +33,9 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
     spec:
+      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" .Values.image) }}
+      imagePullSecrets: {{ . }}
+      {{- end }}
       {{- with .Values.initContainers }}
       initContainers:
         {{- . | toYaml | nindent 8 }}
