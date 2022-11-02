@@ -1,0 +1,14 @@
+# sphinx.ext.autodoc and autodoc_traits as configured to be used in conf.py is
+# automatically building documentation based on inspection of code in the
+# binderhub package, which means we need to its install dependencies to make
+# that code loadable for inspection.
+-r ../requirements.txt
+
+# Documentation specific packages
+autodoc-traits
+myst-parser
+pydata-sphinx-theme
+sphinx-autobuild
+sphinx-copybutton
+sphinxext-opengraph
+sphinxext-rediraffe
