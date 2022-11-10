@@ -86,15 +86,14 @@ deployment:
   livenessProbe: *probe
   labels: *labels
 
-containerBuilderPod: disabled
+containerBuilderPod: pink
 
-dind:
+pink:
   initContainers: &initContainers
     - name: mock-init-container-name
       image: mock-init-container-image
   daemonset:
     image: *image
-    extraArgs: []
     lifecycle: &lifecycle
       postStart:
         exec:
@@ -104,10 +103,9 @@ dind:
             - "echo Hello from the postStart handler >> /usr/share/message"
     extraVolumes: []
     extraVolumeMounts: []
-  storageDriver: overlay2
   resources: *resources
-  hostSocketDir: /var/run/dind
-  hostLibDir: /var/lib/dind
+  hostStorageDir: /var/lib/pink
+  hostSocketDir: /var/run/pink
 
 imageCleaner:
   enabled: true
