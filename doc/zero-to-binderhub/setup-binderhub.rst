@@ -458,8 +458,8 @@ cloud provider. BinderHub supports an alternative that uses `Docker-in-Docker
 (DinD) <https://hub.docker.com/_/docker>`_. To turn `dind` on, you'll need to set
 the following configuration in your ``config.yaml`` file::
 
+    containerBuilderPod: dind
     dind:
-      enabled: true
       daemonset:
         image:
           name: docker
@@ -483,8 +483,8 @@ as with Docker. BinderHub supports an alternative that uses `Podman-in-Kubernete
 (PinK) <https://www.redhat.com/sysadmin/podman-inside-kubernetes>`_. To turn
 `pink` on, you'll need to set the following configuration in your ``config.yaml`` file::
 
+    containerBuilderPod: pink
     pink:
-      enabled: true
       daemonset:
         image:
           name: quay.io/podman/stable
