@@ -46,10 +46,11 @@ c.BinderHub.template_path = "/etc/binderhub/templates"
 for section, sub_cfg in get_value("config", {}).items():
     c[section].update(sub_cfg)
 
-if get_value("dind.enabled", False) and get_value("dind.hostSocketDir"):
-    c.BinderHub.build_docker_host = "unix://{}/docker.sock".format(
-        get_value("dind.hostSocketDir")
-    )
+containerBuilderPod = get_value("containerBuilderPod")
+if containerBuilderPod in ["dind", "pink"]:
+    hostSocketDir = get_value(f"{containerBuilderPod}.hostSocketDir")
+    if hostSocketDir:
+        c.BinderHub.build_docker_host = f"unix://{hostSocketDir}/docker.sock"
 
 
 if c.BinderHub.auth_enabled:
