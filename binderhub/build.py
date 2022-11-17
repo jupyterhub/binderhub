@@ -2,6 +2,7 @@
 Contains build of a docker image from a git repository.
 """
 
+import base64
 import datetime
 import json
 import os
@@ -382,8 +383,24 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         env = []
         if self.git_credentials:
+            secret_content = base64.b64encode(
+                self.git_credentials.encode("utf-8")
+            ).decode("utf-8")
+            data = {"credentials": secret_content}
+
+            secret = client.V1Secret()
+            secret.data = data
+            secret.metadata = {"name": self.name}
+            secret.type = "Opaque"
+
+            self.api.create_namespaced_secret(self.namespace, secret)
+
+            secret_key_ref = client.V1SecretKeySelector(
+                name=self.name, key="credentials", optional=False
+            )
+            value_from = client.V1EnvVarSource(secret_key_ref=secret_key_ref)
             env.append(
-                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
+                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value_from=value_from)
             )
 
         self.pod = client.V1Pod(
@@ -515,10 +532,9 @@ class KubernetesBuildExecutor(BuildExecutor):
                                 f"Found unknown phase {phase} when building {self.name}"
                             )
 
-                    if self.pod.status.phase == "Succeeded":
+                    if self.pod.status.phase in ["Succeeded", "Failed"]:
                         self.cleanup()
-                    elif self.pod.status.phase == "Failed":
-                        self.cleanup()
+
             except Exception:
                 app_log.exception("Error in watch stream for %s", self.name)
                 raise
@@ -568,21 +584,32 @@ class KubernetesBuildExecutor(BuildExecutor):
 
     def cleanup(self):
         """
-        Delete the kubernetes build pod
+        Delete the kubernetes build pod and secret if exists
         """
-        try:
-            self.api.delete_namespaced_pod(
-                name=self.name,
-                namespace=self.namespace,
-                body=client.V1DeleteOptions(grace_period_seconds=0),
-                _request_timeout=KUBE_REQUEST_TIMEOUT,
-            )
-        except client.rest.ApiException as e:
-            if e.status == 404:
-                # Is ok, someone else has already deleted it
-                pass
-            else:
-                raise
+
+        exceptions = []
+        deletion_methods = [self.api.delete_namespaced_pod]
+
+        if self.git_credentials:
+            deletion_methods.append(self.api.delete_namespaced_secret)
+
+        for deletion_method in deletion_methods:
+            try:
+                deletion_method(
+                    name=self.name,
+                    namespace=self.namespace,
+                    body=client.V1DeleteOptions(grace_period_seconds=0),
+                    _request_timeout=KUBE_REQUEST_TIMEOUT,
+                )
+            except client.rest.ApiException as e:
+                if e.status == 404:
+                    # Is ok, someone else has already deleted it
+                    pass
+                else:
+                    exceptions.append(str(e))
+
+        if exceptions:
+            raise RuntimeError("Error(s) occurred during cleanup", exceptions)
 
 
 class KubernetesCleaner(LoggingConfigurable):

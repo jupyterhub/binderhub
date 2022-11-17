@@ -236,9 +236,14 @@ def test_git_credentials_passed_to_podspec_upon_submit():
 
     assert len(pod.spec.containers) == 1
 
-    env = {env_var.name: env_var.value for env_var in pod.spec.containers[0].env}
+    env = {env_var.name: env_var.value_from for env_var in pod.spec.containers[0].env}
 
-    assert env["GIT_CREDENTIAL_ENV"] == git_credentials
+    credentials_value = env["GIT_CREDENTIAL_ENV"]
+    assert isinstance(credentials_value, client.V1EnvVarSource)
+    assert isinstance(credentials_value.secret_key_ref, client.V1SecretKeySelector)
+    assert credentials_value.secret_key_ref.key == "credentials"
+    assert credentials_value.secret_key_ref.name == "test_build"
+    assert credentials_value.secret_key_ref.optional == False
 
 
 async def test_local_repo2docker_build():
