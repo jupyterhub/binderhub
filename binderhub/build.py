@@ -2,7 +2,6 @@
 Contains build of a docker image from a git repository.
 """
 
-import base64
 import datetime
 import json
 import os
@@ -383,13 +382,8 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         env = []
         if self.git_credentials:
-            secret_content = base64.b64encode(
-                self.git_credentials.encode("utf-8")
-            ).decode("utf-8")
-            data = {"credentials": secret_content}
-
             secret = client.V1Secret()
-            secret.data = data
+            secret.string_data = {"credentials": self.git_credentials}
             secret.metadata = {"name": self.name}
             secret.type = "Opaque"
 
