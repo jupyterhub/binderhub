@@ -306,7 +306,7 @@ class BuildHandler(BaseHandler):
 
                 if provider.unresolved_ref in {"master", "main"}:
                     error_message.append(
-                        "Tip: HEAD will always resolve to a repo's default branch."
+                        "Tip: HEAD will always resolve to a repository's default branch."
                     )
 
                     # keep old links working for default branch names
