@@ -41,6 +41,8 @@ from .utils import async_requests
         # gh/ GitHub repo provider
         "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
         "gh/binderhub-ci-repos/cached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
+        # test redirect master->HEAD
+        "gh/binderhub-ci-repos/cached-minimal-dockerfile/master",
         # gl/ GitLab repo provider
         "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/HEAD",
         "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
