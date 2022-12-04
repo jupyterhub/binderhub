@@ -38,8 +38,8 @@ def tokenize_spec(spec):
     spec_parts = spec.split("/", 2)  # allow ref to contain "/"
     if len(spec_parts) != 3:
         msg = f'Spec is not of the form "user/repo/ref", provided: "{spec}".'
-        if len(spec_parts) == 2 and spec_parts[-1] not in ("main", "master"):
-            msg += f' Did you mean "{spec}/main"?'
+        if len(spec_parts) == 2 and spec_parts[-1] not in {"main", "master", "HEAD"}:
+            msg += f' Did you mean "{spec}/HEAD"?'
         raise ValueError(msg)
 
     return spec_parts
@@ -564,7 +564,7 @@ class GitLabRepoProvider(RepoProvider):
     <url-escaped-namespace>/<unresolved_ref>
 
     eg:
-    group%2Fproject%2Frepo/master
+    group%2Fproject%2Frepo/main
     """
 
     name = Unicode("GitLab")
@@ -956,10 +956,9 @@ class GistRepoProvider(GitHubRepoProvider):
 
     The ref is optional, valid values are
         - a full sha1 of a ref in the history
-        - master
-        - HEAD for the default branch
+        - HEAD for the latest ref (also allow 'master', 'main' as aliases for HEAD)
 
-    If master or no ref is specified the latest revision will be used.
+    If HEAD or no ref is specified the latest revision will be used.
     """
 
     name = Unicode("Gist")
@@ -1020,7 +1019,7 @@ class GistRepoProvider(GitHubRepoProvider):
             )
 
         all_versions = [e["version"] for e in ref_info["history"]]
-        if self.unresolved_ref in {"", "HEAD", "master"}:
+        if self.unresolved_ref in {"", "HEAD", "master", "main"}:
             self.resolved_ref = all_versions[0]
         else:
             if self.unresolved_ref not in all_versions:

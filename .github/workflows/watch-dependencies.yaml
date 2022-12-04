@@ -46,7 +46,7 @@ jobs:
         id: local
         run: |
           local_tag=$(cat helm-chart/binderhub/values.yaml | yq e '.${{ matrix.values_path }}' -)
-          echo "::set-output name=tag::$local_tag"
+          echo "tag=$local_tag" >> $GITHUB_OUTPUT
 
       - name: Get latest tag of ${{ matrix.registry }}/${{ matrix.repository }}
         id: latest
@@ -61,7 +61,7 @@ jobs:
               docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
             | jq -r '[.Tags[] | select(. | match("^\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(tonumber)) | last'
           )
-          echo "::set-output name=tag::$latest_tag"
+          echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
       - name: Update values.yaml pinned tag
         if: steps.local.outputs.tag != steps.latest.outputs.tag

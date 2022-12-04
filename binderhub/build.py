@@ -302,14 +302,16 @@ class KubernetesBuildExecutor(BuildExecutor):
         """
         resp = self.api.list_namespaced_pod(
             self.namespace,
-            label_selector="component=dind,app=binder",
+            label_selector="component=image-builder,app=binder",
             _request_timeout=KUBE_REQUEST_TIMEOUT,
             _preload_content=False,
         )
-        dind_pods = json.loads(resp.read())
+        image_builder_pods = json.loads(resp.read())
 
-        if self.sticky_builds and dind_pods:
-            node_names = [pod["spec"]["nodeName"] for pod in dind_pods["items"]]
+        if self.sticky_builds and image_builder_pods:
+            node_names = [
+                pod["spec"]["nodeName"] for pod in image_builder_pods["items"]
+            ]
             ranked_nodes = rendezvous_rank(node_names, self.repo_url)
             best_node_name = ranked_nodes[0]
 

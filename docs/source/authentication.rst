@@ -26,6 +26,11 @@ you need to add the following into ``config.yaml``:
           binder:
             oauth_no_confirm: true
             oauth_redirect_uri: "https://<binderhub_url>/oauth_callback"
+        loadRoles:
+          user:
+            scopes:
+              - self
+              - "access:services"
 
       singleuser:
         # to make notebook servers aware of hub

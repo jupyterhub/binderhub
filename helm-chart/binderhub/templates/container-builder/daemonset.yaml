@@ -16,10 +16,13 @@ spec:
       labels:
         name: {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
         app: binder
-        component: dind
+        component: image-builder
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" $builder.daemonset.image) }}
+      imagePullSecrets: {{ . }}
+      {{- end }}
       tolerations:
       - effect: NoSchedule
         key: hub.jupyter.org/dedicated
@@ -39,7 +42,9 @@ spec:
       containers:
         - name: {{ .Values.containerBuilderPod }}
           image: {{ $daemonset.image.name }}:{{ $daemonset.image.tag }}
-          imagePullPolicy: {{ $daemonset.image.pullPolicy }}
+          {{- with $daemonset.image.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
           {{- with $daemonset.resources }}
           resources:
             {{- $daemonset.resources | toYaml | nindent 12 }}

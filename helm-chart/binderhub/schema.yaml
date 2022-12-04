@@ -4,7 +4,7 @@
 #
 # This schema is also used by our documentation system to build the
 # configuration reference section based on the description fields. See
-# doc/source/conf.py for that logic!
+# docs/source/conf.py for that logic!
 #
 # We look to document everything we have default values for in values.yaml, but
 # we don't look to enforce the perfect validation logic within this file.

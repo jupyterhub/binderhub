@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "meta-viewport": "off"
+  }
+}
+
+
+//This is the configuration file for the VSCode extension called webhint, it identifies accessibilty errors in code

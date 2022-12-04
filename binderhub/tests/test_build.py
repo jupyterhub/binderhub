@@ -41,6 +41,8 @@ from .utils import async_requests
         # gh/ GitHub repo provider
         "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
         "gh/binderhub-ci-repos/cached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
+        # test redirect master->HEAD
+        "gh/binderhub-ci-repos/cached-minimal-dockerfile/master",
         # gl/ GitLab repo provider
         "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/HEAD",
         "gl/binderhub-ci-repos%2Fcached-minimal-dockerfile/596b52f10efb0c9befc0c4ae850cc5175297d71c",
@@ -118,7 +120,7 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
     assert failed_events > 0, "Should have seen phase 'failed'"
 
 
-def _list_dind_pods_mock():
+def _list_image_builder_pods_mock():
     """Mock list of DIND pods"""
     mock_response = mock.MagicMock()
     mock_response.read.return_value = json.dumps(
@@ -139,7 +141,7 @@ def _list_dind_pods_mock():
 def test_default_affinity():
     # check that the default affinity is a pod anti-affinity
 
-    mock_k8s_api = _list_dind_pods_mock()
+    mock_k8s_api = _list_image_builder_pods_mock()
 
     build = Build(
         mock.MagicMock(),
@@ -167,7 +169,7 @@ def test_default_affinity():
 
 def test_sticky_builds_affinity():
     # Setup some mock objects for the response from the k8s API
-    mock_k8s_api = _list_dind_pods_mock()
+    mock_k8s_api = _list_image_builder_pods_mock()
 
     build = Build(
         mock.MagicMock(),
@@ -205,7 +207,7 @@ def test_git_credentials_passed_to_podspec_upon_submit():
         "access_token": "my_access_token",
     }"""
 
-    mock_k8s_api = _list_dind_pods_mock()
+    mock_k8s_api = _list_image_builder_pods_mock()
 
     build = Build(
         mock.MagicMock(),
