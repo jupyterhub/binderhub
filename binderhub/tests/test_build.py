@@ -13,7 +13,7 @@ from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
 
-from binderhub.build import Build, ProgressEvent
+from binderhub.build import Build, KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
 
 from .utils import async_requests
@@ -247,25 +247,24 @@ def test_extra_environment_variables_passed_to_podspec_upon_submit():
         "REGISTRY_AUTH_FILE": "/root/.docker/config.json",
     }
 
-    mock_k8s_api = _list_dind_pods_mock()
+    mock_k8s_api = _list_image_builder_pods_mock()
 
-    class EnvBuild(Build):
+    class EnvBuild(KubernetesBuildExecutor):
+        q = mock.MagicMock()
+        api = mock_k8s_api
+        name = "test_build"
+        repo_url = "repo"
+        ref = "ref"
+        image_name = "name"
         extra_envs = extra_environments
+        namespace = "build_namespace"
+        push_secret = ""
+        build_image = "image"
+        memory_limit = 0
+        docker_host = "http://mydockerregistry.local"
+        node_selector = {}
 
-    build = EnvBuild(
-        mock.MagicMock(),
-        api=mock_k8s_api,
-        name="test_build",
-        namespace="build_namespace",
-        repo_url="repo",
-        ref="ref",
-        build_image="image",
-        image_name="name",
-        push_secret="",
-        memory_limit=0,
-        docker_host="http://mydockerregistry.local",
-        node_selector={},
-    )
+    build = EnvBuild()
 
     with mock.patch.object(build.stop_event, "is_set", return_value=True):
         build.submit()
