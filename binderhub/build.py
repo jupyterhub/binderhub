@@ -382,10 +382,17 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         env = []
         if self.git_credentials:
-            secret = client.V1Secret()
-            secret.string_data = {"credentials": self.git_credentials}
-            secret.metadata = {"name": self.name}
-            secret.type = "Opaque"
+            secret = client.V1Secret(
+                metadata=client.V1ObjectMeta(
+                    name=self.name,
+                    labels={
+                        "name": self.name,
+                        "component": self._component_label,
+                    },
+                ),
+                string_data={"credentials": self.git_credentials},
+                type="Opaque",
+            )
 
             self.api.create_namespaced_secret(self.namespace, secret)
 
@@ -497,6 +504,24 @@ class KubernetesBuildExecutor(BuildExecutor):
                         # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
                         phase = self.pod.status.phase
                         if phase == "Pending":
+                            if self.git_credentials:
+                                owner_reference = client.V1OwnerReference(
+                                    api_version="v1",
+                                    kind="Pod",
+                                    name=self.pod.metadata.name,
+                                    uid=self.pod.metadata.uid,
+                                )
+                                self.api.patch_namespaced_secret(
+                                    namespace=self.namespace,
+                                    name=self.pod.metadata.name,
+                                    body=[
+                                        {
+                                            "op": "replace",
+                                            "path": "/metadata/ownerReferences",
+                                            "value": [owner_reference],
+                                        }
+                                    ],
+                                )
                             self.progress(
                                 ProgressEvent.Kind.BUILD_STATUS_CHANGE,
                                 ProgressEvent.BuildStatus.PENDING,
