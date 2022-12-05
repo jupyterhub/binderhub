@@ -484,6 +484,9 @@ as with Docker. BinderHub supports an alternative that uses `Podman-in-Kubernete
 `pink` on, you'll need to set the following configuration in your ``config.yaml`` file::
 
     containerBuilderPod: pink
+
+You can optionally override the default podman image:
+
     pink:
       daemonset:
         image:
