@@ -74,9 +74,9 @@ spec:
             - unix:///var/run/pink/docker.sock
           securityContext:
             privileged: true
-            runAsUser: 1000  # podman default user id
+            runAsUser: 0
           volumeMounts:
-          - mountPath: /home/podman/.local/share/containers/storage/
+          - mountPath: /var/lib/containers/storage
             name: podman-containers
           - mountPath: /var/run/pink/
             name: podman-socket
