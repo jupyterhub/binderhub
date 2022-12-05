@@ -382,20 +382,6 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         env = []
         if self.git_credentials:
-            secret = client.V1Secret(
-                metadata=client.V1ObjectMeta(
-                    name=self.name,
-                    labels={
-                        "name": self.name,
-                        "component": self._component_label,
-                    },
-                ),
-                string_data={"credentials": self.git_credentials},
-                type="Opaque",
-            )
-
-            self.api.create_namespaced_secret(self.namespace, secret)
-
             secret_key_ref = client.V1SecretKeySelector(
                 name=self.name, key="credentials", optional=False
             )
@@ -511,16 +497,21 @@ class KubernetesBuildExecutor(BuildExecutor):
                                     name=self.pod.metadata.name,
                                     uid=self.pod.metadata.uid,
                                 )
-                                self.api.patch_namespaced_secret(
-                                    namespace=self.namespace,
-                                    name=self.pod.metadata.name,
-                                    body=[
-                                        {
-                                            "op": "replace",
-                                            "path": "/metadata/ownerReferences",
-                                            "value": [owner_reference],
-                                        }
-                                    ],
+                                secret = client.V1Secret(
+                                    metadata=client.V1ObjectMeta(
+                                        name=self.name,
+                                        labels={
+                                            "name": self.name,
+                                            "component": self._component_label,
+                                        },
+                                        owner_references=[owner_reference],
+                                    ),
+                                    string_data={"credentials": self.git_credentials},
+                                    type="Opaque",
+                                )
+
+                                self.api.create_namespaced_secret(
+                                    self.namespace, secret
                                 )
                             self.progress(
                                 ProgressEvent.Kind.BUILD_STATUS_CHANGE,
