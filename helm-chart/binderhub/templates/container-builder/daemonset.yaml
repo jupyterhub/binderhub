@@ -1,20 +1,27 @@
-{{- if ne .Values.containerBuilderPod "disabled" -}}
-{{- $builder := (index .Values .Values.containerBuilderPod) }}
+{{- if or (ne .Values.containerBuilderPod "disabled") .Values.dind.enabled -}}
+{{- $builderName := "" }}
+{{- if .Values.dind.enabled -}}
+{{- $builderName = "dind" }}
+{{- else -}}
+{{- $builderName = .Values.containerBuilderPod }}
+{{- end -}}
+{{- $builder := (index .Values $builderName) }}
 {{- $daemonset := $builder.daemonset }}
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+  name: {{ .Release.Name }}-{{ $builderName }}
 spec:
   updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
-      name:  {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+      name:  {{ .Release.Name }}-{{ $builderName }}
   template:
     metadata:
       labels:
-        name: {{ .Release.Name }}-{{ .Values.containerBuilderPod }}
+        name: {{ .Release.Name }}-{{ $builderName }}
         app: binder
         component: image-builder
         release: {{ .Release.Name }}
@@ -40,7 +47,7 @@ spec:
       {{- end }}
 
       containers:
-        - name: {{ .Values.containerBuilderPod }}
+        - name: {{ $builderName }}
           image: {{ $daemonset.image.name }}:{{ $daemonset.image.tag }}
           {{- with $daemonset.image.pullPolicy }}
           imagePullPolicy: {{ . }}
@@ -49,7 +56,7 @@ spec:
           resources:
             {{- $daemonset.resources | toYaml | nindent 12 }}
           {{- end }}
-          {{- if eq .Values.containerBuilderPod "dind" }}
+          {{- if eq $builderName "dind" }}
           args:
             - dockerd
             - --storage-driver={{ .Values.dind.storageDriver }}
@@ -65,7 +72,7 @@ spec:
           - name: rundind
             mountPath: {{ $builder.hostSocketDir }}
           {{- end }}
-          {{- if eq .Values.containerBuilderPod "pink" }}
+          {{- if eq $builderName "pink" }}
           args:
             - podman
             - system
@@ -92,7 +99,7 @@ spec:
           {{- end }}
 
       volumes:
-      {{- if eq .Values.containerBuilderPod "dind" }}
+      {{- if eq $builderName "dind" }}
         - name: dockerlib-dind
           hostPath:
             path: {{ .Values.dind.hostLibDir }}
@@ -105,7 +112,7 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
       {{- end }}
-      {{- if eq .Values.containerBuilderPod "pink" }}
+      {{- if eq $builderName "pink" }}
         - name: podman-containers
           hostPath:
             path: {{ .Values.pink.hostStorageDir }}

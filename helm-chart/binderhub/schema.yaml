@@ -361,6 +361,10 @@ properties:
     type: object
     additionalProperties: false
     properties:
+      enabled:
+        type: boolean
+        description: |
+          DEPRECATED: Use `containerBuilderPod: dind`
       initContainers: &initContainers-spec
         type: array
         description: |

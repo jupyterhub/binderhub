@@ -145,6 +145,13 @@ config:
 {{- fail (include "removedConfig" .) }}
 {{- end }}
 
+{{- if .Values.dind.enabled }}
+[WARNING] Use of dind "enabled" detected.
+
+This value is considered legacy and should be replaced by:
+  containerBuilderPod: dind
+{{- end }}
+
 
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.hostname }}
@@ -180,6 +187,10 @@ config:
 
 {{- if hasKey .Values.jupyterhub.custom.cors "allowOrigin" }}
 {{- $breaking = print $breaking "\n\nRENAMED: jupyterhub.custom.cors.allowOrigin has been renamed to jupyterhub.hub.config.BinderSpawner.cors_allow_origin" }}
+{{- end }}
+
+{{- if and (ne .Values.containerBuilderPod "disabled") .Values.dind.enabled -}}
+{{ $breaking = print $breaking "\n\nUse of both dind \"enabled\" and containerBuilderPod detected. Please use the later" }}
 {{- end }}
 
 {{- if $breaking }}

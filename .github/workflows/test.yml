@@ -173,6 +173,12 @@ jobs:
           helm template --validate binderhub-test helm-chart/binderhub \
               --values tools/templates/lint-and-validate-values-pink.yaml
 
+      - name: "Helm template --validate (with lint-and-validate-values-legacy.yaml)"
+        if: matrix.test == 'helm'
+        run: |
+          helm template --validate binderhub-test helm-chart/binderhub \
+              --values tools/templates/lint-and-validate-values-legacy.yaml
+
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'
         run: |
