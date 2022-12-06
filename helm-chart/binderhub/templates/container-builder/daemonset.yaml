@@ -99,7 +99,7 @@ spec:
           {{- end }}
 
       volumes:
-      {{- if eq $builderName "dind" }}
+        {{- if eq $builderName "dind" }}
         - name: dockerlib-dind
           hostPath:
             path: {{ .Values.dind.hostLibDir }}
@@ -111,8 +111,8 @@ spec:
         {{- with .Values.dind.daemonset.extraVolumes }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
-      {{- end }}
-      {{- if eq $builderName "pink" }}
+        {{- end }}
+        {{- if eq $builderName "pink" }}
         - name: podman-containers
           hostPath:
             path: {{ .Values.pink.hostStorageDir }}
@@ -124,7 +124,7 @@ spec:
         {{- with .Values.pink.daemonset.extraVolumes }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
-      {{- end }}
+        {{- end }}
 
       terminationGracePeriodSeconds: 30
 {{- end }}
