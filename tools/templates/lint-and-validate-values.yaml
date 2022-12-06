@@ -86,7 +86,7 @@ deployment:
   livenessProbe: *probe
   labels: *labels
 
-containerBuilderPod: disabled
+imageBuilderType: disabled
 
 dind:
   initContainers: &initContainers

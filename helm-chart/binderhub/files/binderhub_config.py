@@ -46,9 +46,9 @@ c.BinderHub.template_path = "/etc/binderhub/templates"
 for section, sub_cfg in get_value("config", {}).items():
     c[section].update(sub_cfg)
 
-containerBuilderPod = get_value("containerBuilderPod")
-if containerBuilderPod in ["dind", "pink"]:
-    hostSocketDir = get_value(f"{containerBuilderPod}.hostSocketDir")
+imageBuilderType = get_value("imageBuilderType")
+if imageBuilderType in ["dind", "pink"]:
+    hostSocketDir = get_value(f"{imageBuilderType}.hostSocketDir")
     if hostSocketDir:
         c.BinderHub.build_docker_host = f"unix://{hostSocketDir}/docker.sock"
 

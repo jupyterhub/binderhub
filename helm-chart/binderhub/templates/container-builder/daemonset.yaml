@@ -1,5 +1,5 @@
-{{- if ne .Values.containerBuilderPod "disabled" -}}
-{{- $builderName := .Values.containerBuilderPod }}
+{{- if ne .Values.imageBuilderType "disabled" -}}
+{{- $builderName := .Values.imageBuilderType }}
 {{- $builder := (index .Values $builderName) }}
 {{- $daemonset := $builder.daemonset }}
 

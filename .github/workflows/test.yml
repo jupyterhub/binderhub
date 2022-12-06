@@ -166,14 +166,14 @@ jobs:
         run: |
           helm template --validate binderhub-test helm-chart/binderhub \
               --values tools/templates/lint-and-validate-values.yaml \
-              --set containerBuilderPod=dind
+              --set imageBuilderType=dind
 
       - name: "Helm template --validate for pink (with lint-and-validate-values.yaml)"
         if: matrix.test == 'helm'
         run: |
           helm template --validate binderhub-test helm-chart/binderhub \
               --values tools/templates/lint-and-validate-values.yaml \
-              --set containerBuilderPod=pink
+              --set imageBuilderType=pink
 
       - name: Validate the chart against the k8s API
         if: matrix.test == 'helm'

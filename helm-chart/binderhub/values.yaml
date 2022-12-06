@@ -247,7 +247,7 @@ deployment:
     timeoutSeconds: 10
   labels: {}
 
-containerBuilderPod: "disabled" # One of: dind, pink or disabled
+imageBuilderType: "disabled" # One of: dind, pink or disabled
 
 dind:
   initContainers: []

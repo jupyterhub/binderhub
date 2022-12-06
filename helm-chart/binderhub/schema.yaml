@@ -29,7 +29,7 @@ required:
   - deployment
   - dind
   - pink
-  - containerBuilderPod
+  - imageBuilderType
   - imageCleaner
   - ingress
   - initContainers
@@ -351,12 +351,12 @@ properties:
           See the [Kubernetes docs](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
           to learn more about labels.
 
-  containerBuilderPod:
+  imageBuilderType:
     type: string
     enum: ["disabled", "dind", "pink"]
     default: "disabled"
     description: |
-      Selected builder pod type
+      Selected image builder type
 
   dind:
     type: object
@@ -365,7 +365,7 @@ properties:
       enabled:
         type: boolean
         description: |
-          DEPRECATED: Use `containerBuilderPod: dind`
+          DEPRECATED: Use `imageBuilderType: dind`
       initContainers: &initContainers-spec
         type: array
         description: |

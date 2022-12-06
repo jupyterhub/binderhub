@@ -38,7 +38,7 @@ ingress:
 # against which we haven't. We currently only test this via the various
 # lint-and-validate-values*.yaml that makes sure our rendered templates are
 # valid against a k8s api-server.
-containerBuilderPod: "disabled"
+imageBuilderType: "disabled"
 
 # NOTE: This is a mirror of the jupyterhub section in
 #       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
