@@ -29,6 +29,7 @@ required:
   - deployment
   - dind
   - pink
+  - containerBuilderPod
   - imageCleaner
   - ingress
   - initContainers
