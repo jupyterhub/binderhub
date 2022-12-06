@@ -1,10 +1,5 @@
-{{- if or (ne .Values.containerBuilderPod "disabled") .Values.dind.enabled -}}
-{{- $builderName := "" }}
-{{- if .Values.dind.enabled -}}
-{{- $builderName = "dind" }}
-{{- else -}}
-{{- $builderName = .Values.containerBuilderPod }}
-{{- end -}}
+{{- if ne .Values.containerBuilderPod "disabled" -}}
+{{- $builderName := .Values.containerBuilderPod }}
 {{- $builder := (index .Values $builderName) }}
 {{- $daemonset := $builder.daemonset }}
 
