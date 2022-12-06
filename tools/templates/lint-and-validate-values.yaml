@@ -109,6 +109,17 @@ dind:
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
 
+pink:
+  initContainers: *initContainers
+  daemonset:
+    image: *image
+    lifecycle: *lifecycle
+    extraVolumes: []
+    extraVolumeMounts: []
+  resources: *resources
+  hostStorageDir: /var/lib/pink
+  hostSocketDir: /var/run/pink
+
 imageCleaner:
   enabled: true
   image: *image
@@ -147,6 +158,7 @@ extraEnv: &extraEnv
     value: MOCK_ENV_VAR_VALUE1
   MOCK_ENV_VAR_NAME2:
     value: MOCK_ENV_VAR_VALUE2
+extraFiles: {}
 podAnnotations: *annotations
 
 global:
