@@ -1,4 +1,4 @@
-{{- if ne .Values.imageBuilderType "disabled" -}}
+{{- if ne .Values.imageBuilderType "local" -}}
 {{- $builderName := .Values.imageBuilderType }}
 {{- $builder := (index .Values $builderName) }}
 {{- $daemonset := $builder.daemonset }}

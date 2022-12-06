@@ -247,7 +247,7 @@ deployment:
     timeoutSeconds: 10
   labels: {}
 
-imageBuilderType: "disabled" # One of: dind, pink or disabled
+imageBuilderType: "local"
 
 dind:
   initContainers: []

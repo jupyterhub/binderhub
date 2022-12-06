@@ -353,8 +353,8 @@ properties:
 
   imageBuilderType:
     type: string
-    enum: ["disabled", "dind", "pink"]
-    default: "disabled"
+    enum: ["local", "dind", "pink"]
+    default: "local"
     description: |
       Selected image builder type
 
