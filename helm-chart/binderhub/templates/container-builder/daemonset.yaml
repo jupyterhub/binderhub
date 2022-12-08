@@ -64,7 +64,7 @@ spec:
           volumeMounts:
           - name: dockerlib-dind
             mountPath: /var/lib/docker
-          - name: rundind
+          - name: run-dind
             mountPath: {{ $builder.hostSocketDir }}
           {{- end }}
           {{- if eq $builderName "pink" }}
@@ -81,7 +81,7 @@ spec:
           - mountPath: /var/lib/containers/storage
             name: podman-containers
           - mountPath: {{ .Values.pink.hostSocketDir }}
-            name: podman-socket
+            name: run-pink
           {{- end }}
 
           {{- with $daemonset.extraVolumeMounts }}
@@ -99,7 +99,7 @@ spec:
           hostPath:
             path: {{ .Values.dind.hostLibDir }}
             type: DirectoryOrCreate
-        - name: rundind
+        - name: run-dind
           hostPath:
             path: {{ .Values.dind.hostSocketDir }}
             type: DirectoryOrCreate
@@ -112,7 +112,7 @@ spec:
           hostPath:
             path: {{ .Values.pink.hostStorageDir }}
             type: DirectoryOrCreate
-        - name: podman-socket
+        - name: run-pink
           hostPath:
             path: {{ .Values.pink.hostSocketDir }}
             type: DirectoryOrCreate
