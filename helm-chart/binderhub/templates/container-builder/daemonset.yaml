@@ -54,9 +54,9 @@ spec:
           {{- if eq $builderName "dind" }}
           args:
             - dockerd
-            - --storage-driver={{ .Values.dind.storageDriver }}
-            - -H unix://{{ .Values.dind.hostSocketDir }}/docker.sock
-            {{- with .Values.dind.daemonset.extraArgs }}
+            - --storage-driver={{ $builder.storageDriver }}
+            - -H unix://{{ $builder.hostSocketDir }}/docker.sock
+            {{- with $daemonset.extraArgs }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}
           securityContext:
@@ -73,15 +73,15 @@ spec:
             - system
             - service
             - --time=0
-            - unix://{{ .Values.pink.hostSocketDir }}/docker.sock
+            - unix://{{ $builder.hostSocketDir }}/docker.sock
           securityContext:
             privileged: true
             runAsUser: 0
           volumeMounts:
-          - mountPath: /var/lib/containers/storage
-            name: podman-containers
-          - mountPath: {{ .Values.pink.hostSocketDir }}
-            name: run-pink
+          - name: podman-containers
+            mountPath: /var/lib/containers/storage
+          - name: run-pink
+            mountPath: {{ $builder.hostSocketDir }}
           {{- end }}
 
           {{- with $daemonset.extraVolumeMounts }}
@@ -97,26 +97,26 @@ spec:
         {{- if eq $builderName "dind" }}
         - name: dockerlib-dind
           hostPath:
-            path: {{ .Values.dind.hostLibDir }}
+            path: {{ $builder.hostLibDir }}
             type: DirectoryOrCreate
         - name: run-dind
           hostPath:
-            path: {{ .Values.dind.hostSocketDir }}
+            path: {{ $builder.hostSocketDir }}
             type: DirectoryOrCreate
-        {{- with .Values.dind.daemonset.extraVolumes }}
+        {{- with $daemonset.extraVolumes }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
         {{- end }}
         {{- if eq $builderName "pink" }}
         - name: podman-containers
           hostPath:
-            path: {{ .Values.pink.hostStorageDir }}
+            path: {{ $builder.hostStorageDir }}
             type: DirectoryOrCreate
         - name: run-pink
           hostPath:
-            path: {{ .Values.pink.hostSocketDir }}
+            path: {{ $builder.hostSocketDir }}
             type: DirectoryOrCreate
-        {{- with .Values.pink.daemonset.extraVolumes }}
+        {{- with $daemonset.extraVolumes }}
         {{- . | toYaml | nindent 8 }}
         {{- end }}
         {{- end }}
