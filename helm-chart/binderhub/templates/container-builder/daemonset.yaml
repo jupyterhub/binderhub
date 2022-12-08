@@ -73,14 +73,14 @@ spec:
             - system
             - service
             - --time=0
-            - unix:///var/run/pink/docker.sock
+            - unix://{{ .Values.pink.hostSocketDir }}/docker.sock
           securityContext:
             privileged: true
             runAsUser: 0
           volumeMounts:
           - mountPath: /var/lib/containers/storage
             name: podman-containers
-          - mountPath: /var/run/pink/
+          - mountPath: {{ .Values.pink.hostSocketDir }}
             name: podman-socket
           {{- end }}
 
