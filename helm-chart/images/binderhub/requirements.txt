@@ -12,7 +12,7 @@ attrs==22.1.0
     # via jsonschema
 cachetools==5.2.0
     # via google-auth
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   kubernetes
     #   requests
@@ -25,9 +25,9 @@ charset-normalizer==2.1.1
 cryptography==38.0.3
     # via pyopenssl
 docker==6.0.1
-    # via -r helm-chart/images/binderhub/../../../requirements.txt
+    # via -r ../../../requirements.txt
 escapism==1.0.1
-    # via -r helm-chart/images/binderhub/../../../requirements.txt
+    # via -r ../../../requirements.txt
 google-api-core[grpc]==2.10.2
     # via
     #   google-cloud-appengine-logging
@@ -45,7 +45,7 @@ google-cloud-audit-log==0.2.4
 google-cloud-core==2.3.2
     # via google-cloud-logging
 google-cloud-logging==3.2.5
-    # via -r helm-chart/images/binderhub/requirements.in
+    # via -r requirements.in
 googleapis-common-protos[grpc]==1.56.4
     # via
     #   google-api-core
@@ -66,26 +66,24 @@ grpcio-status==1.50.0
     # via google-api-core
 idna==3.4
     # via requests
-importlib-metadata==5.0.0
-    # via jupyterhub
 jinja2==3.1.2
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyterhub
 jsonschema==4.17.0
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
 jupyterhub==3.0.0
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
-    #   -r helm-chart/images/binderhub/requirements.in
+    #   -r ../../../requirements.txt
+    #   -r requirements.in
 kubernetes==9.0.1
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
-    #   -r helm-chart/images/binderhub/requirements.in
+    #   -r ../../../requirements.txt
+    #   -r requirements.in
 mako==1.2.3
     # via alembic
 markupsafe==2.1.1
@@ -104,7 +102,7 @@ pamela==1.0.0
     # via jupyterhub
 prometheus-client==0.15.0
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyterhub
 proto-plus==1.22.1
     # via
@@ -128,7 +126,7 @@ pyasn1-modules==0.2.8
 pycparser==2.21
     # via cffi
 pyjwt==2.6.0
-    # via -r helm-chart/images/binderhub/../../../requirements.txt
+    # via -r ../../../requirements.txt
 pyopenssl==22.1.0
     # via certipy
 pyparsing==3.0.9
@@ -141,7 +139,7 @@ python-dateutil==2.8.2
     #   kubernetes
 python-json-logger==2.0.4
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyter-telemetry
 pyyaml==6.0
     # via kubernetes
@@ -158,8 +156,6 @@ rsa==4.9
     # via google-auth
 ruamel-yaml==0.17.21
     # via jupyter-telemetry
-ruamel-yaml-clib==0.2.7
-    # via ruamel-yaml
 six==1.16.0
     # via
     #   google-auth
@@ -172,11 +168,11 @@ sqlalchemy==1.4.44
     #   jupyterhub
 tornado==6.2
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyterhub
 traitlets==5.5.0
     # via
-    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r ../../../requirements.txt
     #   jupyter-telemetry
     #   jupyterhub
 urllib3==1.26.12
@@ -188,8 +184,6 @@ websocket-client==1.4.2
     # via
     #   docker
     #   kubernetes
-zipp==3.10.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
