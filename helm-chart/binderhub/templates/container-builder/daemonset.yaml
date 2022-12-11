@@ -1,8 +1,7 @@
 {{- if ne .Values.imageBuilderType "local" -}}
-{{- $builderName := .Values.imageBuilderType }}
-{{- $builder := (index .Values $builderName) }}
-{{- $daemonset := $builder.daemonset }}
-
+{{- $builderName := .Values.imageBuilderType -}}
+{{- $builder := index .Values $builderName -}}
+{{- $daemonset := $builder.daemonset -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -22,7 +21,7 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
-      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" $builder.daemonset.image) }}
+      {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" $daemonset.image) }}
       imagePullSecrets: {{ . }}
       {{- end }}
       tolerations:
