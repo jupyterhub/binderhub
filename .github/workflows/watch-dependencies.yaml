@@ -29,6 +29,10 @@ jobs:
             registry: registry.hub.docker.com
             repository: library/docker
             values_path: dind.daemonset.image.tag
+          - name: podman
+            registry: quay.io
+            repository: podman/stable
+            values_path: pink.daemonset.image.tag
 
           # FIXME: After docker-image-cleaner 1.0.0 is released, we can enable
           #        this. So far, there isn't any available stable release, and
