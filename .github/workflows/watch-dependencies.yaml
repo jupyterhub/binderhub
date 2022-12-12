@@ -63,7 +63,7 @@ jobs:
         run: |
           latest_tag=$(
               docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
-            | jq -r '[.Tags[] | select(. | match("^\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(tonumber)) | last'
+            | jq -r '[.Tags[] | select(. | match("^v?\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(ltrimstr("v") | tonumber)) | last'
           )
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
