@@ -50,8 +50,8 @@ imageBuilderType = get_value("imageBuilderType")
 if imageBuilderType in ["dind", "pink"]:
     hostSocketDir = get_value(f"{imageBuilderType}.hostSocketDir")
     if hostSocketDir:
-        c.BinderHub.build_docker_host = f"unix://{hostSocketDir}/docker.sock"
-
+        socketname = "docker" if imageBuilderType == "dind" else "podman"
+        c.BinderHub.build_docker_host = f"unix://{hostSocketDir}/{socketname}.sock"
 
 if c.BinderHub.auth_enabled:
     hub_url = urlparse(c.BinderHub.hub_url)

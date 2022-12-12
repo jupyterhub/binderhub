@@ -93,7 +93,7 @@ spec:
           type: DirectoryOrCreate
       - name: socket-pink
         hostPath:
-          path: {{ .Values.pink.hostSocketDir }}/docker.sock
+          path: {{ .Values.pink.hostSocketDir }}/podman.sock
           type: Socket
       {{- end }}
 

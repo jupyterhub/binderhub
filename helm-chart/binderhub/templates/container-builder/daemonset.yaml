@@ -72,7 +72,7 @@ spec:
             - system
             - service
             - --time=0
-            - unix://{{ $builder.hostSocketDir }}/docker.sock
+            - unix://{{ $builder.hostSocketDir }}/podman.sock
           securityContext:
             privileged: true
             runAsUser: 0
