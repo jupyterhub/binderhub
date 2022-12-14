@@ -259,6 +259,12 @@ class KubernetesBuildExecutor(BuildExecutor):
         {}, help="Node selector for the kubernetes build pod.", config=True
     )
 
+    extra_envs = Dict(
+        {},
+        help="Extra environment variables for the kubernetes build pod.",
+        config=True,
+    )
+
     log_tail_lines = Integer(
         100,
         help=(
@@ -380,7 +386,10 @@ class KubernetesBuildExecutor(BuildExecutor):
                 )
             )
 
-        env = []
+        env = [
+            client.V1EnvVar(name=key, value=value)
+            for key, value in self.extra_envs.items()
+        ]
         if self.git_credentials:
             env.append(
                 client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)

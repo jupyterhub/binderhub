@@ -247,8 +247,9 @@ deployment:
     timeoutSeconds: 10
   labels: {}
 
+imageBuilderType: "local"
+
 dind:
-  enabled: false
   initContainers: []
   daemonset:
     image:
@@ -265,6 +266,22 @@ dind:
   resources: {}
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
+
+# Podman in Kubernetes
+pink:
+  initContainers: []
+  daemonset:
+    image:
+      name: quay.io/podman/stable
+      tag: v4.3.1
+      pullPolicy: ""
+      pullSecrets: []
+    lifecycle: {}
+    extraVolumes: []
+    extraVolumeMounts: []
+  resources: {}
+  hostStorageDir: /var/lib/pink/storage
+  hostSocketDir: /var/run/pink
 
 imageCleaner:
   enabled: true

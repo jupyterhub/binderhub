@@ -13,7 +13,7 @@ from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
 
-from binderhub.build import Build, ProgressEvent
+from binderhub.build import Build, KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
 
 from .utils import async_requests
@@ -239,6 +239,47 @@ def test_git_credentials_passed_to_podspec_upon_submit():
     env = {env_var.name: env_var.value for env_var in pod.spec.containers[0].env}
 
     assert env["GIT_CREDENTIAL_ENV"] == git_credentials
+
+
+def test_extra_environment_variables_passed_to_podspec_upon_submit():
+    extra_environments = {
+        "CONTAINER_HOST": "unix:///var/run/docker.sock",
+        "REGISTRY_AUTH_FILE": "/root/.docker/config.json",
+    }
+
+    mock_k8s_api = _list_image_builder_pods_mock()
+
+    class EnvBuild(KubernetesBuildExecutor):
+        q = mock.MagicMock()
+        api = mock_k8s_api
+        name = "test_build"
+        repo_url = "repo"
+        ref = "ref"
+        image_name = "name"
+        extra_envs = extra_environments
+        namespace = "build_namespace"
+        push_secret = ""
+        build_image = "image"
+        memory_limit = 0
+        docker_host = "http://mydockerregistry.local"
+        node_selector = {}
+
+    build = EnvBuild()
+
+    with mock.patch.object(build.stop_event, "is_set", return_value=True):
+        build.submit()
+
+    call_args_list = mock_k8s_api.create_namespaced_pod.call_args_list
+    assert len(call_args_list) == 1
+
+    args = call_args_list[0][0]
+    pod = args[1]
+
+    assert len(pod.spec.containers) == 1
+
+    env = {env_var.name: env_var.value for env_var in pod.spec.containers[0].env}
+
+    assert env == extra_environments
 
 
 async def test_local_repo2docker_build():

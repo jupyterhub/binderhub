@@ -28,6 +28,8 @@ required:
   - jupyterhub
   - deployment
   - dind
+  - pink
+  - imageBuilderType
   - imageCleaner
   - ingress
   - initContainers
@@ -349,6 +351,13 @@ properties:
           See the [Kubernetes docs](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
           to learn more about labels.
 
+  imageBuilderType:
+    type: string
+    enum: ["local", "dind", "pink"]
+    default: "local"
+    description: |
+      Selected image builder type
+
   dind:
     type: object
     additionalProperties: false
@@ -356,7 +365,7 @@ properties:
       enabled:
         type: boolean
         description: |
-          TODO
+          DEPRECATED: Use `imageBuilderType: dind`
       initContainers: &initContainers-spec
         type: array
         description: |
@@ -408,6 +417,29 @@ properties:
         type: string
         description: |
           TODO
+
+  pink:
+    type: object
+    additionalProperties: false
+    properties:
+      initContainers: *initContainers-spec
+      daemonset:
+        type: object
+        additionalProperties: false
+        properties:
+          image: *image-spec
+          lifecycle: *lifecycle-spec
+          extraVolumes: *extraVolumes-spec
+          extraVolumeMounts: *extraVolumeMounts-spec
+      resources: *resources-spec
+      hostStorageDir:
+        type: string
+        description: |
+          Host path where the containers storage will be located
+      hostSocketDir:
+        type: string
+        description: |
+          Host path where the podman socket will be located
 
   imageCleaner:
     type: object

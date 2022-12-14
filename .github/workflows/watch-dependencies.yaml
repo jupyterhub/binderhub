@@ -29,6 +29,10 @@ jobs:
             registry: registry.hub.docker.com
             repository: library/docker
             values_path: dind.daemonset.image.tag
+          - name: podman
+            registry: quay.io
+            repository: podman/stable
+            values_path: pink.daemonset.image.tag
 
           # FIXME: After docker-image-cleaner 1.0.0 is released, we can enable
           #        this. So far, there isn't any available stable release, and
@@ -59,7 +63,7 @@ jobs:
         run: |
           latest_tag=$(
               docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
-            | jq -r '[.Tags[] | select(. | match("^\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(tonumber)) | last'
+            | jq -r '[.Tags[] | select(. | match("^v?\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(ltrimstr("v") | tonumber)) | last'
           )
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 

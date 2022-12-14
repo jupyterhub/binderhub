@@ -36,17 +36,17 @@ spec:
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
       containers:
-      {{- range $i, $kind := tuple "host" "dind" }}
-      {{- if or (and (eq $kind "dind") $Values.dind.enabled) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
+      {{- range $i, $kind := tuple "host" "dind" "pink" }}
+      {{- if or (and (eq $kind "dind") (eq $Values.imageBuilderType "dind")) (and (eq $kind "pink") (eq $Values.imageBuilderType "pink")) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
       - name: image-cleaner-{{ $kind }}
         image: {{ $Values.imageCleaner.image.name }}:{{ $Values.imageCleaner.image.tag }}
         {{- with $Values.imageCleaner.image.pullPolicy }}
         imagePullPolicy: {{ . }}
         {{- end }}
         volumeMounts:
-        - name: dockerlib-{{ $kind }}
-          mountPath: /var/lib/docker
-        - name: dockersocket-{{ $kind }}
+        - name: storage-{{ $kind }}
+          mountPath: /var/lib/{{ $kind }}
+        - name: socket-{{ $kind }}
           mountPath: /var/run/docker.sock
         env:
         - name: DOCKER_IMAGE_CLEANER_NODE_NAME
@@ -54,7 +54,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: DOCKER_IMAGE_CLEANER_PATH_TO_CHECK
-          value: /var/lib/docker
+          value: /var/lib/{{ $kind }}
         - name: DOCKER_IMAGE_CLEANER_DELAY_SECONDS
           value: {{ $Values.imageCleaner.delay | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_TYPE
@@ -68,22 +68,33 @@ spec:
       terminationGracePeriodSeconds: 0
       volumes:
       {{- if .Values.imageCleaner.host.enabled }}
-      - name: dockerlib-host
+      - name: storage-host
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerLibDir }}
-      - name: dockersocket-host
+      - name: socket-host
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerSocket }}
           type: Socket
       {{- end }}
-      {{- if .Values.dind.enabled }}
-      - name: dockerlib-dind
+      {{- if eq $Values.imageBuilderType "dind" }}
+      - name: storage-dind
         hostPath:
           path: {{ .Values.dind.hostLibDir }}
           type: DirectoryOrCreate
-      - name: dockersocket-dind
+      - name: socket-dind
         hostPath:
           path: {{ .Values.dind.hostSocketDir }}/docker.sock
           type: Socket
       {{- end }}
+      {{- if eq $Values.imageBuilderType "pink" }}
+      - name: storage-pink
+        hostPath:
+          path: {{ .Values.pink.hostStorageDir }}
+          type: DirectoryOrCreate
+      - name: socket-pink
+        hostPath:
+          path: {{ .Values.pink.hostSocketDir }}/podman.sock
+          type: Socket
+      {{- end }}
+
 {{- end }}

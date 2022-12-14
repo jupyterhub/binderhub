@@ -182,6 +182,14 @@ config:
 {{- $breaking = print $breaking "\n\nRENAMED: jupyterhub.custom.cors.allowOrigin has been renamed to jupyterhub.hub.config.BinderSpawner.cors_allow_origin" }}
 {{- end }}
 
+{{- if hasKey .Values.dind "enabled" }}
+{{- $breaking = print $breaking "\n\nCHANGED:" }}
+{{- $breaking = print $breaking "\n\ndind:" }}
+{{- $breaking = print $breaking "\n  enabled: true" }}
+{{- $breaking = print $breaking "\n\nmust as of version 0.3.0 be replace by" }}
+{{- $breaking = print $breaking "\n\nimageBuilderType: dind" }}
+{{- end }}
+
 {{- if $breaking }}
 {{- fail (print $breaking_title $breaking) }}
 {{- end }}
