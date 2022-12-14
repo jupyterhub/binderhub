@@ -110,7 +110,7 @@ proto-plus==1.22.1
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==4.21.11
+protobuf==4.21.12
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -163,7 +163,7 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==1.4.44
+sqlalchemy==1.4.45
     # via
     #   alembic
     #   jupyterhub
@@ -171,7 +171,7 @@ tornado==6.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.7.0
+traitlets==5.7.1
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
