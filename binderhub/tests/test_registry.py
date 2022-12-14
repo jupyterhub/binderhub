@@ -2,7 +2,10 @@
 import base64
 import json
 import os
+from random import randint
 
+import pytest
+from tornado import httpclient
 from tornado.web import Application, HTTPError, RequestHandler
 
 from binderhub.registry import DockerRegistry
@@ -59,17 +62,62 @@ def test_registry_gcr_defaults(tmpdir):
     assert registry.password == "{...}"
 
 
+@pytest.mark.parametrize(
+    "header,expected",
+    [
+        (
+            'Bearer realm="https://example.org/abc/token",service="example.org",scope=""',
+            ("https://example.org/abc/token", "example.org", ""),
+        ),
+        (
+            'BEARER scope="abc",service="example.org",realm="https://example.org/abc/token"',
+            ("https://example.org/abc/token", "example.org", "abc"),
+        ),
+    ],
+)
+def test_parse_www_authenticate_header(header, expected):
+    registry = DockerRegistry()
+    assert expected == registry._parse_www_authenticate_header(header)
+
+
+@pytest.mark.parametrize(
+    "header,expected",
+    [
+        (
+            'basic realm="https://example.org/abc/token"',
+            "Only WWW-Authenticate Bearer type supported",
+        ),
+        (
+            'bearer realm="https://example.org/abc/token"',
+            "Expected WWW-Authenticate to include realm service scope",
+        ),
+    ],
+)
+def test_parse_www_authenticate_header_invalid(header, expected):
+    registry = DockerRegistry()
+    with pytest.raises(ValueError) as excinfo:
+        registry._parse_www_authenticate_header(header)
+    assert excinfo.value.args[0].startswith(expected)
+
+
 # Mock the registry API calls made by get_image_manifest
 
 
 class MockTokenHandler(RequestHandler):
     """Mock handler for the registry token handler"""
 
-    def initialize(self, test_handle):
+    def initialize(self, test_handle, service=None, scope=None):
         self.test_handle = test_handle
+        self.service = service
+        self.scope = scope
 
     def get(self):
-        self.get_argument("scope")
+        scope = self.get_argument("scope")
+        if self.scope:
+            assert scope == self.scope
+        service = self.get_argument("service")
+        if self.service:
+            assert service == self.service
         auth_header = self.request.headers.get("Authorization", "")
         if not auth_header.startswith("Basic "):
             raise HTTPError(401, "No basic auth")
@@ -104,8 +152,52 @@ class MockManifestHandler(RequestHandler):
         # get_image_manifest never looks at the contents here
         self.write(json.dumps({"image": image, "tag": tag}))
 
+    def write_error(self, status_code, **kwargs):
+        err_cls, err, traceback = kwargs["exc_info"]
+        if status_code == 401:
+            r = self.request
+            self.set_header(
+                "WWW-Authenticate",
+                f'Bearer realm="{r.protocol}://{r.host}/token",service="service=1",scope="scope-2"',
+            )
+            super().write_error(status_code, **kwargs)
 
-async def test_get_image_manifest(tmpdir, request):
+
+async def test_get_token():
+    username = "user"
+    password = "pass"
+    test_handle = {"username": username, "password": password}
+    app = Application(
+        [
+            (r"/token", MockTokenHandler, {"test_handle": test_handle}),
+        ]
+    )
+    ip = "127.0.0.1"
+    port = randint(10000, 65535)
+    app.listen(port, ip)
+
+    registry = DockerRegistry(
+        url="https://example.org", username=username, password=password
+    )
+
+    assert registry.url == "https://example.org"
+    assert registry.auth_config_url == "https://example.org"
+    # token_url should be unset, since it should be determined by the caller from a
+    # WWW-Authenticate header
+    assert registry.token_url == ""
+    assert registry.username == username
+    assert registry.password == password
+    token = await registry._get_token(
+        httpclient.AsyncHTTPClient(),
+        f"http://{ip}:{port}/token",
+        "service.1",
+        "scope.2",
+    )
+    assert token == test_handle["token"]
+
+
+@pytest.mark.parametrize("token_url_known", [True, False])
+async def test_get_image_manifest(tmpdir, token_url_known):
     username = "asdf"
     password = "asdf;ouyag"
     test_handle = {"username": username, "password": password}
@@ -120,7 +212,7 @@ async def test_get_image_manifest(tmpdir, request):
         ]
     )
     ip = "127.0.0.1"
-    port = 10504
+    port = randint(10000, 65535)
     url = f"http://{ip}:{port}"
     app.listen(port, ip)
     config_json = tmpdir.join("dockerconfig.json")
@@ -137,12 +229,16 @@ async def test_get_image_manifest(tmpdir, request):
             },
             f,
         )
+    if token_url_known:
+        token_url = url + "/token"
+    else:
+        token_url = ""
     registry = DockerRegistry(
-        docker_config_path=str(config_json), token_url=url + "/token", url=url
+        docker_config_path=str(config_json), token_url=token_url, url=url
     )
     assert registry.url == url
     assert registry.auth_config_url == url
-    assert registry.token_url == url + "/token"
+    assert registry.token_url == token_url
     assert registry.username == username
     assert registry.password == password
     manifest = await registry.get_image_manifest("myimage", "abc123")
