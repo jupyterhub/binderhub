@@ -20,6 +20,7 @@ required:
   - resources
   - rbac
   - nodeSelector
+  - tolerations
   - image
   - registry
   - service
@@ -106,6 +107,14 @@ properties:
       See [the Kubernetes
       documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
       for more details.
+
+  tolerations: &tolerations-spec
+    type: array
+    description: |
+      Tolerations allow a pod to be scheduled on nodes with taints.
+      See the
+      [Kubernetes docs](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+      for more info.
 
   image: &image-spec
     type: object
