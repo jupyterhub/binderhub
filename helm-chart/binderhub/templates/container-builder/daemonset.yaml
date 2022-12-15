@@ -47,9 +47,9 @@ spec:
           {{- with $daemonset.image.pullPolicy }}
           imagePullPolicy: {{ . }}
           {{- end }}
-          {{- with $daemonset.resources }}
+          {{- with $builder.resources }}
           resources:
-            {{- $daemonset.resources | toYaml | nindent 12 }}
+            {{- $builder.resources | toYaml | nindent 12 }}
           {{- end }}
           {{- if eq $builderName "dind" }}
           args:
