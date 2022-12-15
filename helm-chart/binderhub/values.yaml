@@ -247,7 +247,7 @@ deployment:
     timeoutSeconds: 10
   labels: {}
 
-imageBuilderType: "local"
+imageBuilderType: "host"
 
 dind:
   initContainers: []
@@ -300,7 +300,6 @@ imageCleaner:
   imageGCThresholdLow: 60
   # cull images on the host docker as well as dind
   host:
-    enabled: true
     dockerSocket: /var/run/docker.sock
     dockerLibDir: /var/lib/docker
 

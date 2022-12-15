@@ -86,7 +86,7 @@ deployment:
   livenessProbe: *probe
   labels: *labels
 
-imageBuilderType: local
+imageBuilderType: host
 
 dind:
   initContainers: &initContainers
@@ -128,7 +128,6 @@ imageCleaner:
   imageGCThresholdHigh: 2
   imageGCThresholdLow: 1
   host:
-    enabled: true
     dockerSocket: /var/run/docker.sock
     dockerLibDir: /var/lib/docker
 

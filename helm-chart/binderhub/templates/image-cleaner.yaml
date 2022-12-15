@@ -1,5 +1,7 @@
 {{- if .Values.imageCleaner.enabled -}}
 {{- $Values := .Values -}}
+{{- $imageBuilderType := $Values.imageBuilderType -}}
+{{- $imageCleaner := $Values.imageCleaner -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -36,17 +38,15 @@ spec:
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
       containers:
-      {{- range $i, $kind := tuple "host" "dind" "pink" }}
-      {{- if or (and (eq $kind "dind") (eq $Values.imageBuilderType "dind")) (and (eq $kind "pink") (eq $Values.imageBuilderType "pink")) (and (eq $kind "host") $Values.imageCleaner.host.enabled) }}
-      - name: image-cleaner-{{ $kind }}
-        image: {{ $Values.imageCleaner.image.name }}:{{ $Values.imageCleaner.image.tag }}
-        {{- with $Values.imageCleaner.image.pullPolicy }}
+      - name: image-cleaner-{{ $imageBuilderType }}
+        image: {{ $imageCleaner.image.name }}:{{ $imageCleaner.image.tag }}
+        {{- with $imageCleaner.image.pullPolicy }}
         imagePullPolicy: {{ . }}
         {{- end }}
         volumeMounts:
-        - name: storage-{{ $kind }}
-          mountPath: /var/lib/{{ $kind }}
-        - name: socket-{{ $kind }}
+        - name: storage-{{ $imageBuilderType }}
+          mountPath: /var/lib/{{ $imageBuilderType }}
+        - name: socket-{{ $imageBuilderType }}
           mountPath: /var/run/docker.sock
         env:
         - name: DOCKER_IMAGE_CLEANER_NODE_NAME
@@ -54,29 +54,27 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: DOCKER_IMAGE_CLEANER_PATH_TO_CHECK
-          value: /var/lib/{{ $kind }}
+          value: /var/lib/{{ $imageBuilderType }}
         - name: DOCKER_IMAGE_CLEANER_DELAY_SECONDS
-          value: {{ $Values.imageCleaner.delay | quote }}
+          value: {{ $imageCleaner.delay | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_TYPE
-          value: {{ $Values.imageCleaner.imageGCThresholdType | quote }}
+          value: {{ $imageCleaner.imageGCThresholdType | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_HIGH
-          value: {{ $Values.imageCleaner.imageGCThresholdHigh | quote }}
+          value: {{ $imageCleaner.imageGCThresholdHigh | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_LOW
-          value: {{ $Values.imageCleaner.imageGCThresholdLow | quote }}
-      {{- end }}
-      {{- end }}
+          value: {{ $imageCleaner.imageGCThresholdLow | quote }}
       terminationGracePeriodSeconds: 0
       volumes:
-      {{- if .Values.imageCleaner.host.enabled }}
+      {{- if eq $imageBuilderType "host" }}
       - name: storage-host
         hostPath:
-          path: {{ .Values.imageCleaner.host.dockerLibDir }}
+          path: {{ $imageCleaner.host.dockerLibDir }}
       - name: socket-host
         hostPath:
-          path: {{ .Values.imageCleaner.host.dockerSocket }}
+          path: {{ $imageCleaner.host.dockerSocket }}
           type: Socket
       {{- end }}
-      {{- if eq $Values.imageBuilderType "dind" }}
+      {{- if eq $imageBuilderType "dind" }}
       - name: storage-dind
         hostPath:
           path: {{ .Values.dind.hostLibDir }}
@@ -86,7 +84,7 @@ spec:
           path: {{ .Values.dind.hostSocketDir }}/docker.sock
           type: Socket
       {{- end }}
-      {{- if eq $Values.imageBuilderType "pink" }}
+      {{- if eq $imageBuilderType "pink" }}
       - name: storage-pink
         hostPath:
           path: {{ .Values.pink.hostStorageDir }}
@@ -96,5 +94,4 @@ spec:
           path: {{ .Values.pink.hostSocketDir }}/podman.sock
           type: Socket
       {{- end }}
-
 {{- end }}

@@ -353,8 +353,8 @@ properties:
 
   imageBuilderType:
     type: string
-    enum: ["local", "dind", "pink"]
-    default: "local"
+    enum: ["host", "dind", "pink"]
+    default: "host"
     description: |
       Selected image builder type
 
@@ -470,12 +470,12 @@ properties:
       host:
         type: object
         additionalProperties: false
-        required: [enabled, dockerSocket, dockerLibDir]
+        required: [dockerSocket, dockerLibDir]
         properties:
           enabled:
             type: boolean
             description: |
-              TODO
+              DEPRECATED: use imageCleaner.enabled if the cleaner shall not used.
           dockerSocket:
             type: string
             description: |
