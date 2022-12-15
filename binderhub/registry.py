@@ -4,6 +4,7 @@ Interaction with the Docker Registry
 import base64
 import json
 import os
+import re
 from urllib.parse import urlparse
 
 from tornado import httpclient
@@ -131,8 +132,7 @@ class DockerRegistry(LoggingConfigurable):
         elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
-            # is gcr.io's token url common? If so, it might be worth defaulting
-            # to https://registry.host/v2/token?service=registry.host
+            # If necessary we'll look for the WWW-Authenticate header
             return ""
 
     username = Unicode(
@@ -185,30 +185,87 @@ class DockerRegistry(LoggingConfigurable):
             base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
         )
 
+    def _parse_www_authenticate_header(self, header):
+        # Header takes the form
+        # WWW-Authenticate: Bearer realm="https://uk-london-1.ocir.io/12345678/docker/token",service="uk-london-1.ocir.io",scope=""
+        self.log.debug(f"Parsing WWW-Authenticate {header}")
+
+        if not header.lower().startswith("bearer "):
+            raise ValueError(f"Only WWW-Authenticate Bearer type supported: {header}")
+        try:
+            realm = re.search(r'realm="([^"]+)"', header).group(1)
+            # Should service and scope parameters be optional instead of just empty?
+            service = re.search(r'service="([^"]*)"', header).group(1)
+            scope = re.search(r'scope="([^"]*)"', header).group(1)
+            return realm, service, scope
+        except AttributeError:
+            raise ValueError(
+                f"Expected WWW-Authenticate to include realm service scope: {header}"
+            ) from None
+
+    async def _get_token(self, client, token_url, service, scope):
+        auth_req = httpclient.HTTPRequest(
+            url_concat(
+                token_url,
+                {
+                    "scope": scope,
+                    "service": service,
+                },
+            ),
+            auth_username=self.username,
+            auth_password=self.password,
+        )
+        self.log.debug(
+            f"Getting registry token from {token_url} service={service} scope={scope}"
+        )
+        auth_resp = await client.fetch(auth_req)
+        response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
+
+        if "token" in response_body.keys():
+            token = response_body["token"]
+        elif "access_token" in response_body.keys():
+            token = response_body["access_token"]
+        else:
+            raise ValueError(f"No token in response from registry: {response_body}")
+        return token
+
+    async def _get_image_manifest_from_www_authenticate(
+        self, client, www_auth_header, url
+    ):
+        realm, service, scope = self._parse_www_authenticate_header(www_auth_header)
+        token = await self._get_token(client, realm, service, scope)
+        req = httpclient.HTTPRequest(
+            url,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        self.log.debug(f"Getting image manifest from {url}")
+        try:
+            resp = await client.fetch(req)
+        except httpclient.HTTPError as e:
+            if e.code == 404:
+                return None
+            else:
+                raise
+        return json.loads(resp.body.decode("utf-8"))
+
     async def get_image_manifest(self, image, tag):
+        """
+        Get the manifest for an image.
+
+        image: The image name without the registry and tag
+        tag: The image tag
+        """
         client = httpclient.AsyncHTTPClient()
         url = f"{self.url}/v2/{image}/manifests/{tag}"
+        token = None
         # first, get a token to perform the manifest request
         if self.token_url:
-            auth_req = httpclient.HTTPRequest(
-                url_concat(
-                    self.token_url,
-                    {
-                        "scope": f"repository:{image}:pull",
-                        "service": "container_registry",
-                    },
-                ),
-                auth_username=self.username,
-                auth_password=self.password,
+            token = await self._get_token(
+                client,
+                self.token_url,
+                scope=f"repository:{image}:pull",
+                service="container_registry",
             )
-            auth_resp = await client.fetch(auth_req)
-            response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
-
-            if "token" in response_body.keys():
-                token = response_body["token"]
-            elif "access_token" in response_body.keys():
-                token = response_body["access_token"]
-
             req = httpclient.HTTPRequest(
                 url,
                 headers={"Authorization": f"Bearer {token}"},
@@ -221,16 +278,26 @@ class DockerRegistry(LoggingConfigurable):
                 auth_password=self.password,
             )
 
+        self.log.debug(f"Getting image manifest from {url}")
         try:
             resp = await client.fetch(req)
         except httpclient.HTTPError as e:
             if e.code == 404:
                 # 404 means it doesn't exist
                 return None
+            elif (
+                e.code == 401 and not token and "www-authenticate" in e.response.headers
+            ):
+                # Unauthorised. If we don't have a token, try and get one using
+                # information from the WWW-Authenticate header
+                # https://stackoverflow.com/questions/56193110/how-can-i-use-docker-registry-http-api-v2-to-obtain-a-list-of-all-repositories-i/68654659#68654659
+                www_auth_header = e.response.headers["www-authenticate"]
+                return await self._get_image_manifest_from_www_authenticate(
+                    client, www_auth_header, url
+                )
             else:
                 raise
-        else:
-            return json.loads(resp.body.decode("utf-8"))
+        return json.loads(resp.body.decode("utf-8"))
 
 
 class FakeRegistry(DockerRegistry):
