@@ -514,7 +514,7 @@ class BinderHub(Application):
         return os.environ.get("BUILD_NAMESPACE", "default")
 
     build_image = Unicode(
-        "quay.io/jupyterhub/repo2docker:2022.02.0",
+        "quay.io/jupyterhub/repo2docker:2022.10.0",
         help="""
         The repo2docker image to be used for doing builds
         """,
