@@ -786,7 +786,7 @@ class BinderHub(Application):
         self.log.warning(
             "BinderHub.%s is deprecated, use %s.%s", change.name, dest_cls, dest_name
         )
-        self.config.get(dest_cls)[dest_name] = change.new
+        self.config[dest_cls][dest_name] = change.new
 
     @staticmethod
     def add_url_prefix(prefix, handlers):
