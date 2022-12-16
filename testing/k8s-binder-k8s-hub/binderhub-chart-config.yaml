@@ -33,12 +33,12 @@ ingress:
   # used actively in our CI system.
   enabled: true
 
-# No in cluster builder to test the creation/update of the image-cleaner DaemonSet
+# No "in cluster" builder to test the creation/update of the image-cleaner DaemonSet
 # resource because it also requires us to setup a container registry to test
 # against which we haven't. We currently only test this through the use of
 # lint-and-validate-values.yaml and setting this value explicitly to make sure
 # our rendered templates are valid against a k8s api-server.
-imageBuilderType: "local"
+imageBuilderType: "host"
 
 # NOTE: This is a mirror of the jupyterhub section in
 #       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these

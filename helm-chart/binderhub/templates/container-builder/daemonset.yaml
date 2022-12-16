@@ -1,7 +1,8 @@
-{{- if ne .Values.imageBuilderType "local" -}}
+{{- if ne .Values.imageBuilderType "host" -}}
 {{- $builderName := .Values.imageBuilderType -}}
 {{- $builder := index .Values $builderName -}}
 {{- $daemonset := $builder.daemonset -}}
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -46,9 +47,9 @@ spec:
           {{- with $daemonset.image.pullPolicy }}
           imagePullPolicy: {{ . }}
           {{- end }}
-          {{- with $daemonset.resources }}
+          {{- with $builder.resources }}
           resources:
-            {{- $daemonset.resources | toYaml | nindent 12 }}
+            {{- $builder.resources | toYaml | nindent 12 }}
           {{- end }}
           {{- if eq $builderName "dind" }}
           args:

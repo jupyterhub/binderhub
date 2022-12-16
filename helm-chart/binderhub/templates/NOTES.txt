@@ -190,6 +190,15 @@ config:
 {{- $breaking = print $breaking "\n\nimageBuilderType: dind" }}
 {{- end }}
 
+{{- if hasKey .Values.imageCleaner.host "enabled" }}
+{{- $breaking = print $breaking "\n\nCHANGED:" }}
+{{- $breaking = print $breaking "\n\nimageCleaner:" }}
+{{- $breaking = print $breaking "\n  host:" }}
+{{- $breaking = print $breaking "\n    enabled: true" }}
+{{- $breaking = print $breaking "\n\nas of version 0.3.0 is not used anymore." }}
+{{- $breaking = print $breaking "\n\nThe image cleaner is either disabled or adapted to the value of imageBuilderType." }}
+{{- end }}
+
 {{- if $breaking }}
 {{- fail (print $breaking_title $breaking) }}
 {{- end }}
