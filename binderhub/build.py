@@ -101,6 +101,15 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
+    identifier = Unicode(
+        "",
+        help=(
+            "Identifier or other metadata for the builder e.g. repo2docker version. "
+            "This is included in the BinderHub version endpoint"
+        ),
+        config=True,
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.main_loop = IOLoop.current()
@@ -238,6 +247,10 @@ class KubernetesBuildExecutor(BuildExecutor):
         help="Docker image containing repo2docker that is used to spawn the build pods.",
         config=True,
     )
+
+    @default("identifier")
+    def _default_identifier(self):
+        return self.build_image
 
     docker_host = Unicode(
         "/var/run/docker.sock",

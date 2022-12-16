@@ -247,7 +247,7 @@ class VersionHandler(BaseHandler):
         self.write(
             json.dumps(
                 {
-                    "builder": self.settings["build_image"],
+                    "builder": self.settings["example_builder"].identifier,
                     "binderhub": binder_version,
                 }
             )

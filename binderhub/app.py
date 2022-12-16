@@ -881,6 +881,9 @@ class BinderHub(Application):
 
         launch_quota = self.launch_quota_class(parent=self, executor=self.executor)
 
+        # Construct a Builder so that we can extract parameters such as the
+        # configuration or the version string to pass to /version and /health handlers
+        example_builder = self.build_class(parent=self)
         self.tornado_settings.update(
             {
                 "log_function": log_request,
@@ -893,6 +896,7 @@ class BinderHub(Application):
                 "build_token_check_origin": self.build_token_check_origin,
                 "build_token_secret": self.build_token_secret,
                 "build_token_expires_seconds": self.build_token_expires_seconds,
+                "example_builder": example_builder,
                 "pod_quota": self.pod_quota,
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,

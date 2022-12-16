@@ -183,8 +183,8 @@ class KubernetesHealthHandler(HealthHandler):
     @at_most_every
     async def _get_pods(self):
         """Get information about build and user pods"""
-        namespace = self.settings["build_namespace"]
-        k8s = self.settings["kubernetes_client"]
+        namespace = self.settings["example_builder"].namespace
+        k8s = self.settings["example_builder"].api
         pool = self.settings["executor"]
 
         app_log.info(f"Getting pod statistics for {namespace}")
