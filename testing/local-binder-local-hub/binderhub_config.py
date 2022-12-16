@@ -24,7 +24,7 @@ c.BinderHub.use_registry = False
 c.BinderHub.builder_required = False
 
 c.BinderHub.build_class = LocalRepo2dockerBuild
-c.BinderHub.push_secret = None
+c.BinderHub.push_secret = ""
 c.BinderHub.launch_quota_class = LaunchQuota
 
 c.BinderHub.about_message = "This is a local dev deployment without Kubernetes"

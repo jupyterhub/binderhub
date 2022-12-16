@@ -108,7 +108,16 @@ async def test_versions_handler(app):
     assert r.status_code == 200
 
     data = r.json()
-    assert data["builder"] == app.build_image
+    # Version is different for KubernetesExecutor and LocalRepo2dockerBuild
+    try:
+        import repo2docker
+
+        allowed_versions = [repo2docker.__version__]
+    except ImportError:
+        allowed_versions = []
+    allowed_versions.append(app.build_image)
+
+    assert data["builder"] in allowed_versions
     assert data["binderhub"].split("+")[0] == binder_version.split("+")[0]
 
 
