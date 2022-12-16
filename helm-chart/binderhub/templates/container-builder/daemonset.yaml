@@ -1,6 +1,6 @@
 {{- if ne .Values.imageBuilderType "host" -}}
 {{- $builderName := .Values.imageBuilderType -}}
-{{- $builder := (index .Values $builderName) -}}
+{{- $builder := index .Values $builderName -}}
 {{- $daemonset := $builder.daemonset -}}
 
 apiVersion: apps/v1

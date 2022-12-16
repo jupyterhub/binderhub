@@ -299,6 +299,7 @@ imageCleaner:
   imageGCThresholdHigh: 80
   imageGCThresholdLow: 60
   # cull images on the host docker as well as dind
+  # configuration to use if `imageBuilderType: host` is configured
   host:
     dockerSocket: /var/run/docker.sock
     dockerLibDir: /var/lib/docker
