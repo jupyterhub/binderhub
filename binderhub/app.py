@@ -456,6 +456,10 @@ class BinderHub(Application):
         have an effect, as the push_secrets will overwrite
         .docker/config.json
         In this case, make sure that you include your config in your push_secret
+
+        WARNING: The value of this parameter is managed by the binderHub Helm Chart.
+        It is not managed by the BinderHub application itself.
+        If you are running BinderHub in another way this parameter has no effect.
         """,
         config=True,
     )
