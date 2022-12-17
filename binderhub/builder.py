@@ -437,11 +437,6 @@ class BuildHandler(BaseHandler):
         # Prepare to build
         q = Queue()
 
-        # if self.settings["use_registry"] or self.settings["build_docker_config"]:
-        #     push_secret = self.settings["push_secret"]
-        # else:
-        #     push_secret = None
-
         BuildClass = self.settings.get("build_class")
 
         build = BuildClass(
@@ -454,6 +449,9 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             git_credentials=provider.git_credentials,
         )
+        if not self.settings["use_registry"]:
+            build.push_secret = ""
+
         self.build = build
 
         with BUILDS_INPROGRESS.track_inprogress():
