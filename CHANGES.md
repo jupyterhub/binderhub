@@ -7,6 +7,34 @@ deployed to production at mybinder.org quickly after they are merged
 As such, this changelog is broken up by dates, not versions, and is just to
 make it easier to track what has changed over time_
 
+# 0.2.0...HEAD
+
+([full changelog](https://github.com/jupyterhub/binderhub/compare/0.2.0...HEAD))
+
+## Breaking changes
+
+### `dind.enabled` replaced by `imageBuilderType: dind`
+
+The BinderHub builder has been generalised to support non-docker implementations
+[#1531](https://github.com/jupyterhub/binderhub/pull/1531).
+If you are using Docker-in-Docker replace:
+
+- `dind.enabled: true` ➡️ `imageBuilderType: dind`
+
+The `component: dind` pod builder label is changed to `component: image-builder`
+[#1543](https://github.com/jupyterhub/binderhub/pull/1543)
+
+### `imageCleaner.host.enabled` replaced by`imageCleaner.enabled`
+
+When Docker-in-Docker (dind) is enabled the image cleaner used to be run in Docker-in-Docker and on the host Docker.
+This is no longer the case, the image cleaner is only run in one place
+[#1588](https://github.com/jupyterhub/binderhub/pull/1588).
+If you were previously disabling the image cleaner replace:
+
+- `imageCleaner.host.enabled: false` ➡️ `imageCleaner.enabled: false`
+
+# 0.2.0
+
 # master@{2019-07-01}...master@{2019-10-01}
 
 ([full changelog](https://github.com/jupyterhub/binderhub/compare/01b1c59b9e7dc81250c1ed579c492ec2fd6baaf6...a168d069772012c52f9ac7056ec22d779927ae69))
