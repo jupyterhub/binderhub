@@ -444,14 +444,6 @@ class BuildHandler(BaseHandler):
 
         BuildClass = self.settings.get("build_class")
 
-        # appendix = self.settings["appendix"].format(
-        #     binder_url=self.binder_launch_host + self.binder_request,
-        #     persistent_binder_url=self.binder_launch_host
-        #     + self.binder_persistent_request,
-        #     repo_url=repo_url,
-        #     ref_url=self.ref_url,
-        # )
-
         build = BuildClass(
             # All other properties should be set in traitlets config
             parent=self.settings["traitlets_parent"],
