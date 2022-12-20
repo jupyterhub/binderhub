@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.8.1
+alembic==1.9.0
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
@@ -38,7 +38,7 @@ google-auth==2.15.0
     #   google-api-core
     #   google-cloud-core
     #   kubernetes
-google-cloud-appengine-logging==1.1.6
+google-cloud-appengine-logging==1.2.0
     # via google-cloud-logging
 google-cloud-audit-log==0.2.4
     # via google-cloud-logging
@@ -66,7 +66,7 @@ grpcio-status==1.51.1
     # via google-api-core
 idna==3.4
     # via requests
-importlib-metadata==5.1.0
+importlib-metadata==5.2.0
     # via jupyterhub
 jinja2==3.1.2
     # via
@@ -171,7 +171,7 @@ tornado==6.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.7.1
+traitlets==5.8.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
