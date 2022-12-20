@@ -80,3 +80,7 @@ repos:
 # versioneer.py is excluded for being an imported dependency we opt to not
 # modify ourselves. This is also set in .flake8 for consistency.
 exclude: versioneer.py|binderhub/_version.py
+
+# pre-commit.ci config reference: https://pre-commit.ci/#configuration
+ci:
+  autoupdate_schedule: monthly
