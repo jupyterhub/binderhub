@@ -26,7 +26,7 @@ repos:
 
   # Autoformat: Python code
   - repo: https://github.com/pycqa/isort
-    rev: 5.11.1
+    rev: v5.11.3
     hooks:
       - id: isort
         # args are not passed, but see the config in pyproject.toml
@@ -80,3 +80,7 @@ repos:
 # versioneer.py is excluded for being an imported dependency we opt to not
 # modify ourselves. This is also set in .flake8 for consistency.
 exclude: versioneer.py|binderhub/_version.py
+
+# pre-commit.ci config reference: https://pre-commit.ci/#configuration
+ci:
+  autoupdate_schedule: monthly
