@@ -105,6 +105,81 @@ class HealthHandler(BaseHandler):
     def initialize(self, hub_url=None):
         self.hub_url = hub_url
 
+    @false_if_raises
+    @retry
+    async def check_jupyterhub_api(self, hub_url):
+        """Check JupyterHub API health"""
+        await AsyncHTTPClient().fetch(hub_url + "hub/api/health", request_timeout=3)
+        return True
+
+    @false_if_raises
+    @at_most_every(interval=15)
+    @retry
+    async def check_docker_registry(self):
+        """Check docker registry health"""
+        app_log.info("Checking registry status")
+        registry = self.settings["registry"]
+        # we are only interested in getting a response from the registry, we
+        # don't care if the image actually exists or not
+        image_name = self.settings["image_prefix"] + "some-image-name:12345"
+        await registry.get_image_manifest(
+            *"/".join(image_name.split("/")[-2:]).split(":", 1)
+        )
+        return True
+
+    def get_checks(self, checks):
+        """Add health checks to the `checks` dict
+
+        checks: Dictionary, updated in-place:
+          key: service name
+          value: a future that resolves to either:
+            - a bool (success/fail)
+            - a dict with the field `"ok": bool` plus other information
+        """
+        if self.settings["use_registry"]:
+            checks["Docker registry"] = self.check_docker_registry()
+        checks["JupyterHub API"] = self.check_jupyterhub_api(self.hub_url)
+
+    async def check_all(self):
+        """Runs all health checks and returns a tuple (overall, results).
+
+        `overall` is a bool representing the overall status of the service
+        `results` contains detailed information on each check's result
+        """
+        checks = {}
+        results = []
+        self.get_checks(checks)
+
+        for result, service in zip(
+            await asyncio.gather(*checks.values()), checks.keys()
+        ):
+            if isinstance(result, bool):
+                results.append({"service": service, "ok": result})
+            else:
+                results.append(dict({"service": service}, **result))
+
+        # Some checks are for information but do not count as a health failure
+        overall = all(r["ok"] for r in results if not r.get("_ignore_failure", False))
+        if not overall:
+            unhealthy = [r for r in results if not r["ok"]]
+            app_log.warning(f"Unhealthy services: {unhealthy}")
+        return overall, results
+
+    async def get(self):
+        overall, checks = await self.check_all()
+        if not overall:
+            self.set_status(503)
+        self.write({"ok": overall, "checks": checks})
+
+    async def head(self):
+        overall, checks = await self.check_all()
+        if not overall:
+            self.set_status(503)
+
+
+class KubernetesHealthHandler(HealthHandler):
+    """Serve health status on Kubernetes"""
+
     @at_most_every
     async def _get_pods(self):
         """Get information about build and user pods"""
@@ -133,29 +208,11 @@ class HealthHandler(BaseHandler):
         responses = await asyncio.gather(*requests)
         return [json.loads(resp.read())["items"] for resp in responses]
 
-    @false_if_raises
-    @retry
-    async def check_jupyterhub_api(self, hub_url):
-        """Check JupyterHub API health"""
-        await AsyncHTTPClient().fetch(hub_url + "hub/api/health", request_timeout=3)
-        return True
+    def get_checks(self, checks):
+        super().get_checks(checks)
+        checks["Pod quota"] = self._check_pod_quotas()
 
-    @false_if_raises
-    @at_most_every(interval=15)
-    @retry
-    async def check_docker_registry(self):
-        """Check docker registry health"""
-        app_log.info("Checking registry status")
-        registry = self.settings["registry"]
-        # we are only interested in getting a response from the registry, we
-        # don't care if the image actually exists or not
-        image_name = self.settings["image_prefix"] + "some-image-name:12345"
-        await registry.get_image_manifest(
-            *"/".join(image_name.split("/")[-2:]).split(":", 1)
-        )
-        return True
-
-    async def check_pod_quota(self):
+    async def _check_pod_quotas(self):
         """Compare number of active pods to available quota"""
         user_pods, build_pods = await self._get_pods()
 
@@ -170,51 +227,8 @@ class HealthHandler(BaseHandler):
             "user_pods": n_user_pods,
             "quota": quota,
             "ok": total_pods <= quota if quota is not None else True,
+            # The pod quota is treated as a soft quota
+            # Being above quota doesn't mean the service is unhealthy
+            "_ignore_failure": True,
         }
         return usage
-
-    async def check_all(self):
-        """Runs all health checks and returns a tuple (overall, checks).
-
-        `overall` is a bool representing the overall status of the service
-        `checks` contains detailed information on each check's result
-        """
-        checks = []
-        check_futures = []
-
-        if self.settings["use_registry"]:
-            check_futures.append(self.check_docker_registry())
-            checks.append({"service": "Docker registry", "ok": False})
-
-        check_futures.append(self.check_jupyterhub_api(self.hub_url))
-        checks.append({"service": "JupyterHub API", "ok": False})
-
-        check_futures.append(self.check_pod_quota())
-        checks.append({"service": "Pod quota", "ok": False})
-
-        for result, check in zip(await asyncio.gather(*check_futures), checks):
-            if isinstance(result, bool):
-                check["ok"] = result
-            else:
-                check.update(result)
-
-        # The pod quota is treated as a soft quota this means being above
-        # quota doesn't mean the service is unhealthy
-        overall = all(
-            check["ok"] for check in checks if check["service"] != "Pod quota"
-        )
-        if not overall:
-            unhealthy = [check for check in checks if not check["ok"]]
-            app_log.warning(f"Unhealthy services: {unhealthy}")
-        return overall, checks
-
-    async def get(self):
-        overall, checks = await self.check_all()
-        if not overall:
-            self.set_status(503)
-        self.write({"ok": overall, "checks": checks})
-
-    async def head(self):
-        overall, checks = await self.check_all()
-        if not overall:
-            self.set_status(503)

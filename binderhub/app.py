@@ -41,11 +41,11 @@ from traitlets import (
 from traitlets.config import Application
 
 from .base import AboutHandler, Custom404, VersionHandler
-from .build import Build, BuildExecutor
+from .build import Build, BuildExecutor, KubernetesBuildExecutor
 from .builder import BuildHandler
 from .config import ConfigHandler
 from .events import EventLog
-from .health import HealthHandler
+from .health import HealthHandler, KubernetesHealthHandler
 from .launcher import Launcher
 from .log import log_request
 from .main import LegacyRedirectHandler, MainHandler, ParameterizedMainHandler
@@ -289,6 +289,18 @@ class BinderHub(Application):
         """,
         config=True,
     )
+
+    health_handler_class = Type(
+        HealthHandler,
+        help="The Tornado /health handler class",
+        config=True,
+    )
+
+    @default("health_handler_class")
+    def _default_health_handler_class(self):
+        if issubclass(self.build_class, KubernetesBuildExecutor):
+            return KubernetesHealthHandler
+        return HealthHandler
 
     per_repo_quota = Integer(
         0,
@@ -924,7 +936,7 @@ class BinderHub(Application):
                 {"path": os.path.join(self.tornado_settings["static_path"], "images")},
             ),
             (r"/about", AboutHandler),
-            (r"/health", HealthHandler, {"hub_url": self.hub_url_local}),
+            (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
             (r"/_config", ConfigHandler),
             (r"/", MainHandler),
             (r".*", Custom404),
