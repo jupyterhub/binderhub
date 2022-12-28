@@ -40,8 +40,13 @@ service:
   loadBalancerIP:
 
 config:
+  # These c.BinderHub properties are referenced by the Helm chart
   BinderHub:
-    # This must equal the default value of c.BinderHub.use_registry
+    # auth_enabled:
+    base_url: /
+    build_node_selector: {}
+    # hub_url:
+    # hub_url_local:
     use_registry: true
 
 extraConfig: {}

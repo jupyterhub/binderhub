@@ -151,7 +151,7 @@ spec:
         {{- if .Values.deployment.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
+            path: {{ .Values.config.BinderHub.base_url }}versions
             port: binder
           initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
@@ -161,7 +161,7 @@ spec:
         {{- if .Values.deployment.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
-            path: {{ .Values.config.BinderHub.base_url | default "/" }}versions
+            path: {{ .Values.config.BinderHub.base_url }}versions
             port: binder
           initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
