@@ -21,9 +21,10 @@ you need to add the following into ``config.yaml``:
         redirectToServer: false
         config:
           BinderSpawner:
-            auth_enabled: false
+            auth_enabled: true
         services:
           binder:
+            oauth_client_id: service-binderhub
             oauth_no_confirm: true
             oauth_redirect_uri: "https://<binderhub_url>/oauth_callback"
         loadRoles:
@@ -75,7 +76,7 @@ you have to enable named servers on JupyterHub:
       hub:
         allowNamedServers: true
         # change this value as you wish,
-        # or remove this line if you don't want to have any limit
+        # or set to 0 if you don't want to have any limit
         namedServerLimitPerUser: 5
 
 .. note::
