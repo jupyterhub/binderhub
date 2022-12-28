@@ -40,7 +40,9 @@ service:
   loadBalancerIP:
 
 config:
-  BinderHub: {}
+  BinderHub:
+    # This must equal the default value of c.BinderHub.use_registry
+    use_registry: true
 
 extraConfig: {}
 
