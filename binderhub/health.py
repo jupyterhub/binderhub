@@ -159,7 +159,7 @@ class HealthHandler(BaseHandler):
                 results.append(dict({"service": service}, **result))
 
         # Some checks are for information but do not count as a health failure
-        overall = all(r["ok"] for r in results if not r.get("_ignored", False))
+        overall = all(r["ok"] for r in results if not r.get("_ignore_failure", False))
         if not overall:
             unhealthy = [r for r in results if not r["ok"]]
             app_log.warning(f"Unhealthy services: {unhealthy}")
@@ -229,6 +229,6 @@ class KubernetesHealthHandler(HealthHandler):
             "ok": total_pods <= quota if quota is not None else True,
             # The pod quota is treated as a soft quota
             # Being above quota doesn't mean the service is unhealthy
-            "_ignored": True,
+            "_ignore_failure": True,
         }
         return usage
