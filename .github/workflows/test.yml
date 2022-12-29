@@ -233,7 +233,7 @@ jobs:
 
       - name: "(Upgrade) Await ${{ matrix.upgrade-from }} chart"
         if: matrix.test-variation == 'upgrade'
-        uses: jupyterhub/action-k8s-await-workloads@v1
+        uses: jupyterhub/action-k8s-await-workloads@v2
         with:
           timeout: 150
           max-restarts: 1
