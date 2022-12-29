@@ -34,7 +34,7 @@ spec:
         key: hub.jupyter.org_dedicated
         operator: Equal
         value: user
-      nodeSelector: {{ .Values.config.BinderHub.build_node_selector | default dict | toJson }}
+      nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
 
       {{- with $builder.initContainers }}
       initContainers:
