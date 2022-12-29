@@ -54,7 +54,6 @@ jobs:
         test:
           - main
           - auth
-          - helm
         test-variation:
           - ""
         include:
@@ -66,26 +65,24 @@ jobs:
           - k3s-channel: v1.20
             helm-version: v3.5.0
             test: helm
-          - k3s-channel: latest
-            test: helm
-            test-variation: upgrade
-            # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
-            upgrade-from: dev
-            upgrade-from-extra-args: ""
-          - k3s-channel: v1.25
-            test: helm
             test-variation: dind
             local-chart-extra-args: >-
               --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: v1.25
+          - k3s-channel: latest
             test: helm
             test-variation: pink
             local-chart-extra-args: >-
               --values testing/k8s-binder-k8s-hub/binderhub-chart+pink.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
+          - k3s-channel: latest
+            test: helm
+            test-variation: upgrade
+            # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
+            upgrade-from: dev
+            upgrade-from-extra-args: ""
 
     services:
       registry:
