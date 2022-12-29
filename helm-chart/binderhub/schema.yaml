@@ -391,7 +391,7 @@ properties:
           extraArgs:
             type: array
             description: |
-              TODO
+              Extra command line arguments for the Docker daemon
           lifecycle: &lifecycle-spec
             type: object
             additionalProperties: false
@@ -437,6 +437,10 @@ properties:
         additionalProperties: false
         properties:
           image: *image-spec
+          extraArgs:
+            type: array
+            description: |
+              Extra command line arguments for the Podman service, e.g. `[--log-level=debug]`
           lifecycle: *lifecycle-spec
           extraVolumes: *extraVolumes-spec
           extraVolumeMounts: *extraVolumeMounts-spec
