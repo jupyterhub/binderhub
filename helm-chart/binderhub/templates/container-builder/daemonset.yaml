@@ -74,6 +74,9 @@ spec:
             - service
             - --time=0
             - unix://{{ $builder.hostSocketDir }}/podman.sock
+            {{- with $daemonset.extraArgs }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
           securityContext:
             privileged: true
             runAsUser: 0
