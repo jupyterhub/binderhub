@@ -1,0 +1,11 @@
+# REGISTRY_HOST='HOST:PORT' envsubst < cm-insecure-registries-dind.yaml | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insecure-registries-dind
+data:
+  daemon.json: |
+    {
+      "insecure-registries": ["$REGISTRY_HOST"],
+      "debug": true
+    }

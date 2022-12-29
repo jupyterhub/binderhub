@@ -1,0 +1,22 @@
+# Additional configuration for testing podman
+# You must create configmap/insecure-registries-pink first to allow testing with an
+# insecure http registry
+
+config:
+  BinderHub:
+    use_registry: true
+
+imageBuilderType: pink
+
+pink:
+  daemonset:
+    extraArgs:
+      - --log-level=debug
+    extraVolumeMounts:
+      - name: insecure-registries-pink
+        mountPath: /etc/containers/registries.conf.d/100-insecure-registries-pink.conf
+        subPath: 100-insecure-registries-pink.conf
+    extraVolumes:
+      - name: insecure-registries-pink
+        configMap:
+          name: insecure-registries-pink

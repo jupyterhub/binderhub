@@ -55,6 +55,8 @@ jobs:
           - main
           - auth
           - helm
+        test-variation:
+          - ""
         include:
           # Chart.yaml contains the chart's oldest supported k8s version, we
           # test against that and the oldest known supported helm cli version
@@ -70,11 +72,48 @@ jobs:
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
             upgrade-from: dev
             upgrade-from-extra-args: ""
+          - k3s-channel: v1.25
+            test: helm
+            test-variation: dind
+            local-chart-extra-args: >-
+              --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
+              --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
+              --set registry.url=http://$REGISTRY_HOST
+          - k3s-channel: v1.25
+            test: helm
+            test-variation: pink
+            local-chart-extra-args: >-
+              --values testing/k8s-binder-k8s-hub/binderhub-chart+pink.yaml
+              --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
+              --set registry.url=http://$REGISTRY_HOST
+
+    services:
+      registry:
+        image: docker.io/library/registry:latest
+        ports:
+          - 5000:5000
+
     steps:
       - uses: actions/checkout@v3
         with:
           # chartpress requires the full history
           fetch-depth: 0
+
+      - name: Set registry host
+        if: matrix.test-variation == 'dind' || matrix.test-variation == 'pink'
+        run: |
+          REGISTRY_HOST=$(hostname -I | awk '{print $1}'):5000
+          echo REGISTRY_HOST="$REGISTRY_HOST" >> $GITHUB_ENV
+
+          # Allow k3s to pull from private registry
+          # https://docs.k3s.io/installation/private-registry
+          sudo mkdir -p /etc/rancher/k3s/
+          cat << EOF | sudo tee /etc/rancher/k3s/registries.yaml
+          mirrors:
+            "$REGISTRY_HOST":
+              endpoint:
+                - "http://$REGISTRY_HOST"
+          EOF
 
       - uses: jupyterhub/action-k3s-helm@v3
         with:
@@ -82,7 +121,7 @@ jobs:
           helm-version: ${{ matrix.helm-version }}
           metrics-enabled: false
           traefik-enabled: false
-          docker-enabled: true
+          docker-enabled: ${{ matrix.test-variation != 'dind' && matrix.test-variation != 'pink' }}
 
       - name: Setup OS level dependencies
         run: |
@@ -145,9 +184,17 @@ jobs:
         run: |
           export DOCKER_BUILDKIT=1
 
+          CHARTPRESS_ARGS=
+          if [ "${{ matrix.test-variation }}" = "dind" -o "${{ matrix.test-variation }}" = "pink" ]; then
+            CHARTPRESS_ARGS="--image-prefix localhost:5000/binderhub- --push"
+
+            # Allow the pods to push to the non-https GitHub workflow registry
+            envsubst < testing/k8s-binder-k8s-hub/cm-insecure-registries-${{ matrix.test-variation }}.yaml | kubectl apply -f -
+          fi
+
           # Use chartpress to create the helm chart and build its images
           helm dependency update ./helm-chart/binderhub
-          (cd helm-chart && chartpress)
+          (cd helm-chart && chartpress $CHARTPRESS_ARGS)
           git --no-pager diff --color=always
 
       - name: Generate values.schema.json from schema.yaml
@@ -286,7 +333,12 @@ jobs:
         uses: jupyterhub/action-k8s-namespace-report@v1
         if: always()
         with:
-          important-workloads: deploy/binder deploy/hub deploy/proxy
+          important-workloads: >
+            deploy/binder
+            deploy/hub
+            deploy/proxy
+            daemonset/binderhub-test-dind
+            daemonset/binderhub-test-pink
 
       # GitHub action reference: https://github.com/codecov/codecov-action
       - name: Upload coverage stats

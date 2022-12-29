@@ -1,0 +1,21 @@
+# Additional configuration for testing dind
+# You must create configmap/insecure-registries-dind first to allow testing with an
+# insecure http registry
+# https://docs.docker.com/registry/insecure/
+
+config:
+  BinderHub:
+    use_registry: true
+
+imageBuilderType: dind
+
+dind:
+  daemonset:
+    extraVolumeMounts:
+      - name: insecure-registries-dind
+        mountPath: /etc/docker/daemon.json
+        subPath: daemon.json
+    extraVolumes:
+      - name: insecure-registries-dind
+        configMap:
+          name: insecure-registries-dind
