@@ -38,7 +38,8 @@ ingress:
 # against which we haven't. We currently only test this through the use of
 # lint-and-validate-values.yaml and setting this value explicitly to make sure
 # our rendered templates are valid against a k8s api-server.
-imageBuilderType: "host"
+# This is already the default
+# imageBuilderType: "host"
 
 # NOTE: This is a mirror of the jupyterhub section in
 #       jupyterhub-chart-config.yaml in testing/local-binder-k8s-hub, keep these
