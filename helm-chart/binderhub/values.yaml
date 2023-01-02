@@ -295,7 +295,7 @@ imageCleaner:
   enabled: true
   image:
     name: quay.io/jupyterhub/docker-image-cleaner
-    tag: 1.0.0-beta.2
+    tag: 1.0.0-beta.3
     pullPolicy: ""
     pullSecrets: []
   # delete an image at most every 5 seconds
