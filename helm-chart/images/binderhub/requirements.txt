@@ -4,11 +4,11 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.8.1
+alembic==1.9.1
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
-attrs==22.1.0
+attrs==22.2.0
     # via jsonschema
 cachetools==5.2.0
     # via google-auth
@@ -22,7 +22,7 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==2.1.1
     # via requests
-cryptography==38.0.4
+cryptography==39.0.0
     # via pyopenssl
 docker==6.0.1
     # via -r helm-chart/images/binderhub/../../../requirements.txt
@@ -38,13 +38,13 @@ google-auth==2.15.0
     #   google-api-core
     #   google-cloud-core
     #   kubernetes
-google-cloud-appengine-logging==1.1.6
+google-cloud-appengine-logging==1.2.0
     # via google-cloud-logging
 google-cloud-audit-log==0.2.4
     # via google-cloud-logging
 google-cloud-core==2.3.2
     # via google-cloud-logging
-google-cloud-logging==3.3.1
+google-cloud-logging==3.4.0
     # via -r helm-chart/images/binderhub/requirements.in
 googleapis-common-protos[grpc]==1.57.0
     # via
@@ -66,7 +66,7 @@ grpcio-status==1.51.1
     # via google-api-core
 idna==3.4
     # via requests
-importlib-metadata==5.1.0
+importlib-metadata==6.0.0
     # via jupyterhub
 jinja2==3.1.2
     # via
@@ -129,9 +129,9 @@ pycparser==2.21
     # via cffi
 pyjwt==2.6.0
     # via -r helm-chart/images/binderhub/../../../requirements.txt
-pyopenssl==22.1.0
+pyopenssl==23.0.0
     # via certipy
-pyrsistent==0.19.2
+pyrsistent==0.19.3
     # via jsonschema
 python-dateutil==2.8.2
     # via
@@ -171,7 +171,7 @@ tornado==6.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.7.1
+traitlets==5.8.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
