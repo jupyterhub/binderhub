@@ -244,11 +244,11 @@ class VersionHandler(BaseHandler):
 
     async def get(self):
         self.set_header("Content-type", "application/json")
-        self.write(
-            json.dumps(
-                {
-                    "builder": self.settings["example_builder"].identifier,
-                    "binderhub": binder_version,
-                }
-            )
-        )
+        r = {
+            "builder_info": self.settings["example_builder"].builder_info,
+            "binderhub": binder_version,
+        }
+        # Backwards compatibility
+        if "build_image" in r["builder_info"]:
+            r["builder"] = r["builder_info"]["build_image"]
+        self.write(json.dumps(r))

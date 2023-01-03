@@ -112,15 +112,15 @@ class LocalRepo2dockerBuild(BuildExecutor):
     WARNING: This is still under development. Breaking changes may be made at any time.
     """
 
-    @default("identifier")
-    def _default_identifier(self):
+    @default("builder_info")
+    def _default_builder_info(self):
         try:
             import repo2docker
 
-            return repo2docker.__version__
+            return {"repo2docker-version": repo2docker.__version__}
         except ImportError:
             self.log.error("repo2docker not installed")
-            return ""
+            return {}
 
     def submit(self):
         """

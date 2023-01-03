@@ -101,10 +101,9 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
-    identifier = Unicode(
-        "",
+    builder_info = Dict(
         help=(
-            "Identifier or other metadata for the builder e.g. repo2docker version. "
+            "Metadata about the builder e.g. repo2docker version. "
             "This is included in the BinderHub version endpoint"
         ),
         config=True,
@@ -248,9 +247,9 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
-    @default("identifier")
-    def _default_identifier(self):
-        return self.build_image
+    @default("builder_info")
+    def _default_builder_info(self):
+        return {"build_image": self.build_image}
 
     docker_host = Unicode(
         "/var/run/docker.sock",
