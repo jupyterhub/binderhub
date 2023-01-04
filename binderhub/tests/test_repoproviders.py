@@ -485,6 +485,7 @@ def test_gitlab_ref(unresolved_ref, resolved_ref):
 @pytest.mark.github_api
 @pytest.mark.parametrize(
     "owner, gist_id, unresolved_ref, resolved_ref",
+    # https://gist.github.com/mariusvniekerk/8a658f7f63b13768d1e75fa2464f5092.git
     [
         ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "", True),
         ("mariusvniekerk", "8a658f7f63b13768d1e75fa2464f5092", "HEAD", True),
