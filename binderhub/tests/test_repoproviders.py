@@ -171,7 +171,7 @@ async def test_hydroshare_doi():
         [
             "10.7910/DVN/TJCLKP",
             "10.7910/DVN/TJCLKP",
-            "3035124.v3.0",
+            "3035124.v4.0",
             "https://doi.org/10.7910/DVN/TJCLKP",
             "dataverse-dvn-2ftjclkp",
         ],
