@@ -6,7 +6,7 @@ from ruamel.yaml import YAML
 yaml = YAML(typ="safe")
 
 # memoize so we only load config once
-@lru_cache()
+@lru_cache
 def _load_values():
     """Load configuration from disk
 
