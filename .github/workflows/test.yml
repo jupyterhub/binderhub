@@ -68,7 +68,7 @@ jobs:
           # which isn't documented anywhere, but is currently at 3.5.0. We also
           # test with the latest k8s and helm versions.
           #
-          - k3s-channel: v1.20
+          - k3s-channel: v1.21
             helm-version: v3.5.0
             test: helm
             test-variation: dind
