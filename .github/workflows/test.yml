@@ -28,7 +28,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
@@ -42,7 +42,7 @@ jobs:
   # in small things. Unfortunately there is no easy way to share steps between
   # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
 
     permissions:
@@ -349,7 +349,7 @@ jobs:
         if: ${{ always() }}
 
   test-local:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
 
     permissions:

@@ -28,7 +28,7 @@ jobs:
   # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/local-registry.md
   # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/multi-platform.md
   build_images:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:

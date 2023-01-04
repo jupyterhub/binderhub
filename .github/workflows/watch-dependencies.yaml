@@ -19,7 +19,7 @@ jobs:
   update-image-dependencies:
     # Don't run this job on forks
     if: github.repository == 'jupyterhub/binderhub'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
