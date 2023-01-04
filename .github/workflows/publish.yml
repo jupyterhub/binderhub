@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.11"
 
       - name: Set up QEMU (for docker buildx)
         uses: docker/setup-qemu-action@v2
@@ -109,7 +109,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.11"
       - name: Install pypa/build
         run: python -mpip install build
       - name: Build a sdist, and a binary wheel from the sdist

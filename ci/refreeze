@@ -10,5 +10,5 @@ docker run --rm \
     --volume="$PWD:/io" \
     --workdir=/io \
     --user=root \
-    python:3.9-bullseye \
+    python:3.11-bullseye \
     sh -c 'pip install pip-tools==6.* && pip-compile --upgrade helm-chart/images/binderhub/requirements.in'
