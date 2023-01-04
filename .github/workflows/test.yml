@@ -44,6 +44,12 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
     timeout-minutes: 10
+
+    permissions:
+      contents: read
+    env:
+      GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
+
     strategy:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
@@ -345,6 +351,12 @@ jobs:
   test-local:
     runs-on: ubuntu-20.04
     timeout-minutes: 5
+
+    permissions:
+      contents: read
+    env:
+      GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
+
     steps:
       - uses: actions/checkout@v3
 
