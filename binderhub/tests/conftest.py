@@ -119,12 +119,24 @@ def mock_asynchttpclient(request):
     # We have to explicitly load the mock responses we want to use
     # We should use as few mocked responses as possible because it means
     # we won't notice changes in the responses from the host that we are
-    # mocking and our mock responses don't simulate every and all behaviour
+    # mocking and our mock responses don't simulate every and all behavior
     load_mock_responses("www.hydroshare.org")
 
-    if not os.getenv("GITHUB_ACCESS_TOKEN"):
+    token = os.getenv("GITHUB_ACCESS_TOKEN")
+    if not token:
         load_mock_responses("api.github.com")
         load_mock_responses("zenodo.org")
+    if token and token.startswith("ghs-"):
+        # The GitHub Actions provided temporary token (secrets.github_token)
+        # does not have access to api.github.com/gists. Due to this, we mock
+        # such requests even if such token is provided. We recognize them by
+        # being a server-to-server token with a ghs- prefix as compared to for
+        # example a personal access token.
+        #
+        # More about github token prefixes:
+        # https://github.blog/2021-04-05-behind-githubs-new-authentication-token-formats/#identifiable-prefixes
+        #
+        load_mock_responses("api.github.com.gists")
 
 
 @pytest.fixture
