@@ -124,11 +124,11 @@ def mock_asynchttpclient(request):
     if not token:
         load_mock_responses("http-record.api.github.com.json")
         load_mock_responses("http-record.zenodo.org.json")
-    if token and token.startswith("ghs-"):
+    if token and token.startswith("ghs_"):
         # The GitHub Actions provided temporary token (secrets.github_token)
         # does not have access to api.github.com/gists. Due to this, we mock
         # such requests even if such token is provided. We recognize them by
-        # being a server-to-server token with a ghs- prefix as compared to for
+        # being a server-to-server token with a ghs_ prefix as compared to for
         # example a personal access token.
         #
         # More about github token prefixes:
