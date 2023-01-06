@@ -170,21 +170,21 @@ async def test_hydroshare_doi():
     # "10.7910/DVN/TJCLKP" is a DOI associated with all versions of the
     # dataverse dataset, including the latest version and previous versions (v3,
     # v2, etc). Dataverse doesn't mint DOIs for each version of a dataset, but
-    # that has been discussed in https://github.com/IQSS/dataverse/issues/4499,
+    # that has been discussed in https://github.com/IQSS/dataverse/issues/4499
     #
     "spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug",
     [
         [
             "10.7910/DVN/TJCLKP",
             "10.7910/DVN/TJCLKP",
-            r"3035124.v\d+.\d+",
+            r"3035124\.v\d+\.\d+$",
             "https://doi.org/10.7910/DVN/TJCLKP",
             "dataverse-dvn-2ftjclkp",
         ],
         [
             "10.25346/S6/DE95RT",
             "10.25346/S6/DE95RT",
-            r"20460.v\d+.\d+",
+            r"20460\.v\d+\.\d+$",
             "https://doi.org/10.25346/S6/DE95RT",
             "dataverse-s6-2fde95rt",
         ],
