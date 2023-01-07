@@ -1,3 +1,4 @@
+import re
 from unittest import TestCase
 from urllib.parse import quote
 
@@ -166,19 +167,24 @@ async def test_hydroshare_doi():
 
 
 @pytest.mark.parametrize(
+    # "10.7910/DVN/TJCLKP" is a DOI associated with all versions of the
+    # dataverse dataset, including the latest version and previous versions (v3,
+    # v2, etc). Dataverse doesn't mint DOIs for each version of a dataset, but
+    # that has been discussed in https://github.com/IQSS/dataverse/issues/4499
+    #
     "spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug",
     [
         [
             "10.7910/DVN/TJCLKP",
             "10.7910/DVN/TJCLKP",
-            "3035124.v3.0",
+            r"3035124\.v\d+\.\d+$",
             "https://doi.org/10.7910/DVN/TJCLKP",
             "dataverse-dvn-2ftjclkp",
         ],
         [
             "10.25346/S6/DE95RT",
             "10.25346/S6/DE95RT",
-            "20460.v1.0",
+            r"20460\.v\d+\.\d+$",
             "https://doi.org/10.25346/S6/DE95RT",
             "dataverse-s6-2fde95rt",
         ],
@@ -191,7 +197,7 @@ async def test_dataverse(
 
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
-    assert ref == resolved_ref
+    assert re.match(resolved_ref, ref)
 
     slug = provider.get_build_slug()
     assert slug == build_slug

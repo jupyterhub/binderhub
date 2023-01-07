@@ -95,11 +95,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus):
             json.dump(records, f, sort_keys=True, indent=1)
 
 
-def load_mock_responses(host):
-    fname = os.path.join(here, f"http-record.{host}.json")
-    if not os.path.exists(fname):
-        return {}
-    with open(fname) as f:
+def load_mock_responses(file_name):
+    file_path = os.path.join(here, file_name)
+    with open(file_path) as f:
         records = json.load(f)
     MockAsyncHTTPClient.mocks.update(records)
 
@@ -120,23 +118,23 @@ def mock_asynchttpclient(request):
     # We should use as few mocked responses as possible because it means
     # we won't notice changes in the responses from the host that we are
     # mocking and our mock responses don't simulate every and all behavior
-    load_mock_responses("www.hydroshare.org")
+    load_mock_responses("http-record.www.hydroshare.org.json")
 
     token = os.getenv("GITHUB_ACCESS_TOKEN")
     if not token:
-        load_mock_responses("api.github.com")
-        load_mock_responses("zenodo.org")
-    if token and token.startswith("ghs-"):
+        load_mock_responses("http-record.api.github.com.json")
+        load_mock_responses("http-record.zenodo.org.json")
+    if token and token.startswith("ghs_"):
         # The GitHub Actions provided temporary token (secrets.github_token)
         # does not have access to api.github.com/gists. Due to this, we mock
         # such requests even if such token is provided. We recognize them by
-        # being a server-to-server token with a ghs- prefix as compared to for
+        # being a server-to-server token with a ghs_ prefix as compared to for
         # example a personal access token.
         #
         # More about github token prefixes:
         # https://github.blog/2021-04-05-behind-githubs-new-authentication-token-formats/#identifiable-prefixes
         #
-        load_mock_responses("api.github.com.gists")
+        load_mock_responses("http-record.api.github.com.gists.json")
 
 
 @pytest.fixture
