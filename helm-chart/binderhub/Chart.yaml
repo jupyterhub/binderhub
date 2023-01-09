@@ -22,7 +22,7 @@ keywords: [jupyter, jupyterhub, binderhub]
 home: https://binderhub.readthedocs.io/en/latest/
 sources: [https://github.com/jupyterhub/binderhub]
 icon: https://jupyterhub.github.io/helm-chart/images/hublogo.svg
-kubeVersion: ">=1.20.0-0"
+kubeVersion: ">=1.21.0-0"
 maintainers:
   # Since it is a requirement of Artifact Hub to have specific maintainers
   # listed, we have added some below, but in practice the entire JupyterHub team

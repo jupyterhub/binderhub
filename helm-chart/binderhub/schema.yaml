@@ -79,7 +79,7 @@ properties:
     additionalProperties: true
     description: |
       A k8s native specification of resources, see [the
-      documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#resourcerequirements-v1-core).
+      documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#resourcerequirements-v1-core).
 
   rbac:
     type: object
@@ -343,7 +343,7 @@ properties:
           flag.
 
           See [the k8s
-          documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#probe-v1-core)
+          documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#probe-v1-core)
           for more details.
         required: [enabled]
         properties:
@@ -397,7 +397,7 @@ properties:
             additionalProperties: false
             description: |
               A k8s native specification of lifecycle hooks on the container, see [the
-              documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#lifecycle-v1-core).
+              documentation](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#lifecycle-v1-core).
             properties:
               postStart:
                 type: object
