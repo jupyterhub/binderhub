@@ -13,6 +13,26 @@ make it easier to track what has changed over time_
 
 ## Breaking changes
 
+### `binderhub_config.py` is mounted at runtime
+
+The `binderhub_config.py` file is now mounted at runtime instead of being built into the BinderHub image
+[#1165](https://github.com/jupyterhub/binderhub/pull/1165/).
+If you have custom configuration you should add it using the `extraConfig` Helm chart property.
+
+### `cors` configuration properties have been moved to `BinderHub` and `BinderSpawner`
+
+`cors` chart parameters have been moved into Traitlets configurable properties
+[#1351](https://github.com/jupyterhub/binderhub/pull/1351):
+
+- `cors.allowedOrigin` ➡️ `config.BinderHub.cors_allow_origin`
+- `jupyterhub.custom.cors.allowedOrigin` ➡️ `jupyterhub.hub.config.BinderSpawner.cors_allow_origin`
+
+### Kubernetes 1.21+ is required
+
+Older versions of Kubernetes are no longer supported
+[#1493](https://github.com/jupyterhub/binderhub/pull/1493)
+[#1609](https://github.com/jupyterhub/binderhub/pull/1609).
+
 ### `dind.enabled` replaced by `imageBuilderType: dind`
 
 The BinderHub builder has been generalised to support non-docker implementations
@@ -54,6 +74,18 @@ The following build configuration properties should be set using Traitlets in th
 
 If you have subclassed `binderhub.build.Build` you must update your subclass (including `__init__()` if defined) to inherit from `binderhub.build.KubernetesBuildExecutor`.
 The behaviour of the class is otherwise unchanged.
+
+### Z2JH 2 and JupyterHub3
+
+The Z2JH dependency has been updated to 2.0.0 which includes JupyterHub 3
+[#1544](https://github.com/jupyterhub/binderhub/pull/1544).
+See https://z2jh.jupyter.org/en/stable/administrator/upgrading/upgrade-1-to-2.html for breaking changes.
+
+### Python versions have been increased
+
+The minimum Python version is 3.8, and the Helm Chart BinderHub image has been upgraded to 3.11
+[#1610](https://github.com/jupyterhub/binderhub/pull/1610)
+[#1611](https://github.com/jupyterhub/binderhub/pull/1611).
 
 # 0.2.0
 
