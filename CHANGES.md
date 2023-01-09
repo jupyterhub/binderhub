@@ -75,7 +75,7 @@ The following build configuration properties should be set using Traitlets in th
 If you have subclassed `binderhub.build.Build` you must update your subclass (including `__init__()` if defined) to inherit from `binderhub.build.KubernetesBuildExecutor`.
 The behaviour of the class is otherwise unchanged.
 
-### Z2JH 2 and JupyterHub3
+### Z2JH 2 and JupyterHub 3
 
 The Z2JH dependency has been updated to 2.0.0 which includes JupyterHub 3
 [#1544](https://github.com/jupyterhub/binderhub/pull/1544).
