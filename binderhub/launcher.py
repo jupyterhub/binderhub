@@ -302,7 +302,7 @@ class Launcher(LoggingConfigurable):
                                     )
                                 )
 
-            url_parts = ["users", username]
+            url_parts = ["users", escaped_username]
             if server_name:
                 url_parts.extend(["servers", server_name, "progress"])
             else:
