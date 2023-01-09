@@ -77,7 +77,6 @@ class BuildExecutor(LoggingConfigurable):
 
     git_credentials = Unicode(
         "",
-        allow_none=True,
         help=(
             "Git credentials to use when cloning the repository, passed via the GIT_CREDENTIAL_ENV environment variable."
             "Can be anything that will be accepted by git as a valid output from a git-credential helper. "
@@ -88,7 +87,6 @@ class BuildExecutor(LoggingConfigurable):
 
     push_secret = Unicode(
         "",
-        allow_none=True,
         help="Implementation dependent secret for pushing image to a registry.",
         config=True,
     )
@@ -100,6 +98,14 @@ class BuildExecutor(LoggingConfigurable):
     appendix = Unicode(
         "",
         help="Appendix to be added at the end of the Dockerfile used by repo2docker.",
+        config=True,
+    )
+
+    builder_info = Dict(
+        help=(
+            "Metadata about the builder e.g. repo2docker version. "
+            "This is included in the BinderHub version endpoint"
+        ),
         config=True,
     )
 
@@ -220,6 +226,13 @@ class KubernetesBuildExecutor(BuildExecutor):
             kubernetes.config.load_kube_config()
         return client.CoreV1Api()
 
+    # Overrides the default for BuildExecutor
+    push_secret = Unicode(
+        "binder-build-docker-config",
+        help="Implementation dependent secret for pushing image to a registry.",
+        config=True,
+    )
+
     namespace = Unicode(
         help="Kubernetes namespace to spawn build pods into", config=True
     )
@@ -233,6 +246,10 @@ class KubernetesBuildExecutor(BuildExecutor):
         help="Docker image containing repo2docker that is used to spawn the build pods.",
         config=True,
     )
+
+    @default("builder_info")
+    def _default_builder_info(self):
+        return {"build_image": self.build_image}
 
     docker_host = Unicode(
         "/var/run/docker.sock",
@@ -732,89 +749,3 @@ class FakeBuild(BuildExecutor):
                 }
             ),
         )
-
-
-class Build(KubernetesBuildExecutor):
-    """DEPRECATED: Use KubernetesBuildExecutor and configure with Traitlets
-
-    Represents a build of a git repository into a docker image.
-
-    This ultimately maps to a single pod on a kubernetes cluster. Many
-    different build objects can point to this single pod and perform
-    operations on the pod. The code in this class needs to be careful and take
-    this into account.
-
-    For example, operations a Build object tries might not succeed because
-    another Build object pointing to the same pod might have done something
-    else. This should be handled gracefully, and the build object should
-    reflect the state of the pod as quickly as possible.
-
-    ``name``
-        The ``name`` should be unique and immutable since it is used to
-        sync to the pod. The ``name`` should be unique for a
-        ``(repo_url, ref)`` tuple, and the same tuple should correspond
-        to the same ``name``. This allows use of the locking provided by k8s
-        API instead of having to invent our own locking code.
-
-    """
-
-    """
-    For backwards compatibility: BinderHub previously assumed a single cleaner for all builds
-    """
-    _cleaners = {}
-
-    def __init__(
-        self,
-        q,
-        api,
-        name,
-        *,
-        namespace,
-        repo_url,
-        ref,
-        build_image,
-        docker_host,
-        image_name,
-        git_credentials=None,
-        push_secret=None,
-        memory_limit=0,
-        memory_request=0,
-        node_selector=None,
-        appendix="",
-        log_tail_lines=100,
-        sticky_builds=False,
-    ):
-        warnings.warn(
-            "Class Build is deprecated, use KubernetesBuildExecutor and configure with Traitlets",
-            DeprecationWarning,
-        )
-
-        super().__init__()
-
-        self.q = q
-        self.api = api
-        self.repo_url = repo_url
-        self.ref = ref
-        self.name = name
-        self.namespace = namespace
-        self.image_name = image_name
-        self.push_secret = push_secret
-        self.build_image = build_image
-        self.memory_limit = memory_limit
-        self.memory_request = memory_request
-        self.docker_host = docker_host
-        self.node_selector = node_selector
-        self.appendix = appendix
-        self.log_tail_lines = log_tail_lines
-        self.git_credentials = git_credentials
-        self.sticky_builds = sticky_builds
-
-    @classmethod
-    def cleanup_builds(cls, kube, namespace, max_age):
-        """Delete stopped build pods and build pods that have aged out"""
-        key = (kube, namespace, max_age)
-        if key not in Build._cleaners:
-            Build._cleaners[key] = KubernetesCleaner(
-                kube=kube, namespace=namespace, max_age=max_age
-            )
-        Build._cleaners[key].cleanup()

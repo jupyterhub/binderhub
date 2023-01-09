@@ -11,6 +11,7 @@ import subprocess
 from threading import Thread
 
 from tornado.log import app_log
+from traitlets import default
 
 from .build import BuildExecutor, ProgressEvent
 
@@ -110,6 +111,16 @@ class LocalRepo2dockerBuild(BuildExecutor):
 
     WARNING: This is still under development. Breaking changes may be made at any time.
     """
+
+    @default("builder_info")
+    def _default_builder_info(self):
+        try:
+            import repo2docker
+
+            return {"repo2docker-version": repo2docker.__version__}
+        except ImportError:
+            self.log.error("repo2docker not installed")
+            return {}
 
     def submit(self):
         """

@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import secrets
+import warnings
 from binascii import a2b_hex
 from concurrent.futures import ThreadPoolExecutor
 from glob import glob
@@ -41,7 +42,7 @@ from traitlets import (
 from traitlets.config import Application
 
 from .base import AboutHandler, Custom404, VersionHandler
-from .build import Build, BuildExecutor, KubernetesBuildExecutor
+from .build import BuildExecutor, KubernetesBuildExecutor, KubernetesCleaner
 from .builder import BuildHandler
 from .config import ConfigHandler
 from .events import EventLog
@@ -229,6 +230,8 @@ class BinderHub(Application):
 
     appendix = Unicode(
         help="""
+        DEPRECATED: Use c.BuildExecutor.appendix
+
         Appendix to pass to repo2docker
 
         A multi-line string of Docker directives to run.
@@ -248,6 +251,8 @@ class BinderHub(Application):
     sticky_builds = Bool(
         False,
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.sticky_builds
+
         Attempt to assign builds for the same repository to the same node.
 
         In order to speed up re-builds of a repository all its builds will
@@ -270,12 +275,21 @@ class BinderHub(Application):
     )
 
     build_class = Type(
-        Build,
+        KubernetesBuildExecutor,
         klass=BuildExecutor,
         help="""
         The class used to build repo2docker images.
 
         Must inherit from binderhub.build.BuildExecutor
+        """,
+        config=True,
+    )
+
+    build_cleaner_class = Type(
+        KubernetesCleaner,
+        allow_none=True,
+        help="""
+        The class used to cleanup builders.
         """,
         config=True,
     )
@@ -369,6 +383,8 @@ class BinderHub(Application):
     log_tail_lines = Integer(
         100,
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.log_tail_lines
+
         Limit number of log lines to show when connecting to an already running build.
         """,
         config=True,
@@ -378,6 +394,8 @@ class BinderHub(Application):
         "binder-build-docker-config",
         allow_none=True,
         help="""
+        DEPRECATED: Use c.BuildExecutor.push_secret
+
         A kubernetes secret object that provides credentials for pushing built images.
         """,
         config=True,
@@ -401,6 +419,8 @@ class BinderHub(Application):
     build_memory_request = ByteSpecification(
         0,
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.memory_request
+
         Amount of memory to request when scheduling a build
 
         0 reserves no memory.
@@ -416,6 +436,8 @@ class BinderHub(Application):
     build_memory_limit = ByteSpecification(
         0,
         help="""
+        DEPRECATED: Use c.BuildExecutor.memory_limit
+
         Max amount of memory allocated for each image build process.
 
         0 sets no limit.
@@ -440,6 +462,8 @@ class BinderHub(Application):
         "/var/run/docker.sock",
         config=True,
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.docker_host
+
         The docker URL repo2docker should use to build the images.
 
         Currently, only paths are supported, and they are expected to be available on
@@ -518,6 +542,8 @@ class BinderHub(Application):
 
     build_namespace = Unicode(
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.namespace
+
         Kubernetes namespace to spawn build pods in.
 
         Note that the push_secret must refer to a secret in this namespace.
@@ -532,6 +558,8 @@ class BinderHub(Application):
     build_image = Unicode(
         "quay.io/jupyterhub/repo2docker:2022.10.0",
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.build_image
+
         The repo2docker image to be used for doing builds
         """,
         config=True,
@@ -541,6 +569,8 @@ class BinderHub(Application):
         {},
         config=True,
         help="""
+        DEPRECATED: Use c.KubernetesBuildExecutor.node_selector
+
         Select the node where build pod runs on.
         """,
     )
@@ -737,6 +767,27 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
+    _build_config_deprecated_map = {
+        "appendix": ("BuildExecutor", "appendix"),
+        "push_secret": ("BuildExecutor", "push_secret"),
+        "build_memory_limit": ("BuildExecutor", "memory_limit"),
+        "sticky_builds": ("KubernetesBuildExecutor", "sticky_builds"),
+        "log_tail_lines": ("KubernetesBuildExecutor", "log_tail_lines"),
+        "build_memory_request": ("KubernetesBuildExecutor", "memory_request"),
+        "build_docker_host": ("KubernetesBuildExecutor", "docker_host"),
+        "build_namespace": ("KubernetesBuildExecutor", "namespace"),
+        "build_image": ("KubernetesBuildExecutor", "build_image"),
+        "build_node_selector": ("KubernetesBuildExecutor", "node_selector"),
+    }
+
+    @observe(*_build_config_deprecated_map)
+    def _build_config_deprecated(self, change):
+        dest_cls, dest_name = self._build_config_deprecated_map[change.name]
+        self.log.warning(
+            "BinderHub.%s is deprecated, use %s.%s", change.name, dest_cls, dest_name
+        )
+        self.config[dest_cls][dest_name] = change.new
+
     @staticmethod
     def add_url_prefix(prefix, handlers):
         """add a url prefix to handlers"""
@@ -830,25 +881,22 @@ class BinderHub(Application):
 
         launch_quota = self.launch_quota_class(parent=self, executor=self.executor)
 
+        # Construct a Builder so that we can extract parameters such as the
+        # configuration or the version string to pass to /version and /health handlers
+        example_builder = self.build_class(parent=self)
         self.tornado_settings.update(
             {
                 "log_function": log_request,
-                "push_secret": self.push_secret,
                 "image_prefix": self.image_prefix,
                 "debug": self.debug,
                 "launcher": self.launcher,
-                "appendix": self.appendix,
                 "ban_networks": self.ban_networks,
                 "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
-                "build_namespace": self.build_namespace,
-                "build_image": self.build_image,
-                "build_node_selector": self.build_node_selector,
                 "build_pool": self.build_pool,
                 "build_token_check_origin": self.build_token_check_origin,
                 "build_token_secret": self.build_token_secret,
                 "build_token_expires_seconds": self.build_token_expires_seconds,
-                "sticky_builds": self.sticky_builds,
-                "log_tail_lines": self.log_tail_lines,
+                "example_builder": example_builder,
                 "pod_quota": self.pod_quota,
                 "per_repo_quota": self.per_repo_quota,
                 "per_repo_quota_higher": self.per_repo_quota_higher,
@@ -866,9 +914,6 @@ class BinderHub(Application):
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
                 "jinja2_env": jinja_env,
-                "build_memory_limit": self.build_memory_limit,
-                "build_memory_request": self.build_memory_request,
-                "build_docker_host": self.build_docker_host,
                 "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
                 "badge_base_url": self.badge_base_url,
@@ -969,25 +1014,21 @@ class BinderHub(Application):
         self.build_pool.shutdown()
 
     async def watch_build_pods(self):
-        """Watch build pods
+        warnings.warn(
+            "watch_build_pods() is deprecated, use watch_builders()", DeprecationWarning
+        )
+        await self.watch_builders()
 
-        Every build_cleanup_interval:
-        - delete stopped build pods
-        - delete running build pods older than build_max_age
+    async def watch_builders(self):
         """
-        while True:
+        Watch builders, run a cleanup function every build_cleanup_interval
+        """
+        while self.build_cleaner_class:
+            cleaner = self.build_cleaner_class()
             try:
-                await asyncio.wrap_future(
-                    self.executor.submit(
-                        lambda: Build.cleanup_builds(
-                            self.kube_client,
-                            self.build_namespace,
-                            self.build_max_age,
-                        )
-                    )
-                )
+                await asyncio.wrap_future(self.executor.submit(cleaner.cleanup))
             except Exception:
-                app_log.exception("Failed to cleanup build pods")
+                app_log.exception("Failed to cleanup builders")
             await asyncio.sleep(self.build_cleanup_interval)
 
     def start(self, run_loop=True):
@@ -998,7 +1039,7 @@ class BinderHub(Application):
         )
         self.http_server.listen(self.port)
         if self.builder_required:
-            asyncio.ensure_future(self.watch_build_pods())
+            asyncio.ensure_future(self.watch_builders())
         if run_loop:
             tornado.ioloop.IOLoop.current().start()
 

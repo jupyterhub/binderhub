@@ -22,7 +22,7 @@ from tornado.queues import Queue
 from tornado.web import Finish, authenticated
 
 from .base import BaseHandler
-from .build import Build, ProgressEvent
+from .build import ProgressEvent
 from .quota import LaunchQuotaExceeded
 
 # Separate buckets for builds and launches.
@@ -437,64 +437,21 @@ class BuildHandler(BaseHandler):
         # Prepare to build
         q = Queue()
 
-        if self.settings["use_registry"] or self.settings["build_docker_config"]:
-            push_secret = self.settings["push_secret"]
-        else:
-            push_secret = None
-
         BuildClass = self.settings.get("build_class")
 
-        appendix = self.settings["appendix"].format(
-            binder_url=self.binder_launch_host + self.binder_request,
-            persistent_binder_url=self.binder_launch_host
-            + self.binder_persistent_request,
+        build = BuildClass(
+            # All other properties should be set in traitlets config
+            parent=self.settings["traitlets_parent"],
+            q=q,
+            name=build_name,
             repo_url=repo_url,
-            ref_url=self.ref_url,
+            ref=ref,
+            image_name=image_name,
+            git_credentials=provider.git_credentials,
         )
+        if not self.settings["use_registry"]:
+            build.push_secret = ""
 
-        if issubclass(BuildClass, Build):
-            # Deprecated, see docstring of the Build class for more details
-            build = BuildClass(
-                q=q,
-                # api object can be None if we are using FakeBuild
-                api=self.settings.get("kubernetes_client"),
-                name=build_name,
-                namespace=self.settings["build_namespace"],
-                repo_url=repo_url,
-                ref=ref,
-                image_name=image_name,
-                push_secret=push_secret,
-                build_image=self.settings["build_image"],
-                memory_limit=self.settings["build_memory_limit"],
-                memory_request=self.settings["build_memory_request"],
-                docker_host=self.settings["build_docker_host"],
-                node_selector=self.settings["build_node_selector"],
-                appendix=appendix,
-                log_tail_lines=self.settings["log_tail_lines"],
-                git_credentials=provider.git_credentials,
-                sticky_builds=self.settings["sticky_builds"],
-            )
-        else:
-            build = BuildClass(
-                # Commented properties should be set in traitlets config
-                parent=self.settings["traitlets_parent"],
-                q=q,
-                name=build_name,
-                # namespace=self.settings["build_namespace"],
-                repo_url=repo_url,
-                ref=ref,
-                image_name=image_name,
-                # push_secret=push_secret,
-                # build_image=self.settings["build_image"],
-                # memory_limit=self.settings["build_memory_limit"],
-                # memory_request=self.settings["build_memory_request"],
-                # docker_host=self.settings["build_docker_host"],
-                # node_selector=self.settings["build_node_selector"],
-                # appendix=appendix,
-                # log_tail_lines=self.settings["log_tail_lines"],
-                git_credentials=provider.git_credentials,
-                # sticky_builds=self.settings["sticky_builds"],
-            )
         self.build = build
 
         with BUILDS_INPROGRESS.track_inprogress():
