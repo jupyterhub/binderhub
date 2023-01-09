@@ -6,7 +6,7 @@
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
-FROM python:3.9-bullseye as build-stage
+FROM python:3.11-bullseye as build-stage
 WORKDIR /build-stage
 
 # install node as required to build a binderhub wheel
@@ -23,14 +23,14 @@ COPY . .
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip install build \
  && pip wheel \
-       . \
-       pycurl \
-       -r helm-chart/images/binderhub/requirements.txt
+        . \
+        pycurl \
+        -r helm-chart/images/binderhub/requirements.txt
 
 
 # The final stage
 # ---------------
-FROM python:3.9-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive

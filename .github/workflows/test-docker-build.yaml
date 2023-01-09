@@ -28,7 +28,7 @@ jobs:
   # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/local-registry.md
   # - https://github.com/docker/build-push-action/blob/v2.3.0/docs/advanced/multi-platform.md
   build_images:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.11"
 
       - name: Install chartpress
         run: pip install chartpress
