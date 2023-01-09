@@ -331,6 +331,16 @@ jobs:
           export BINDER_URL=http://localhost:30901
           pytest --helm -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
 
+      - name: Get BinderHub health and metrics outputs
+        if: always()
+        run: |
+          if [ "${{ matrix.test }}" = "helm" ]; then
+            for endpoint in versions health metrics; do
+              echo -e "\n${endpoint}"
+              curl http://localhost:30901/$endpoint
+            done
+          fi
+
       # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
         uses: jupyterhub/action-k8s-namespace-report@v1
