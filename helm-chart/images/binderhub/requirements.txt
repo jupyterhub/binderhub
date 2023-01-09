@@ -10,7 +10,7 @@ async-generator==1.10
     # via jupyterhub
 attrs==22.2.0
     # via jsonschema
-cachetools==5.2.0
+cachetools==5.2.1
     # via google-auth
 certifi==2022.12.7
     # via
@@ -33,7 +33,7 @@ google-api-core[grpc]==2.11.0
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.15.0
+google-auth==2.16.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -46,7 +46,7 @@ google-cloud-core==2.3.2
     # via google-cloud-logging
 google-cloud-logging==3.4.0
     # via -r helm-chart/images/binderhub/requirements.in
-googleapis-common-protos[grpc]==1.57.0
+googleapis-common-protos[grpc]==1.58.0
     # via
     #   google-api-core
     #   google-cloud-audit-log
@@ -94,7 +94,7 @@ oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==22.0
+packaging==23.0
     # via
     #   docker
     #   jupyterhub
@@ -104,7 +104,7 @@ prometheus-client==0.15.0
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-proto-plus==1.22.1
+proto-plus==1.22.2
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
@@ -167,7 +167,7 @@ tornado==6.2
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.8.0
+traitlets==5.8.1
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
