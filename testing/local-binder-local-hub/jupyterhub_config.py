@@ -35,15 +35,18 @@ c.JupyterHub.hub_connect_ip = hostip
 
 binderhub_service_name = "binder"
 binderhub_config = os.path.join(os.path.dirname(__file__), "binderhub_config.py")
+
+binderhub_environment = {}
+for env_var in ["JUPYTERHUB_EXTERNAL_URL", "GITHUB_ACCESS_TOKEN"]:
+    if os.getenv(env_var) is not None:
+        binderhub_environment[env_var] = os.getenv(env_var)
 c.JupyterHub.services = [
     {
         "name": binderhub_service_name,
         "admin": True,
         "command": ["python", "-mbinderhub", f"--config={binderhub_config}"],
         "url": "http://localhost:8585",
-        "environment": {
-            "JUPYTERHUB_EXTERNAL_URL": os.getenv("JUPYTERHUB_EXTERNAL_URL", "")
-        },
+        "environment": binderhub_environment,
     }
 ]
 c.JupyterHub.default_url = f"/services/{binderhub_service_name}/"
