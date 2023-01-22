@@ -201,6 +201,31 @@ def test_sticky_builds_affinity():
     ].preference.match_expressions[0].values[0] in ("node-a", "node-b")
 
 
+def test_build_memory_limits():
+    # Setup some mock objects for the response from the k8s API
+    mock_k8s_api = _list_image_builder_pods_mock()
+
+    build = KubernetesBuildExecutor(
+        q=mock.MagicMock(),
+        api=mock_k8s_api,
+        name="test_build",
+        namespace="build_namespace",
+        repo_url="repo",
+        ref="ref",
+        build_image="image",
+        image_name="name",
+        push_secret="",
+        memory_limit="2T",
+        memory_request="123G",
+        git_credentials="",
+        docker_host="http://mydockerregistry.local",
+        node_selector={},
+        sticky_builds=True,
+    )
+    assert build.memory_limit == 2199023255552
+    assert build.memory_request == 132070244352
+
+
 def test_git_credentials_passed_to_podspec_upon_submit():
     git_credentials = """{
         "client_id": "my_username",
