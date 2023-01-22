@@ -19,7 +19,7 @@ from tornado.log import app_log
 from traitlets import Any, Bool, Dict, Integer, Unicode, default
 from traitlets.config import LoggingConfigurable
 
-from .utils import KUBE_REQUEST_TIMEOUT, rendezvous_rank
+from .utils import KUBE_REQUEST_TIMEOUT, ByteSpecification, rendezvous_rank
 
 
 class ProgressEvent:
@@ -91,8 +91,10 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
-    memory_limit = Integer(
-        0, help="Memory limit for the build process in bytes", config=True
+    memory_limit = ByteSpecification(
+        0,
+        help="Memory limit for the build process in bytes (optional suffixes K M G T).",
+        config=True,
     )
 
     appendix = Unicode(
@@ -261,10 +263,10 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
-    memory_request = Integer(
+    memory_request = ByteSpecification(
         0,
         help=(
-            "Memory request of the build pod. "
+            "Memory request of the build pod in bytes (optional suffixes K M G T). "
             "The actual building happens in the docker daemon, "
             "but setting request in the build pod makes sure that memory is reserved for the docker build "
             "in the node by the kubernetes scheduler."
