@@ -264,7 +264,6 @@ class DockerRegistry(LoggingConfigurable):
                 client,
                 self.token_url,
                 scope=f"repository:{image}:pull",
-                service="container_registry",
             )
             req = httpclient.HTTPRequest(
                 url,
