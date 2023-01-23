@@ -204,13 +204,19 @@ class DockerRegistry(LoggingConfigurable):
             ) from None
 
     async def _get_token(self, client, token_url, service, scope):
+        # specify required query parameters
+        query_params = {
+            "scope": scope,
+        }
+
+        # add optional query parameters
+        if service is not None:
+            query_params["service"] = service
+
         auth_req = httpclient.HTTPRequest(
             url_concat(
                 token_url,
-                {
-                    "scope": scope,
-                    "service": service,
-                },
+                query_params,
             ),
             auth_username=self.username,
             auth_password=self.password,
@@ -263,7 +269,8 @@ class DockerRegistry(LoggingConfigurable):
             token = await self._get_token(
                 client,
                 self.token_url,
-                scope=f"repository:{image}:pull",
+                None,  # service may be pre-set in self.token_url as per Helm chart docs for specific CRs
+                f"repository:{image}:pull",
             )
             req = httpclient.HTTPRequest(
                 url,
