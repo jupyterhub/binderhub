@@ -174,10 +174,10 @@ where:
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the ACR.
   Suggestions for `<project-name>` could be `ACR_NAME` or the name you give your BinderHub.
 
-If you are using GitLab Container Registry 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you are using an authenticated (private) GitLab Container Registry 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want your BinderHub to push and pull images from a GitLab Container Registry, then your `config.yaml` file will look as follows::
+If you want your BinderHub to push and pull images from an authenticated (private) GitLab Container Registry, then your `config.yaml` file will look as follows::
 
     config:
       BinderHub:
@@ -186,12 +186,17 @@ If you want your BinderHub to push and pull images from a GitLab Container Regis
       DockerRegistry:
         token_url: "https://gitlab.com/jwt/auth?service=container_registry"
         url: "https://registry.gitlab.com"
+        username: <deploy-token-username>
+        password: <deploy-token-pw>
     registry:
       url: https://registry.gitlab.com
+      username: <deploy-token-username>
+      password: <deploy-token-pw>
 
 where:
 
 * `<gitlab-user>` is your gitlab username,
+* `<deploy-token-username>` and `<deploy-token-pw>` are valid GitLab credentials.  (Passwords may be moved to `secret.yaml`.)
 * `<project-name>` is an arbitrary name that is required due to BinderHub assuming that `image_prefix` contains an extra level for the project name.
   See `this issue <https://github.com/jupyterhub/binderhub/issues/800>`_ for futher discussion.
   If this is not provided, you may find BinderHub rebuilds images every launch instead of pulling them from the GitLab container registry.
