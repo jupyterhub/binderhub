@@ -169,7 +169,15 @@ async def test_get_token():
     test_handle = {"username": username, "password": password}
     app = Application(
         [
-            (r"/token", MockTokenHandler, {"test_handle": test_handle, "service": "service.1", "scope": "scope.2"}),
+            (
+                r"/token",
+                MockTokenHandler,
+                {
+                    "test_handle": test_handle,
+                    "service": "service.1",
+                    "scope": "scope.2",
+                },
+            ),
         ]
     )
     ip = "127.0.0.1"
@@ -204,7 +212,15 @@ async def test_get_token_with_config_supplied_service():
     test_handle = {"username": username, "password": password}
     app = Application(
         [
-            (r"/token", MockTokenHandler, {"test_handle": test_handle, "service": "service.1", "scope": "scope.2"}),
+            (
+                r"/token",
+                MockTokenHandler,
+                {
+                    "test_handle": test_handle,
+                    "service": "service.1",
+                    "scope": "scope.2",
+                },
+            ),
         ]
     )
     ip = "127.0.0.1"
