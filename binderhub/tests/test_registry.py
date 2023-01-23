@@ -265,7 +265,7 @@ async def test_get_image_manifest(tmpdir, token_url_known):
             f,
         )
     if token_url_known:
-        token_url = url + "/token"
+        token_url = url + "/token?service=container_registry"
     else:
         token_url = ""
     registry = DockerRegistry(
