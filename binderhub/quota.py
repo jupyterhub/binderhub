@@ -36,7 +36,6 @@ ServerQuotaCheck = namedtuple("ServerQuotaCheck", ["total", "matching", "quota"]
 
 
 class LaunchQuota(LoggingConfigurable):
-
     executor = Any(
         allow_none=True, help="Optional Executor to use for blocking operations"
     )
@@ -77,7 +76,6 @@ class LaunchQuota(LoggingConfigurable):
 
 
 class KubernetesLaunchQuota(LaunchQuota):
-
     api = Any(
         help="Kubernetes API object to make requests (kubernetes.client.CoreV1Api())",
     )
