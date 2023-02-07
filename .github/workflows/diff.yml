@@ -44,7 +44,7 @@ jobs:
 
       - name: "Install latest released dev chart"
         run: |
-          UPGRADE_FROM_VERSION=$(curl -sS https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.dev')
+          UPGRADE_FROM_VERSION=$(curl -sSL https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.dev')
 
           # NOTE: We change the directory so binderhub the chart name won't be
           #       misunderstood as the local folder name.
