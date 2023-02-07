@@ -237,7 +237,7 @@ jobs:
         if: matrix.test-variation == 'upgrade'
         run: |
           . ./ci/common
-          UPGRADE_FROM_VERSION=$(curl -sS https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.${{ matrix.upgrade-from }}')
+          UPGRADE_FROM_VERSION=$(curl -sSL https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.${{ matrix.upgrade-from }}')
           echo "UPGRADE_FROM_VERSION=$UPGRADE_FROM_VERSION" >> $GITHUB_ENV
 
           echo ""
