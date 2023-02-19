@@ -381,11 +381,12 @@ class BuildHandler(BaseHandler):
             .lower()
         )
 
+        image_without_tag, image_tag = _get_image_basename_and_tag(image_name)
         if self.settings["use_registry"]:
             for _ in range(3):
                 try:
                     image_manifest = await self.registry.get_image_manifest(
-                        *_get_image_basename_and_tag(image_name)
+                        image_without_tag, image_tag
                     )
                     image_found = bool(image_manifest)
                     break
@@ -457,7 +458,13 @@ class BuildHandler(BaseHandler):
             image_name=image_name,
             git_credentials=provider.git_credentials,
         )
-        if not self.settings["use_registry"]:
+        if self.settings["use_registry"]:
+            push_token = await self.registry.get_credentials(
+                image_without_tag, image_tag
+            )
+            if push_token:
+                build.push_secret_content = json.dumps(push_token)
+        else:
             build.push_secret = ""
 
         self.build = build

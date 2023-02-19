@@ -91,6 +91,18 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
+    push_secret_content = Unicode(
+        "",
+        help=(
+            "Content of an implementation dependent secret for pushing image to a registry. "
+            "For example, if push tokens are temporary this can be used to pass the token "
+            "as an environment variable CONTAINER_ENGINE_REGISTRY_CREDENTIALS to "
+            "repo2docker."
+            "If provided this will be used instead of push_secret."
+        ),
+        config=True,
+    )
+
     memory_limit = ByteSpecification(
         0,
         help="Memory limit for the build process in bytes (optional suffixes K M G T).",
@@ -394,7 +406,23 @@ class KubernetesBuildExecutor(BuildExecutor):
             )
         ]
 
-        if self.push_secret:
+        env = [
+            client.V1EnvVar(name=key, value=value)
+            for key, value in self.extra_envs.items()
+        ]
+        if self.git_credentials:
+            env.append(
+                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
+            )
+
+        if self.push_secret_content:
+            env.append(
+                client.V1EnvVar(
+                    name="CONTAINER_ENGINE_REGISTRY_CREDENTIALS",
+                    value=self.push_secret_content,
+                )
+            )
+        elif self.push_secret:
             volume_mounts.append(
                 client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
             )
@@ -403,15 +431,6 @@ class KubernetesBuildExecutor(BuildExecutor):
                     name="docker-config",
                     secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
                 )
-            )
-
-        env = [
-            client.V1EnvVar(name=key, value=value)
-            for key, value in self.extra_envs.items()
-        ]
-        if self.git_credentials:
-            env.append(
-                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
             )
 
         self.pod = client.V1Pod(
