@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.9.3
+alembic==1.9.4
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
@@ -33,7 +33,7 @@ google-api-core[grpc]==2.11.0
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.16.0
+google-auth==2.16.1
     # via
     #   google-api-core
     #   google-cloud-core
@@ -56,13 +56,13 @@ greenlet==2.0.2
     # via sqlalchemy
 grpc-google-iam-v1==0.12.6
     # via google-cloud-logging
-grpcio==1.51.1
+grpcio==1.51.3
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.51.1
+grpcio-status==1.51.3
     # via google-api-core
 idna==3.4
     # via requests
@@ -108,7 +108,7 @@ proto-plus==1.22.2
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==4.21.12
+protobuf==4.22.0
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -136,7 +136,7 @@ python-dateutil==2.8.2
     # via
     #   jupyterhub
     #   kubernetes
-python-json-logger==2.0.4
+python-json-logger==2.0.7
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
@@ -160,7 +160,7 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.2
+sqlalchemy==2.0.4
     # via
     #   alembic
     #   jupyterhub
@@ -173,7 +173,7 @@ traitlets==5.9.0
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
     #   jupyterhub
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via sqlalchemy
 urllib3==1.26.14
     # via
