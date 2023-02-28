@@ -84,6 +84,10 @@ class BinderSpawnerMixin(Configurable):
             if self.cors_allow_origin == "*":
                 args.append("--NotebookApp.allow_origin_pat=.*")
             args += self.args
+            # ServerApp compatibility: duplicate NotebookApp args
+            for arg in list(args):
+                if arg.startswith("--NotebookApp."):
+                    args.append(arg.replace("--NotebookApp.", "--ServerApp."))
         return args
 
     def start(self):

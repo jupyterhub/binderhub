@@ -169,6 +169,10 @@ jupyterhub:
                     if self.cors_allow_origin == "*":
                         args.append("--NotebookApp.allow_origin_pat=.*")
                     args += self.args
+                    # ServerApp compatibility: duplicate NotebookApp args
+                    for arg in list(args):
+                        if arg.startswith("--NotebookApp."):
+                            args.append(arg.replace("--NotebookApp.", "--ServerApp."))
                 return args
 
             def start(self):
@@ -224,12 +228,14 @@ jupyterhub:
         else:
             have_lab = major >= 3
 
-        if have_lab and "NotebookApp.default_url" not in " ".join(sys.argv):
-            # if recent-enough lab is available, make it the default UI
-            sys.argv.insert(1, "--NotebookApp.default_url=/lab/")
+        if have_lab:
+          # technically, we could accept another jupyter-server-based frontend
+          exe = "jupyter-lab"
+        else:
+          exe = "jupyter-notebook"
 
         # launch the notebook server
-        os.execvp("jupyter-notebook", sys.argv)
+        os.execvp(exe, sys.argv)
     events: true
     storage:
       type: none
