@@ -211,8 +211,8 @@ jupyterhub:
       binder:
         display: false
   singleuser:
-    # start notebook server with lab ui as default
-    # *if available*
+    # start jupyterlab server *if available*
+    # fallback on jupyter-notebook
     cmd:
       - python3
       - "-c"
@@ -222,16 +222,20 @@ jupyterhub:
 
         try:
             import jupyterlab
+            import jupyterlab.labapp
             major = int(jupyterlab.__version__.split(".", 1)[0])
-        except Exception:
+        except Exception as e:
+            print("Failed to import jupyterlab: {e}", file=sys.stderr)
             have_lab = False
         else:
             have_lab = major >= 3
 
         if have_lab:
           # technically, we could accept another jupyter-server-based frontend
+          print("Launching jupyter-lab", file=sys.stderr)
           exe = "jupyter-lab"
         else:
+          print("jupyter-lab not found, launching jupyter-notebook", file=sys.stderr)
           exe = "jupyter-notebook"
 
         # launch the notebook server
