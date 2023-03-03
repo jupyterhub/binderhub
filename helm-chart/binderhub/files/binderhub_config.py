@@ -55,6 +55,8 @@ if imageBuilderType in ["dind", "pink"]:
         c.BinderHub.build_docker_host = f"unix://{hostSocketDir}/{socketname}.sock"
 
 if c.BinderHub.auth_enabled:
+    if "hub_url" not in c.BinderHub:
+        c.BinderHub.hub_url = ""
     hub_url = urlparse(c.BinderHub.hub_url)
     c.HubOAuth.hub_host = f"{hub_url.scheme}://{hub_url.netloc}"
     if "base_url" in c.BinderHub:
