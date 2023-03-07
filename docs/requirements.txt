@@ -1,0 +1,6 @@
+myst-parser
+sphinx-autobuild
+sphinx-book-theme
+sphinx-copybutton
+sphinxext-opengraph
+sphinxext-rediraffe

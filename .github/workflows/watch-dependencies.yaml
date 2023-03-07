@@ -1,0 +1,52 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+#
+# This Workflow watches dependencies and automatically creates PRs to update
+# them.
+#
+# - Refreeze images/*/requirements.txt based on images/*/requirements.in
+#
+name: Watch dependencies
+
+on:
+  push:
+    paths:
+      - "images/*/requirements.in"
+      - ".github/workflows/watch-dependencies.yaml"
+    branches: ["main"]
+  schedule:
+    # Run at 05:00 on day-of-month 1, ref: https://crontab.guru/#0_5_1_*_*
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+jobs:
+  refreeze-dockerfile-requirements-txt:
+    if: github.repository == '2i2c-org/binderhub-service'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Refreeze requirements.txt based on requirements.in
+        run: ci/refreeze
+
+      - name: git diff
+        run: git --no-pager diff --color=always
+
+      # ref: https://github.com/peter-evans/create-pull-request
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          branch: update-image-requirements
+          labels: dependencies
+          commit-message: "binderhub-service image: refreeze requirements.txt"
+          title: "binderhub-service image: refreeze requirements.txt"
+          body: >-
+            The binderhub-service image's requirements.txt has been refrozen
+            based on requirements.in.
+
+            The push to this branch was made by a bot account so all tests
+            aren't triggered to run. Close and re-open this PR to trigger them
+            manually.

@@ -1,0 +1,16 @@
+#!/bin/bash
+set -xeuo pipefail
+
+# Because `pip-compile` resolves `requirements.txt` with the current Python for
+# the current platform, it should be run on the same Python version and platform
+# as our Dockerfile as done by this script.
+
+cd images/binderhub-service
+docker run \
+    --rm \
+    --env=CUSTOM_COMPILE_COMMAND='Use the "Run workflow" button at https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml' \
+    --volume="$PWD:/io" \
+    --workdir=/io \
+    --user=root \
+    python:3.11-bullseye \
+    sh -c 'pip install pip-tools==6.* && pip-compile --resolver=backtracking --upgrade'

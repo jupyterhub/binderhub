@@ -1,0 +1,71 @@
+{{- /* Generated with https://patorjk.com/software/taag/#p=display&h=0&f=Slant&t=BinderHub */}}
+.   ____    _               __                __  __          __  
+   / __ )  (_) ____    ____/ / ___    _____  / / / / __  __  / /_ 
+  / __  | / / / __ \  / __  / / _ \  / ___/ / /_/ / / / / / / __ \
+ / /_/ / / / / / / / / /_/ / /  __/ / /    / __  / / /_/ / / /_/ /
+/_____/ /_/ /_/ /_/  \__,_/  \___/ /_/    /_/ /_/  \__,_/ /_.___/ 
+            _____                         _             
+           / ___/  ___    _____  _   __  (_) _____  ___ 
+           \__ \  / _ \  / ___/ | | / / / / / ___/ / _ \
+          ___/ / /  __/ / /     | |/ / / / / /__  /  __/
+         /____/  \___/ /_/      |___/ /_/  \___/  \___/ 
+
+You have successfully installed the BinderHub Service Helm chart!
+
+### Installation info
+
+  - Kubernetes namespace: {{ .Release.Namespace }}
+  - Helm release name:    {{ .Release.Name }}
+  - Helm chart version:   {{ .Chart.Version }}
+  - BinderHub version:    {{ .Chart.AppVersion }}
+  - Python packages:      See https://github.com/2i2c-org/binderhub-service/blob/{{ include "binderhub-service.chart-version-to-git-ref" .Chart.Version }}/images/binderhub-service/requirements.txt
+
+### Followup links
+
+  - Documentation:  https://2i2c.org/binderhub-service
+  - Issue tracking: https://github.com/2i2c-org/binderhub-service/issues
+
+### Post-installation checklist
+
+  - Verify that created Pods enter a Running state:
+
+      kubectl --namespace={{ .Release.Namespace }} get pod
+
+    If a pod is stuck with a Pending or ContainerCreating status, diagnose with:
+
+      kubectl --namespace={{ .Release.Namespace }} describe pod <name of pod>
+
+    If a pod keeps restarting, diagnose with:
+
+      kubectl --namespace={{ .Release.Namespace }} logs --previous <name of pod>
+  {{- println }}
+
+
+
+{{- /*
+  Breaking changes.
+*/}}
+
+{{- $breaking := "" }}
+{{- $breaking_title := "\n" }}
+{{- $breaking_title = print $breaking_title "\n#################################################################################" }}
+{{- $breaking_title = print $breaking_title "\n######   BREAKING: The config values passed contained no longer accepted    #####" }}
+{{- $breaking_title = print $breaking_title "\n######             options. See the messages below for more details.        #####" }}
+{{- $breaking_title = print $breaking_title "\n######                                                                      #####" }}
+{{- $breaking_title = print $breaking_title "\n######             To verify your updated config is accepted, you can use   #####" }}
+{{- $breaking_title = print $breaking_title "\n######             the `helm template` command.                             #####" }}
+{{- $breaking_title = print $breaking_title "\n#################################################################################" }}
+
+
+{{- /*
+  This is an example (in a helm template comment) on how to detect and
+  communicate with regards to a breaking chart config change.
+
+  {{- if hasKey .Values.singleuser.cloudMetadata "enabled" }}
+  {{- $breaking = print $breaking "\n\nCHANGED: singleuser.cloudMetadata.enabled must as of 1.0.0 be configured using singleuser.cloudMetadata.blockWithIptables with the opposite value." }}
+  {{- end }}
+*/}}
+
+{{- if $breaking }}
+{{- fail (print $breaking_title $breaking "\n\n") }}
+{{- end }}

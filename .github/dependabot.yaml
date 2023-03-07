@@ -1,0 +1,16 @@
+# dependabot.yaml reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Notes:
+# - Status and logs from dependabot are provided at
+#   https://github.com/2i2c-org/binderhub-service/network/updates.
+# - YAML anchors are not supported here or in GitHub Workflows.
+#
+version: 2
+updates:
+  # Maintain dependencies in our GitHub Workflows
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+      time: "05:00"
+      timezone: "Etc/UTC"
