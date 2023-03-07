@@ -2,8 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "binderhub-service.fullname" . }}
-  labels:
-    {{- include "binderhub-service.labels" . | nindent 4 }}
+  labels: {{- include "binderhub-service.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -11,5 +10,4 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-  selector:
-    {{- include "binderhub-service.selectorLabels" . | nindent 4 }}
+  selector: {{- include "binderhub-service.selectorLabels" . | nindent 4 }}

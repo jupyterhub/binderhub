@@ -1,0 +1,83 @@
+# NOTE: This github repository houses a Helm chart and some Python based scripts
+#       - not a python package. This file is only used to provide configuration
+#       for misc Python based utilities.
+#
+
+# autoflake is used for autoformatting Python code
+#
+# ref: https://github.com/PyCQA/autoflake#readme
+#
+[tool.autoflake]
+ignore-init-module-imports = true
+remove-all-unused-imports = true
+remove-duplicate-keys = true
+remove-unused-variables = true
+
+
+# isort is used for autoformatting Python code
+#
+# ref: https://pycqa.github.io/isort/
+#
+[tool.isort]
+profile = "black"
+
+
+# black is used for autoformatting Python code
+#
+# ref: https://black.readthedocs.io/en/stable/
+#
+[tool.black]
+target_version = [
+    "py310",
+    "py311",
+]
+
+
+# pytest is used for running Python based tests
+#
+# ref: https://docs.pytest.org/en/stable/
+#
+[tool.pytest.ini_options]
+addopts = "--verbose --color=yes --durations=10"
+asyncio_mode = "auto"
+
+
+# tbump is a tool to update version fields that we use
+# to update baseVersion in chartpress.yaml as documented
+# in RELEASE.md
+#
+# Config reference: https://github.com/your-tools/tbump#readme
+#
+[tool.tbump]
+github_url = "https://github.com/2i2c-org/binderhub-service"
+
+[tool.tbump.version]
+current = "0.1.0-0.dev"
+
+# match our prerelease prefixes
+# -alpha.1
+# -beta.2
+# -0.dev
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  (\-
+    (?P<prelease>
+      (
+       (alpha|beta|rc)\.\d+|
+       0\.dev
+      )
+    )
+  )?
+'''
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "{new_version}"
+
+[[tool.tbump.file]]
+src = "chartpress.yaml"
+search = 'baseVersion: "{current_version}"'

@@ -16,7 +16,9 @@ from collections.abc import MutableMapping
 import yaml
 
 here_dir = os.path.abspath(os.path.dirname(__file__))
-schema_yaml = os.path.join(here_dir, os.pardir, "binderhub-service", "values.schema.yaml")
+schema_yaml = os.path.join(
+    here_dir, os.pardir, "binderhub-service", "values.schema.yaml"
+)
 values_schema_json = os.path.join(
     here_dir, os.pardir, "binderhub-service", "values.schema.json"
 )

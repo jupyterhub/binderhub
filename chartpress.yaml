@@ -20,4 +20,4 @@ charts:
       # binderhub-service, the container where the binderhub the Python
       # application is running.
       binderhub-service:
-        valuesPath: binderhub.image
+        valuesPath: image

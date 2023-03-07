@@ -7,9 +7,11 @@
 #
 chartpress
 
-# pytest run tests that require requests and pyyaml
+# pytest is used to run tests
 pytest
+
+# pyyaml is used by script under tools/
 pyyaml
 
-# tbump is making releases
-tbump
+# yamllint is used by tools/templates/lint-and-validate.py script
+yamllint

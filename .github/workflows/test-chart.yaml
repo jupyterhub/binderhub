@@ -32,7 +32,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install chartpress yamllint
+        run: pip install -r dev-requirements.txt
 
       - name: Lint and validate
         run: tools/templates/lint-and-validate.py

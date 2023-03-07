@@ -47,7 +47,7 @@ def lint(yamllint_config, values, output_dir, strict, debug):
 
     print("### Linting started")
     print("### 1/3 - helm lint: lint helm templates")
-    helm_lint_cmd = ["helm", "lint", "../../jupyterhub", f"--values={values}"]
+    helm_lint_cmd = ["helm", "lint", "../../binderhub-service", f"--values={values}"]
     if strict:
         helm_lint_cmd.append("--strict")
     if debug:
@@ -58,7 +58,7 @@ def lint(yamllint_config, values, output_dir, strict, debug):
     helm_template_cmd = [
         "helm",
         "template",
-        "../../jupyterhub",
+        "../../binderhub-service",
         f"--values={values}",
         f"--output-dir={output_dir}",
     ]

@@ -5,7 +5,9 @@ import jsonschema
 import yaml
 
 here_dir = os.path.abspath(os.path.dirname(__file__))
-schema_yaml = os.path.join(here_dir, os.pardir, "binderhub-service", "values.schema.yaml")
+schema_yaml = os.path.join(
+    here_dir, os.pardir, "binderhub-service", "values.schema.yaml"
+)
 values_yaml = os.path.join(here_dir, os.pardir, "binderhub-service", "values.yaml")
 lint_and_validate_values_yaml = os.path.join(
     here_dir, "templates", "lint-and-validate-values.yaml"
