@@ -22,6 +22,14 @@ you need to add the following into ``config.yaml``:
         config:
           BinderSpawner:
             auth_enabled: true
+          # specify the desired authenticator
+          JupyterHub:
+            authenticator_class: <desired-authenticator>
+          # use config of your authenticator here
+          # use the docs at https://zero-to-jupyterhub.readthedocs.io/en/stable/authentication.html
+          # to get more info about different config options
+          Authenticator: {}
+          <desired-authenticator-class>: {}
         services:
           binder:
             oauth_client_id: service-binderhub
@@ -37,8 +45,6 @@ you need to add the following into ``config.yaml``:
         # to make notebook servers aware of hub
         cmd: jupyterhub-singleuser
 
-      auth: {}
-
 If the configuration above was entered correctly, once you upgrade your
 BinderHub Helm Chart with ``helm upgrade...``, users that arrive at your
 BinderHub URL will be directed to a login page. Once they enter their
@@ -51,8 +57,8 @@ credentials, they'll be taken to the typical BinderHub landing page.
    the BinderHub configuration (and the JupyterHub authentication configuration)
    look good.
 .. note::
-    For ``jupyterhub.auth`` you should use config of your authenticator.
-    For more information you can check
+    For the authentication config in ``jupyterhub.hub.config``,
+    you should use config of your authenticator. For more information you can check
     `the Authentication guide
     <https://zero-to-jupyterhub.readthedocs.io/en/stable/authentication.html>`_.
 
