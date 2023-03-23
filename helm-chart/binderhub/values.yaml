@@ -45,7 +45,7 @@ config:
     # auth_enabled:
     base_url: /
     build_node_selector: {}
-    hub_url: ""
+    # hub_url:
     # hub_url_local:
     use_registry: true
   KubernetesBuildExecutor: {}
