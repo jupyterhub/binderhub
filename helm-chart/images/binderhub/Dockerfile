@@ -3,11 +3,12 @@
 
 # The build stage
 # ---------------
+# This stage is building Python wheels for use in later stages by using a base
+# image that has more pre-requisites to do so, such as a C++ compiler.
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
 FROM python:3.11-bullseye as build-stage
-WORKDIR /build-stage
 
 # install node as required to build a binderhub wheel
 RUN echo "deb https://deb.nodesource.com/node_16.x bullseye main" > /etc/apt/sources.list.d/nodesource.list \
@@ -17,12 +18,17 @@ RUN apt-get update \
         nodejs \
  && rm -rf /var/lib/apt/lists/*
 
-# build wheels to be mounted through a cache in the final stage
-ARG PIP_CACHE_DIR=/tmp/pip-cache
+# Build wheels
+#
+# We set pip's cache directory and expose it across build stages via an
+# ephemeral docker cache (--mount=type=cache,target=${PIP_CACHE_DIR}). We use
+# the same technique for the directory /tmp/wheels.
+#
 COPY . .
+ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip install build \
- && pip wheel \
+ && pip wheel --wheel-dir=/tmp/wheels \
         . \
         pycurl \
         -r helm-chart/images/binderhub/requirements.txt
@@ -30,6 +36,8 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 
 # The final stage
 # ---------------
+# This stage is built and published as jupyterhub/k8s-binderhub.
+#
 FROM python:3.11-slim-bullseye
 
 ENV PYTHONUNBUFFERED=1
@@ -50,10 +58,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # install wheels built in the build stage
-ARG PIP_CACHE_DIR=/tmp/pip-cache
 COPY helm-chart/images/binderhub/requirements.txt /tmp/requirements.txt
+ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
-    --mount=type=cache,from=build-stage,source=/build-stage,target=/tmp/wheels \
+    --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install --find-links=/tmp/wheels/ \
         binderhub \
         pycurl \
