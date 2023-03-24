@@ -61,7 +61,8 @@ jobs:
           ):
               publishing = "true"
               print("Publishing chart")
-          print(f"::set-output name=publishing::{publishing}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"publishing={publishing}\n")
 
       - name: Set up QEMU (for docker buildx)
         uses: docker/setup-qemu-action@v2
