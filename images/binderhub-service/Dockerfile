@@ -56,6 +56,14 @@ RUN apt-get update \
 
 # install wheels built in the build stage
 COPY requirements.txt requirements.txt
+# FIXME: As long as we reference git in requirements.txt (via requirements.in),
+#        we need to make sure we don't end up re-installing from git here but
+#        using the built wheel.
+#
+#        This sed replace operation removes the " @ git+..." stuff, remove it
+#        when we reference version controlled releases of binderhub.
+#
+RUN sed -i -E 's/binderhub @ git.+/binderhub/' requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
