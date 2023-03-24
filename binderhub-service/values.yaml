@@ -8,8 +8,7 @@ global: {}
 # Deployment resource
 # -----------------------------------------------------------------------------
 #
-replicaCount: 1
-
+replicas: 1
 image:
   repository: quay.io/2i2c/binderhub-service
   tag: "set-by-chartpress"
@@ -23,20 +22,25 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 resources: {}
-
 podAnnotations: {}
 podSecurityContext: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
 
+# RBAC resources
+# -----------------------------------------------------------------------------
+#
+rbac:
+  create: true
+
 # ServiceAccount resource
 # -----------------------------------------------------------------------------
 #
 serviceAccount:
   create: true
-  annotations: {}
   name: ""
+  annotations: {}
 
 # Service resource
 # -----------------------------------------------------------------------------

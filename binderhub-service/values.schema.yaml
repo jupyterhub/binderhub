@@ -13,10 +13,23 @@
 #
 $schema: http://json-schema.org/draft-07/schema#
 type: object
-additionalProperties: true
+additionalProperties: false
 required:
+  # General configuration
+  - nameOverride
+  - fullnameOverride
   - global
+  # Deployment resource
+  - image
+  # Other resources
+  - rbac
+  - serviceAccount
+  - service
+  - ingress
 properties:
+  # General configuration
+  # ---------------------------------------------------------------------------
+  #
   nameOverride:
     type: string
   fullnameOverride:
@@ -24,3 +37,106 @@ properties:
   global:
     type: object
     additionalProperties: true
+
+  # Deployment resource
+  # ---------------------------------------------------------------------------
+  #
+  replicas:
+    type: integer
+  image:
+    type: object
+    additionalProperties: false
+    required: [repository, tag]
+    properties:
+      repository:
+        type: string
+      tag:
+        type: string
+      pullPolicy:
+        enum: [null, "", IfNotPresent, Always, Never]
+      pullSecrets:
+        type: array
+  resources:
+    type: object
+    additionalProperties: true
+  securityContext:
+    type: object
+    additionalProperties: true
+  podSecurityContext:
+    type: object
+    additionalProperties: true
+  podAnnotations: &labels-and-annotations
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: string
+  nodeSelector:
+    type: object
+    additionalProperties: true
+  tolerations:
+    type: array
+  affinity:
+    type: object
+    additionalProperties: true
+
+  # RBAC resources
+  # ---------------------------------------------------------------------------
+  #
+  rbac:
+    type: object
+    additionalProperties: false
+    required: [create]
+    properties:
+      create:
+        type: boolean
+
+  # ServiceAccount resource
+  # ---------------------------------------------------------------------------
+  #
+  serviceAccount:
+    type: object
+    additionalProperties: false
+    required: [create, name]
+    properties:
+      create:
+        type: boolean
+      name:
+        type: string
+      annotations: *labels-and-annotations
+
+  # Service resource
+  # ---------------------------------------------------------------------------
+  #
+  service:
+    type: object
+    additionalProperties: false
+    required: [type, port]
+    properties:
+      type:
+        type: string
+      port:
+        type: integer
+      annotations: *labels-and-annotations
+
+  # Ingress resource
+  # ---------------------------------------------------------------------------
+  #
+  ingress:
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        type: boolean
+      className:
+        type: [string, "null"]
+      hosts:
+        type: array
+      pathSuffix:
+        type: [string, "null"]
+      pathType:
+        enum: [Prefix, Exact, ImplementationSpecific]
+      tls:
+        type: array
+      annotations: *labels-and-annotations

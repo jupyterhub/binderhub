@@ -1,1 +1,39 @@
+# General configuration
+# -----------------------------------------------------------------------------
+#
+nameOverride: ""
+fullnameOverride: ""
 global: {}
+
+# Deployment resource
+# -----------------------------------------------------------------------------
+#
+image:
+  repository: quay.io/2i2c/binderhub-service
+  tag: "set-by-chartpress"
+
+# RBAC resources
+# -----------------------------------------------------------------------------
+#
+rbac:
+  create: true
+
+# ServiceAccount resource
+# -----------------------------------------------------------------------------
+#
+serviceAccount:
+  create: true
+  name: ""
+
+# Service resource
+# -----------------------------------------------------------------------------
+#
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress resource
+# -----------------------------------------------------------------------------
+#
+ingress:
+  enabled: false

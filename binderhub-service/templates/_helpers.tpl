@@ -1,14 +1,14 @@
-{{/*
-Expand the name of the chart.
+{{- /*
+  Expand the name of the chart.
 */}}
 {{- define "binderhub-service.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+{{- /*
+  Create a default fully qualified app name.
+  We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+  If release name contains chart name it will be used as a full name.
 */}}
 {{- define "binderhub-service.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -23,15 +23,15 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
-{{/*
-Create chart name and version as used by the chart label.
+{{- /*
+  Create chart name and version as used by the chart label.
 */}}
 {{- define "binderhub-service.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/*
-Common labels
+{{- /*
+  Common labels
 */}}
 {{- define "binderhub-service.labels" -}}
 helm.sh/chart: {{ include "binderhub-service.chart" . }}
@@ -42,22 +42,22 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{/*
-Selector labels
+{{- /*
+  Selector labels
 */}}
 {{- define "binderhub-service.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "binderhub-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Create the name of the service account to use
+{{- /*
+  Create the name of the service account to use
 */}}
 {{- define "binderhub-service.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "binderhub-service.fullname" .) .Values.serviceAccount.name }}
+{{- include "binderhub-service.fullname" . | default .Values.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
@@ -68,7 +68,8 @@ Create the name of the service account to use
     Renders a valid git reference from a chartpress generated version string.
     In practice, either a git tag or a git commit hash will be returned.
 
-    - The version string will follow a chartpress pattern, see
+    - The version string will follow a chartpress pattern,
+      like "0.1.0-0.dev.git.17.h8368bc0", see
       https://github.com/jupyterhub/chartpress#examples-chart-versions-and-image-tags.
 
     - The regexReplaceAll function is a sprig library function, see
@@ -78,5 +79,5 @@ Create the name of the service account to use
       example.
 */}}
 {{- define "binderhub-service.chart-version-to-git-ref" -}}
-{{- regexReplaceAll ".*[.-]n\\d+[.]h(.*)" . "${1}" }}
+{{- regexReplaceAll ".*\\.git\\.\\d+\\.h(.*)" . "${1}" }}
 {{- end }}

@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "binderhub-service.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
@@ -18,27 +18,30 @@ spec:
       labels:
         {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- . | toYaml | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "binderhub-service.serviceAccountName" . }}
-      securityContext:
-        {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: binderhub
           securityContext:
             {{- .Values.securityContext | toYaml | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           {{- with .Values.image.pullPolicy }}
           imagePullPolicy: {{ . }}
           {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
-              protocol: TCP
           resources:
             {{- .Values.resources | toYaml | nindent 12 }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with include "binderhub-service.serviceAccountName" . }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- . | toYaml | nindent 8 }}
