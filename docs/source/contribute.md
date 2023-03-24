@@ -123,7 +123,7 @@ continue.
    requirements locally.
 
    ```bash
-   python3 -m pip install -e . -r dev-requirements.txt
+   python3 -m pip install -e ".[pycurl]" -r dev-requirements.txt
    ```
 
 1. Install the JupyterHub Helm chart by itself into your Kubernetes cluster

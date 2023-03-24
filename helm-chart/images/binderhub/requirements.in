@@ -16,4 +16,10 @@ jupyterhub==3.*
 kubernetes==9.*
 
 # binderhub's dependencies
+#
+# We can't put ".[pycurl]" here directly as when we freeze this into
+# requirements.txt using ci/refreeze, its declaring "binderhub @ file:///io"
+# which is a problem as its an absolute path.
+#
+pycurl
 -r ../../../requirements.txt

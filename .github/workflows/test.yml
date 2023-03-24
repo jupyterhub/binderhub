@@ -409,7 +409,7 @@ jobs:
       - name: Setup Python package dependencies
         run: |
           pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
-          pip install .
+          pip install ".[pycurl]"
 
       - name: Setup JupyterHub NPM dependencies
         run: npm install -g configurable-http-proxy

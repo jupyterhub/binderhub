@@ -62,7 +62,13 @@ setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={
-        # optional dependency which improves performance
+        # pycurl is an optional dependency which improves performance
+        #
+        # - pycurl requires both `curl-config` and `gcc` to be available when
+        #   installing it from source.
+        # - pycurl should always be used in production, but it's not relevant
+        #   for building documentation which inspects the source code.
+        #
         "pycurl": ["pycurl"],
     },
 )
