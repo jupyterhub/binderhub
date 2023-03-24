@@ -64,5 +64,5 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8585
-ENTRYPOINT ["tini", "--", "python", "-m", "binderhub"]
-CMD ["--config", "/etc/binderhub/config/binderhub_config.py"]
+ENTRYPOINT ["tini", "--"]
+CMD ["python", "-m", "binderhub", "--config", "/etc/binderhub/config/binderhub_config.py"]
