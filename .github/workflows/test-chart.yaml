@@ -137,6 +137,8 @@ jobs:
       # Build our images if needed and update Chart.yaml and values.yaml with
       # version and tags
       - run: chartpress
+        env:
+          DOCKER_BUILDKIT: "1"
 
       - name: Generate values.schema.json from values.schema.yaml
         run: tools/generate-json-schema.py
