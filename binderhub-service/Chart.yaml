@@ -2,6 +2,9 @@
 apiVersion: v2
 name: binderhub-service
 version: 0.0.1-set.by.chartpress
+# FIXME: appVersion should represent the version of binderhub in
+#        images/binderhub-service/requirements.txt
+#
 appVersion: "1.0.0"
 description: A BinderHub installation separate from JupyterHub
 keywords: [binderhub, binderhub-service, repo2docker, jupyterhub, jupyter]
