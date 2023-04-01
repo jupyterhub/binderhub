@@ -24,13 +24,13 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.1.0
     # via requests
-cryptography==40.0.0
+cryptography==40.0.1
     # via pyopenssl
 docker==6.0.1
     # via binderhub
 escapism==1.0.1
     # via binderhub
-google-auth==2.16.3
+google-auth==2.17.1
     # via kubernetes
 greenlet==2.0.2
     # via sqlalchemy
@@ -82,7 +82,7 @@ pycurl==7.45.2
     # via binderhub
 pyjwt==2.6.0
     # via binderhub
-pyopenssl==23.1.0
+pyopenssl==23.1.1
     # via certipy
 pyrsistent==0.19.3
     # via jsonschema
@@ -113,7 +113,7 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.7
+sqlalchemy==2.0.8
     # via
     #   alembic
     #   jupyterhub
