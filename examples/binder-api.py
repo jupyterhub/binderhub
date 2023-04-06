@@ -15,14 +15,18 @@ import webbrowser
 import requests
 
 
-def build_binder(repo, ref, *, binder_url="https://mybinder.org"):
+def build_binder(repo, ref, *, binder_url="https://mybinder.org", no_launch):
     """Launch a binder
 
     Yields Binder's event-stream events (dicts)
     """
     print(f"Building binder for {repo}@{ref}")
     url = binder_url + f"/build/gh/{repo}/{ref}"
-    r = requests.get(url, stream=True)
+    params = {}
+    if no_launch:
+        params = {"no-launch": "True"}
+
+    r = requests.get(url, stream=True, params=params)
     r.raise_for_status()
     for line in r.iter_lines():
         line = line.decode("utf8", "replace")
@@ -34,12 +38,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=str, help="The GitHub repo to build")
     parser.add_argument("--ref", default="HEAD", help="The ref of the repo to build")
+    parser.add_argument(
+        "--no-launch",
+        action="store_true",
+        help="When passed, the image will not be launched after build",
+    )
     file_or_url = parser.add_mutually_exclusive_group()
     file_or_url.add_argument("--filepath", type=str, help="The file to open, if any.")
     file_or_url.add_argument("--urlpath", type=str, help="The url to open, if any.")
     parser.add_argument(
         "--binder",
-        default="https://mybinder.org",
+        default="http://localhost:8585",
         help="""
         The URL of the binder instance to use.
         Use `http://localhost:8585` if you are doing local testing.
@@ -47,7 +56,9 @@ if __name__ == "__main__":
     )
     opts = parser.parse_args()
 
-    for evt in build_binder(opts.repo, ref=opts.ref, binder_url=opts.binder):
+    for evt in build_binder(
+        opts.repo, ref=opts.ref, binder_url=opts.binder, no_launch=opts.no_launch
+    ):
         if "message" in evt:
             print(
                 "[{phase}] {message}".format(
