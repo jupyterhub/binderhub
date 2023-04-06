@@ -418,7 +418,7 @@ class BuildHandler(BaseHandler):
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": f"Found `no_launch` option. Image will not be launched after build.\n",
+                    "message": "Found `no_launch` option. Image will not be launched after build.\n",
                 }
             )
         if image_found:
