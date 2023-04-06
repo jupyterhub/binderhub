@@ -408,33 +408,47 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
+        no_launch = self.settings.get("no_launch", False)
+        no_launch_req_query_attr = self.get_query_argument(name="no-launch", default="")
+        # The request query attribute takes precedence over the traitlet config
+        if no_launch_req_query_attr:
+            no_launch = True
+        if no_launch:
+            await self.emit(
+                {
+                    "phase": "info",
+                    "imageName": image_name,
+                    "message": f"Found `no_launch` option. Image will not be launched after build.\n",
+                }
+            )
         if image_found:
             await self.emit(
                 {
                     "phase": "built",
                     "imageName": image_name,
-                    "message": "Found built image, launching...\n",
+                    "message": "Found built image\n",
                 }
             )
-            with LAUNCHES_INPROGRESS.track_inprogress():
-                try:
-                    await self.launch(provider)
-                except LaunchQuotaExceeded:
-                    return
-            self.event_log.emit(
-                "binderhub.jupyter.org/launch",
-                5,
-                {
-                    "provider": provider.name,
-                    "spec": spec,
-                    "ref": ref,
-                    "status": "success",
-                    "build_token": self._have_build_token,
-                    "origin": self.settings["normalized_origin"]
-                    if self.settings["normalized_origin"]
-                    else self.request.host,
-                },
-            )
+            if not no_launch:
+                with LAUNCHES_INPROGRESS.track_inprogress():
+                    try:
+                        await self.launch(provider)
+                    except LaunchQuotaExceeded:
+                        return
+                    self.event_log.emit(
+                        "binderhub.jupyter.org/launch",
+                        5,
+                        {
+                            "provider": provider.name,
+                            "spec": spec,
+                            "ref": ref,
+                            "status": "success",
+                            "build_token": self._have_build_token,
+                            "origin": self.settings["normalized_origin"]
+                            if self.settings["normalized_origin"]
+                            else self.request.host,
+                        },
+                    )
             return
 
         # Don't allow builds when quota is exceeded
@@ -515,7 +529,7 @@ class BuildHandler(BaseHandler):
                     elif progress.payload == ProgressEvent.BuildStatus.BUILT:
                         event = {
                             "phase": phase,
-                            "message": "Built image, launching...\n",
+                            "message": "Done! Image built.\n",
                             "imageName": image_name,
                         }
                         done = True
@@ -559,21 +573,22 @@ class BuildHandler(BaseHandler):
             )
             BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(provider)
-            self.event_log.emit(
-                "binderhub.jupyter.org/launch",
-                5,
-                {
-                    "provider": provider.name,
-                    "spec": spec,
-                    "ref": ref,
-                    "status": "success",
-                    "build_token": self._have_build_token,
-                    "origin": self.settings["normalized_origin"]
-                    if self.settings["normalized_origin"]
-                    else self.request.host,
-                },
-            )
+                if not no_launch:
+                    await self.launch(provider)
+                    self.event_log.emit(
+                        "binderhub.jupyter.org/launch",
+                        5,
+                        {
+                            "provider": provider.name,
+                            "spec": spec,
+                            "ref": ref,
+                            "status": "success",
+                            "build_token": self._have_build_token,
+                            "origin": self.settings["normalized_origin"]
+                            if self.settings["normalized_origin"]
+                            else self.request.host,
+                        },
+                    )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,

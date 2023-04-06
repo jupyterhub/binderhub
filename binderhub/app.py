@@ -786,6 +786,11 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
+    no_launch = Bool(
+        False,
+        help="When enabled, the hub will no longer launch the image after the build"
+    )
+
     _build_config_deprecated_map = {
         "appendix": ("BuildExecutor", "appendix"),
         "push_secret": ("BuildExecutor", "push_secret"),
@@ -943,6 +948,7 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
+                "no_launch": self.no_launch,
             }
         )
         if self.auth_enabled:
