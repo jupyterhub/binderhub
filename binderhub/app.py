@@ -789,6 +789,7 @@ class BinderHub(Application):
     no_launch = Bool(
         False,
         help="When enabled, the hub will no longer launch the image after the build",
+        config=True,
     )
 
     _build_config_deprecated_map = {
