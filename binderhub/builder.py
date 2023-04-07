@@ -19,7 +19,7 @@ from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
 from tornado.queues import Queue
-from tornado.web import Finish, authenticated
+from tornado.web import Finish, authenticated, HTTPError
 
 from .base import BaseHandler
 from .build import ProgressEvent
@@ -413,13 +413,13 @@ class BuildHandler(BaseHandler):
         if not require_build_only:
             build_only_query_parameter = self.get_query_argument(name="build_only", default="")
             if build_only_query_parameter.lower() == "true":
-                raise ValueError("Building but not launching is not permitted!")
+                raise HTTPError(log_message="Building but not launching is not permitted!")
         else:
             # Not setting a default will make the function raise an error
             # if the `build_only` query parameter is missing from the request
             build_only_query_parameter = self.get_query_argument(name="build_only")
             if build_only_query_parameter.lower() != "true":
-                raise ValueError("The `build_only=true` query parameter is required!")
+                raise HTTPError(log_message="The `build_only=true` query parameter is required!")
             # If we're here, it means a build only deployment is required
             build_only = True
 
