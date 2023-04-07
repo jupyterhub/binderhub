@@ -17,7 +17,7 @@ c.BinderHub.builder_required = False
 c.BinderHub.repo_providers = {"gh": FakeProvider}
 c.BinderHub.build_class = FakeBuild
 # Uncomment the following line to enable BinderHub to not launch the image after build
-# c.BinderHub.no_launch = True
+# c.BinderHub.require_build_only = True
 
 c.BinderHub.about_message = "<blink>Hello world.</blink>"
 c.BinderHub.banner_message = 'This is headline <a href="#">news.</a>'
