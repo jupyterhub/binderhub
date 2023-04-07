@@ -151,7 +151,7 @@ async def test_build_no_launch(app):
             # Check the message for clue that the image won't be launched and
             # break out of the loop now because BinderHub keeps the connection open
             # for many seconds after to avoid "reconnects" from slow clients
-            if event.get("phase") == "built":
+            if event.get("phase") == "ready":
                 assert "Image won't be launched" in event["message"]
                 r.close()
                 break
@@ -161,7 +161,7 @@ async def test_build_no_launch(app):
     assert launch_events == 0
     final = events[-1]
     assert "phase" in final
-    assert final["phase"] == "built"
+    assert final["phase"] == "ready"
 
 
 def _list_image_builder_pods_mock():

@@ -430,11 +430,19 @@ class BuildHandler(BaseHandler):
                 }
             )
             with LAUNCHES_INPROGRESS.track_inprogress():
-                if not no_launch:
+                if no_launch:
+                    await self.emit(
+                        {
+                            "phase": "built",
+                            "imageName": image_name,
+                            "message": "Image won't be launched\n",
+                        }
+                    )
+                else:
                     try:
                         await self.launch(provider)
                     except LaunchQuotaExceeded:
-                        return 
+                        return
                     self.event_log.emit(
                         "binderhub.jupyter.org/launch",
                         5,
@@ -576,7 +584,7 @@ class BuildHandler(BaseHandler):
                 if no_launch:
                     await self.emit(
                         {
-                            "phase": "built",
+                            "phase": "ready",
                             "imageName": image_name,
                             "message": "Image won't be launched\n",
                         }
