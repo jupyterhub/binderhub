@@ -120,6 +120,50 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
     assert failed_events > 0, "Should have seen phase 'failed'"
 
 
+@pytest.mark.asyncio(timeout=120)
+@pytest.mark.remote
+async def test_build_no_launch(app):
+    """
+    Test build endpoint with no launch option active, passed as a request query param.
+    """
+    slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
+    build_url = f"{app.url}/build/{slug}"
+    params = {}
+    params = {"no-launch": "True"}
+    r = await async_requests.get(build_url, stream=True, params=params)
+    r.raise_for_status()
+
+    events = []
+    launch_events = 0
+    async for line in async_requests.iter_lines(r):
+        line = line.decode("utf8", "replace")
+        if line.startswith("data:"):
+            event = json.loads(line.split(":", 1)[1])
+            events.append(event)
+            assert "message" in event
+            sys.stdout.write(f"{event.get('phase', '')}: {event['message']}")
+            if event.get("phase") == "info":
+                assert (
+                    "Found no launch option. Image will not be launched after build"
+                    in event["message"]
+                )
+            # This is the signal that the image was built.
+            # Check the message for clue that the image won't be launched and
+            # break out of the loop now because BinderHub keeps the connection open
+            # for many seconds after to avoid "reconnects" from slow clients
+            if event.get("phase") == "built":
+                assert "Ready! Image won't be launched" in event["message"]
+                r.close()
+                break
+            if event.get("phase") == "launching":
+                launch_events += 1
+
+    assert launch_events == 0
+    final = events[-1]
+    assert "phase" in final
+    assert final["phase"] == "built"
+
+
 def _list_image_builder_pods_mock():
     """Mock list of DIND pods"""
     mock_response = mock.MagicMock()
