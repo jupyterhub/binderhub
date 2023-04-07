@@ -152,7 +152,7 @@ async def test_build_no_launch(app):
             # break out of the loop now because BinderHub keeps the connection open
             # for many seconds after to avoid "reconnects" from slow clients
             if event.get("phase") == "built":
-                assert "Ready! Image won't be launched" in event["message"]
+                assert "Image won't be launched" in event["message"]
                 r.close()
                 break
             if event.get("phase") == "launching":

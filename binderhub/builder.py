@@ -429,12 +429,12 @@ class BuildHandler(BaseHandler):
                     "message": "Found built image\n",
                 }
             )
-            if not no_launch:
-                with LAUNCHES_INPROGRESS.track_inprogress():
+            with LAUNCHES_INPROGRESS.track_inprogress():
+                if not no_launch:
                     try:
                         await self.launch(provider)
                     except LaunchQuotaExceeded:
-                        return
+                        return 
                     self.event_log.emit(
                         "binderhub.jupyter.org/launch",
                         5,
@@ -573,7 +573,15 @@ class BuildHandler(BaseHandler):
             )
             BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
-                if not no_launch:
+                if no_launch:
+                    await self.emit(
+                        {
+                            "phase": "built",
+                            "imageName": image_name,
+                            "message": "Image won't be launched\n",
+                        }
+                    )
+                else:
                     await self.launch(provider)
                     self.event_log.emit(
                         "binderhub.jupyter.org/launch",
