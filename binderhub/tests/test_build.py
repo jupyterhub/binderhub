@@ -12,6 +12,7 @@ import pytest
 from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
+from tornado.web import HTTPError
 
 from binderhub.build import KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
@@ -122,46 +123,33 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
 
 @pytest.mark.asyncio(timeout=120)
 @pytest.mark.remote
-async def test_build_no_launch(app):
+async def test_build_no_launch_failing(app):
     """
-    Test build endpoint with no launch option active, passed as a request query param.
+    Test build endpoint with build_only launch option active,
+    passed as a request query param,
+    but `require_build_only = False`.
     """
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
     params = {}
-    params = {"no-launch": "True"}
+    params = {"build_only": "true"}
     r = await async_requests.get(build_url, stream=True, params=params)
     r.raise_for_status()
-
-    events = []
-    launch_events = 0
+    failed_events = 0
     async for line in async_requests.iter_lines(r):
         line = line.decode("utf8", "replace")
         if line.startswith("data:"):
             event = json.loads(line.split(":", 1)[1])
-            events.append(event)
-            assert "message" in event
-            sys.stdout.write(f"{event.get('phase', '')}: {event['message']}")
-            if event.get("phase") == "info":
+            assert event.get("phase") not in ("launching", "ready")
+            if event.get("phase") == "failed":
+                failed_events += 1
                 assert (
-                    "Found no launch option. Image will not be launched after build"
-                    in event["message"]
+                    "Building but not launching is not permitted!" in event["message"]
                 )
-            # This is the signal that the image was built.
-            # Check the message for clue that the image won't be launched and
-            # break out of the loop now because BinderHub keeps the connection open
-            # for many seconds after to avoid "reconnects" from slow clients
-            if event.get("phase") == "ready":
-                assert "Image won't be launched" in event["message"]
-                r.close()
                 break
-            if event.get("phase") == "launching":
-                launch_events += 1
+    r.close()
 
-    assert launch_events == 0
-    final = events[-1]
-    assert "phase" in final
-    assert final["phase"] == "ready"
+    assert failed_events > 0, "Should have seen phase 'failed'"
 
 
 def _list_image_builder_pods_mock():
