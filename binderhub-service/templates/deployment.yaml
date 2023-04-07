@@ -18,10 +18,12 @@ spec:
       labels:
         {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ include "binderhub-service.fullname" . }}
       containers:
         - name: binderhub
-          securityContext:
-            {{- .Values.securityContext | toYaml | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           {{- with .Values.image.pullPolicy }}
           imagePullPolicy: {{ . }}
@@ -29,8 +31,14 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/binderhub/config/
+              readOnly: true
           resources:
             {{- .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}

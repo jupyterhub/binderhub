@@ -41,6 +41,21 @@ properties:
   # Deployment resource
   # ---------------------------------------------------------------------------
   #
+
+  config:
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: [object, "null"]
+        additionalProperties: true
+  extraConfig:
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: [string, "null"]
+
   replicas:
     type: integer
   image:
