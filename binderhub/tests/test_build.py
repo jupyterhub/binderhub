@@ -12,7 +12,6 @@ import pytest
 from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
-from tornado.web import HTTPError
 
 from binderhub.build import KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
