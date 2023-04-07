@@ -408,17 +408,27 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
-        no_launch = self.settings.get("no_launch", False)
-        no_launch_req_query_attr = self.get_query_argument(name="no-launch", default="")
-        # The request query attribute takes precedence over the traitlet config
-        if no_launch_req_query_attr:
-            no_launch = True
-        if no_launch:
+        require_build_only = self.settings.get("require_build_only", False)
+        build_only = False
+        if not require_build_only:
+            build_only_query_parameter = self.get_query_argument(name="build_only", default="")
+            if build_only_query_parameter.lower() == "true":
+                raise ValueError("Building but not launching is not permitted!")
+        else:
+            # Not setting a default will make the function raise an error
+            # if the `build_only` query parameter is missing from the request
+            build_only_query_parameter = self.get_query_argument(name="build_only")
+            if build_only_query_parameter.lower() != "true":
+                raise ValueError("The `build_only=true` query parameter is required!")
+            # If we're here, it means a build only deployment is required
+            build_only = True
+
+        if build_only:
             await self.emit(
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": "Found no launch option. Image will not be launched after build.\n",
+                    "message": "Build only was enabled. Image will not be launched after build.\n",
                 }
             )
         if image_found:
@@ -430,7 +440,7 @@ class BuildHandler(BaseHandler):
                 }
             )
             with LAUNCHES_INPROGRESS.track_inprogress():
-                if no_launch:
+                if build_only:
                     await self.emit(
                         {
                             "phase": "built",
@@ -581,7 +591,7 @@ class BuildHandler(BaseHandler):
             )
             BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
             with LAUNCHES_INPROGRESS.track_inprogress():
-                if no_launch:
+                if build_only:
                     await self.emit(
                         {
                             "phase": "ready",

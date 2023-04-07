@@ -786,7 +786,7 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
-    no_launch = Bool(
+    require_build_only = Bool(
         False,
         help="When enabled, the hub will no longer launch the image after the build",
         config=True,
@@ -949,7 +949,7 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
-                "no_launch": self.no_launch,
+                "require_build_only": self.require_build_only,
             }
         )
         if self.auth_enabled:
