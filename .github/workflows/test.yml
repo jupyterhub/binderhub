@@ -138,7 +138,7 @@ jobs:
       - uses: actions/setup-node@v3
         id: setup-node
         with:
-          node-version: "16"
+          node-version: "18"
 
       - name: Cache npm
         uses: actions/cache@v3
@@ -382,7 +382,7 @@ jobs:
       - uses: actions/setup-node@v3
         id: setup-node
         with:
-          node-version: "16"
+          node-version: "18"
 
       - name: Cache npm
         uses: actions/cache@v3
