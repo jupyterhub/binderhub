@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.10.2
+alembic==1.10.3
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
@@ -22,7 +22,7 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.1.0
     # via requests
-cryptography==40.0.0
+cryptography==40.0.1
     # via pyopenssl
 docker==6.0.1
     # via -r helm-chart/images/binderhub/../../../requirements.txt
@@ -33,7 +33,7 @@ google-api-core[grpc]==2.11.0
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.16.3
+google-auth==2.17.2
     # via
     #   google-api-core
     #   google-cloud-core
@@ -56,13 +56,13 @@ greenlet==2.0.2
     # via sqlalchemy
 grpc-google-iam-v1==0.12.6
     # via google-cloud-logging
-grpcio==1.51.3
+grpcio==1.53.0
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.51.3
+grpcio-status==1.53.0
     # via google-api-core
 idna==3.4
     # via requests
@@ -130,7 +130,7 @@ pycurl==7.45.2
     # via -r helm-chart/images/binderhub/requirements.in
 pyjwt==2.6.0
     # via -r helm-chart/images/binderhub/../../../requirements.txt
-pyopenssl==23.1.0
+pyopenssl==23.1.1
     # via certipy
 pyrsistent==0.19.3
     # via jsonschema
@@ -162,7 +162,7 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.7
+sqlalchemy==2.0.9
     # via
     #   alembic
     #   jupyterhub

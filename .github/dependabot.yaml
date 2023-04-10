@@ -9,10 +9,9 @@ version: 2
 updates:
   # Maintain dependencies in our GitHub Workflows
   - package-ecosystem: github-actions
-    directory: "/" # This should be / rather than .github/workflows
+    directory: /
+    labels: [ci]
     schedule:
-      interval: weekly
+      interval: monthly
       time: "05:00"
-      timezone: "Etc/UTC"
-    labels:
-      - dependencies
+      timezone: Etc/UTC
