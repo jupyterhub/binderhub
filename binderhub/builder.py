@@ -297,7 +297,9 @@ class BuildHandler(BaseHandler):
             return
 
         if ref is None:
-            error_message = [f"Could not resolve ref for {key}. Double check your URL."]
+            error_message = [
+                f"Could not resolve ref for {key}. Double check your URL and that your repo is public."
+            ]
 
             if provider.name == "GitHub":
                 error_message.append(
@@ -333,9 +335,6 @@ class BuildHandler(BaseHandler):
                         )
                         # artificial delay for what should be broken links
                         await asyncio.sleep(10)
-
-            else:
-                error_message.append("Is your repo public?")
 
             if ref is None:
                 # ref can become non-None if redirected to HEAD
