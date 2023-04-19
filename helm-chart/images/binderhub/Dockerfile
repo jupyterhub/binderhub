@@ -29,9 +29,8 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip install build \
  && pip wheel --wheel-dir=/tmp/wheels \
-        . \
-        pycurl \
-        -r helm-chart/images/binderhub/requirements.txt
+        -r helm-chart/images/binderhub/requirements.txt \
+        .
 
 
 # The final stage
@@ -63,9 +62,8 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
     pip install --find-links=/tmp/wheels/ \
-        binderhub \
-        pycurl \
-        -r /tmp/requirements.txt
+        -r /tmp/requirements.txt \
+        binderhub
 
 # verify success of previous step
 RUN python -c "import pycurl, binderhub.app"

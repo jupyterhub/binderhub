@@ -7,7 +7,6 @@ jsonschema
 jupyter-repo2docker>=2021.08.0
 jupyter_packaging>=0.10.4,<2
 jupyterhub
-pycurl
 pytest
 pytest-asyncio
 pytest-cov
