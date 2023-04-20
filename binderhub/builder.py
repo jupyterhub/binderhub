@@ -560,7 +560,6 @@ class BuildHandler(BaseHandler):
 
             while not done:
                 progress = await q.get()
-
                 # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
                 # whatever, we should fail properly.
                 if progress.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE:
@@ -610,7 +609,6 @@ class BuildHandler(BaseHandler):
                         BUILD_COUNT.labels(
                             status="failure", **self.repo_metric_labels
                         ).inc()
-
                 await self.emit(event)
 
         if build_only_outcome:

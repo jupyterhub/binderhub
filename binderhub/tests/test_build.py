@@ -96,9 +96,73 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     assert r.url.startswith(final["url"])
 
 
+@pytest.mark.remote
+@pytest.mark.parametrize(
+    "app,slug",
+    [
+        (
+            "require_build_only_app",
+            "git/{}/596b52f10efb0c9befc0c4ae850cc5175297d71c".format(
+                quote(
+                    "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile",
+                    safe="",
+                )
+            ),
+        ),
+        (
+            "require_build_only_app",
+            "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
+        ),
+    ],
+    indirect=[
+        "app"
+    ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
+)
+async def test_build_only(app, slug):
+    """
+    Test build a repo that is very quick and easy to build.
+    """
+    build_url = f"{app.url}/build/{slug}"
+    r = await async_requests.get(build_url, stream=True, params={"build_only": True})
+    r.raise_for_status()
+    events = []
+    launch_events = 0
+    async for line in async_requests.iter_lines(r):
+        line = line.decode("utf8", "replace")
+        if line.startswith("data:"):
+            event = json.loads(line.split(":", 1)[1])
+            events.append(event)
+            assert "message" in event
+            sys.stdout.write(f"{event.get('phase', '')}: {event['message']}")
+            # this is the signal that everything is ready, pod is launched
+            # and server is up inside the pod. Break out of the loop now
+            # because BinderHub keeps the connection open for many seconds
+            # after to avoid "reconnects" from slow clients
+            if event.get("phase") == "ready":
+                r.close()
+                break
+            if event.get("phase") == "info":
+                assert (
+                    "Both require_build_only traitlet, and the query parameter build_only are True"
+                    in event["message"]
+                )
+            if event.get("phase") == "launching" and not event["message"].startswith(
+                ("Launching server...", "Launch attempt ")
+            ):
+                # skip standard launching events of builder
+                # we are interested in launching events from spawner
+                launch_events += 1
+
+    assert launch_events == 0
+    final = events[-1]
+    assert "phase" in final
+    assert final["phase"] == "ready"
+    print(final["url"])
+
+
 @pytest.mark.asyncio(timeout=120)
 @pytest.mark.remote
-async def test_build_fail(app, needs_build, needs_launch, always_build, pytestconfig):
+async def test_build_fail(app):
     """
     Test build a repo that should fail immediately.
     """
@@ -141,7 +205,7 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
         "app"
     ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
 )
-async def test_build_no_launch_fail(app, build_only, expected_error_msg):
+async def test_build_only_fail(app, build_only, expected_error_msg):
     """
     Test the scenarios that are expected to fail when setting configs for building but no launching.
 
@@ -160,8 +224,9 @@ async def test_build_no_launch_fail(app, build_only, expected_error_msg):
 
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
-    params = {"build_only": build_only}
-    r = await async_requests.get(build_url, stream=True, params=params)
+    r = await async_requests.get(
+        build_url, stream=True, params={"build_only": build_only}
+    )
     r.raise_for_status()
     failed_events = 0
     async for line in async_requests.iter_lines(r):
