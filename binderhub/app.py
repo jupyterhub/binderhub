@@ -638,6 +638,25 @@ class BinderHub(Application):
         """,
     )
 
+    @observe("build_max_age")
+    def _build_max_age_changed(self, change):
+        if self.build_cleaner_class:
+            cleaner_name = self.build_cleaner_class.__name__
+        else:
+            cleaner_name = "CleanerName"
+
+        if cleaner_name in self.config:
+            cleaner_config = self.config[cleaner_name]
+            if "max_age" in cleaner_config:
+                # avoid warning about redundant deprecated config
+                # which can be kept for backward-compatibility
+                return
+
+        self.log.warning(
+            f"BinderHub.build_max_age is deprecated. Use `c.{cleaner_name}.max_age = {change.new}`"
+        )
+        self.config[cleaner_name].max_age = change.new
+
     build_token_check_origin = Bool(
         True,
         config=True,
@@ -1024,7 +1043,9 @@ class BinderHub(Application):
         Watch builders, run a cleanup function every build_cleanup_interval
         """
         while self.build_cleaner_class:
-            cleaner = self.build_cleaner_class()
+            cleaner = self.build_cleaner_class(
+                kube=self.kube_client, namespace=self.build_namespace, parent=self
+            )
             try:
                 await asyncio.wrap_future(self.executor.submit(cleaner.cleanup))
             except Exception:
