@@ -629,13 +629,17 @@ class KubernetesCleaner(LoggingConfigurable):
             kubernetes.config.load_kube_config()
         return client.CoreV1Api()
 
-    namespace = Unicode(help="Kubernetes namespace", config=True)
+    namespace = Unicode(help="Kubernetes namespace")
 
     @default("namespace")
     def _default_namespace(self):
         return os.getenv("BUILD_NAMESPACE", "default")
 
-    max_age = Integer(help="Maximum age of build pods to keep", config=True)
+    max_age = Integer(
+        3600 * 4,
+        help="Maximum age of build pods to keep",
+        config=True,
+    )
 
     def cleanup(self):
         """Delete stopped build pods and build pods that have aged out"""
