@@ -408,71 +408,88 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
+        # Get the value of the `require_build_only` traitlet
         require_build_only = self.settings.get("require_build_only", False)
-        build_only = False
+        # Get the value of the `build_only` query parameter if present
+        build_only_query_parameter = self.get_query_argument(
+            name="build_only", default=""
+        )
+        log_message_eval_table = (
+            "Table for evaluating whether or not the image will be launched after build"
+            "based on the values of the `require_build_only` traitlet and the `build_only` query parameter."
+            """
+            | `require_build_only` trait | `build_only` query param | Outcome
+            ------------------------------------------------------------------------------------------------
+            |  false                     | missing                  | OK, image will be launched after build
+            |  false                     | false                    | OK, image will be launched after build
+            |  false                     | true                     | ERROR, building but not launching is not permitted when require_build_only == False
+            |  true                      | missing                  | ERROR, query parameter must be explicitly set to true when require_build_only == True
+            |  true                      | false                    | ERROR, query parameter must be explicitly set to true when require_build_only == True
+            |  true                      | true                     | OK, image won't be launched after build
+            """
+        )
+        # Whether or not the image should only be built and not launched
+        build_only_outcome = False
         if not require_build_only:
-            build_only_query_parameter = self.get_query_argument(
-                name="build_only", default=""
-            )
             if build_only_query_parameter.lower() == "true":
                 raise HTTPError(
-                    log_message="Building but not launching is not permitted!"
+                    log_message="Building but not launching is not permitted when "
+                    "traitlet `require_build_only == False` and query parameter `build_only == True`! "
+                    "See the table below for more info.\n\n" + log_message_eval_table
                 )
         else:
-            # Not setting a default will make the function raise an error
-            # if the `build_only` query parameter is missing from the request
-            build_only_query_parameter = self.get_query_argument(name="build_only")
+            # Raise an error if the `build_only` query parameter is anything but `(T)true`
             if build_only_query_parameter.lower() != "true":
                 raise HTTPError(
-                    log_message="The `build_only=true` query parameter is required!"
+                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only == False`!"
+                    "See the table below for more info.\n\n" + log_message_eval_table
                 )
             # If we're here, it means a build only deployment is required
-            build_only = True
-
-        if build_only:
+            build_only_outcome = True
             await self.emit(
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": "Build only was enabled. Image will not be launched after build.\n",
+                    "message": "Built image will not be launched\n",
                 }
             )
+
         if image_found:
-            await self.emit(
-                {
-                    "phase": "built",
-                    "imageName": image_name,
-                    "message": "Found built image\n",
-                }
-            )
-            with LAUNCHES_INPROGRESS.track_inprogress():
-                if build_only:
-                    await self.emit(
-                        {
-                            "phase": "built",
-                            "imageName": image_name,
-                            "message": "Image won't be launched\n",
-                        }
-                    )
-                else:
+            if build_only_outcome:
+                await self.emit(
+                    {
+                        "phase": "ready",
+                        "imageName": image_name,
+                        "message": "Done! Found built image\n",
+                    }
+                )
+            else:
+                await self.emit(
+                    {
+                        "phase": "built",
+                        "imageName": image_name,
+                        "message": "Found built image, launching...\n",
+                    }
+                )
+                with LAUNCHES_INPROGRESS.track_inprogress():
                     try:
                         await self.launch(provider)
                     except LaunchQuotaExceeded:
                         return
-                    self.event_log.emit(
-                        "binderhub.jupyter.org/launch",
-                        5,
-                        {
-                            "provider": provider.name,
-                            "spec": spec,
-                            "ref": ref,
-                            "status": "success",
-                            "build_token": self._have_build_token,
-                            "origin": self.settings["normalized_origin"]
-                            if self.settings["normalized_origin"]
-                            else self.request.host,
-                        },
-                    )
+                self.event_log.emit(
+                    "binderhub.jupyter.org/launch",
+                    5,
+                    {
+                        "provider": provider.name,
+                        "spec": spec,
+                        "ref": ref,
+                        "status": "success",
+                        "build_token": self._have_build_token,
+                        "origin": self.settings["normalized_origin"]
+                        if self.settings["normalized_origin"]
+                        else self.request.host,
+                    },
+                )
             return
 
         # Don't allow builds when quota is exceeded
@@ -551,9 +568,14 @@ class BuildHandler(BaseHandler):
                         # nothing to do, just waiting
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.BUILT:
+                        if build_only_outcome:
+                            message = "Done! Image built\n"
+                            phase = "ready"
+                        else:
+                            message = "Built image, launching...\n"
                         event = {
                             "phase": phase,
-                            "message": "Done! Image built.\n",
+                            "message": message,
                             "imageName": image_name,
                         }
                         done = True
@@ -590,22 +612,16 @@ class BuildHandler(BaseHandler):
 
                 await self.emit(event)
 
-        # Launch after building an image
-        if not failed:
-            BUILD_TIME.labels(status="success").observe(
-                time.perf_counter() - build_starttime
-            )
-            BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
-            with LAUNCHES_INPROGRESS.track_inprogress():
-                if build_only:
-                    await self.emit(
-                        {
-                            "phase": "ready",
-                            "imageName": image_name,
-                            "message": "Image won't be launched\n",
-                        }
-                    )
-                else:
+        if build_only_outcome:
+            return
+        else:
+            # Launch after building an image
+            if not failed:
+                BUILD_TIME.labels(status="success").observe(
+                    time.perf_counter() - build_starttime
+                )
+                BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
+                with LAUNCHES_INPROGRESS.track_inprogress():
                     await self.launch(provider)
                     self.event_log.emit(
                         "binderhub.jupyter.org/launch",

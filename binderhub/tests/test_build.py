@@ -130,7 +130,6 @@ async def test_build_no_launch_failing(app):
     """
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
-    params = {}
     params = {"build_only": "true"}
     r = await async_requests.get(build_url, stream=True, params=params)
     r.raise_for_status()

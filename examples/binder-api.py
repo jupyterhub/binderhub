@@ -48,7 +48,7 @@ if __name__ == "__main__":
     file_or_url.add_argument("--urlpath", type=str, help="The url to open, if any.")
     parser.add_argument(
         "--binder",
-        default="http://localhost:8585",
+        default="https://mybinder.org",
         help="""
         The URL of the binder instance to use.
         Use `http://localhost:8585` if you are doing local testing.
