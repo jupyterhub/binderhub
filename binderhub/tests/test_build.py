@@ -122,15 +122,45 @@ async def test_build_fail(app, needs_build, needs_launch, always_build, pytestco
 
 @pytest.mark.asyncio(timeout=120)
 @pytest.mark.remote
-async def test_build_no_launch_failing(app):
+@pytest.mark.parametrize(
+    "app,build_only,expected_error_msg",
+    [
+        ("default_app", True, "Building but not launching is not permitted"),
+        (
+            "require_build_only_app",
+            False,
+            "The `build_only=true` query parameter is required",
+        ),
+        (
+            "require_build_only_app",
+            "",
+            "The `build_only=true` query parameter is required",
+        ),
+    ],
+    indirect=[
+        "app"
+    ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
+)
+async def test_build_no_launch_fail(app, build_only, expected_error_msg):
     """
-    Test build endpoint with build_only launch option active,
-    passed as a request query param,
-    but `require_build_only = False`.
+    Test the scenarios that are expected to fail when setting configs for building but no launching.
+
+    Table for evaluating whether or not the image will be launched after build based on the values of
+    the `require_build_only` traitlet and the `build_only` query parameter.
+
+    | `require_build_only` trait | `build_only` query param | Outcome
+    ------------------------------------------------------------------------------------------------
+    |  false                     | missing                  | OK, image will be launched after build
+    |  false                     | false                    | OK, image will be launched after build
+    |  false                     | true                     | ERROR, building but not launching is not permitted when require_build_only == False
+    |  true                      | missing                  | ERROR, query parameter must be explicitly set to true when require_build_only == True
+    |  true                      | false                    | ERROR, query parameter must be explicitly set to true when require_build_only == True
+    |  true                      | true                     | OK, image won't be launched after build
     """
+
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
-    params = {"build_only": "true"}
+    params = {"build_only": build_only}
     r = await async_requests.get(build_url, stream=True, params=params)
     r.raise_for_status()
     failed_events = 0
@@ -141,9 +171,7 @@ async def test_build_no_launch_failing(app):
             assert event.get("phase") not in ("launching", "ready")
             if event.get("phase") == "failed":
                 failed_events += 1
-                assert (
-                    "Building but not launching is not permitted!" in event["message"]
-                )
+                assert expected_error_msg in event["message"]
                 break
     r.close()
 

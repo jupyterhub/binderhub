@@ -434,14 +434,14 @@ class BuildHandler(BaseHandler):
             if build_only_query_parameter.lower() == "true":
                 raise HTTPError(
                     log_message="Building but not launching is not permitted when "
-                    "traitlet `require_build_only == False` and query parameter `build_only == True`! "
+                    "traitlet `require_build_only` is false and query parameter `build_only` is true! "
                     "See the table below for more info.\n\n" + log_message_eval_table
                 )
         else:
             # Raise an error if the `build_only` query parameter is anything but `(T)true`
             if build_only_query_parameter.lower() != "true":
                 raise HTTPError(
-                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only == False`!"
+                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only` is false! "
                     "See the table below for more info.\n\n" + log_message_eval_table
                 )
             # If we're here, it means a build only deployment is required
