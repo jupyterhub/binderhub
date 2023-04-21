@@ -33,7 +33,7 @@ def use_session():
     ],
     indirect=[
         "app"
-    ],  # send param True to app fixture, so that it loads authentication configuration
+    ],  # send param "app_with_auth_config" to app fixture, so that it loads authentication configuration
 )
 @pytest.mark.auth
 async def test_auth(app, path, authenticated, use_session):

@@ -114,7 +114,7 @@ async def test_build_only(app, build_only):
     """
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
-    r = await async_requests.get(build_url, stream=True, params={"build_only": True})
+    r = await async_requests.get(build_url, stream=True, params={"build_only": build_only})
     r.raise_for_status()
     events = []
     launch_events = 0
@@ -130,7 +130,7 @@ async def test_build_only(app, build_only):
                 break
             if event.get("phase") == "info":
                 assert (
-                    "Both require_build_only traitlet, and the query parameter build_only are true"
+                    "Both `require_build_only` traitlet, and the query parameter `build_only` are true"
                     in event["message"]
                 )
             if event.get("phase") == "launching" and not event["message"].startswith(

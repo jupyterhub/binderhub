@@ -414,6 +414,9 @@ class BuildHandler(BaseHandler):
         build_only_query_parameter = str(
             self.get_query_argument(name="build_only", default="")
         )
+        # Describe how the traitlet and the query parameter need to be set together
+        # in order to get a build only behavior.
+        # Add this info table each time an unexpected (incorrect) config is observed.
         log_message_eval_table = (
             "Table for evaluating whether or not the image will be launched after build"
             "based on the values of the `require_build_only` traitlet and the `build_only` query parameter."
@@ -450,8 +453,8 @@ class BuildHandler(BaseHandler):
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": "Both require_build_only traitlet, and the query parameter build_only are true, "
-                    "so built image will not be launched\n",
+                    "message": "Both `require_build_only` traitlet, and the query parameter `build_only` are true, "
+                    "so the built image will not be launched\n",
                 }
             )
 

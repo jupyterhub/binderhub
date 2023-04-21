@@ -31,10 +31,6 @@ binderhub_config_auth_additions_path = os.path.join(
     root, "testing/local-binder-k8s-hub/binderhub_config_auth_additions.py"
 )
 
-binderhub_config_build_only_addition_path = os.path.join(
-    root, "testing/local-binder-k8s-hub/binderhub_config_build_only_addition.py"
-)
-
 # These are automatically determined
 K8S_AVAILABLE = False
 K8S_NAMESPACE = None
@@ -233,7 +229,6 @@ def app(request, io_loop, _binderhub_config):
 
     app.url will contain the base URL of binderhub.
     """
-
     if REMOTE_BINDER:
         app = RemoteBinderHub()
         # wait for the remote binder to be up
