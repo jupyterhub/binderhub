@@ -411,8 +411,8 @@ class BuildHandler(BaseHandler):
         # Get the value of the `require_build_only` traitlet
         require_build_only = self.settings.get("require_build_only", False)
         # Get the value of the `build_only` query parameter if present
-        build_only_query_parameter = self.get_query_argument(
-            name="build_only", default=""
+        build_only_query_parameter = str(
+            self.get_query_argument(name="build_only", default="")
         )
         log_message_eval_table = (
             "Table for evaluating whether or not the image will be launched after build"

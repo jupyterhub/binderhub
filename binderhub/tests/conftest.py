@@ -232,11 +232,6 @@ def app(request, io_loop, _binderhub_config):
 
     app.url will contain the base URL of binderhub.
     """
-    if hasattr(request, "param") and request.param == "require_build_only_app":
-        cfg = PyFileConfigLoader(
-            binderhub_config_build_only_addition_path
-        ).load_config()
-        _binderhub_config.merge(cfg)
 
     if REMOTE_BINDER:
         app = RemoteBinderHub()
@@ -262,10 +257,17 @@ def app(request, io_loop, _binderhub_config):
         app._configured_bhub = BinderHub(config=_binderhub_config)
         return app
 
-    if hasattr(request, "param") and request.param is True:
-        # load conf for auth test
-        cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
-        _binderhub_config.merge(cfg)
+    if hasattr(request, "param"):
+        if request.param is True:
+            # load conf for auth test
+            cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
+            _binderhub_config.merge(cfg)
+        elif request.param == "require_build_only_app":
+            # load conf that sets BinderHub.require_build_only = True
+            cfg = PyFileConfigLoader(
+                binderhub_config_build_only_addition_path
+            ).load_config()
+            _binderhub_config.merge(cfg)
 
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])

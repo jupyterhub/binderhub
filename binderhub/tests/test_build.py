@@ -96,7 +96,7 @@ async def test_build(app, slug, pytestconfig):
     assert r.url.startswith(final["url"])
 
 
-@pytest.mark.remote
+@pytest.mark.asyncio(timeout=900)
 @pytest.mark.parametrize(
     "app,slug",
     [
@@ -171,7 +171,6 @@ async def test_build_fail(app):
 
 
 @pytest.mark.asyncio(timeout=120)
-@pytest.mark.remote
 @pytest.mark.parametrize(
     "app,build_only,expected_error_msg",
     [
