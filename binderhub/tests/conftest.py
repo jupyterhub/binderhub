@@ -232,6 +232,12 @@ def app(request, io_loop, _binderhub_config):
 
     app.url will contain the base URL of binderhub.
     """
+    if hasattr(request, "param") and request.param == "require_build_only_app":
+        cfg = PyFileConfigLoader(
+            binderhub_config_build_only_addition_path
+        ).load_config()
+        _binderhub_config.merge(cfg)
+
     if REMOTE_BINDER:
         app = RemoteBinderHub()
         # wait for the remote binder to be up
@@ -256,16 +262,11 @@ def app(request, io_loop, _binderhub_config):
         app._configured_bhub = BinderHub(config=_binderhub_config)
         return app
 
-    if hasattr(request, "param"):
-        if request.param is True:
-            # load conf for auth test
-            cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
-            _binderhub_config.merge(cfg)
-        elif request.param == "require_build_only_app":
-            cfg = PyFileConfigLoader(
-                binderhub_config_build_only_addition_path
-            ).load_config()
-            _binderhub_config.merge(cfg)
+    if hasattr(request, "param") and request.param is True:
+        # load conf for auth test
+        cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
+        _binderhub_config.merge(cfg)
+
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
@@ -281,12 +282,6 @@ def app(request, io_loop, _binderhub_config):
     # convenience for accessing binder in tests
     bhub.url = f"http://127.0.0.1:{bhub.port}{bhub.base_url}".rstrip("/")
     return bhub
-
-
-@pytest.fixture
-def build_only_configured_app(app):
-    with mock.patch.dict(app.tornado_settings, {"require_build_only": False}):
-        yield app
 
 
 def cleanup_pods(labels):

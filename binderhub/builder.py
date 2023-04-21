@@ -450,7 +450,7 @@ class BuildHandler(BaseHandler):
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": "Both require_build_only traitlet, and the query parameter build_only are True, "
+                    "message": "Both require_build_only traitlet, and the query parameter build_only are true, "
                     "so built image will not be launched\n",
                 }
             )

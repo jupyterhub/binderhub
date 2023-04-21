@@ -49,7 +49,7 @@ from .utils import async_requests
     ],
 )
 @pytest.mark.remote
-async def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
+async def test_build(app, slug, pytestconfig):
     """
     Test build a repo that is very quick and easy to build.
     """
@@ -102,15 +102,6 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     [
         (
             "require_build_only_app",
-            "git/{}/596b52f10efb0c9befc0c4ae850cc5175297d71c".format(
-                quote(
-                    "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile",
-                    safe="",
-                )
-            ),
-        ),
-        (
-            "require_build_only_app",
             "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
         ),
     ],
@@ -134,16 +125,12 @@ async def test_build_only(app, slug):
             events.append(event)
             assert "message" in event
             sys.stdout.write(f"{event.get('phase', '')}: {event['message']}")
-            # this is the signal that everything is ready, pod is launched
-            # and server is up inside the pod. Break out of the loop now
-            # because BinderHub keeps the connection open for many seconds
-            # after to avoid "reconnects" from slow clients
             if event.get("phase") == "ready":
                 r.close()
                 break
             if event.get("phase") == "info":
                 assert (
-                    "Both require_build_only traitlet, and the query parameter build_only are True"
+                    "Both require_build_only traitlet, and the query parameter build_only are true"
                     in event["message"]
                 )
             if event.get("phase") == "launching" and not event["message"].startswith(
@@ -157,7 +144,6 @@ async def test_build_only(app, slug):
     final = events[-1]
     assert "phase" in final
     assert final["phase"] == "ready"
-    print(final["url"])
 
 
 @pytest.mark.asyncio(timeout=120)
