@@ -98,21 +98,21 @@ async def test_build(app, slug, pytestconfig):
 
 @pytest.mark.asyncio(timeout=900)
 @pytest.mark.parametrize(
-    "app,slug",
+    "app,build_only",
     [
-        (
-            "require_build_only_app",
-            "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD",
-        ),
+        ("app_with_require_build_only", True),
+        ("app_with_require_build_only", "true"),
+        ("app_with_require_build_only", "True"),
     ],
     indirect=[
         "app"
     ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
 )
-async def test_build_only(app, slug):
+async def test_build_only(app, build_only):
     """
     Test build a repo that is very quick and easy to build.
     """
+    slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
     r = await async_requests.get(build_url, stream=True, params={"build_only": True})
     r.raise_for_status()
@@ -174,16 +174,20 @@ async def test_build_fail(app):
 @pytest.mark.parametrize(
     "app,build_only,expected_error_msg",
     [
-        ("default_app", True, "Building but not launching is not permitted"),
         (
-            "require_build_only_app",
+            "app_with_require_build_only",
             False,
             "The `build_only=true` query parameter is required",
         ),
         (
-            "require_build_only_app",
+            "app_with_require_build_only",
             "",
             "The `build_only=true` query parameter is required",
+        ),
+        (
+            "app_without_require_build_only",
+            True,
+            "Building but not launching is not permitted",
         ),
     ],
     indirect=[
