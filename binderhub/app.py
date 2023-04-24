@@ -809,6 +809,11 @@ class BinderHub(Application):
         +----------------------+--------------+---------------------------------------------------------------------------------------+
         | true                 | true         | OK, image won't be launched after build                                               |
         +----------------------+--------------+---------------------------------------------------------------------------------------+
+
+        .. note::
+            When this feature is enabled the only supported UX is the REST API based UX, as it's out of scope to support
+            a new UI based UX around not launching.
+
         """,
         config=True,
     )
