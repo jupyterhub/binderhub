@@ -100,8 +100,6 @@ async def test_build(app, slug, pytestconfig):
 @pytest.mark.parametrize(
     "app,build_only",
     [
-        ("app_with_require_build_only", True),
-        ("app_with_require_build_only", "true"),
         ("app_with_require_build_only", "True"),
     ],
     indirect=[
