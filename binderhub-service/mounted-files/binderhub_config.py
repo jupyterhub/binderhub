@@ -13,7 +13,7 @@ def _read_chart_config():
     Read chart configuration, mounted via a k8s Secret rendered by the chart.
     """
     yaml = YAML(typ="safe")
-    with open("/etc/binderhub/config/config.yaml") as f:
+    with open("/etc/binderhub/mounted-secret/chart-config.yaml") as f:
         return yaml.load(f)
 
 
