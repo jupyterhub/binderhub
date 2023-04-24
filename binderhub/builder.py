@@ -250,9 +250,8 @@ class BuildHandler(BaseHandler):
                 )
             # If we're here, it means a build only deployment is required
             build_only_outcome = True
-        
-        return build_only_outcome
 
+        return build_only_outcome
 
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
