@@ -106,7 +106,7 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
         "app"
     ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
 )
-async def test_build_only(app, build_only):
+async def test_build_only(app, build_only, needs_build):
     """
     Test build a repo that is very quick and easy to build.
     """
@@ -194,7 +194,7 @@ async def test_build_fail(app, needs_build, needs_launch, always_build):
         "app"
     ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
 )
-async def test_build_only_fail(app, build_only, expected_error_msg):
+async def test_build_only_fail(app, build_only, expected_error_msg, needs_build):
     """
     Test the scenarios that are expected to fail when setting configs for building but no launching.
 
