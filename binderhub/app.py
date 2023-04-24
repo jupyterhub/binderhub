@@ -788,7 +788,28 @@ class BinderHub(Application):
 
     require_build_only = Bool(
         False,
-        help="When enabled, the hub will no longer launch the image after the build",
+        help="""When enabled, the hub will no longer launch the image after the build when combined with the appropriate
+        `build_only` request query parameter.
+
+        Below it's the table for evaluating whether or not the image will be launched after build,
+        based on the values of the `require_build_only` traitlet and the `build_only` query parameter.
+
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | `require_build_only` | `build_only` | Outcome                                                                               |
+        +======================+==============+=======================================================================================+
+        | false                | missing      | OK, image will be launched after build                                                |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | false                | false        | OK, image will be launched after build                                                |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | false                | true         | ERROR, building but not launching is not permitted when require_build_only == False   |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | true                 | missing      | ERROR, query parameter must be explicitly set to true when require_build_only == True |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | true                 | false        | ERROR, query parameter must be explicitly set to true when require_build_only == True |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        | true                 | true         | OK, image won't be launched after build                                               |
+        +----------------------+--------------+---------------------------------------------------------------------------------------+
+        """,
         config=True,
     )
 

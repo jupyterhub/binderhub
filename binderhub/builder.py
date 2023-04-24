@@ -235,38 +235,18 @@ class BuildHandler(BaseHandler):
         build_only_query_parameter = str(
             self.get_query_argument(name="build_only", default="")
         )
-        # Describe how the traitlet and the query parameter need to be set together
-        # in order to get a build only behavior.
-        # Add this info table each time an unexpected (incorrect) config is observed.
-        log_message_eval_table = (
-            "Table for evaluating whether or not the image will be launched after build"
-            "based on the values of the `require_build_only` traitlet and the `build_only` query parameter."
-            """
-            | `require_build_only` trait | `build_only` query param | Outcome
-            ------------------------------------------------------------------------------------------------
-            |  false                     | missing                  | OK, image will be launched after build
-            |  false                     | false                    | OK, image will be launched after build
-            |  false                     | true                     | ERROR, building but not launching is not permitted when require_build_only == False
-            |  true                      | missing                  | ERROR, query parameter must be explicitly set to true when require_build_only == True
-            |  true                      | false                    | ERROR, query parameter must be explicitly set to true when require_build_only == True
-            |  true                      | true                     | OK, image won't be launched after build
-            """
-        )
-        # Whether or not the image should only be built and not launched
         build_only_outcome = False
         if not require_build_only:
             if build_only_query_parameter.lower() == "true":
                 raise HTTPError(
                     log_message="Building but not launching is not permitted when "
-                    "traitlet `require_build_only` is false and query parameter `build_only` is true! "
-                    "See the table below for more info.\n\n" + log_message_eval_table
+                    "traitlet `require_build_only` is false and query parameter `build_only` is true!"
                 )
         else:
             # Raise an error if the `build_only` query parameter is anything but `(T)true`
             if build_only_query_parameter.lower() != "true":
                 raise HTTPError(
-                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only` is false! "
-                    "See the table below for more info.\n\n" + log_message_eval_table
+                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only` is false!"
                 )
             # If we're here, it means a build only deployment is required
             build_only_outcome = True
