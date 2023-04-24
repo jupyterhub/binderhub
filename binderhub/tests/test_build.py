@@ -49,7 +49,7 @@ from .utils import async_requests
     ],
 )
 @pytest.mark.remote
-async def test_build(app, slug, pytestconfig):
+async def test_build(app, needs_build, needs_launch, always_build, slug, pytestconfig):
     """
     Test build a repo that is very quick and easy to build.
     """
@@ -148,7 +148,7 @@ async def test_build_only(app, build_only):
 
 @pytest.mark.asyncio(timeout=120)
 @pytest.mark.remote
-async def test_build_fail(app):
+async def test_build_fail(app, needs_build, needs_launch, always_build):
     """
     Test build a repo that should fail immediately.
     """
