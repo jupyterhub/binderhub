@@ -61,7 +61,8 @@ def at_most_every(_f=None, *, interval=60):
     to have results which are possibly a few seconds out of date.
     """
     last_time = time.monotonic() - interval - 1
-    last_result = None
+    # use 'unset' singleton to indicate that last_result has not yet been cached
+    last_result = unset = object()
     outstanding = None
 
     def caller(f):
@@ -72,7 +73,7 @@ def at_most_every(_f=None, *, interval=60):
                 # do not allow multiple concurrent calls, return an existing future
                 return await outstanding
             now = time.monotonic()
-            if now > last_time + interval:
+            if last_result is unset or now > last_time + interval:
                 outstanding = asyncio.ensure_future(f(*args, **kwargs))
                 try:
                     last_result = await outstanding
@@ -80,6 +81,11 @@ def at_most_every(_f=None, *, interval=60):
                     # complete, clear outstanding future and note the time
                     outstanding = None
                     last_time = time.monotonic()
+
+            if last_result is unset:
+                # this should be impossible, but make sure we don't return our no-result singleton
+                raise RuntimeError("No cached result ot return")
+
             return last_result
 
         return wrapper
@@ -112,8 +118,8 @@ class HealthHandler(BaseHandler):
         await AsyncHTTPClient().fetch(hub_url + "hub/api/health", request_timeout=3)
         return True
 
-    @false_if_raises
     @at_most_every(interval=15)
+    @false_if_raises
     @retry
     async def check_docker_registry(self):
         """Check docker registry health"""
