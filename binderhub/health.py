@@ -7,6 +7,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.log import app_log
 
 from .base import BaseHandler
+from .builder import _get_image_basename_and_tag
 from .utils import KUBE_REQUEST_TIMEOUT
 
 
@@ -127,10 +128,9 @@ class HealthHandler(BaseHandler):
         registry = self.settings["registry"]
         # we are only interested in getting a response from the registry, we
         # don't care if the image actually exists or not
-        image_name = self.settings["image_prefix"] + "some-image-name:12345"
-        await registry.get_image_manifest(
-            *"/".join(image_name.split("/")[-2:]).split(":", 1)
-        )
+        image_fullname = self.settings["image_prefix"] + "some-image-name:12345"
+        name, tag = _get_image_basename_and_tag(image_fullname)
+        await registry.get_image_manifest(name, tag)
         return True
 
     def get_checks(self, checks):
