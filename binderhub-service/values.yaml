@@ -8,6 +8,23 @@ global: {}
 # Deployment resource
 # -----------------------------------------------------------------------------
 #
+
+# The "config" section below is rendered by a k8s Secret and mounted as a .yaml
+# file together with binderhub_config.py for the binderhub Python software to
+# parse.
+#
+# Together they make the configured values below translate so that
+# config.BinderHub.base_url sets c.BinderHub.base_url, or more generally that
+# config.X.y sets c.X.y where X is a class and y is a configurable traitlet on
+# the class.
+#
+config:
+  BinderHub:
+    base_url: /
+    use_registry: true
+  KubernetesBuildExecutor: {}
+extraConfig: {}
+
 replicas: 1
 image:
   repository: quay.io/2i2c/binderhub-service

@@ -11,17 +11,20 @@ spec:
       {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/mounted-secret: {{ include (print .Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- . | toYaml | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: secret
+          secret:
+            secretName: {{ include "binderhub-service.fullname" . }}
       containers:
         - name: binderhub
-          securityContext:
-            {{- .Values.securityContext | toYaml | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           {{- with .Values.image.pullPolicy }}
           imagePullPolicy: {{ . }}
@@ -29,8 +32,14 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: secret
+              mountPath: /etc/binderhub/mounted-secret/
+              readOnly: true
           resources:
             {{- .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
