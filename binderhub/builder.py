@@ -391,7 +391,7 @@ class BuildHandler(BaseHandler):
                     break
                 except HTTPClientError:
                     app_log.exception(
-                        "Tornado HTTP Timeout error: Failed to get image manifest for %s",
+                        "Failed to get image manifest for %s",
                         image_name,
                     )
                     image_found = False

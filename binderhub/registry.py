@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from tornado import httpclient
 from tornado.httputil import url_concat
-from traitlets import Dict, Unicode, default
+from traitlets import Bool, Dict, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
@@ -185,10 +185,30 @@ class DockerRegistry(LoggingConfigurable):
             base64.b64decode(b64_auth.encode("utf-8")).decode("utf-8").split(":", 1)[1]
         )
 
+    not_found_401 = Bool(
+        False,
+        config=True,
+        help="""
+        Set to True if your registry returns a 401 error when a repo doesn't exist
+        even with valid credentials.
+
+        Only has an effect when using token credentials.
+
+        Docker Hub has started to do this.
+        True by default when using Docker Hub, False otherwise.
+        """,
+    )
+
+    @default("not_found_401")
+    def _default_not_found_401(self):
+        # docker.io raises auth errors checking for missing repos
+        # instead of returning 404
+        return self.url.endswith(".docker.io")
+
     def _parse_www_authenticate_header(self, header):
         # Header takes the form
         # WWW-Authenticate: Bearer realm="https://uk-london-1.ocir.io/12345678/docker/token",service="uk-london-1.ocir.io",scope=""
-        self.log.debug(f"Parsing WWW-Authenticate {header}")
+        self.log.debug("Parsing WWW-Authenticate %r", header)
 
         if not header.lower().startswith("bearer "):
             raise ValueError(f"Only WWW-Authenticate Bearer type supported: {header}")
@@ -284,6 +304,16 @@ class DockerRegistry(LoggingConfigurable):
         except httpclient.HTTPError as e:
             if e.code == 404:
                 # 404 means it doesn't exist
+                return None
+            elif e.code == 401 and token and self.not_found_401:
+                # token-authenticated requests may give 401 on nonexistent repos,
+                # e.g. on Docker Hub
+                # WARNING: this is hard to distinguish from a real permission error!
+                # but if we were issued a token, at least we know we have valid credentials,
+                # even if they are not permitted access to this repo
+                self.log.debug(
+                    "Interpreting 401 error as not found on %s:%s", image, tag
+                )
                 return None
             elif (
                 e.code == 401 and not token and "www-authenticate" in e.response.headers
