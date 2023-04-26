@@ -18,18 +18,23 @@ def _read_chart_config():
 
 
 @lru_cache
-def get_chart_config(path, default=None):
+def get_chart_config(config_path=None, default=None):
     """
-    Returns the full chart configuration or a part of it based on a path like
-    "config.BinderHub".
+    Returns the full chart configuration, or a section of it based on a config
+    section's path like "config.BinderHub".
     """
     config = _read_chart_config()
-    for section in path.split("."):
-        if section not in config:
-            return default
+    if not config_path:
+        return config
+
+    for key in config_path.split("."):
         if not isinstance(config, dict):
+            # can't resolve full path,
+            # parent section's config is is a scalar or null
             return default
-        config = config[section]
+        if key not in config:
+            return default
+        config = config[key]
     return config
 
 
