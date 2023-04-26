@@ -272,8 +272,8 @@ dind:
   initContainers: []
   daemonset:
     image:
-      name: docker
-      tag: 20.10.12-dind
+      name: docker.io/library/docker
+      tag: "20.10.12-dind" # ref: https://hub.docker.com/_/docker/tags
       pullPolicy: ""
       pullSecrets: []
     # Additional command line arguments to pass to dockerd
@@ -292,7 +292,7 @@ pink:
   daemonset:
     image:
       name: quay.io/podman/stable
-      tag: v4.3.1
+      tag: "v4.3.1" # ref: https://quay.io/repository/podman/stable
       pullPolicy: ""
       pullSecrets: []
     lifecycle: {}
@@ -306,7 +306,7 @@ imageCleaner:
   enabled: true
   image:
     name: quay.io/jupyterhub/docker-image-cleaner
-    tag: 1.0.0-beta.3
+    tag: "1.0.0-beta.3"
     pullPolicy: ""
     pullSecrets: []
   # delete an image at most every 5 seconds
