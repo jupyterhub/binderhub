@@ -1,12 +1,17 @@
 # This is a GitHub workflow defining a set of jobs with a set of steps.
-# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+# ref: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 #
 # - Watch multiple images tags referenced in values.yaml to match the latest
 #   stable image tag (ignoring pre-releases).
+# - Refreeze helm-chart/images/binderhub/requirements.txt based on
+#   helm-chart/images/binderhub/requirements.in
 #
 name: Watch dependencies
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/watch-dependencies.yaml"
   push:
     paths:
       - ".github/workflows/watch-dependencies.yaml"
@@ -71,17 +76,15 @@ jobs:
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
       - name: Update values.yaml pinned tag
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
         run: |
           sed --in-place 's/tag: "${{ steps.local.outputs.tag }}"/tag: "${{ steps.latest.outputs.tag }}"/g' helm-chart/binderhub/values.yaml
 
       - name: git diff
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
         run: git --no-pager diff --color=always
 
       # ref: https://github.com/peter-evans/create-pull-request
       - name: Create a PR
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        if: github.event_name != 'pull_request'
         uses: peter-evans/create-pull-request@v5
         with:
           token: "${{ secrets.jupyterhub_bot_pat }}"
@@ -114,6 +117,7 @@ jobs:
 
       # ref: https://github.com/peter-evans/create-pull-request
       - name: Create a PR
+        if: github.event_name != 'pull_request'
         uses: peter-evans/create-pull-request@v5
         with:
           token: "${{ secrets.jupyterhub_bot_pat }}"
