@@ -2,7 +2,7 @@
   Expand the name of the chart.
 */}}
 {{- define "binderhub-service.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- .Values.nameOverride | default .Chart.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- /*
@@ -14,7 +14,7 @@
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- $name := .Values.nameOverride | default .Chart.Name }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}

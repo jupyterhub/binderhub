@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: binderhub
   template:
     metadata:
       annotations:
@@ -18,6 +19,7 @@ spec:
         {{- end }}
       labels:
         {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: binderhub
     spec:
       volumes:
         - name: secret

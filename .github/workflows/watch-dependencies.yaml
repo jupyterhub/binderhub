@@ -4,11 +4,16 @@
 # This Workflow watches dependencies and automatically creates PRs to update
 # them.
 #
+# - Watch multiple images tags referenced in values.yaml to match the latest
+#   stable image tag (ignoring pre-releases).
 # - Refreeze images/*/requirements.txt based on images/*/requirements.in
 #
 name: Watch dependencies
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/watch-dependencies.yaml"
   push:
     paths:
       - "images/*/requirements.in"
@@ -20,6 +25,65 @@ on:
   workflow_dispatch:
 
 jobs:
+  update-image-dependencies:
+    if: github.repository == '2i2c-org/binderhub-service'
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: docker
+            registry: docker.io
+            repository: library/docker
+            values_path: dockerApi.image.tag
+            tag_prefix: ""
+            tag_suffix: -dind
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get values.yaml pinned tag of ${{ matrix.registry }}/${{ matrix.repository }}
+        id: local
+        run: |
+          local_tag=$(cat binderhub-service/values.yaml | yq e '.${{ matrix.values_path }}' -)
+          echo "tag=$local_tag" >> $GITHUB_OUTPUT
+
+      - name: Get latest tag of ${{ matrix.registry }}/${{ matrix.repository }}
+        id: latest
+        # The skopeo image helps us list tags consistently from different docker
+        # registries. We identify the latest docker image tag based on the
+        # version numbers of format x.y.z included in a pattern with an optional
+        # prefix and suffix, like the tags "v4.5.0" (v prefix) and "23.0.5-dind"
+        # (-dind suffix).
+        run: |
+          latest_tag=$(
+              docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
+            | jq -r '[.Tags[] | select(. | match("^${{ matrix.tag_prefix }}\\d+\\.\\d+\\.\\d+${{ matrix.tag_suffix }}$") | .string)] | sort_by(split(".") | map(ltrimstr("${{ matrix.tag_prefix }}") | rtrimstr("${{ matrix.tag_suffix }}") | tonumber)) | last'
+          )
+          echo "tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Update values.yaml pinned tag
+        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        run: |
+          sed --in-place 's/tag: "${{ steps.local.outputs.tag }}"/tag: "${{ steps.latest.outputs.tag }}"/g' binderhub-service/values.yaml
+
+      - name: git diff
+        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        run: git --no-pager diff --color=always
+
+      # ref: https://github.com/peter-evans/create-pull-request
+      - uses: peter-evans/create-pull-request@v4
+        if: github.event_name != 'pull_request'
+        with:
+          branch: update-image-dependencies
+          labels: dependencies
+          commit-message: Update ${{ matrix.repository }} version from ${{ steps.local.outputs.tag }} to ${{ steps.latest.outputs.tag }}
+          title: Update ${{ matrix.repository }} version from ${{ steps.local.outputs.tag }} to ${{ steps.latest.outputs.tag }}
+          body: >-
+            A new ${{ matrix.repository }} image version has been detected, version
+            `${{ steps.latest.outputs.tag }}`.
+
   refreeze-dockerfile-requirements-txt:
     if: github.repository == '2i2c-org/binderhub-service'
     runs-on: ubuntu-22.04
@@ -38,6 +102,7 @@ jobs:
 
       # ref: https://github.com/peter-evans/create-pull-request
       - uses: peter-evans/create-pull-request@v4
+        if: github.event_name != 'pull_request'
         with:
           branch: update-image-requirements
           labels: dependencies

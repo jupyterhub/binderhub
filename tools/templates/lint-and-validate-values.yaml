@@ -37,3 +37,14 @@ service:
 #
 ingress:
   enabled: false
+
+# DaemonSet resource - docker-api
+# -----------------------------------------------------------------------------
+#
+dockerApi:
+  image:
+    repository: docker.io/library/docker
+    tag: "23.0.5-dind"
+  securityContext:
+    privileged: true
+    runAsUser: 0
