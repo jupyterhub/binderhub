@@ -1,12 +1,17 @@
 # This is a GitHub workflow defining a set of jobs with a set of steps.
-# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+# ref: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 #
 # - Watch multiple images tags referenced in values.yaml to match the latest
 #   stable image tag (ignoring pre-releases).
+# - Refreeze helm-chart/images/binderhub/requirements.txt based on
+#   helm-chart/images/binderhub/requirements.in
 #
 name: Watch dependencies
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/watch-dependencies.yaml"
   push:
     paths:
       - ".github/workflows/watch-dependencies.yaml"
@@ -26,13 +31,17 @@ jobs:
       matrix:
         include:
           - name: docker
-            registry: registry.hub.docker.com
+            registry: docker.io
             repository: library/docker
             values_path: dind.daemonset.image.tag
+            tag_prefix: ""
+            tag_suffix: -dind
           - name: podman
             registry: quay.io
             repository: podman/stable
             values_path: pink.daemonset.image.tag
+            tag_prefix: v
+            tag_suffix: ""
 
           # FIXME: After docker-image-cleaner 1.0.0 is released, we can enable
           #        this. So far, there isn't any available stable release, and
@@ -55,30 +64,27 @@ jobs:
       - name: Get latest tag of ${{ matrix.registry }}/${{ matrix.repository }}
         id: latest
         # The skopeo image helps us list tags consistently from different docker
-        # registries. We use jq to filter out tags of the x.y or x.y.z format
-        # with the optional v prefix or version_startswith filter, and then sort
-        # based on the numerical x, y, and z values. Finally, we pick the last
-        # value in the list.
-        #
+        # registries. We identify the latest docker image tag based on the
+        # version numbers of format x.y.z included in a pattern with an optional
+        # prefix and suffix, like the tags "v4.5.0" (v prefix) and "23.0.4-dind"
+        # (-dind suffix).
         run: |
           latest_tag=$(
               docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
-            | jq -r '[.Tags[] | select(. | match("^v?\\d+\\.\\d+\\.\\d+$") | .string)] | sort_by(split(".") | map(ltrimstr("v") | tonumber)) | last'
+            | jq -r '[.Tags[] | select(. | match("^${{ matrix.tag_prefix }}\\d+\\.\\d+\\.\\d+${{ matrix.tag_suffix }}$") | .string)] | sort_by(split(".") | map(ltrimstr("${{ matrix.tag_prefix }}") | rtrimstr("${{ matrix.tag_suffix }}") | tonumber)) | last'
           )
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
       - name: Update values.yaml pinned tag
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
         run: |
           sed --in-place 's/tag: "${{ steps.local.outputs.tag }}"/tag: "${{ steps.latest.outputs.tag }}"/g' helm-chart/binderhub/values.yaml
 
       - name: git diff
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
         run: git --no-pager diff --color=always
 
       # ref: https://github.com/peter-evans/create-pull-request
       - name: Create a PR
-        if: steps.local.outputs.tag != steps.latest.outputs.tag
+        if: github.event_name != 'pull_request'
         uses: peter-evans/create-pull-request@v5
         with:
           token: "${{ secrets.jupyterhub_bot_pat }}"
@@ -111,6 +117,7 @@ jobs:
 
       # ref: https://github.com/peter-evans/create-pull-request
       - name: Create a PR
+        if: github.event_name != 'pull_request'
         uses: peter-evans/create-pull-request@v5
         with:
           token: "${{ secrets.jupyterhub_bot_pat }}"
