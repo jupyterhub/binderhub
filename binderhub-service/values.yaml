@@ -29,6 +29,7 @@ config:
     base_url: /
     port: 8585
     use_registry: true
+    require_build_only: true
   KubernetesBuildExecutor:
     # docker_host must not be updated, assumptions about it are hardcoded in
     # docker-api/daemonset.yaml
