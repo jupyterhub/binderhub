@@ -4,11 +4,11 @@
 #
 #    Use the "Run workflow" button at https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.10.2
+alembic==1.10.4
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
-attrs==22.2.0
+attrs==23.1.0
     # via jsonschema
 binderhub @ git+https://github.com/consideratio/binderhub@opt-out-of-launch
     # via -r requirements.in
@@ -24,13 +24,13 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.1.0
     # via requests
-cryptography==40.0.1
+cryptography==40.0.2
     # via pyopenssl
 docker==6.0.1
     # via binderhub
 escapism==1.0.1
     # via binderhub
-google-auth==2.17.1
+google-auth==2.17.3
     # via kubernetes
 greenlet==2.0.2
     # via sqlalchemy
@@ -46,7 +46,7 @@ jsonschema==4.17.3
     #   jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==3.1.1
+jupyterhub==4.0.0
     # via binderhub
 kubernetes==26.1.0
     # via binderhub
@@ -60,7 +60,7 @@ oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==23.0
+packaging==23.1
     # via
     #   docker
     #   jupyterhub
@@ -70,11 +70,11 @@ prometheus-client==0.16.0
     # via
     #   binderhub
     #   jupyterhub
-pyasn1==0.4.8
+pyasn1==0.5.0
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.2.8
+pyasn1-modules==0.3.0
     # via google-auth
 pycparser==2.21
     # via cffi
@@ -96,7 +96,7 @@ python-json-logger==2.0.7
     #   jupyter-telemetry
 pyyaml==6.0
     # via kubernetes
-requests==2.28.2
+requests==2.29.0
     # via
     #   docker
     #   jupyterhub
@@ -113,11 +113,11 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.8
+sqlalchemy==2.0.11
     # via
     #   alembic
     #   jupyterhub
-tornado==6.2
+tornado==6.3.1
     # via
     #   binderhub
     #   jupyterhub
