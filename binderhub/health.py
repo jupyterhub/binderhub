@@ -30,6 +30,9 @@ def retry(_f=None, *, delay=1, attempts=3):
                         raise
                     else:
                         attempts -= 1
+                        app_log.exception(
+                            f"Error checking {f.__name__}. Retrying ({attempts} attempts remaining)"
+                        )
                         await asyncio.sleep(delay)
 
         return wrapper
@@ -85,7 +88,7 @@ def at_most_every(_f=None, *, interval=60):
 
             if last_result is unset:
                 # this should be impossible, but make sure we don't return our no-result singleton
-                raise RuntimeError("No cached result ot return")
+                raise RuntimeError("No cached result to return")
 
             return last_result
 
@@ -95,6 +98,25 @@ def at_most_every(_f=None, *, interval=60):
         return caller
     else:
         return caller(_f)
+
+
+def _log_duration(f):
+    """Record the time for a given health check to run"""
+
+    @wraps(f)
+    async def wrapped(*args, **kwargs):
+        tic = time.perf_counter()
+        try:
+            return await f(*args, **kwargs)
+        finally:
+            t = time.perf_counter() - tic
+            if t > 0.5:
+                log = app_log.info
+            else:
+                log = app_log.debug
+            log(f"Health check {f.__name__} took {t:.3f}s")
+
+    return wrapped
 
 
 class HealthHandler(BaseHandler):
@@ -114,6 +136,7 @@ class HealthHandler(BaseHandler):
 
     @false_if_raises
     @retry
+    @_log_duration
     async def check_jupyterhub_api(self, hub_url):
         """Check JupyterHub API health"""
         await AsyncHTTPClient().fetch(hub_url + "hub/api/health", request_timeout=3)
@@ -122,6 +145,7 @@ class HealthHandler(BaseHandler):
     @at_most_every(interval=15)
     @false_if_raises
     @retry
+    @_log_duration
     async def check_docker_registry(self):
         """Check docker registry health"""
         app_log.info("Checking registry status")
@@ -187,6 +211,7 @@ class KubernetesHealthHandler(HealthHandler):
     """Serve health status on Kubernetes"""
 
     @at_most_every
+    @_log_duration
     async def _get_pods(self):
         """Get information about build and user pods"""
         namespace = self.settings["example_builder"].namespace
