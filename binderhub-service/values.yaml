@@ -18,11 +18,21 @@ global: {}
 # config.X.y sets c.X.y where X is a class and y is a configurable traitlet on
 # the class.
 #
+# Some config must be set here, and not via extraConfig, as its referenced by
+# the chart's template directly.
+#
+# - BinderHub.base_url (readinessProbe)
+# - BinderHub.port (containerPort)
+#
 config:
   BinderHub:
     base_url: /
+    port: 8585
     use_registry: true
+    require_build_only: true
   KubernetesBuildExecutor:
+    # docker_host must not be updated, assumptions about it are hardcoded in
+    # docker-api/daemonset.yaml
     docker_host: /var/run/docker-api/docker-api.sock
 extraConfig: {}
 

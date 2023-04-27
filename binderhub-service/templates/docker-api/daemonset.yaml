@@ -27,7 +27,7 @@ spec:
             - dockerd
             - --data-root=/var/lib/docker-api
             - --exec-root=/var/run/docker-api
-            - --host=unix://var/run/docker-api/docker-api.sock
+            - --host=unix:///var/run/docker-api/docker-api.sock
           volumeMounts:
             - name: data
               mountPath: /var/lib/docker-api
