@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "binderhub-service.fullname" . }}-docker-api
+  labels:
+    {{- include "binderhub-service.labels" . | nindent 4 }}
+    app.kubernetes.io/component: docker-api
+spec:
+  selector:
+    matchLabels:
+      {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: docker-api
+  template:
+    metadata:
+      labels:
+        {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: docker-api
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: docker-api
+          image: {{ .Values.dockerApi.image.repository }}:{{ .Values.dockerApi.image.tag }}
+          args:
+            - dockerd
+            - --data-root=/var/lib/docker-api
+            - --exec-root=/var/run/docker-api
+            - --host=unix://var/run/docker-api/docker-api.sock
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/docker-api
+            - name: exec
+              mountPath: /var/run/docker-api
+          resources:
+            {{- .Values.dockerApi.resources | toYaml | nindent 12 }}
+          securityContext:
+            {{- .Values.dockerApi.securityContext | toYaml | nindent 12 }}
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/lib/docker-api
+            type: DirectoryOrCreate
+        - name: exec
+          hostPath:
+            path: /var/run/docker-api
+            type: DirectoryOrCreate
+      {{- with .Values.dockerApi.image.pullSecrets }}
+      imagePullSecrets:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.podSecurityContext }}
+      securityContext:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}

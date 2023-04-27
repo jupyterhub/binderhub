@@ -41,7 +41,6 @@ properties:
   # Deployment resource
   # ---------------------------------------------------------------------------
   #
-
   config:
     type: object
     additionalProperties: false
@@ -58,7 +57,7 @@ properties:
 
   replicas:
     type: integer
-  image:
+  image: &image
     type: object
     additionalProperties: false
     required: [repository, tag]
@@ -71,13 +70,13 @@ properties:
         enum: [null, "", IfNotPresent, Always, Never]
       pullSecrets:
         type: array
-  resources:
+  resources: &resources
     type: object
     additionalProperties: true
-  securityContext:
+  securityContext: &securityContext
     type: object
     additionalProperties: true
-  podSecurityContext:
+  podSecurityContext: &podSecurityContext
     type: object
     additionalProperties: true
   podAnnotations: &labels-and-annotations
@@ -86,14 +85,14 @@ properties:
     patternProperties:
       ".*":
         type: string
-  nodeSelector:
+  nodeSelector: &nodeSelector
     type: object
     additionalProperties: true
-  tolerations:
+  affinity: &affinity
+    type: object
+    additionalProperties: true
+  tolerations: &tolerations
     type: array
-  affinity:
-    type: object
-    additionalProperties: true
 
   # RBAC resources
   # ---------------------------------------------------------------------------
@@ -155,3 +154,20 @@ properties:
       tls:
         type: array
       annotations: *labels-and-annotations
+
+  # DaemonSet resource - docker-api
+  # ---------------------------------------------------------------------------
+  #
+  dockerApi:
+    type: object
+    additionalProperties: false
+    required: [image]
+    properties:
+      image: *image
+      resources: *resources
+      securityContext: *securityContext
+      podSecurityContext: *podSecurityContext
+      podAnnotations: *labels-and-annotations
+      nodeSelector: *nodeSelector
+      affinity: *affinity
+      tolerations: *tolerations

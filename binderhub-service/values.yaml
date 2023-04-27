@@ -22,7 +22,8 @@ config:
   BinderHub:
     base_url: /
     use_registry: true
-  KubernetesBuildExecutor: {}
+  KubernetesBuildExecutor:
+    docker_host: /var/run/docker-api/docker-api.sock
 extraConfig: {}
 
 replicas: 1
@@ -31,6 +32,7 @@ image:
   tag: "set-by-chartpress"
   pullPolicy: ""
   pullSecrets: []
+resources: {}
 securityContext:
   capabilities:
     drop:
@@ -38,12 +40,12 @@ securityContext:
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
-resources: {}
-podAnnotations: {}
+
 podSecurityContext: {}
+podAnnotations: {}
 nodeSelector: {}
-tolerations: []
 affinity: {}
+tolerations: []
 
 # RBAC resources
 # -----------------------------------------------------------------------------
@@ -79,3 +81,27 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+# DaemonSet resource - docker-api
+# -----------------------------------------------------------------------------
+#
+# This DaemonSet starts a pod on each node to setup a Docker API that
+# binderhub's spawned build pods can make use of, via a hostPath volume that
+# exposes a unix socket.
+#
+dockerApi:
+  image:
+    repository: docker.io/library/docker
+    tag: "23.0.4-dind" # ref: https://hub.docker.com/_/docker/tags
+    pullPolicy: ""
+    pullSecrets: []
+  resources: {}
+  securityContext:
+    privileged: true
+    runAsUser: 0
+
+  podSecurityContext: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
