@@ -14,10 +14,12 @@ on:
       - ".github/workflows/watch-dependencies.yaml"
   push:
     paths:
+      - "helm-chart/images/*/requirements.in"
       - ".github/workflows/watch-dependencies.yaml"
+    branches: ["main"]
   schedule:
-    # Run at 05:00 every day, ref: https://crontab.guru/#0_5_*_*_*
-    - cron: "0 5 * * *"
+    # Run at 05:00 on day-of-month 1, ref: https://crontab.guru/#0_5_1_*_*
+    - cron: "0 5 1 * *"
   workflow_dispatch:
 
 jobs:
