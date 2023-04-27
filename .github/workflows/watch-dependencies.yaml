@@ -54,7 +54,7 @@ jobs:
         # The skopeo image helps us list tags consistently from different docker
         # registries. We identify the latest docker image tag based on the
         # version numbers of format x.y.z included in a pattern with an optional
-        # prefix and suffix, like the tags "v4.5.0" (v prefix) and "23.0.4-dind"
+        # prefix and suffix, like the tags "v4.5.0" (v prefix) and "23.0.5-dind"
         # (-dind suffix).
         run: |
           latest_tag=$(
