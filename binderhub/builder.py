@@ -416,7 +416,10 @@ class BuildHandler(BaseHandler):
                 }
             )
             with LAUNCHES_INPROGRESS.track_inprogress():
-                await self.launch(provider)
+                try:
+                    await self.launch(provider)
+                except LaunchQuotaExceeded:
+                    return
             self.event_log.emit(
                 "binderhub.jupyter.org/launch",
                 5,
@@ -431,6 +434,12 @@ class BuildHandler(BaseHandler):
                     else self.request.host,
                 },
             )
+            return
+
+        # Don't allow builds when quota is exceeded
+        try:
+            await self.check_quota(provider)
+        except LaunchQuotaExceeded:
             return
 
         # Prepare to build
@@ -569,14 +578,23 @@ class BuildHandler(BaseHandler):
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
 
-    async def launch(self, provider):
-        """Ask JupyterHub to launch the image."""
+    async def check_quota(self, provider):
+        """Check quota before proceeding with build/launch
+
+        Returns:
+
+        - ServerQuotaCheck on success (None if no quota)
+
+        Raises:
+
+        - LaunchQuotaExceeded if quota exceeded
+        """
         # Load the spec-specific configuration if it has been overridden
         repo_config = provider.repo_config(self.settings)
 
         launch_quota = self.settings["launch_quota"]
         try:
-            quota_check = await launch_quota.check_repo_quota(
+            return await launch_quota.check_repo_quota(
                 self.image_name, repo_config, self.repo_url
             )
         except LaunchQuotaExceeded as e:
@@ -585,7 +603,11 @@ class BuildHandler(BaseHandler):
                 **self.repo_metric_labels,
             ).inc()
             await self.fail(e.message)
-            return
+            raise
+
+    async def launch(self, provider):
+        """Ask JupyterHub to launch the image."""
+        quota_check = await self.check_quota(provider)
 
         if quota_check:
             if quota_check.matching >= 0.5 * quota_check.quota:
