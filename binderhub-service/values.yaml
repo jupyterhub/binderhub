@@ -21,6 +21,7 @@ global: {}
 config:
   BinderHub:
     base_url: /
+    port: 8585
     use_registry: true
   KubernetesBuildExecutor:
     docker_host: /var/run/docker-api/docker-api.sock

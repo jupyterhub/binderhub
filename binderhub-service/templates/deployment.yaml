@@ -33,7 +33,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.config.BinderHub.port }}
           volumeMounts:
             - name: secret
               mountPath: /etc/binderhub/mounted-secret/
