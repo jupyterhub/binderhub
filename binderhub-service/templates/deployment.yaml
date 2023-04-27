@@ -42,6 +42,12 @@ spec:
             {{- .Values.resources | toYaml | nindent 12 }}
           securityContext:
             {{- .Values.securityContext | toYaml | nindent 12 }}
+          startupProbe:
+            periodSeconds: 1
+            failureThreshold: 60
+            httpGet:
+              path: {{ .Values.config.BinderHub.base_url }}/versions
+              port: http
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
