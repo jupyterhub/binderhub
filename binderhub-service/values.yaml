@@ -24,6 +24,8 @@ config:
     port: 8585
     use_registry: true
   KubernetesBuildExecutor:
+    # docker_host must not be updated, assumptions about it are hardcoded in
+    # docker-api/daemonset.yaml
     docker_host: /var/run/docker-api/docker-api.sock
 extraConfig: {}
 
