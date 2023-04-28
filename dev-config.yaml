@@ -1,0 +1,11 @@
+# FIXME: When running tests, we will need a local container registry to test
+#        pushing images to that can be reached from the build pods.
+#
+config:
+  BinderHub:
+    use_registry: false
+    image_prefix: localhost/binderhub-service/
+buildPodsRegistryCredentials:
+  server: "localhost"
+  username: "dummy-username"
+  password: "dummy-password"

@@ -3,9 +3,10 @@
 binderhub-service/values.schema.json
 tools/templates/rendered-templates/
 
+# convenience for storing production config in the repo while developing
+prod-config.yaml
 
-### Other misc things
-
+# Other misc things
 .vscode
 *.DS_Store
 

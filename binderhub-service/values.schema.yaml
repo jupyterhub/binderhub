@@ -19,6 +19,8 @@ required:
   - nameOverride
   - fullnameOverride
   - global
+  # Resources for the BinderHub created build pods
+  - buildPodsRegistryCredentials
   # Deployment resource
   - image
   # Other resources
@@ -45,6 +47,27 @@ properties:
   global:
     type: object
     additionalProperties: true
+
+  # Resources for the BinderHub created build pods
+  # ---------------------------------------------------------------------------
+  #
+  buildPodsDockerConfig:
+    type: object
+    additionalProperties: true
+  buildPodsRegistryCredentials:
+    type: object
+    additionalProperties: false
+    required:
+      - server
+      - username
+      - password
+    properties:
+      server:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
 
   # Deployment resource
   # ---------------------------------------------------------------------------

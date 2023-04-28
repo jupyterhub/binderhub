@@ -5,6 +5,16 @@ nameOverride: ""
 fullnameOverride: ""
 global: {}
 
+# Resources for the BinderHub created build pods
+# -----------------------------------------------------------------------------
+#
+buildPodsDockerConfig:
+  dummy: dummy-value
+buildPodsRegistryCredentials:
+  server: "quay.io"
+  username: "dummy-username"
+  password: "dummy-password"
+
 # Deployment resource
 # -----------------------------------------------------------------------------
 #
