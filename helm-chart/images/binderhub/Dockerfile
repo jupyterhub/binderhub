@@ -10,27 +10,22 @@
 #
 FROM python:3.11-bullseye as build-stage
 
-# install node as required to build a binderhub wheel
-RUN echo "deb https://deb.nodesource.com/node_18.x bullseye main" > /etc/apt/sources.list.d/nodesource.list \
- && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-RUN apt-get update \
- && apt-get install --yes \
-        nodejs \
- && rm -rf /var/lib/apt/lists/*
-
 # Build wheels
 #
 # We set pip's cache directory and expose it across build stages via an
 # ephemeral docker cache (--mount=type=cache,target=${PIP_CACHE_DIR}). We use
 # the same technique for the directory /tmp/wheels.
 #
-COPY . .
+# assumes `python3 -m build .` has been run to create the wheel
+# in the top-level dist directory
+COPY helm-chart/images/binderhub/requirements.txt ./
+COPY dist .
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip install build \
  && pip wheel --wheel-dir=/tmp/wheels \
-        -r helm-chart/images/binderhub/requirements.txt \
-        .
+        -r ./requirements.txt \
+        ./binderhub*.whl
 
 
 # The final stage

@@ -40,8 +40,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: actions/setup-node@v3
+        # node required to build wheel
+        with:
+          node-version: "16"
+
       - name: Install chartpress
-        run: pip install chartpress
+        run: pip install chartpress build
+
+      - name: Build binderhub wheel
+        run: python3 -m build --wheel .
 
       - name: Set up QEMU (for docker buildx)
         uses: docker/setup-qemu-action@v2
