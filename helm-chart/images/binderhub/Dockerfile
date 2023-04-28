@@ -56,12 +56,11 @@ COPY helm-chart/images/binderhub/requirements.txt /tmp/requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
-    pip install --find-links=/tmp/wheels/ \
-        -r /tmp/requirements.txt \
-        binderhub
-
-# verify success of previous step
-RUN python -c "import pycurl, binderhub.app"
+    pip install --no-deps /tmp/wheels/* \
+    # validate pip install since it's not resolving dependencies
+ && pip check \
+    # verify success of previous step
+ && python -c "import pycurl, binderhub.app"
 
 EXPOSE 8585
 ENTRYPOINT ["tini", "--", "python", "-m", "binderhub"]
