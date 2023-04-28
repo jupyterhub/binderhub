@@ -38,7 +38,7 @@ class MainHandler(BaseHandler):
                     Because BinderHub.require_build_only was set,
                     only the REST API can be used.
                     An UI based around not launching is not supported.
-                    """
+                    """,
             )
         else:
             self.render_template(
