@@ -25,13 +25,13 @@ def retry(_f=None, *, delay=1, attempts=3):
             while attempts > 0:
                 try:
                     return await f(*args, **kwargs)
-                except Exception:
+                except Exception as e:
                     if attempts == 1:
                         raise
                     else:
                         attempts -= 1
                         app_log.exception(
-                            f"Error checking {f.__name__}. Retrying ({attempts} attempts remaining)"
+                            f"Error checking {f.__name__}: {e}. Retrying ({attempts} attempts remaining)"
                         )
                         await asyncio.sleep(delay)
 
@@ -134,6 +134,7 @@ class HealthHandler(BaseHandler):
     def initialize(self, hub_url=None):
         self.hub_url = hub_url
 
+    @at_most_every(interval=15)
     @false_if_raises
     @retry
     @_log_duration
