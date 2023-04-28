@@ -182,6 +182,11 @@ jobs:
         run: |
           ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
 
+      - name: Build binderhub wheel
+        if: matrix.test == 'helm'
+        run: |
+          python3 -m build .
+
       - name: Use chartpress to create the helm chart
         if: matrix.test == 'helm'
         run: |
