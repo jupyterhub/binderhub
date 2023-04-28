@@ -40,6 +40,7 @@ class MainHandler(BaseHandler):
             repo_providers=self.settings["repo_providers"],
         )
 
+
 class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
 
