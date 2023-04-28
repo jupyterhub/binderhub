@@ -985,7 +985,17 @@ class BinderHub(Application):
                 "Access-Control-Allow-Origin"
             ] = self.cors_allow_origin
 
-        handlers = [
+        if self.require_build_only:
+            # Deactivate the UI's for the `/` and `/v2` endpoints
+            # as they won't make sense in a build only scenario
+            # when a REST API usage is expected
+            handlers = []
+        else:
+            handlers = [
+                (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
+                (r"/", MainHandler),
+            ]
+        handlers += [
             (r"/metrics", MetricsHandler),
             (r"/versions", VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
@@ -1035,7 +1045,6 @@ class BinderHub(Application):
             (r"/about", AboutHandler),
             (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
             (r"/_config", ConfigHandler),
-            (r"/", MainHandler),
             (r".*", Custom404),
         ]
         handlers = self.add_url_prefix(self.base_url, handlers)

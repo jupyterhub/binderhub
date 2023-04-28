@@ -29,29 +29,16 @@ class MainHandler(BaseHandler):
 
     @authenticated
     def get(self):
-        if self.settings["require_build_only"]:
-            self.render_template(
-                "error.html",
-                status_code=204,
-                status_message="UI deactivated",
-                message="""
-                    Because BinderHub.require_build_only was set,
-                    only the REST API can be used.
-                    An UI based around not launching is not supported.
-                    """,
-            )
-        else:
-            self.render_template(
-                "index.html",
-                badge_base_url=self.get_badge_base_url(),
-                base_url=self.settings["base_url"],
-                submit=False,
-                google_analytics_code=self.settings["google_analytics_code"],
-                google_analytics_domain=self.settings["google_analytics_domain"],
-                extra_footer_scripts=self.settings["extra_footer_scripts"],
-                repo_providers=self.settings["repo_providers"],
-            )
-
+        self.render_template(
+            "index.html",
+            badge_base_url=self.get_badge_base_url(),
+            base_url=self.settings["base_url"],
+            submit=False,
+            google_analytics_code=self.settings["google_analytics_code"],
+            google_analytics_domain=self.settings["google_analytics_domain"],
+            extra_footer_scripts=self.settings["extra_footer_scripts"],
+            repo_providers=self.settings["repo_providers"],
+        )
 
 class ParameterizedMainHandler(BaseHandler):
     """Main handler that allows different parameter settings"""
