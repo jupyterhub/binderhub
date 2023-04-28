@@ -10,7 +10,8 @@
   </h1>
 
   <p class="lead">
-    {{message}}. Note: Some errors disappear by refreshing the page.
+    {{message}}.
+    {{ "Note: Some errors disappear by refreshing the page" if status_code > 299 }}.
   </p>
 </div>
 {% endblock main %}
