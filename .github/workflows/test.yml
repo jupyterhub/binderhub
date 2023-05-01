@@ -10,16 +10,16 @@ on:
       - "**.rst"
       - "docs/**"
       - "examples/**"
-      - ".github/workflows/**"
-      - "!.github/workflows/test.yml"
+      # - ".github/workflows/**"
+      # - "!.github/workflows/test.yml"
   push:
     paths-ignore:
       - "**.md"
       - "**.rst"
       - "docs/**"
       - "examples/**"
-      - ".github/workflows/**"
-      - "!.github/workflows/test.yml"
+      # - ".github/workflows/**"
+      # - "!.github/workflows/test.yml"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
