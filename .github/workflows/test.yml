@@ -310,7 +310,7 @@ jobs:
           await_jupyterhub
 
           echo curl http://localhost:30902/hub/api/ should print the JupyterHub version
-          curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body
 
       - name: Await and curl BinderHub
         if: matrix.test == 'helm'
@@ -319,7 +319,7 @@ jobs:
           await_binderhub binderhub-test
 
           echo curl http://localhost:30901/health to check BinderHub\'s health
-          curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body
 
       - name: Run main tests
         if: matrix.test == 'main'
@@ -343,7 +343,7 @@ jobs:
           if [ "${{ matrix.test }}" = "helm" ]; then
             for endpoint in versions health metrics; do
               echo -e "\n${endpoint}"
-              curl http://localhost:30901/$endpoint
+              curl http://localhost:30901/$endpoint --fail-with-body
             done
           fi
 
@@ -427,7 +427,7 @@ jobs:
           sleep 5
 
           echo curl http://localhost:8000/hub/api/ should print the JupyterHub version
-          curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused
+          curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body
 
       - name: Run remote tests
         run: |
