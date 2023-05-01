@@ -10,16 +10,16 @@ on:
       - "**.rst"
       - "docs/**"
       - "examples/**"
-      # - ".github/workflows/**"
-      # - "!.github/workflows/test.yml"
+      - ".github/workflows/**"
+      - "!.github/workflows/test.yml"
   push:
     paths-ignore:
       - "**.md"
       - "**.rst"
       - "docs/**"
       - "examples/**"
-      # - ".github/workflows/**"
-      # - "!.github/workflows/test.yml"
+      - ".github/workflows/**"
+      - "!.github/workflows/test.yml"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
@@ -49,8 +49,6 @@ jobs:
       contents: read
     env:
       GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
-      # Don't use latest, instead bump it using a PR so we know when a new version breaks BinderHub
-      K3S_LATEST: v1.26
 
     strategy:
       # keep running so we can see if tests with other k3s/k8s/helm versions pass
@@ -58,7 +56,8 @@ jobs:
       matrix:
         k3s-channel:
           # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
-          - ${{ env.K3S_LATEST }}
+          # Don't use "latest", instead bump it using a PR so we know when a new version breaks BinderHub
+          - v1.26
         test:
           - main
           - auth
@@ -78,14 +77,14 @@ jobs:
               --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: ${{ env.K3S_LATEST }}
+          - k3s-channel: v1.26
             test: helm
             test-variation: pink
             local-chart-extra-args: >-
               --values testing/k8s-binder-k8s-hub/binderhub-chart+pink.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: ${{ env.K3S_LATEST }}
+          - k3s-channel: v1.26
             test: helm
             test-variation: upgrade
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
