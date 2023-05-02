@@ -4,11 +4,11 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.10.3
+alembic==1.10.4
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
-attrs==22.2.0
+attrs==23.1.0
     # via jsonschema
 cachetools==5.3.0
     # via google-auth
@@ -22,7 +22,7 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.1.0
     # via requests
-cryptography==40.0.1
+cryptography==40.0.2
     # via pyopenssl
 docker==6.0.1
     # via -r helm-chart/images/binderhub/../../../requirements.txt
@@ -33,7 +33,7 @@ google-api-core[grpc]==2.11.0
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.17.2
+google-auth==2.17.3
     # via
     #   google-api-core
     #   google-cloud-core
@@ -56,13 +56,13 @@ greenlet==2.0.2
     # via sqlalchemy
 grpc-google-iam-v1==0.12.6
     # via google-cloud-logging
-grpcio==1.53.0
+grpcio==1.54.0
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.53.0
+grpcio-status==1.54.0
     # via google-api-core
 idna==3.4
     # via requests
@@ -94,7 +94,7 @@ oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==23.0
+packaging==23.1
     # via
     #   docker
     #   jupyterhub
@@ -108,7 +108,7 @@ proto-plus==1.22.2
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==4.22.1
+protobuf==4.22.3
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -118,11 +118,11 @@ protobuf==4.22.1
     #   grpc-google-iam-v1
     #   grpcio-status
     #   proto-plus
-pyasn1==0.4.8
+pyasn1==0.5.0
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.2.8
+pyasn1-modules==0.3.0
     # via google-auth
 pycparser==2.21
     # via cffi
@@ -144,7 +144,7 @@ python-json-logger==2.0.7
     #   jupyter-telemetry
 pyyaml==6.0
     # via kubernetes
-requests==2.28.2
+requests==2.29.0
     # via
     #   docker
     #   google-api-core
@@ -162,11 +162,11 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.9
+sqlalchemy==2.0.11
     # via
     #   alembic
     #   jupyterhub
-tornado==6.2
+tornado==6.3.1
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
