@@ -251,7 +251,7 @@ class KubernetesHealthHandler(HealthHandler):
         n_user_pods = len(user_pods)
         n_build_pods = len(build_pods)
 
-        quota = self.settings["launch_quota"].total_pods
+        quota = self.settings["launch_quota"].total_quota
         total_pods = n_user_pods + n_build_pods
         usage = {
             "total_pods": total_pods,
