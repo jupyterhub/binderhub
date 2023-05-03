@@ -20,6 +20,9 @@
     "webpack": "^5.78.0",
     "webpack-cli": "^5.0.1"
   },
+  "workspaces": [
+    "js/packages/binderhub-client"
+  ],
   "scripts": {
     "webpack": "webpack",
     "webpack:watch": "webpack --watch",

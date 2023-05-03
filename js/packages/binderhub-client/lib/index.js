@@ -1,8 +1,18 @@
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
+// Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
+/**
+ * Build and launch a repository by talking to a BinderHub API endpoint
+ */
 export default class BinderImage {
+  /**
+   *
+   * @param {string} providerSpec Spec of the form <provider>/<repo>/<ref> to pass to the binderhub API.
+   * @param {string} baseUrl Base URL (including the trailing slash) of the binderhub installation to talk to.
+   * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokesn
+   */
   constructor(providerSpec, baseUrl, buildToken) {
     this.providerSpec = providerSpec;
     this.baseUrl = baseUrl;
@@ -11,6 +21,9 @@ export default class BinderImage {
     this.state = null;
   }
 
+  /**
+   * Call the BinderHub API
+   */
   fetch() {
     let apiUrl = this.baseUrl + "build/" + this.providerSpec;
     if (this.buildToken) {
@@ -20,7 +33,7 @@ export default class BinderImage {
     this.eventSource = new EventSource(apiUrl);
     this.eventSource.onerror = (err) => {
       console.error("Failed to construct event stream", err);
-      this.changeState("failed", {
+      this._changeState("failed", {
         message: "Failed to connect to event stream\n"
       });
     };
@@ -32,16 +45,27 @@ export default class BinderImage {
       if (data.phase) {
         state = data.phase.toLowerCase();
       }
-      this.changeState(state, data);
+      this._changeState(state, data);
     });
   }
 
+  /**
+   * Close the EventSource connection to the BinderHub API if it is open
+   */
   close() {
     if (this.eventSource !== undefined) {
       this.eventSource.close();
     }
   }
 
+  /**
+   * Redirect user to a running jupyter server with given token
+
+   * @param {URL} url URL to the running jupyter server
+   * @param {string} token Secret token used to authenticate to the jupyter server
+   * @param {string} path The path of the file or url suffix to launch the user into
+   * @param {string} pathType One of "lab", "file" or "url", denoting what kinda path we are launching the user into
+   */
   launch(url, token, path, pathType) {
     // redirect a user to a running server with a token
     if (path) {
@@ -69,6 +93,13 @@ export default class BinderImage {
     window.location.href = url;
   }
 
+
+  /**
+   * Add callback whenever state of the current build changes
+   *
+   * @param {str} state The state to add this callback to. '*' to add callback for all state changes
+   * @param {*} cb Callback function to call whenever this state is reached
+   */
   onStateChange(state, cb) {
     if (this.callbacks[state] === undefined) {
       this.callbacks[state] = [cb];
@@ -77,6 +108,11 @@ export default class BinderImage {
     }
   }
 
+  /**
+   * @param {string} oldState Old state the building process was in
+   * @param {string} newState New state the building process is in
+   * @returns True if transition from oldState to newState is valid, False otherwise
+   */
   validateStateTransition(oldState, newState) {
     if (oldState === "start") {
       return (
@@ -93,7 +129,7 @@ export default class BinderImage {
     }
   }
 
-  changeState(state, data) {
+  _changeState(state, data) {
     [state, "*"].map(key => {
       const callbacks = this.callbacks[key];
       if (callbacks) {
