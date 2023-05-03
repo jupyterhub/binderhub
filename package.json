@@ -23,6 +23,5 @@
   "scripts": {
     "webpack": "webpack",
     "webpack:watch": "webpack --watch",
-    "lint": "eslint binderhub/static/js"
   }
 }
