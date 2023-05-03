@@ -6,7 +6,7 @@ const EventSource = NativeEventSource || EventSourcePolyfill;
 /**
  * Build and launch a repository by talking to a BinderHub API endpoint
  */
-export default class BinderImage {
+export class BinderRepository {
   /**
    *
    * @param {string} providerSpec Spec of the form <provider>/<repo>/<ref> to pass to the binderhub API.

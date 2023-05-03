@@ -15,7 +15,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import ClipboardJS from 'clipboard';
 import 'event-source-polyfill';
 
-import BinderImage from '@jupyterhub/binderhub-client';
+import { BinderRepository } from '@jupyterhub/binderhub-client';
 import { makeBadgeMarkup } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
@@ -167,7 +167,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
   $('.on-build').removeClass('hidden');
 
   const buildToken = $("#build-token").data('token');
-  const image = new BinderImage(providerSpec, BASE_URL, buildToken);
+  const image = new BinderRepository(providerSpec, BASE_URL, buildToken);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
