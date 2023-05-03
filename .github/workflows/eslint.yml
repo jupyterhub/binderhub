@@ -11,12 +11,14 @@ on:
       - ".eslintrc.js"
       - "package.json"
       - "binderhub/static/js/**"
+      - "js/**"
   push:
     paths:
       - ".github/workflows/eslint.yml"
       - ".eslintrc.js"
       - "package.json"
       - "binderhub/static/js/**"
+      - "js/**"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"

@@ -15,7 +15,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import ClipboardJS from 'clipboard';
 import 'event-source-polyfill';
 
-import BinderImage from './src/image';
+import BinderImage from '@jupyterhub/binderhub-client';
 import { makeBadgeMarkup } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
