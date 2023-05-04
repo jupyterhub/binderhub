@@ -39,7 +39,7 @@ repos:
     hooks:
       - id: update-values-based-on-binderspawner-mixin
         name: Update helm-chart/binderhub/values.yaml based on binderhub/binderspawner_mixin.py
-        language: conda
+        language: python
         additional_dependencies: ["ruamel.yaml"]
         entry: python ci/check_embedded_chart_code.py
         args:
