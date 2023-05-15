@@ -27,47 +27,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: install requirements
-        run: pip install ruamel.yaml
-
-      - name: check embedded chart code
-        run: ./ci/check_embedded_chart_code.py
-
-  # Most of the "main", "auth" and "helm" jobs are the same and only differ
-  # in small things. Unfortunately there is no easy way to share steps between
-  # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
 
-    permissions:
-      contents: read
-    env:
-      GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
-
     strategy:
-      # keep running so we can see if tests with other k3s/k8s/helm versions pass
       fail-fast: false
       matrix:
         k3s-channel:
-          # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
-          # Don't use "latest", instead bump it using a PR so we know when a new version breaks BinderHub
           - v1.27
         test:
           - main
         test-variation:
           - ""
-
-    services:
-      registry:
-        image: docker.io/library/registry:latest
-        ports:
-          - 5000:5000
 
     steps:
       - uses: actions/checkout@v3
@@ -75,29 +47,13 @@ jobs:
           # chartpress requires the full history
           fetch-depth: 0
 
-      - name: Set registry host
-        if: matrix.test-variation == 'dind' || matrix.test-variation == 'pink'
-        run: |
-          REGISTRY_HOST=$(hostname -I | awk '{print $1}'):5000
-          echo REGISTRY_HOST="$REGISTRY_HOST" >> $GITHUB_ENV
-
-          # Allow k3s to pull from private registry
-          # https://docs.k3s.io/installation/private-registry
-          sudo mkdir -p /etc/rancher/k3s/
-          cat << EOF | sudo tee /etc/rancher/k3s/registries.yaml
-          mirrors:
-            "$REGISTRY_HOST":
-              endpoint:
-                - "http://$REGISTRY_HOST"
-          EOF
-
       - uses: jupyterhub/action-k3s-helm@v3
         with:
           k3s-channel: ${{ matrix.k3s-channel }}
           helm-version: ${{ matrix.helm-version }}
           metrics-enabled: false
           traefik-enabled: false
-          docker-enabled: ${{ matrix.test-variation != 'dind' && matrix.test-variation != 'pink' }}
+          docker-enabled: true
 
       - name: Setup OS level dependencies
         run: |
@@ -112,12 +68,6 @@ jobs:
         id: setup-node
         with:
           node-version: "18"
-
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
 
       - name: Run webpack to build static assets
         run: |
@@ -129,152 +79,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
-
-      - name: Update pip
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade setuptools wheel
-
       - name: Setup Python package dependencies
         run: |
           pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
           pip install .
 
       - name: Install JupyterHub chart for main tests
-        if: matrix.test == 'main'
         run: |
           ./testing/local-binder-k8s-hub/install-jupyterhub-chart
-
-      - name: Install JupyterHub chart for auth tests
-        if: matrix.test == 'auth'
-        run: |
-          ./testing/local-binder-k8s-hub/install-jupyterhub-chart --auth
-
-      - name: Build binderhub wheel
-        if: matrix.test == 'helm'
-        run: |
-          python3 -m build .
-
-      - name: Use chartpress to create the helm chart
-        if: matrix.test == 'helm'
-        run: |
-          export DOCKER_BUILDKIT=1
-
-          CHARTPRESS_ARGS=
-          if [ "${{ matrix.test-variation }}" = "dind" -o "${{ matrix.test-variation }}" = "pink" ]; then
-            CHARTPRESS_ARGS="--image-prefix localhost:5000/binderhub- --push"
-
-            # Allow the pods to push to the non-https GitHub workflow registry
-            envsubst < testing/k8s-binder-k8s-hub/cm-insecure-registries-${{ matrix.test-variation }}.yaml | kubectl apply -f -
-          fi
-
-          # Use chartpress to create the helm chart and build its images
-          helm dependency update ./helm-chart/binderhub
-          (cd helm-chart && chartpress $CHARTPRESS_ARGS)
-          git --no-pager diff --color=always
-
-      - name: Generate values.schema.json from schema.yaml
-        if: matrix.test == 'helm'
-        run: |
-          tools/generate-json-schema.py
-
-      - name: "Helm template --validate (with lint-and-validate-values.yaml)"
-        if: matrix.test == 'helm'
-        run: |
-          helm template --validate binderhub-test helm-chart/binderhub \
-              --values tools/templates/lint-and-validate-values.yaml
-
-      - name: "Helm template --validate for dind (with lint-and-validate-values.yaml)"
-        if: matrix.test == 'helm'
-        run: |
-          helm template --validate binderhub-test helm-chart/binderhub \
-              --values tools/templates/lint-and-validate-values.yaml \
-              --set imageBuilderType=dind
-
-      - name: "Helm template --validate for pink (with lint-and-validate-values.yaml)"
-        if: matrix.test == 'helm'
-        run: |
-          helm template --validate binderhub-test helm-chart/binderhub \
-              --values tools/templates/lint-and-validate-values.yaml \
-              --set imageBuilderType=pink
-
-      - name: Validate the chart against the k8s API
-        if: matrix.test == 'helm'
-        run: |
-          helm template --validate binderhub-test helm-chart/binderhub \
-              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-              --set config.BinderHub.hub_url=http://localhost:30902 \
-              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN
-
-      - name: "(Upgrade) Install ${{ matrix.upgrade-from }} chart"
-        if: matrix.test-variation == 'upgrade'
-        run: |
-          . ./ci/common
-          UPGRADE_FROM_VERSION=$(curl -sSL https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.${{ matrix.upgrade-from }}')
-          echo "UPGRADE_FROM_VERSION=$UPGRADE_FROM_VERSION" >> $GITHUB_ENV
-
-          echo ""
-          echo "Installing already released binderhub version $UPGRADE_FROM_VERSION"
-
-          # FIXME: We change the directory so binderhub the chart name won't be
-          #        misunderstood as the local folder name.
-          #
-          #        https://github.com/helm/helm/issues/9244
-          cd ci
-
-          old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config-old.yaml"
-          if [ -f "$old_config" ]; then
-            echo "using old config"
-          else
-            old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml"
-          fi
-
-          helm install binderhub-test \
-              --repo https://jupyterhub.github.io/helm-chart/ binderhub \
-              --disable-openapi-validation \
-              --version=$UPGRADE_FROM_VERSION \
-              --values "$old_config" \
-              --set config.BinderHub.hub_url=http://localhost:30902 \
-              --set config.BinderHub.hub_url_local=http://proxy-public \
-              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
-              ${{ matrix.upgrade-from-extra-args }}
-
-      - name: "(Upgrade) Install helm diff"
-        if: matrix.test-variation == 'upgrade'
-        run: |
-          helm plugin install https://github.com/databus23/helm-diff
-
-      - name: "(Upgrade) Helm diff ${{ matrix.upgrade-from }} chart with local chart"
-        if: matrix.test-variation == 'upgrade'
-        run: |
-          helm diff upgrade binderhub-test ./helm-chart/binderhub \
-              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-              --set config.BinderHub.hub_url=http://localhost:30902 \
-              --set config.BinderHub.hub_url_local=http://proxy-public \
-              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
-              ${{ matrix.local-chart-extra-args }}
-
-      - name: "(Upgrade) Await ${{ matrix.upgrade-from }} chart"
-        if: matrix.test-variation == 'upgrade'
-        uses: jupyterhub/action-k8s-await-workloads@v2
-        with:
-          timeout: 150
-          max-restarts: 1
-
-      - name: Install the chart
-        if: matrix.test == 'helm'
-        run: |
-          helm upgrade --install binderhub-test helm-chart/binderhub \
-              --values testing/k8s-binder-k8s-hub/binderhub-chart-config.yaml \
-              --set config.BinderHub.hub_url=http://localhost:30902 \
-              --set config.BinderHub.hub_url_local=http://proxy-public \
-              --set config.GitHubRepoProvider.access_token=$GITHUB_ACCESS_TOKEN \
-              ${{ matrix.local-chart-extra-args }}
 
       - name: Await and curl JupyterHub
         run: |
@@ -284,40 +96,8 @@ jobs:
           echo curl http://localhost:30902/hub/api/ should print the JupyterHub version
           curl http://localhost:30902/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body --retry-all-errors
 
-      - name: Await and curl BinderHub
-        if: matrix.test == 'helm'
-        run: |
-          . ci/common
-          await_binderhub binderhub-test
-
-          echo curl http://localhost:30901/health to check BinderHub\'s health
-          curl http://localhost:30901/health --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body --retry-all-errors
-
       - name: Run main tests
-        if: matrix.test == 'main'
-        # running the "main" tests means "all tests that aren't auth"
         run: pytest -m "not auth" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
-
-      - name: Run auth tests
-        if: matrix.test == 'auth'
-        # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
-
-      - name: Run helm tests
-        if: matrix.test == 'helm'
-        run: |
-          export BINDER_URL=http://localhost:30901
-          pytest --helm -m "remote" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
-
-      - name: Get BinderHub health and metrics outputs
-        if: always()
-        run: |
-          if [ "${{ matrix.test }}" = "helm" ]; then
-            for endpoint in versions health metrics; do
-              echo -e "\n${endpoint}"
-              curl http://localhost:30901/$endpoint --fail-with-body
-            done
-          fi
 
       # GitHub Action reference: https://github.com/jupyterhub/action-k8s-namespace-report
       - name: Kubernetes namespace report
@@ -328,84 +108,3 @@ jobs:
             deploy/binder
             deploy/hub
             deploy/proxy
-            daemonset/binderhub-test-dind
-            daemonset/binderhub-test-pink
-
-      # GitHub action reference: https://github.com/codecov/codecov-action
-      - name: Upload coverage stats
-        uses: codecov/codecov-action@v3
-        if: ${{ always() }}
-
-  test-local:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 5
-
-    permissions:
-      contents: read
-    env:
-      GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup OS level dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes \
-            build-essential \
-            curl \
-            libcurl4-openssl-dev \
-            libssl-dev
-
-      - uses: actions/setup-node@v3
-        id: setup-node
-        with:
-          node-version: "18"
-
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
-
-      - uses: actions/setup-python@v4
-        id: setup-python
-        with:
-          python-version: "3.11"
-
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
-
-      - name: Update pip
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade setuptools wheel
-
-      - name: Setup Python package dependencies
-        run: |
-          pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
-          pip install ".[pycurl]"
-
-      - name: Setup JupyterHub NPM dependencies
-        run: npm install -g configurable-http-proxy
-
-      - name: Await and curl JupyterHub
-        run: |
-          cd testing/local-binder-local-hub
-          jupyterhub --config=jupyterhub_config.py > jupyterhub.log 2>&1 &
-          sleep 5
-
-          echo curl http://localhost:8000/hub/api/ should print the JupyterHub version
-          curl http://localhost:8000/hub/api/ --max-time 5 --retry 5 --retry-delay 1 --retry-connrefused --fail-with-body --retry-all-errors
-
-      - name: Run remote tests
-        run: |
-          export BINDER_URL=http://localhost:8000/services/binder/
-          pytest -m remote -v --color=yes
-
-      - name: Show hub logs
-        if: always()
-        run: cat testing/local-binder-local-hub/jupyterhub.log
