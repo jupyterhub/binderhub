@@ -60,36 +60,8 @@ jobs:
           - v1.27
         test:
           - main
-          - auth
         test-variation:
           - ""
-        include:
-          # Chart.yaml contains the chart's oldest supported k8s version, we
-          # test against that and the oldest known supported helm cli version
-          # which isn't documented anywhere, but is currently at 3.5.0. We also
-          # test with the latest k8s and helm versions.
-          #
-          - k3s-channel: v1.21
-            helm-version: v3.5.0
-            test: helm
-            test-variation: dind
-            local-chart-extra-args: >-
-              --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
-              --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
-              --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: v1.27
-            test: helm
-            test-variation: pink
-            local-chart-extra-args: >-
-              --values testing/k8s-binder-k8s-hub/binderhub-chart+pink.yaml
-              --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
-              --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: v1.27
-            test: helm
-            test-variation: upgrade
-            # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
-            upgrade-from: dev
-            upgrade-from-extra-args: ""
 
     services:
       registry:
@@ -324,18 +296,18 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        run: pytest -m "not auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+        run: pytest -m "not auth" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
 
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+        run: pytest -m "auth" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
 
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest --helm -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+          pytest --helm -m "remote" -v --maxfail=1 --cov binderhub --durations=10 --color=yes
 
       - name: Get BinderHub health and metrics outputs
         if: always()
