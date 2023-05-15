@@ -35,6 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         k3s-channel:
+          - v1.26
           - v1.27
         test:
           - main
@@ -84,7 +85,9 @@ jobs:
           pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
           pip install .
 
-      - name: Install JupyterHub chart for main tests
+      - run: pip freeze
+
+      - name: Install JupyterHub chart
         run: |
           ./testing/local-binder-k8s-hub/install-jupyterhub-chart
 
