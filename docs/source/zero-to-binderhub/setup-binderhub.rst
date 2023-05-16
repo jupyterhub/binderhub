@@ -299,7 +299,8 @@ recent release, which can be found
      `here <https://jupyterhub.github.io/helm-chart/#development-releases-binderhub>`__.
    * ``name`` and ``namespace`` may be different, but we recommend using
      the same ``name`` and ``namespace`` to avoid confusion. We recommend
-     something descriptive and short, such as ``binder``.
+     something descriptive and short, such as ``binder``
+     (you may need to, for example, run ``kubectl create namespace binder`` first).
    * If you run ``kubectl get pod --namespace=<namespace-from-above>`` you may
      notice the binder pod in ``CrashLoopBackoff``. This is expected, and will
      be resolved in the next section.
