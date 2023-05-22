@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.10.4
+alembic==1.11.1
     # via jupyterhub
 async-generator==1.10
     # via jupyterhub
@@ -14,7 +14,7 @@ binderhub @ git+https://github.com/consideratio/binderhub@opt-out-of-launch
     # via -r requirements.in
 cachetools==5.3.0
     # via google-auth
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   kubernetes
     #   requests
@@ -26,11 +26,11 @@ charset-normalizer==3.1.0
     # via requests
 cryptography==40.0.2
     # via pyopenssl
-docker==6.0.1
+docker==6.1.2
     # via binderhub
 escapism==1.0.1
     # via binderhub
-google-auth==2.17.3
+google-auth==2.18.1
     # via kubernetes
 greenlet==2.0.2
     # via sqlalchemy
@@ -80,7 +80,7 @@ pycparser==2.21
     # via cffi
 pycurl==7.45.2
     # via binderhub
-pyjwt==2.6.0
+pyjwt==2.7.0
     # via binderhub
 pyopenssl==23.1.1
     # via certipy
@@ -96,7 +96,7 @@ python-json-logger==2.0.7
     #   jupyter-telemetry
 pyyaml==6.0
     # via kubernetes
-requests==2.29.0
+requests==2.31.0
     # via
     #   docker
     #   jupyterhub
@@ -106,18 +106,20 @@ requests-oauthlib==1.3.1
     # via kubernetes
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.21
+ruamel-yaml==0.17.26
     # via jupyter-telemetry
+ruamel-yaml-clib==0.2.7
+    # via ruamel-yaml
 six==1.16.0
     # via
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.11
+sqlalchemy==2.0.15
     # via
     #   alembic
     #   jupyterhub
-tornado==6.3.1
+tornado==6.3.2
     # via
     #   binderhub
     #   jupyterhub
@@ -133,9 +135,10 @@ typing-extensions==4.5.0
 urllib3==1.26.15
     # via
     #   docker
+    #   google-auth
     #   kubernetes
     #   requests
-websocket-client==1.5.1
+websocket-client==1.5.2
     # via
     #   docker
     #   kubernetes
