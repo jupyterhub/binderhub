@@ -10,7 +10,9 @@ import sys
 from subprocess import check_call
 from tempfile import NamedTemporaryFile
 
-from ruamel import yaml
+from ruamel.yaml import YAML
+
+yaml = YAML(typ="safe")
 
 here = os.path.abspath(os.path.dirname(__file__))
 helm_chart = os.path.join(here, os.pardir, os.pardir, "helm-chart")
@@ -24,7 +26,7 @@ def _get_jupyterhub_dependency_version():
     chart_yaml = os.path.join(helm_chart, "binderhub", "Chart.yaml")
 
     with open(chart_yaml) as f:
-        dependecies = yaml.safe_load(f)
+        dependecies = yaml.load(f)
     for dep in dependecies["dependencies"]:
         if dep["name"] == "jupyterhub":
             return dep["version"]
@@ -36,7 +38,7 @@ def _get_jupyterhub_dependency_version():
 
 with NamedTemporaryFile(mode="w") as tmp:
     with open(os.path.join(helm_chart, "binderhub", "values.yaml")) as values_in:
-        yaml.safe_dump(yaml.safe_load(values_in)["jupyterhub"], tmp.file)
+        yaml.dump(yaml.load(values_in)["jupyterhub"], tmp.file)
 
     cmd = ["helm", "upgrade", "--install", "binderhub-test"]
     cmd.extend(
