@@ -231,12 +231,12 @@ jupyterhub:
             have_lab = major >= 3
 
         if have_lab:
-          # technically, we could accept another jupyter-server-based frontend
-          print("Launching jupyter-lab", file=sys.stderr)
-          exe = "jupyter-lab"
+            # technically, we could accept another jupyter-server-based frontend
+            print("Launching jupyter-lab", file=sys.stderr)
+            exe = "jupyter-lab"
         else:
-          print("jupyter-lab not found, launching jupyter-notebook", file=sys.stderr)
-          exe = "jupyter-notebook"
+            print("jupyter-lab not found, launching jupyter-notebook", file=sys.stderr)
+            exe = "jupyter-notebook"
 
         # launch the notebook server
         os.execvp(exe, sys.argv)
