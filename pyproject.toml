@@ -30,7 +30,7 @@ profile = "black"
 # ref: https://docs.pytest.org/en/stable/
 #
 [tool.pytest.ini_options]
-addopts = "--verbose --color=yes --durations=10 --maxfail=10"
+addopts = "--verbose --color=yes --durations=10 --maxfail=2"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = "60"
