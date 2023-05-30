@@ -4,7 +4,7 @@ import os
 import jsonschema
 from ruamel.yaml import YAML
 
-yaml = YAML(typ="safe")
+yaml = YAML()
 
 here_dir = os.path.abspath(os.path.dirname(__file__))
 schema_yaml = os.path.join(here_dir, os.pardir, "helm-chart/binderhub", "schema.yaml")

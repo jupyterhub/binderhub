@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from ruamel.yaml import YAML
 
-yaml = YAML(typ="safe")
+yaml = YAML()
 
 
 # memoize so we only load config once

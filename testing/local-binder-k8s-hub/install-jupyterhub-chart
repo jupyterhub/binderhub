@@ -12,7 +12,7 @@ from tempfile import NamedTemporaryFile
 
 from ruamel.yaml import YAML
 
-yaml = YAML(typ="safe")
+yaml = YAML()
 
 here = os.path.abspath(os.path.dirname(__file__))
 helm_chart = os.path.join(here, os.pardir, os.pardir, "helm-chart")
@@ -38,7 +38,9 @@ def _get_jupyterhub_dependency_version():
 
 with NamedTemporaryFile(mode="w") as tmp:
     with open(os.path.join(helm_chart, "binderhub", "values.yaml")) as values_in:
-        yaml.dump(yaml.load(values_in)["jupyterhub"], tmp.file)
+        jupyterhub_chart_config = yaml.load(values_in)["jupyterhub"]
+    yaml.dump(jupyterhub_chart_config, tmp.file)
+    tmp.flush()
 
     cmd = ["helm", "upgrade", "--install", "binderhub-test"]
     cmd.extend(

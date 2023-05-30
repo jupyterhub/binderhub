@@ -13,4 +13,4 @@ pytest-asyncio
 pytest-cov
 pytest-timeout
 requests
-ruamel.yaml>=0.15
+ruamel.yaml>=0.17.30
