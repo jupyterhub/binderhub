@@ -17,7 +17,7 @@ import sys
 
 from ruamel.yaml import YAML
 
-yaml = YAML(typ="rt")
+yaml = YAML()
 yaml.preserve_quotes = True
 yaml.indent(mapping=2, sequence=4, offset=2)
 
