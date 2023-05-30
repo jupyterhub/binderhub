@@ -1,6 +1,0 @@
-[run]
-omit =
-    binderhub/tests/*
-    binderhub/_version.py
-    versioneer.py
-parallel = True

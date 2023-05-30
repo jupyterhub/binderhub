@@ -34,3 +34,15 @@ addopts = "--verbose --color=yes --durations=10 --maxfail=10"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = "60"
+
+# pytest-cov / coverage is used to measure code coverage of tests
+#
+# ref: https://coverage.readthedocs.io/en/stable/config.html
+#
+[tool.coverage.run]
+omit = [
+  "binderhub/tests/*",
+  "binderhub/_version.py",
+  "versioneer.py",
+]
+parallel = true
