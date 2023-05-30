@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/jupyterhub/binderhub/issues"
   },
-  "homepage": "https://github.com/jupyterhub/binderhub.js#readme",
+  "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "dependencies": {
     "event-source-polyfill": "^1.0.31"
   }
