@@ -324,18 +324,18 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        run: pytest -m "not auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+        run: pytest -m "not auth" --cov=binderhub
 
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+        run: pytest -m "auth" --cov=binderhub
 
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest --helm -m "remote" -v --maxfail=10 --cov binderhub --durations=10 --color=yes
+          pytest --helm -m "remote" --cov=binderhub
 
       - name: Get BinderHub health and metrics outputs
         if: always()

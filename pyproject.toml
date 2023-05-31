@@ -1,10 +1,3 @@
-[tool.black]
-# target-version should be all supported versions
-target-version = ["py38", "py39", "py310", "py311"]
-
-[tool.isort]
-profile = "black"
-
 [build-system]
 requires = [
   "jupyter-packaging >= 0.10",
@@ -13,9 +6,43 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+
+# black is used for autoformatting Python code
+#
+# ref: https://black.readthedocs.io/en/stable/
+#
+[tool.black]
+# target-version should be all supported versions, see
+# https://github.com/psf/black/issues/751#issuecomment-473066811
+target-version = ["py38", "py39", "py310", "py311"]
+
+
+# isort is used for autoformatting Python code
+#
+# ref: https://pycqa.github.io/isort/
+#
+[tool.isort]
+profile = "black"
+
+
+# pytest is used for running Python based tests
+#
+# ref: https://docs.pytest.org/en/stable/
+#
 [tool.pytest.ini_options]
+addopts = "--verbose --color=yes --durations=10 --maxfail=2"
 asyncio_mode = "auto"
+testpaths = ["tests"]
 timeout = "60"
-addopts = [
-  "--durations=10"
+
+# pytest-cov / coverage is used to measure code coverage of tests
+#
+# ref: https://coverage.readthedocs.io/en/stable/config.html
+#
+[tool.coverage.run]
+omit = [
+  "binderhub/tests/*",
+  "binderhub/_version.py",
+  "versioneer.py",
 ]
+parallel = true
