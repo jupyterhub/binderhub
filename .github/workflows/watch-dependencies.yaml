@@ -28,6 +28,9 @@ jobs:
   update-image-dependencies:
     if: github.repository == '2i2c-org/binderhub-service'
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
 
     strategy:
       fail-fast: false
