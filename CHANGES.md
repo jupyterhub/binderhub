@@ -27,11 +27,12 @@ If you have custom configuration you should add it using the `extraConfig` Helm 
 - `cors.allowedOrigin` ➡️ `config.BinderHub.cors_allow_origin`
 - `jupyterhub.custom.cors.allowedOrigin` ➡️ `jupyterhub.hub.config.BinderSpawner.cors_allow_origin`
 
-### Kubernetes 1.21+ is required
+### Kubernetes 1.23+ is required
 
 Older versions of Kubernetes are no longer supported
 [#1493](https://github.com/jupyterhub/binderhub/pull/1493)
-[#1609](https://github.com/jupyterhub/binderhub/pull/1609).
+[#1609](https://github.com/jupyterhub/binderhub/pull/1609)
+[#1714](https://github.com/jupyterhub/binderhub/pull/1714).
 
 ### `dind.enabled` replaced by `imageBuilderType: dind`
 
@@ -75,11 +76,14 @@ The following build configuration properties should be set using Traitlets in th
 If you have subclassed `binderhub.build.Build` you must update your subclass (including `__init__()` if defined) to inherit from `binderhub.build.KubernetesBuildExecutor`.
 The behaviour of the class is otherwise unchanged.
 
-### Z2JH 2 and JupyterHub 3
+### Z2JH 3 and JupyterHub 4
 
-The Z2JH dependency has been updated to 2.0.0 which includes JupyterHub 3
-[#1544](https://github.com/jupyterhub/binderhub/pull/1544).
-See https://z2jh.jupyter.org/en/stable/administrator/upgrading/upgrade-1-to-2.html for breaking changes.
+The Z2JH dependency has been updated from 1.2.0 to 3.0.0 which includes JupyterHub 4
+[#1544](https://github.com/jupyterhub/binderhub/pull/1544) [#1714](https://github.com/jupyterhub/binderhub/pull/1714).
+
+See [Z2JH's upgrade notes](https://z2jh.jupyter.org/en/stable/administrator/upgrading/index.html)
+and [changelog](https://z2jh.jupyter.org/en/latest/changelog.html) for breaking
+changes in the upgrade from 1.2.0 to 2.0.0, and then from 2.0.0 to 3.0.0.
 
 ### Python versions have been increased
 
