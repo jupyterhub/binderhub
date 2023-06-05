@@ -171,7 +171,7 @@ jobs:
       - name: Setup Python package dependencies
         run: |
           pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
-          pip install .
+          pip install -e .
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
@@ -360,9 +360,7 @@ jobs:
             daemonset/binderhub-test-pink
 
       # GitHub action reference: https://github.com/codecov/codecov-action
-      - name: Upload coverage stats
-        uses: codecov/codecov-action@v3
-        if: ${{ always() }}
+      - uses: codecov/codecov-action@v3
 
   test-local:
     runs-on: ubuntu-22.04
@@ -413,9 +411,14 @@ jobs:
           pip install --upgrade setuptools wheel
 
       - name: Setup Python package dependencies
+        # FIXME: We do "pip install ." before "pip install -e ." to ensure
+        #        binderhub/static/dist/bundle.js is built, and use "-e" to
+        #        ensure code coverage is captured.
+        #
         run: |
           pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
           pip install ".[pycurl]"
+          pip install -e ".[pycurl]"
 
       - name: Setup JupyterHub NPM dependencies
         run: npm install -g configurable-http-proxy
@@ -432,8 +435,11 @@ jobs:
       - name: Run remote tests
         run: |
           export BINDER_URL=http://localhost:8000/services/binder/
-          pytest -m remote -v --color=yes
+          pytest -m remote --cov=binderhub
 
       - name: Show hub logs
         if: always()
         run: cat testing/local-binder-local-hub/jupyterhub.log
+
+      # GitHub action reference: https://github.com/codecov/codecov-action
+      - uses: codecov/codecov-action@v3
