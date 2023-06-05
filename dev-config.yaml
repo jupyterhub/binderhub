@@ -3,6 +3,7 @@
 #
 config:
   BinderHub:
+    log_level: DEBUG
     use_registry: false
     image_prefix: localhost/binderhub-service/
 buildPodsRegistryCredentials:
