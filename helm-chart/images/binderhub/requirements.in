@@ -10,7 +10,7 @@ google-cloud-logging==3.*
 # jupyterhub's major version should be matched with the JupyterHub Helm chart's
 # used version of JupyterHub.
 #
-jupyterhub==3.*
+jupyterhub==4.*
 
 # https://github.com/kubernetes-client/python
 kubernetes==9.*

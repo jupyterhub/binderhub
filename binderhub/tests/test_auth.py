@@ -44,15 +44,22 @@ async def test_auth(app, path, authenticated, use_session):
         # not authenticated, we should get the page and be done
         assert r.url == url
         return
+    assert "/hub/login" in urlparse(r.url).path
+
+    # acquire a _xsrf cookie to pass in the post request we are about to make
+    login_url = f"{app.hub_url}/hub/login"
+    r2 = await async_requests.get(login_url)
+    assert r2.status_code == 200, f"{r2.status_code} {r2.url}"
+    _xsrf_cookie = r2.cookies.get("_xsrf", path="/hub/")
+    assert _xsrf_cookie
 
     # submit login form
-    assert "/hub/login" in urlparse(r.url).path
-    r2 = await async_requests.post(
-        r.url, data={"username": "dummy", "password": "dummy"}
+    r3 = await async_requests.post(
+        r.url, data={"username": "dummy", "password": "dummy", "_xsrf": _xsrf_cookie}
     )
-    assert r2.status_code == 200, f"{r2.status_code} {r.url}"
+    assert r3.status_code == 200, f"{r3.status_code} {r3.url}"
     # verify that we landed at the destination after auth
-    assert r2.url == url
+    assert r3.url == url
 
 
 @skip_remote
