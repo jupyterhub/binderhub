@@ -76,7 +76,7 @@ jsonschema==4.17.3
     #   jupyter-telemetry
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==4.0.0
+jupyterhub==4.0.1
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   -r helm-chart/images/binderhub/requirements.in
