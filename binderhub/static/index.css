@@ -56,6 +56,7 @@ p > a:hover {
     padding: 16px;
     width: 100%;
     background-color: rgb(235, 236, 237);
+    position: relative;
 }
 
 #logo-container {
