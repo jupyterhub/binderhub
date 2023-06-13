@@ -46,7 +46,7 @@ google-cloud-core==2.3.2
     # via google-cloud-logging
 google-cloud-logging==3.5.0
     # via -r helm-chart/images/binderhub/requirements.in
-googleapis-common-protos[grpc]==1.59.0
+googleapis-common-protos[grpc]==1.59.1
     # via
     #   google-api-core
     #   google-cloud-audit-log
