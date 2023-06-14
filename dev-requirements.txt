@@ -1,9 +1,7 @@
-beautifulsoup4
+beautifulsoup4[html5lib]
 build
 chartpress>=2.1
 click
-codecov
-html5lib
 jsonschema
 jupyter-repo2docker>=2021.08.0
 jupyter_packaging>=0.10.4,<2
