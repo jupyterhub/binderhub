@@ -569,7 +569,9 @@ class BuildHandler(BaseHandler):
                         BUILD_TIME.labels(status="success").observe(
                             time.perf_counter() - build_starttime
                         )
-                        BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
+                        BUILD_COUNT.labels(
+                            status="success", **self.repo_metric_labels
+                        ).inc()
                         done = True
                     elif progress.payload == ProgressEvent.BuildStatus.RUNNING:
                         # start capturing build logs once the pod is running
