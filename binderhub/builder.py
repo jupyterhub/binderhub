@@ -566,6 +566,10 @@ class BuildHandler(BaseHandler):
                             "message": message,
                             "imageName": image_name,
                         }
+                        BUILD_TIME.labels(status="success").observe(
+                            time.perf_counter() - build_starttime
+                        )
+                        BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
                         done = True
                     elif progress.payload == ProgressEvent.BuildStatus.RUNNING:
                         # start capturing build logs once the pod is running
@@ -601,29 +605,25 @@ class BuildHandler(BaseHandler):
 
         if build_only_outcome:
             return
-        else:
+
+        if not failed:
             # Launch after building an image
-            if not failed:
-                BUILD_TIME.labels(status="success").observe(
-                    time.perf_counter() - build_starttime
+            with LAUNCHES_INPROGRESS.track_inprogress():
+                await self.launch(provider)
+                self.event_log.emit(
+                    "binderhub.jupyter.org/launch",
+                    5,
+                    {
+                        "provider": provider.name,
+                        "spec": spec,
+                        "ref": ref,
+                        "status": "success",
+                        "build_token": self._have_build_token,
+                        "origin": self.settings["normalized_origin"]
+                        if self.settings["normalized_origin"]
+                        else self.request.host,
+                    },
                 )
-                BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
-                with LAUNCHES_INPROGRESS.track_inprogress():
-                    await self.launch(provider)
-                    self.event_log.emit(
-                        "binderhub.jupyter.org/launch",
-                        5,
-                        {
-                            "provider": provider.name,
-                            "spec": spec,
-                            "ref": ref,
-                            "status": "success",
-                            "build_token": self._have_build_token,
-                            "origin": self.settings["normalized_origin"]
-                            if self.settings["normalized_origin"]
-                            else self.request.host,
-                        },
-                    )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
