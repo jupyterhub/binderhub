@@ -612,20 +612,20 @@ class BuildHandler(BaseHandler):
             # Launch after building an image
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(provider)
-                self.event_log.emit(
-                    "binderhub.jupyter.org/launch",
-                    5,
-                    {
-                        "provider": provider.name,
-                        "spec": spec,
-                        "ref": ref,
-                        "status": "success",
-                        "build_token": self._have_build_token,
-                        "origin": self.settings["normalized_origin"]
-                        if self.settings["normalized_origin"]
-                        else self.request.host,
-                    },
-                )
+            self.event_log.emit(
+                "binderhub.jupyter.org/launch",
+                5,
+                {
+                    "provider": provider.name,
+                    "spec": spec,
+                    "ref": ref,
+                    "status": "success",
+                    "build_token": self._have_build_token,
+                    "origin": self.settings["normalized_origin"]
+                    if self.settings["normalized_origin"]
+                    else self.request.host,
+                },
+            )
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
