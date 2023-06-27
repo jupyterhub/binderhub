@@ -27,6 +27,14 @@ required:
   - service
   - ingress
 properties:
+  # Flag to conditionally install the chart
+  # ---------------------------------------------------------------------------
+  #
+  enabled:
+    type: boolean
+    description: |
+      Configuration flag for charts depending on binderhub-service to toggle installing it.
+
   # General configuration
   # ---------------------------------------------------------------------------
   #
