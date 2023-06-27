@@ -91,16 +91,16 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
-    registry_credentials = Unicode(
-        "",
+    registry_credentials = Dict(
+        {},
         help=(
             "Implementation dependent credentials for pushing image to a registry. "
             "For example, if push tokens are temporary this could be used to pass "
-            "dynamically created credentials as an encoded JSON blob "
-            '`{"registry": "docker.io", "username":"user", "password":"password"}` '
-            "in the environment variable `CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to "
-            "repo2docker. "
-            "If provided this will be used instead of push_secret. "
+            "dynamically created credentials "
+            '`{"registry": "docker.io", "username":"user", "password":"password"}`. '
+            "This will be JSON encoded and passed in the environment variable "
+            "CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to repo2docker. "
+            "If provided this will be used instead of push_secret."
         ),
         config=True,
     )
@@ -252,17 +252,17 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
-    registry_credentials = Unicode(
-        "",
+    registry_credentials = Dict(
+        {},
         help=(
             "Implementation dependent credentials for pushing image to a registry. "
             "For example, if push tokens are temporary this could be used to pass "
-            "dynamically created credentials as an encoded JSON blob "
-            '`{"registry": "docker.io", "username":"user", "password":"password"}` '
-            "in the environment variable `CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to "
-            "repo2docker. "
+            "dynamically created credentials "
+            '`{"registry": "docker.io", "username":"user", "password":"password"}`. '
+            "This will be JSON encoded and passed in the environment variable "
+            "CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to repo2docker. "
             "If provided this will be used instead of push_secret. "
-            "Currently this is passed to the build pod as a plan text environment "
+            "Currently this is passed to the build pod as a plain text environment "
             "variable, though future implementations may use a Kubernetes secret."
         ),
         config=True,
@@ -440,7 +440,7 @@ class KubernetesBuildExecutor(BuildExecutor):
             env.append(
                 client.V1EnvVar(
                     name="CONTAINER_ENGINE_REGISTRY_CREDENTIALS",
-                    value=self.registry_credentials,
+                    value=json.dumps(self.registry_credentials),
                 )
             )
         elif self.push_secret:

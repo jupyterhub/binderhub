@@ -463,7 +463,7 @@ class BuildHandler(BaseHandler):
                 image_without_tag, image_tag
             )
             if push_token:
-                build.registry_credentials = json.dumps(push_token)
+                build.registry_credentials = push_token
         else:
             build.push_secret = ""
 
