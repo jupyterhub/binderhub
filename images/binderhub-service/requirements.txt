@@ -9,7 +9,9 @@ alembic==1.11.1
 async-generator==1.10
     # via jupyterhub
 attrs==23.1.0
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   referencing
 binderhub @ git+https://github.com/consideratio/binderhub@opt-out-of-launch
     # via -r requirements.in
 cachetools==5.3.1
@@ -30,7 +32,7 @@ docker==6.1.3
     # via binderhub
 escapism==1.0.1
     # via binderhub
-google-auth==2.20.0
+google-auth==2.21.0
     # via kubernetes
 greenlet==2.0.2
     # via sqlalchemy
@@ -40,10 +42,12 @@ jinja2==3.1.2
     # via
     #   binderhub
     #   jupyterhub
-jsonschema==4.17.3
+jsonschema==4.18.0
     # via
     #   binderhub
     #   jupyter-telemetry
+jsonschema-specifications==2023.6.1
+    # via jsonschema
 jupyter-telemetry==0.1.0
     # via jupyterhub
 jupyterhub==4.0.1
@@ -84,8 +88,6 @@ pyjwt==2.7.0
     # via binderhub
 pyopenssl==23.2.0
     # via certipy
-pyrsistent==0.19.3
-    # via jsonschema
 python-dateutil==2.8.2
     # via
     #   jupyterhub
@@ -96,6 +98,10 @@ python-json-logger==2.0.7
     #   jupyter-telemetry
 pyyaml==6.0
     # via kubernetes
+referencing==0.29.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.31.0
     # via
     #   docker
@@ -104,6 +110,10 @@ requests==2.31.0
     #   requests-oauthlib
 requests-oauthlib==1.3.1
     # via kubernetes
+rpds-py==0.8.8
+    # via
+    #   jsonschema
+    #   referencing
 rsa==4.9
     # via google-auth
 ruamel-yaml==0.17.32
@@ -115,7 +125,7 @@ six==1.16.0
     #   google-auth
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.17
+sqlalchemy==2.0.18
     # via
     #   alembic
     #   jupyterhub
@@ -128,7 +138,7 @@ traitlets==5.9.0
     #   binderhub
     #   jupyter-telemetry
     #   jupyterhub
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via
     #   alembic
     #   sqlalchemy
