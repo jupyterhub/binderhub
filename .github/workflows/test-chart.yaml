@@ -94,6 +94,14 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
 
+    # Start a local container registry that the binderhub build pods can push
+    # to, and the k8s cluster can pull images from for use by pods.
+    services:
+      registry:
+        image: docker.io/library/registry:latest
+        ports:
+          - 5000:5000
+
     strategy:
       fail-fast: false
       matrix:
@@ -107,12 +115,30 @@ jobs:
         include:
           - k3s-channel: latest
           - k3s-channel: stable
+          - k3s-channel: v1.24
 
     steps:
       - uses: actions/checkout@v3
         with:
           # chartpress needs git history
           fetch-depth: 0
+
+      - name: Determine how to reference local container registry
+        run: |
+          LOCAL_REGISTRY_HOST=$(hostname --all-ip-addresses | awk '{print $1}'):5000
+          echo LOCAL_REGISTRY_HOST="$LOCAL_REGISTRY_HOST" >> $GITHUB_ENV
+
+      - name: Configure k3s to pull from local container registry
+        run: |
+          # Allow k3s to pull from private registry
+          # https://docs.k3s.io/installation/private-registry
+          sudo mkdir -p /etc/rancher/k3s/
+          cat << EOF | sudo tee /etc/rancher/k3s/registries.yaml
+          mirrors:
+            "$LOCAL_REGISTRY_HOST":
+              endpoint:
+                - "http://$LOCAL_REGISTRY_HOST"
+          EOF
 
       # Starts a k8s cluster with NetworkPolicy enforcement and installs both
       # kubectl and helm
@@ -128,11 +154,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-
       - name: Install dependencies
         run: |
           pip install -r dev-requirements.txt
-          pip list
+      - name: List dependencies
+        run: |
+          pip freeze
 
       # Build our images if needed and update Chart.yaml and values.yaml with
       # version and tags
@@ -153,7 +180,9 @@ jobs:
       - name: Install local chart
         run: |
           helm upgrade --install binderhub-service ./binderhub-service \
-              --values dev-config.yaml
+              --values dev-config.yaml \
+              --set config.BinderHub.image_prefix=$LOCAL_REGISTRY_HOST/binderhub-service/ \
+              --set buildPodsRegistryCredentials.server=http://$LOCAL_REGISTRY_HOST
 
       # ref: https://github.com/jupyterhub/action-k8s-await-workloads
       - uses: jupyterhub/action-k8s-await-workloads@v2
