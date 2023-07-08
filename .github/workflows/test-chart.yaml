@@ -190,6 +190,11 @@ jobs:
           timeout: 150
           max-restarts: 1
 
+      - name: Test image build/push via binderhub REST API using curl
+        run: |
+          kubectl port-forward deploy/binderhub-service 8585 &
+          curl http://localhost:8585/build/gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD?build_only=true
+
       # ref: https://github.com/jupyterhub/action-k8s-namespace-report
       - uses: jupyterhub/action-k8s-namespace-report@v1
         if: always()
