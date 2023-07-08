@@ -15,7 +15,8 @@ config:
   DockerRegistry:
     url: http://localhost:5000
   BinderHub:
-    log_level: DEBUG
+    # log_level isn't enabled to avoid overwhelming the reader with info
+    # log_level: DEBUG
     use_registry: true
     image_prefix: localhost:5000/binderhub-service/
 buildPodsRegistryCredentials:
@@ -39,5 +40,6 @@ dockerApi:
     daemon-json:
       mountPath: /etc/docker-api/daemon.json
       data:
-        debug: true
+        # debug isn't enabled to avoid overwhelming the reader with info
+        # debug: true
         insecure-registries: [localhost:5000]
