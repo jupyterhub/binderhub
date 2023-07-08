@@ -129,3 +129,6 @@ dockerApi:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+
+  extraArgs: []
+  extraFiles: {}

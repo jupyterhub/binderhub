@@ -204,3 +204,29 @@ properties:
       nodeSelector: *nodeSelector
       affinity: *affinity
       tolerations: *tolerations
+      extraArgs:
+        type: array
+      extraFiles:
+        type: object
+        additionalProperties: false
+        patternProperties:
+          ".*":
+            type: object
+            additionalProperties: false
+            required: [mountPath]
+            oneOf:
+              - required: [data]
+              - required: [stringData]
+              - required: [binaryData]
+            properties:
+              mountPath:
+                type: string
+              data:
+                type: object
+                additionalProperties: true
+              stringData:
+                type: string
+              binaryData:
+                type: string
+              mode:
+                type: number

@@ -182,7 +182,9 @@ jobs:
           helm upgrade --install binderhub-service ./binderhub-service \
               --values dev-config.yaml \
               --set config.BinderHub.image_prefix=$LOCAL_REGISTRY_HOST/binderhub-service/ \
-              --set buildPodsRegistryCredentials.server=http://$LOCAL_REGISTRY_HOST
+              --set config.DockerRegistry.url=http://$LOCAL_REGISTRY_HOST \
+              --set buildPodsRegistryCredentials.server=http://$LOCAL_REGISTRY_HOST \
+              --set dockerApi.extraFiles.daemon-json.data.insecure-registries[0]=$LOCAL_REGISTRY_HOST
 
       # ref: https://github.com/jupyterhub/action-k8s-await-workloads
       - uses: jupyterhub/action-k8s-await-workloads@v2

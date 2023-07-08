@@ -28,11 +28,19 @@ spec:
             - --data-root=/var/lib/docker-api
             - --exec-root=/var/run/docker-api
             - --host=unix:///var/run/docker-api/docker-api.sock
+            {{- with .Values.dockerApi.extraArgs }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/docker-api
             - name: exec
               mountPath: /var/run/docker-api
+            {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
+            - name: files
+              mountPath: {{ $file_details.mountPath }}
+              subPath: {{ $file_key | quote }}
+            {{- end }}
           resources:
             {{- .Values.dockerApi.resources | toYaml | nindent 12 }}
           securityContext:
@@ -46,6 +54,19 @@ spec:
           hostPath:
             path: /var/run/docker-api
             type: DirectoryOrCreate
+        {{- if .Values.dockerApi.extraFiles }}
+        - name: files
+          secret:
+            secretName: {{ include "binderhub-service.fullname" . }}-docker-api
+            items:
+              {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
+              - key: {{ $file_key | quote }}
+                path: {{ $file_key | quote }}
+                {{- with $file_details.mode }}
+                mode: {{ . }}
+                {{- end }}
+              {{- end }}
+        {{- end }}
       {{- with .Values.dockerApi.image.pullSecrets }}
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
