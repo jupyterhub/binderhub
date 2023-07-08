@@ -162,6 +162,8 @@ properties:
         type: string
       port:
         type: integer
+      nodePort:
+        type: integer
       annotations: *labels-and-annotations
 
   # Ingress resource

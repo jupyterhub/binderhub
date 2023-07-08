@@ -10,3 +10,7 @@ buildPodsRegistryCredentials:
   server: "http://localhost:5000"
   username: ""
   password: ""
+
+service:
+  type: NodePort
+  nodePort: 30080
