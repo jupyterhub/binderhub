@@ -87,7 +87,21 @@ class BuildExecutor(LoggingConfigurable):
 
     push_secret = Unicode(
         "",
-        help="Implementation dependent secret for pushing image to a registry.",
+        help="Implementation dependent static secret for pushing image to a registry.",
+        config=True,
+    )
+
+    registry_credentials = Dict(
+        {},
+        help=(
+            "Implementation dependent credentials for pushing image to a registry. "
+            "For example, if push tokens are temporary this could be used to pass "
+            "dynamically created credentials "
+            '`{"registry": "docker.io", "username":"user", "password":"password"}`. '
+            "This will be JSON encoded and passed in the environment variable "
+            "CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to repo2docker. "
+            "If provided this will be used instead of push_secret."
+        ),
         config=True,
     )
 
@@ -231,7 +245,26 @@ class KubernetesBuildExecutor(BuildExecutor):
     # Overrides the default for BuildExecutor
     push_secret = Unicode(
         "binder-build-docker-config",
-        help="Implementation dependent secret for pushing image to a registry.",
+        help=(
+            "Name of a Kubernetes secret containing static credentials for pushing "
+            "an image to a registry."
+        ),
+        config=True,
+    )
+
+    registry_credentials = Dict(
+        {},
+        help=(
+            "Implementation dependent credentials for pushing image to a registry. "
+            "For example, if push tokens are temporary this could be used to pass "
+            "dynamically created credentials "
+            '`{"registry": "docker.io", "username":"user", "password":"password"}`. '
+            "This will be JSON encoded and passed in the environment variable "
+            "CONTAINER_ENGINE_REGISTRY_CREDENTIALS` to repo2docker. "
+            "If provided this will be used instead of push_secret. "
+            "Currently this is passed to the build pod as a plain text environment "
+            "variable, though future implementations may use a Kubernetes secret."
+        ),
         config=True,
     )
 
@@ -394,7 +427,23 @@ class KubernetesBuildExecutor(BuildExecutor):
             )
         ]
 
-        if self.push_secret:
+        env = [
+            client.V1EnvVar(name=key, value=value)
+            for key, value in self.extra_envs.items()
+        ]
+        if self.git_credentials:
+            env.append(
+                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
+            )
+
+        if self.registry_credentials:
+            env.append(
+                client.V1EnvVar(
+                    name="CONTAINER_ENGINE_REGISTRY_CREDENTIALS",
+                    value=json.dumps(self.registry_credentials),
+                )
+            )
+        elif self.push_secret:
             volume_mounts.append(
                 client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
             )
@@ -403,15 +452,6 @@ class KubernetesBuildExecutor(BuildExecutor):
                     name="docker-config",
                     secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
                 )
-            )
-
-        env = [
-            client.V1EnvVar(name=key, value=value)
-            for key, value in self.extra_envs.items()
-        ]
-        if self.git_credentials:
-            env.append(
-                client.V1EnvVar(name="GIT_CREDENTIAL_ENV", value=self.git_credentials)
             )
 
         self.pod = client.V1Pod(

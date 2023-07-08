@@ -329,6 +329,14 @@ class DockerRegistry(LoggingConfigurable):
                 raise
         return json.loads(resp.body.decode("utf-8"))
 
+    async def get_credentials(self, image, tag):
+        """
+        If a dynamic token is required for pushing an image to the registry
+        return a dictionary of login credentials, otherwise return None
+        (caller should get credentials from some other source)
+        """
+        return None
+
 
 class FakeRegistry(DockerRegistry):
     """
