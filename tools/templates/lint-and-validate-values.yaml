@@ -5,6 +5,16 @@ nameOverride: ""
 fullnameOverride: ""
 global: {}
 
+# Resources for the BinderHub created build pods
+# -----------------------------------------------------------------------------
+#
+buildPodsDockerConfig:
+  dummy: dummy-value
+buildPodsRegistryCredentials:
+  server: "quay.io"
+  username: "dummy-username"
+  password: "dummy-password"
+
 # Deployment resource
 # -----------------------------------------------------------------------------
 #
@@ -48,3 +58,9 @@ dockerApi:
   securityContext:
     privileged: true
     runAsUser: 0
+  extraFiles:
+    daemon-json:
+      mountPath: /etc/docker/daemon.json
+      data:
+        debug: true
+        insecure-registries: [localhost:5000]

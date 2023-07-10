@@ -5,6 +5,15 @@ nameOverride: ""
 fullnameOverride: ""
 global: {}
 
+# Resources for the BinderHub created build pods
+# -----------------------------------------------------------------------------
+#
+buildPodsDockerConfig: {}
+buildPodsRegistryCredentials:
+  server: ""
+  username: ""
+  password: ""
+
 # Deployment resource
 # -----------------------------------------------------------------------------
 #
@@ -28,13 +37,18 @@ config:
   BinderHub:
     base_url: /
     port: 8585
-    use_registry: true
     require_build_only: true
   KubernetesBuildExecutor:
     # docker_host must not be updated, assumptions about it are hardcoded in
     # docker-api/daemonset.yaml
     docker_host: /var/run/docker-api/docker-api.sock
-extraConfig: {}
+extraConfig:
+  # binderhub-service creates a k8s Secret with a docker config.json file
+  # including registry credentials.
+  binderhub_service_00_build_pods_docker_config: |
+    import os
+    helm_release_name = os.environ["HELM_RELEASE_NAME"]
+    c.KubernetesBuildExecutor.push_secret = f"{helm_release_name}-build-pods-docker-config"
 
 replicas: 1
 image:
@@ -115,3 +129,6 @@ dockerApi:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+
+  extraArgs: []
+  extraFiles: {}

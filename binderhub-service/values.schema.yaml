@@ -19,6 +19,8 @@ required:
   - nameOverride
   - fullnameOverride
   - global
+  # Resources for the BinderHub created build pods
+  - buildPodsRegistryCredentials
   # Deployment resource
   - image
   # Other resources
@@ -45,6 +47,27 @@ properties:
   global:
     type: object
     additionalProperties: true
+
+  # Resources for the BinderHub created build pods
+  # ---------------------------------------------------------------------------
+  #
+  buildPodsDockerConfig:
+    type: object
+    additionalProperties: true
+  buildPodsRegistryCredentials:
+    type: object
+    additionalProperties: false
+    required:
+      - server
+      - username
+      - password
+    properties:
+      server:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
 
   # Deployment resource
   # ---------------------------------------------------------------------------
@@ -139,6 +162,8 @@ properties:
         type: string
       port:
         type: integer
+      nodePort:
+        type: integer
       annotations: *labels-and-annotations
 
   # Ingress resource
@@ -179,3 +204,29 @@ properties:
       nodeSelector: *nodeSelector
       affinity: *affinity
       tolerations: *tolerations
+      extraArgs:
+        type: array
+      extraFiles:
+        type: object
+        additionalProperties: false
+        patternProperties:
+          ".*":
+            type: object
+            additionalProperties: false
+            required: [mountPath]
+            oneOf:
+              - required: [data]
+              - required: [stringData]
+              - required: [binaryData]
+            properties:
+              mountPath:
+                type: string
+              data:
+                type: object
+                additionalProperties: true
+              stringData:
+                type: string
+              binaryData:
+                type: string
+              mode:
+                type: number

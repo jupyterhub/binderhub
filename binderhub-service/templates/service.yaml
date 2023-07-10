@@ -13,4 +13,7 @@ spec:
     - name: http
       port: {{ .Values.service.port }}
       targetPort: http
+      {{- with .Values.service.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
   selector: {{- include "binderhub-service.selectorLabels" . | nindent 4 }}
