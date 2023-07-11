@@ -39,8 +39,8 @@ spec:
               mountPath: /etc/binderhub/mounted-secret/
               readOnly: true
           env:
-            - name: HELM_RELEASE_NAME
-              value: {{ .Release.Name }}
+            - name: HELM_DEPLOYMENT_NAME
+              value: {{ include "binderhub-service.fullname" . }}
           resources:
             {{- .Values.resources | toYaml | nindent 12 }}
           securityContext:
