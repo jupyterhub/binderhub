@@ -25,9 +25,6 @@ spec:
         - name: secret
           secret:
             secretName: {{ include "binderhub-service.fullname" . }}
-        - name: docker-config-secret
-          secret:
-            secretName: {{ include "binderhub-service.fullname" . }}-build-pods-docker-config
       containers:
         - name: binderhub
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
