@@ -35,9 +35,15 @@ reference/changelog
 
 **TODO**
 
-- Architecture
-- Implementation
+```{toctree}
+:maxdepth: 2
+explanation/architecture
+explanation/implementation
+```
+
+## Contributing
 
 ```{toctree}
 :maxdepth: 2
+contributing
 ```
