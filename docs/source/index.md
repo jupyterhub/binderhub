@@ -24,8 +24,6 @@ Write description here...
 
 **TODO**
 
-- Changelog
-
 ```{toctree}
 :maxdepth: 2
 reference/changelog
