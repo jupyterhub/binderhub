@@ -184,7 +184,9 @@ async def test_build_fail(app, needs_build, needs_launch, always_build):
         "app"
     ],  # send param "require_build_only_app" to app fixture, so that it loads `require_build_only` configuration
 )
-async def test_build_only_fail(app, build_only_query_param, expected_error_msg, needs_build):
+async def test_build_only_fail(
+    app, build_only_query_param, expected_error_msg, needs_build
+):
     """
     Test the scenarios that are expected to fail when setting configs for building but no launching.
 
