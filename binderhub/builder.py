@@ -432,8 +432,8 @@ class BuildHandler(BaseHandler):
                 {
                     "phase": "info",
                     "imageName": image_name,
-                    "message": "Both `require_build_only` traitlet, and the query parameter `build_only` are true, "
-                    "so the built image will not be launched\n",
+                    "message": "Because the API only mode was enabled and the query parameter `build_only` was set to true, "
+                    "the built image will not be launched\n",
                 }
             )
         if image_found:
