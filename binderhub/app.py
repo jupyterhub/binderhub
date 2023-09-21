@@ -786,34 +786,16 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
-    require_build_only = Bool(
+    enable_api_only_mode = Bool(
         False,
-        help="""When enabled, the hub will no longer launch the image after the build when combined with the appropriate
-        `build_only` request query parameter.
-
-        Below it's the table for evaluating whether or not the image will be launched after build,
-        based on the values of the `require_build_only` traitlet and the `build_only` query parameter.
-
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | `require_build_only` | `build_only` | Outcome                                                                               |
-        +======================+==============+=======================================================================================+
-        | false                | missing      | OK, image will be launched after build                                                |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | false                | false        | OK, image will be launched after build                                                |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | false                | true         | ERROR, building but not launching is not permitted when require_build_only == False   |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | true                 | missing      | ERROR, query parameter must be explicitly set to true when require_build_only == True |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | true                 | false        | ERROR, query parameter must be explicitly set to true when require_build_only == True |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-        | true                 | true         | OK, image won't be launched after build                                               |
-        +----------------------+--------------+---------------------------------------------------------------------------------------+
-
-        .. note::
-            When this feature is enabled the only supported UX is the REST API based UX, as it's out of scope to support
-            a new UI based UX around not launching.
-
+        help="""
+        When enabled, BinderHub will operate in an API only mode,
+        without a UI, and with the only registered endpoints being:
+            - /metrics
+            - /versions
+            - /build/([^/]+)/(.+)
+            - /health
+            - /_config
         """,
         config=True,
     )
@@ -975,7 +957,7 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
-                "require_build_only": self.require_build_only,
+                "enable_api_only_mode": self.enable_api_only_mode,
             }
         )
         if self.auth_enabled:
@@ -985,7 +967,7 @@ class BinderHub(Application):
                 "Access-Control-Allow-Origin"
             ] = self.cors_allow_origin
 
-        if self.require_build_only:
+        if self.enable_api_only_mode:
             # Deactivate the UI's for the `/` and `/v2` endpoints
             # as they won't make sense in a build only scenario
             # when a REST API usage is expected
@@ -994,58 +976,57 @@ class BinderHub(Application):
             handlers = [
                 (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
                 (r"/", MainHandler),
+                (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
+                # for backward-compatible mybinder.org badge URLs
+                # /assets/images/badge.svg
+                (
+                    r"/assets/(images/badge\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {"path": self.tornado_settings["static_path"]},
+                ),
+                # /badge.svg
+                (
+                    r"/(badge\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                # /badge_logo.svg
+                (
+                    r"/(badge\_logo\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                # /logo_social.png
+                (
+                    r"/(logo\_social\.png)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                # /favicon_XXX.ico
+                (
+                    r"/(favicon\_fail\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                (
+                    r"/(favicon\_success\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                (
+                    r"/(favicon\_building\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {"path": os.path.join(self.tornado_settings["static_path"], "images")},
+                ),
+                (r"/about", AboutHandler),
+                (r".*", Custom404),
             ]
         handlers += [
             (r"/metrics", MetricsHandler),
             (r"/versions", VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
-            (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
-            # for backward-compatible mybinder.org badge URLs
-            # /assets/images/badge.svg
-            (
-                r"/assets/(images/badge\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": self.tornado_settings["static_path"]},
-            ),
-            # /badge.svg
-            (
-                r"/(badge\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /badge_logo.svg
-            (
-                r"/(badge\_logo\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /logo_social.png
-            (
-                r"/(logo\_social\.png)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /favicon_XXX.ico
-            (
-                r"/(favicon\_fail\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (
-                r"/(favicon\_success\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (
-                r"/(favicon\_building\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (r"/about", AboutHandler),
             (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
             (r"/_config", ConfigHandler),
-            (r".*", Custom404),
         ]
         handlers = self.add_url_prefix(self.base_url, handlers)
         if self.extra_static_path:
