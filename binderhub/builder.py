@@ -229,26 +229,19 @@ class BuildHandler(BaseHandler):
         self.set_header("cache-control", "no-cache")
 
     def _get_build_only_outcome(self):
-        # Get the value of the `require_build_only` traitlet
-        require_build_only = self.settings.get("require_build_only", False)
+        # Get the value of the `enable_api_only_mode` traitlet
+        enable_api_only_mode = self.settings.get("enable_api_only_mode", False)
         # Get the value of the `build_only` query parameter if present
         build_only_query_parameter = str(
             self.get_query_argument(name="build_only", default="")
         )
         build_only_outcome = False
-        if not require_build_only:
-            if build_only_query_parameter.lower() == "true":
+        if build_only_query_parameter.lower() == "true":
+            if not enable_api_only_mode:
                 raise HTTPError(
-                    log_message="Building but not launching is not permitted when "
-                    "traitlet `require_build_only` is false and query parameter `build_only` is true!"
+                    log_message="Building but not launching is not permitted when"
+                    " the API only mode was not enabled by setting `enable_api_only_mode` to True. "
                 )
-        else:
-            # Raise an error if the `build_only` query parameter is anything but `(T)true`
-            if build_only_query_parameter.lower() != "true":
-                raise HTTPError(
-                    log_message="The `build_only=true` query parameter is required when traitlet `require_build_only` is false!"
-                )
-            # If we're here, it means a build only deployment is required
             build_only_outcome = True
 
         return build_only_outcome
