@@ -967,13 +967,18 @@ class BinderHub(Application):
                 "Access-Control-Allow-Origin"
             ] = self.cors_allow_origin
 
-        if self.enable_api_only_mode:
-            # Deactivate the UI's for the `/` and `/v2` endpoints
-            # as they won't make sense in a build only scenario
-            # when a REST API usage is expected
-            handlers = []
-        else:
-            handlers = [
+        handlers = [
+            (r"/metrics", MetricsHandler),
+            (r"/versions", VersionHandler),
+            (r"/build/([^/]+)/(.+)", BuildHandler),
+            (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
+            (r"/_config", ConfigHandler),
+        ]
+        if not self.enable_api_only_mode:
+            # In API only mode the endpoints in the list below
+            # are unregistered as they don't make sense in a API only scenario
+            handlers += [
+                (r"/about", AboutHandler),
                 (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
                 (r"/", MainHandler),
                 (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
@@ -1018,16 +1023,9 @@ class BinderHub(Application):
                     tornado.web.StaticFileHandler,
                     {"path": os.path.join(self.tornado_settings["static_path"], "images")},
                 ),
-                (r"/about", AboutHandler),
-                (r".*", Custom404),
             ]
-        handlers += [
-            (r"/metrics", MetricsHandler),
-            (r"/versions", VersionHandler),
-            (r"/build/([^/]+)/(.+)", BuildHandler),
-            (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
-            (r"/_config", ConfigHandler),
-        ]
+        # This needs to be the last handler in the list, because it needs to match "everything else"
+        handlers.append((r".*", Custom404))
         handlers = self.add_url_prefix(self.base_url, handlers)
         if self.extra_static_path:
             handlers.insert(
