@@ -130,7 +130,7 @@ async def test_build_only(app, build_only_query_param, needs_build):
                 break
             if event.get("phase") == "info":
                 assert (
-                    "Both `enable_api_only_node` traitlet, and the query parameter `build_only` are true"
+                    "The built image will not be launched because the API only mode was enabled and the query parameter `build_only` was set to true"
                     in event["message"]
                 )
             if event.get("phase") == "launching" and not event["message"].startswith(
