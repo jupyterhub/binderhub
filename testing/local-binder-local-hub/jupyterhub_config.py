@@ -28,7 +28,7 @@ c.LocalContainerSpawner.cmd = "jupyter-notebook"
 
 c.Application.log_level = "DEBUG"
 c.Spawner.debug = True
-c.JupyterHub.authenticator_class = "nullauthenticator.NullAuthenticator"
+c.JupyterHub.authenticator_class = "null"
 
 c.JupyterHub.hub_ip = "0.0.0.0"
 c.JupyterHub.hub_connect_ip = hostip
