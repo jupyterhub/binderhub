@@ -1036,3 +1036,73 @@ class GistRepoProvider(GitHubRepoProvider):
 
     def get_build_slug(self):
         return self.gist_id
+
+class ProxyRepoProvider(RepoProvider):
+    """RepoProvider that acts as a proxy for another provider
+    
+    Uses an external API to determine desired provider and spec given
+    an input spec that acts as a repo id in the external API."""
+
+    name = Unicode("Proxy")
+
+    display_name = "Proxy"
+
+    api_url = Unicode(
+        config=True,
+        help="""The path to the external API
+        Requests to api_url/spec should return a json with a spec
+        field and a provider field that maps to one of the predefined
+        repoproviders.
+        """
+    )
+
+    labels = {
+        "text": "URL to API endpoint returning project's spec and provider",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.provider, kwargs = self.resolve_provider(kwargs)
+        import inspect
+        for name, value in inspect.getmembers(self.provider(*args, **kwargs)):
+            if name in ["__dict__", "labels"]:
+                continue
+            try:
+                setattr(self, name, value)
+            except Exception as e:
+                self.log.debug(f"Error copying {e}")
+        self.log.debug(f"Copied attributes from {self.provider} instance")
+
+    def resolve_provider(self, kwargs):
+        import requests
+        spec = kwargs["spec"]
+        # remove auto generated commit
+        spec = spec.split("/")[0]
+        project_url = f"{self.api_url}/{spec}"
+        self.log.debug(f"Fetching {project_url}")
+        project_metadata = requests.get(project_url).json()
+        try:
+            provider = project_metadata["provider"]
+            spec = project_metadata["spec"]
+        except AttributeError as e:
+            msg = f"""API endpoint {project_url} must return json with
+                      'provider' and 'spec' attributes"""
+            raise ValueError(msg)
+        providers = {
+            'gh': GitHubRepoProvider,
+            'gist': GistRepoProvider,
+            'git': GitRepoProvider,
+            'gl': GitLabRepoProvider,
+            'zenodo': ZenodoProvider,
+            'figshare': FigshareProvider,
+            'hydroshare': HydroshareProvider,
+            'dataverse': DataverseProvider,
+        }
+        provider_class = providers[provider]
+        self.log.debug(f"Using {provider} provider with spec {spec}")
+        kwargs["spec"] = spec
+
+        return provider_class, kwargs

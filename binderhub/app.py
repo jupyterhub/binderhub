@@ -64,6 +64,7 @@ from .repoproviders import (
     HydroshareProvider,
     RepoProvider,
     ZenodoProvider,
+    ProxyRepoProvider
 )
 from .utils import ByteSpecification, url_path_join
 
@@ -585,6 +586,7 @@ class BinderHub(Application):
             "figshare": FigshareProvider,
             "hydroshare": HydroshareProvider,
             "dataverse": DataverseProvider,
+            "proxy": ProxyRepoProvider,
         },
         config=True,
         help="""
