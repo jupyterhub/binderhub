@@ -20,9 +20,9 @@ certifi==2023.7.22
     #   requests
 certipy==0.1.3
     # via jupyterhub
-cffi==1.15.1
+cffi==1.16.0
     # via cryptography
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via requests
 cryptography==41.0.4
     # via pyopenssl
@@ -30,12 +30,12 @@ docker==6.1.3
     # via -r helm-chart/images/binderhub/../../../requirements.txt
 escapism==1.0.1
     # via -r helm-chart/images/binderhub/../../../requirements.txt
-google-api-core[grpc]==2.11.1
+google-api-core[grpc]==2.12.0
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.23.0
+google-auth==2.23.2
     # via
     #   google-api-core
     #   google-cloud-core
@@ -46,7 +46,7 @@ google-cloud-audit-log==0.2.5
     # via google-cloud-logging
 google-cloud-core==2.3.3
     # via google-cloud-logging
-google-cloud-logging==3.6.0
+google-cloud-logging==3.7.0
     # via -r helm-chart/images/binderhub/requirements.in
 googleapis-common-protos[grpc]==1.60.0
     # via
@@ -58,13 +58,13 @@ greenlet==2.0.2
     # via sqlalchemy
 grpc-google-iam-v1==0.12.6
     # via google-cloud-logging
-grpcio==1.58.0
+grpcio==1.59.0
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.58.0
+grpcio-status==1.59.0
     # via google-api-core
 idna==3.4
     # via requests
@@ -165,7 +165,7 @@ rpds-py==0.10.3
     #   referencing
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.32
+ruamel-yaml==0.17.33
     # via jupyter-telemetry
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
@@ -181,7 +181,7 @@ tornado==6.3.3
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.10.0
+traitlets==5.10.1
     # via
     #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
@@ -190,10 +190,9 @@ typing-extensions==4.8.0
     # via
     #   alembic
     #   sqlalchemy
-urllib3==1.26.16
+urllib3==2.0.5
     # via
     #   docker
-    #   google-auth
     #   kubernetes
     #   requests
 websocket-client==1.6.3
