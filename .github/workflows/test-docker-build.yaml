@@ -55,7 +55,7 @@ jobs:
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx (for chartpress multi-arch builds)
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build a multiple architecture Docker image
         run: |
