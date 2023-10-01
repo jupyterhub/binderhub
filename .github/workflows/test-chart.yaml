@@ -26,7 +26,7 @@ jobs:
   lint_and_validate_rendered_templates:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
@@ -54,7 +54,7 @@ jobs:
           - helm-version: v3.8.0 # minimal required version
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
@@ -118,7 +118,7 @@ jobs:
           - k3s-channel: v1.24
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # chartpress needs git history
           fetch-depth: 0

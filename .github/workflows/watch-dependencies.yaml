@@ -44,7 +44,7 @@ jobs:
             tag_suffix: -dind
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get values.yaml pinned tag of ${{ matrix.registry }}/${{ matrix.repository }}
         id: local
@@ -95,7 +95,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Refreeze requirements.txt based on requirements.in
         run: ci/refreeze
