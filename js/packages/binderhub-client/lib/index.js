@@ -25,13 +25,10 @@ export class BinderRepository {
    * Call the BinderHub API
    */
   fetch() {
-    let apiUrl =  new URL(this.baseUrl + "build/" + this.providerSpec);
-    let params = new URLSearchParams();
+    let apiUrl = this.baseUrl + "build/" + this.providerSpec;
     if (this.buildToken) {
-        params.append('build_token', this.buildToken);
+        apiUrl = apiUrl + `?build_token=${this.buildToken}`;
     }
-
-    apiUrl.search = params.toString();
 
     this.eventSource = new EventSource(apiUrl);
     this.eventSource.onerror = (err) => {
