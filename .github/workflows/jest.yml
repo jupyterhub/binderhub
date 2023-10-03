@@ -27,3 +27,6 @@ jobs:
       - name: "Run all unit tests"
         run: |
           npm test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
