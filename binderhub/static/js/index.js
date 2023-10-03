@@ -160,7 +160,9 @@ function build(providerSpec, log, fitAddon, path, pathType) {
   $('.on-build').removeClass('hidden');
 
   const buildToken = $("#build-token").data('token');
-  // If BASE_URL is absolute, use that. Else, resolve it relative to current URL
+  // If BASE_URL is absolute, use that as the base for build endpoint URL.
+  // Else, first resolve BASE_URL relative to current URL, then use *that* as the
+  // base for the build endpoint url.
   const buildEndpointUrl = new URL("build", new URL(BASE_URL, window.location.href));
   const image = new BinderRepository(providerSpec, buildEndpointUrl, buildToken);
 
