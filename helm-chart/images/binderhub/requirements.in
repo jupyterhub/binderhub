@@ -12,9 +12,6 @@ google-cloud-logging==3.*
 #
 jupyterhub==4.*
 
-# https://github.com/kubernetes-client/python
-kubernetes==9.*
-
 # binderhub's dependencies
 #
 # We can't put ".[pycurl]" here directly as when we freeze this into
