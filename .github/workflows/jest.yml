@@ -1,0 +1,28 @@
+# Runs jest based unit tests for the binderhub-client JS package
+name: eslint
+
+on:
+  pull_request:
+    paths:
+      - "js/**"
+  push:
+    paths:
+      - "js/**"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+      - "update-*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+        cd js/packages/binderhub-client
+        npm install
+
+      - run: |
+        npm run jest

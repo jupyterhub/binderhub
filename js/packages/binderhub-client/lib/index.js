@@ -10,13 +10,28 @@ export class BinderRepository {
   /**
    *
    * @param {string} providerSpec Spec of the form <provider>/<repo>/<ref> to pass to the binderhub API.
-   * @param {string} baseUrl Base URL (including the trailing slash) of the binderhub installation to talk to.
-   * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokesn
+   * @param {URL} buildEndpointUrl API URL of the build endpoint to talk to
+   * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokens
    */
-  constructor(providerSpec, baseUrl, buildToken) {
+  constructor(providerSpec, buildEndpointUrl, buildToken) {
     this.providerSpec = providerSpec;
-    this.baseUrl = baseUrl;
-    this.buildToken = buildToken;
+    // Make sure that buildEndpointUrl is a real URL - this ensures hostname is properly set
+    if(!(buildEndpointUrl instanceof URL)) {
+      throw new TypeError(`buildEndpointUrl must be a URL object, got ${buildEndpointUrl} instead`);
+    }
+    // We make a copy here so we don't modify the passed in URL object
+    this.buildEndpointUrl = new URL(buildEndpointUrl);
+    // The binderHub API is path based, so the buildEndpointUrl must have a trailing slash. We add
+    // it if it is not passed in here to us.
+    if(!this.buildEndpointUrl.pathname.endsWith('/')) {
+      this.buildEndpointUrl.pathname += "/";
+    }
+
+    // The actual URL we'll make a request to build this particular providerSpec
+    this.buildUrl = new URL(this.providerSpec, this.buildEndpointUrl);
+    if(buildToken) {
+      this.buildUrl.searchParams.append("build_token", buildToken);
+    }
     this.callbacks = {};
     this.state = null;
   }
@@ -25,12 +40,7 @@ export class BinderRepository {
    * Call the BinderHub API
    */
   fetch() {
-    let apiUrl = this.baseUrl + "build/" + this.providerSpec;
-    if (this.buildToken) {
-        apiUrl = apiUrl + `?build_token=${this.buildToken}`;
-    }
-
-    this.eventSource = new EventSource(apiUrl);
+    this.eventSource = new EventSource(this.buildUrl);
     this.eventSource.onerror = (err) => {
       console.error("Failed to construct event stream", err);
       this._changeState("failed", {

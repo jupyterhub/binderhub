@@ -167,7 +167,8 @@ function build(providerSpec, log, fitAddon, path, pathType) {
   $('.on-build').removeClass('hidden');
 
   const buildToken = $("#build-token").data('token');
-  const image = new BinderRepository(providerSpec, BASE_URL, buildToken);
+  const buildEndpointUrl = new URL("build", new URL(BASE_URL, window.location.origin));
+  const image = new BinderRepository(providerSpec, buildEndpointUrl, buildToken);
 
   image.onStateChange('*', function(oldState, newState, data) {
     if (data.message !== undefined) {
