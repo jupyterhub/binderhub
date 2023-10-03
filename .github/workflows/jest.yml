@@ -25,4 +25,5 @@ jobs:
           npm install
 
       - run: |
+          cd js/packages/binderhub-client
           npm run jest
