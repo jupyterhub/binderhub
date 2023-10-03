@@ -69,14 +69,16 @@ export class BinderRepository {
   }
 
   /**
-   * Redirect user to a running jupyter server with given token
+   * Get URL to redirect user to on a Jupyter Server to display a given path
 
-   * @param {URL} url URL to the running jupyter server
+   * @param {string} url URL to the running jupyter server
    * @param {string} token Secret token used to authenticate to the jupyter server
    * @param {string} path The path of the file or url suffix to launch the user into
    * @param {string} pathType One of "lab", "file" or "url", denoting what kinda path we are launching the user into
+   *
+   * @returns {URL} A URL to redirect the user to
    */
-  launch(url, token, path, pathType) {
+  getFullRedirectURL(url, token, path, pathType) {
     // redirect a user to a running server with a token
     if (path) {
       // strip trailing /
@@ -98,9 +100,9 @@ export class BinderRepository {
         url = url + "/" + path;
       }
     }
-    const sep = url.indexOf("?") == -1 ? "?" : "&";
-    url = url + sep + $.param({ token: token });
-    window.location.href = url;
+    let parsedUrl = new URL(url, window.location.origin);
+    parsedUrl.searchParams.append('token', token);
+    return parsedUrl;
   }
 
 
