@@ -1,10 +1,10 @@
 # Runs jest based unit tests for the binderhub-client JS package
-name: jest
+name: "binderhub-client unit tests"
 
 on:
   pull_request:
     paths:
-      - "js/**"
+      - "js/packages/binderhub-client/**"
   push:
     paths:
       - "js/**"
