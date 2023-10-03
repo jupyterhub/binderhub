@@ -100,3 +100,58 @@ test("Get full redirect URL when opening a file with classic notebook (with file
       .toString()
   ).toBe("https://hub.test-binder.org/user/something/tree/index.ipynb?token=token");
 });
+
+test("Get full redirect URL and deal with excessive slashes (with pathType=url)", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build")
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        // Trailing slash should not be preserved here
+        "https://hub.test-binder.org/user/something/",
+        "token",
+        // Trailing slash should be preserved here, but leading slash should not be repeated
+        "/rstudio/",
+        "url"
+      )
+      .toString()
+  ).toBe("https://hub.test-binder.org/user/something/rstudio/?token=token");
+});
+
+test("Get full redirect URL and deal with excessive slashes (with pathType=lab)", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build")
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        "https://hub.test-binder.org/user/something/",
+        "token",
+        // Both leading and trailing slashes should be gone here.
+        "/directory/index.ipynb/",
+        "lab"
+      )
+      .toString()
+  ).toBe("https://hub.test-binder.org/user/something/doc/tree/directory/index.ipynb?token=token");
+});
+
+test("Get full redirect URL and deal with excessive slashes (with pathType=file)", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build")
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        "https://hub.test-binder.org/user/something/",
+        "token",
+        // Both leading and trailing slashes should be gone here.
+        "/directory/index.ipynb/",
+        "file"
+      )
+      .toString()
+  ).toBe("https://hub.test-binder.org/user/something/tree/directory/index.ipynb?token=token");
+});
