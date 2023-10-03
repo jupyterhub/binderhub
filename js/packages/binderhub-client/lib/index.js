@@ -71,38 +71,46 @@ export class BinderRepository {
   /**
    * Get URL to redirect user to on a Jupyter Server to display a given path
 
-   * @param {string} url URL to the running jupyter server
+   * @param {URL} serverUrl URL to the running jupyter server
    * @param {string} token Secret token used to authenticate to the jupyter server
    * @param {string} path The path of the file or url suffix to launch the user into
    * @param {string} pathType One of "lab", "file" or "url", denoting what kinda path we are launching the user into
    *
    * @returns {URL} A URL to redirect the user to
    */
-  getFullRedirectURL(url, token, path, pathType) {
-    // redirect a user to a running server with a token
+  getFullRedirectURL(serverUrl, token, path, pathType) {
+    // Make a copy of the URL so we don't mangle the original
+    let url = new URL(serverUrl);
     if (path) {
-      // strip trailing /
-      url = url.replace(/\/$/, "");
-      // trim leading '/'
+      // strip trailing / from URL
+      url.pathname = url.pathname.replace(/\/$/, "");
+
+      // trim leading '/' from path to launch users into
       path = path.replace(/(^\/)/g, "");
+
       if (pathType === "lab") {
+        // The path is a specific *file* we should open with JupyterLab
+
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
+
         // /doc/tree is safe because it allows redirect to files
-        url = url + "/doc/tree/" + encodeURI(path);
+        url.pathname = url.pathname + "/doc/tree/" + encodeURI(path);
       } else if (pathType === "file") {
+        // The path is a specific file we should open with *classic notebook*
+
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
         // /tree is safe because it allows redirect to files
-        url = url + "/tree/" + encodeURI(path);
+        url.pathname = url.pathname + "/tree/" + encodeURI(path);
       } else {
-        // pathType === 'url'
-        url = url + "/" + path;
+        // pathType is 'url' and we should just pass it on
+        url.pathname = url.pathname + "/" + path;
       }
     }
-    let parsedUrl = new URL(url, window.location.origin);
-    parsedUrl.searchParams.append('token', token);
-    return parsedUrl;
+
+    url.searchParams.append('token', token);
+    return url;
   }
 
 

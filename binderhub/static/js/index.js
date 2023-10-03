@@ -212,8 +212,11 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 
   image.onStateChange('ready', function(oldState, newState, data) {
     image.close();
+    // If data.url is an absolute URL, it'll be used. Else, it'll be interpreted
+    // relative to current page's URL.
+    const serverUrl = new URL(data.url, window.location.href);
     // user server is ready, redirect to there
-    window.location.href = image.getFullRedirectURL(data.url, data.token, path, pathType);
+    window.location.href = image.getFullRedirectURL(serverUrl, data.token, path, pathType);
   });
 
   image.fetch();
