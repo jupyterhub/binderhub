@@ -556,7 +556,7 @@ class BinderHub(Application):
         return os.environ.get("BUILD_NAMESPACE", "default")
 
     build_image = Unicode(
-        "quay.io/jupyterhub/repo2docker:2022.10.0",
+        "quay.io/jupyterhub/repo2docker:2023.06.0",
         help="""
         DEPRECATED: Use c.KubernetesBuildExecutor.build_image
 
