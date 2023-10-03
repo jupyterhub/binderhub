@@ -40,7 +40,7 @@ google-auth==2.23.2
     #   google-api-core
     #   google-cloud-core
     #   kubernetes
-google-cloud-appengine-logging==1.3.1
+google-cloud-appengine-logging==1.3.2
     # via google-cloud-logging
 google-cloud-audit-log==0.2.5
     # via google-cloud-logging
@@ -54,7 +54,7 @@ googleapis-common-protos[grpc]==1.60.0
     #   google-cloud-audit-log
     #   grpc-google-iam-v1
     #   grpcio-status
-greenlet==2.0.2
+greenlet==3.0.0
     # via sqlalchemy
 grpc-google-iam-v1==0.12.6
     # via google-cloud-logging
@@ -98,7 +98,7 @@ oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==23.1
+packaging==23.2
     # via
     #   docker
     #   jupyterhub
@@ -190,7 +190,7 @@ typing-extensions==4.8.0
     # via
     #   alembic
     #   sqlalchemy
-urllib3==2.0.5
+urllib3==2.0.6
     # via
     #   docker
     #   kubernetes
