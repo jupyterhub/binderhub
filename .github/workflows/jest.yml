@@ -1,5 +1,5 @@
 # Runs jest based unit tests for the binderhub-client JS package
-name: eslint
+name: jest
 
 on:
   pull_request:
