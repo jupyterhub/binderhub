@@ -1,4 +1,4 @@
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
 
 // Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
@@ -27,14 +27,14 @@ export class BinderRepository {
   fetch() {
     let apiUrl = this.baseUrl + "build/" + this.providerSpec;
     if (this.buildToken) {
-        apiUrl = apiUrl + `?build_token=${this.buildToken}`;
+      apiUrl = apiUrl + `?build_token=${this.buildToken}`;
     }
 
     this.eventSource = new EventSource(apiUrl);
     this.eventSource.onerror = (err) => {
       console.error("Failed to construct event stream", err);
       this._changeState("failed", {
-        message: "Failed to connect to event stream\n"
+        message: "Failed to connect to event stream\n",
       });
     };
     this.eventSource.addEventListener("message", (event) => {
@@ -93,7 +93,6 @@ export class BinderRepository {
     window.location.href = url;
   }
 
-
   /**
    * Add callback whenever state of the current build changes
    *
@@ -130,7 +129,7 @@ export class BinderRepository {
   }
 
   _changeState(state, data) {
-    [state, "*"].map(key => {
+    [state, "*"].map((key) => {
       const callbacks = this.callbacks[key];
       if (callbacks) {
         for (let i = 0; i < callbacks.length; i++) {

@@ -53,13 +53,9 @@ repos:
     hooks:
       - id: prettier
         exclude_types:
-          # These are excluded initially as pre-commit was added but can
-          # absolutely be enabled later. If so, we should consider having a
-          # separate run of pre-commit where we configure a line spacing of 4
-          # for these file formats.
+          # This was excluded initially as pre-commit was added but can
+          # absolutely be enabled later.
           - html
-          - javascript
-          - css
 
   # Misc autoformatting and linting
   - repo: https://github.com/pre-commit/pre-commit-hooks

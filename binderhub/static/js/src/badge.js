@@ -7,10 +7,9 @@ export function makeBadgeMarkup(badgeBaseUrl, baseUrl, url, syntax) {
     badgeImageUrl = window.location.origin + baseUrl + "badge_logo.svg";
   }
 
-  if (syntax === 'markdown') {
+  if (syntax === "markdown") {
     return "[![Binder](" + badgeImageUrl + ")](" + url + ")";
-  } else if (syntax === 'rst') {
+  } else if (syntax === "rst") {
     return ".. image:: " + badgeImageUrl + "\n :target: " + url;
-
   }
 }
