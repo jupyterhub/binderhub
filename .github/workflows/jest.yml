@@ -1,13 +1,13 @@
-# Runs jest based unit tests for the binderhub-client JS package
-name: "binderhub-client unit tests"
+# Runs jest based unit tests for frontend javascript and @jupyterhub/binderhub-client
+name: "JS Unit tests"
 
 on:
   pull_request:
-    paths:
+    paths: &paths
+      - "binderhub/static/js/**"
       - "js/packages/binderhub-client/**"
   push:
-    paths:
-      - "js/**"
+    paths: *paths
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
@@ -15,15 +15,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
+      - name: "binderhub unit tests"
+        run: |
+          npm install
+          npm test
+
+      - name: "@jupyterhub/binderhub-client unit tests"
+        run: |
           cd js/packages/binderhub-client
           npm install
-
-      - run: |
-          cd js/packages/binderhub-client
           npm test

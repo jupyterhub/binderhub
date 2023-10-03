@@ -19,6 +19,7 @@ import { BinderRepository } from '@jupyterhub/binderhub-client';
 import { makeBadgeMarkup } from './src/badge';
 import { getPathType, updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
+import { updateFavicon } from './src/favicon';
 
 import 'xterm/css/xterm.css';
 
@@ -32,14 +33,6 @@ import '../index.css';
 const BASE_URL = $('#base-url').data().url;
 const BADGE_BASE_URL = $('#badge-base-url').data().url;
 let config_dict = {};
-
-function update_favicon(path) {
-    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = path;
-    document.getElementsByTagName('head')[0].appendChild(link);
-}
 
 function v2url(providerPrefix, repository, ref, path, pathType) {
   // return a v2 url from a providerPrefix, repository, ref, and (file|url)path
@@ -153,7 +146,7 @@ function updateUrls(formValues) {
 }
 
 function build(providerSpec, log, fitAddon, path, pathType) {
-  update_favicon(BASE_URL + "favicon_building.ico");
+  updateFavicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   const spec = providerSpec.slice(providerSpec.indexOf('/') + 1);
   // Update the text of the loading page if it exists
@@ -199,7 +192,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
     $("#loader").addClass("paused");
 
     // If we fail for any reason, show an error message and logs
-    update_favicon(BASE_URL + "favicon_fail.ico");
+    updateFavicon(BASE_URL + "favicon_fail.ico");
     log.show();
     if ($('div#loader-text').length > 0) {
       $('#loader').addClass("error");
@@ -214,7 +207,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
       $('#phase-launching').removeClass('hidden');
     }
     $('#phase-launching').removeClass('hidden');
-    update_favicon(BASE_URL + "favicon_success.ico");
+    updateFavicon(BASE_URL + "favicon_success.ico");
   });
 
   image.onStateChange('ready', function(oldState, newState, data) {
