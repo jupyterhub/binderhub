@@ -6,6 +6,7 @@ on:
     paths: &paths
       - "binderhub/static/js/**"
       - "js/packages/binderhub-client/**"
+      - ".github/workflows/jest.yml"
   push:
     paths: *paths
     branches-ignore:
