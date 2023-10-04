@@ -3,12 +3,15 @@ name: "JS Unit tests"
 
 on:
   pull_request:
-    paths: &paths
+    paths:
       - "binderhub/static/js/**"
       - "js/packages/binderhub-client/**"
       - ".github/workflows/jest.yml"
   push:
-    paths: *paths
+    paths:
+      - "binderhub/static/js/**"
+      - "js/packages/binderhub-client/**"
+      - ".github/workflows/jest.yml"
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
