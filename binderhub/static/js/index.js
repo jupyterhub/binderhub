@@ -10,14 +10,11 @@
   pushing -> built
   pushing -> failed
 */
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 import ClipboardJS from 'clipboard';
 import 'event-source-polyfill';
 
 import { BinderRepository } from '@jupyterhub/binderhub-client';
-import { makeBadgeMarkup } from './src/badge';
-import { getPathType, updatePathText } from './src/path';
+import { updatePathText } from './src/path';
 import { nextHelpText } from './src/loading';
 import { updateFavicon } from './src/favicon';
 
@@ -29,121 +26,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-theme.min.css';
 
 import '../index.css';
+import { setUpLog } from './src/log';
+import { updateUrls } from './src/urls';
+import { BASE_URL } from './src/constants';
+import { getBuildFormValues } from './src/form';
+import { updateRepoText } from './src/repo';
 
-const BASE_URL = $('#base-url').data().url;
-const BADGE_BASE_URL = $('#badge-base-url').data().url;
-let config_dict = {};
-
-function v2url(providerPrefix, repository, ref, path, pathType) {
-  // return a v2 url from a providerPrefix, repository, ref, and (file|url)path
-  if (repository.length === 0) {
-    // no repo, no url
-    return null;
-  }
-  let url;
-  if (BADGE_BASE_URL) {
-    url = BADGE_BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
-  }
-  else {
-    url = window.location.origin + BASE_URL + 'v2/' + providerPrefix + '/' + repository + '/' + ref;
-  }
-  if (path && path.length > 0) {
-    // encode the path, it will be decoded in loadingMain
-    url = url + '?' + pathType + 'path=' + encodeURIComponent(path);
-  }
-  return url;
-}
-
-function loadConfig(callback) {
-  const req = new XMLHttpRequest();
-  req.onreadystatechange = function() {
-    if (req.readyState == 4 && req.status == 200)
-      callback(req.responseText)
-  };
-  req.open('GET', BASE_URL + "_config", true);
-  req.send(null);
-}
-
-function setLabels() {
-  const provider = $("#provider_prefix").val();
-  const text = config_dict[provider]["text"];
-  const tag_text = config_dict[provider]["tag_text"];
-  const ref_prop_disabled = config_dict[provider]["ref_prop_disabled"];
-  const label_prop_disabled = config_dict[provider]["label_prop_disabled"];
-  const placeholder = "HEAD";
-
-  $("#ref").attr('placeholder', placeholder).prop("disabled", ref_prop_disabled);
-  $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
-  $("#repository").attr('placeholder', text);
-  $("label[for=repository]").text(text);
-}
-
-function updateRepoText() {
-  if (Object.keys(config_dict).length === 0){
-    loadConfig(function(res) {
-      config_dict = JSON.parse(res);
-      setLabels();
-    });
-  } else {
-    setLabels();
-  }
-}
-
-function getBuildFormValues() {
-  const providerPrefix = $('#provider_prefix').val().trim();
-  let repo = $('#repository').val().trim();
-  if (providerPrefix !== 'git') {
-    repo = repo.replace(/^(https?:\/\/)?gist.github.com\//, '');
-    repo = repo.replace(/^(https?:\/\/)?github.com\//, '');
-    repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, '');
-  }
-  // trim trailing or leading '/' on repo
-  repo = repo.replace(/(^\/)|(\/?$)/g, '');
-  // git providers encode the URL of the git repository as the repo
-  // argument.
-  if (repo.includes("://") || providerPrefix === 'gl') {
-    repo = encodeURIComponent(repo);
-  }
-
-  let ref = $('#ref').val().trim() || $("#ref").attr("placeholder");
-  if (providerPrefix === 'zenodo' || providerPrefix === 'figshare' || providerPrefix === 'dataverse' ||
-      providerPrefix === 'hydroshare') {
-    ref = "";
-  }
-  const path = $('#filepath').val().trim();
-  return {'providerPrefix': providerPrefix, 'repo': repo,
-          'ref': ref, 'path': path, 'pathType': getPathType()}
-}
-
-function updateUrls(formValues) {
-  if (typeof formValues === "undefined") {
-      formValues = getBuildFormValues();
-  }
-  const url = v2url(
-               formValues.providerPrefix,
-               formValues.repo,
-               formValues.ref,
-               formValues.path,
-               formValues.pathType
-            );
-
-  if ((url||'').trim().length > 0){
-    // update URLs and links (badges, etc.)
-    $("#badge-link").attr('href', url);
-    $('#basic-url-snippet').text(url);
-    $('#markdown-badge-snippet').text(
-      makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'markdown')
-    );
-    $('#rst-badge-snippet').text(
-      makeBadgeMarkup(BADGE_BASE_URL, BASE_URL, url, 'rst')
-    );
-  } else {
-    ['#basic-url-snippet', '#markdown-badge-snippet', '#rst-badge-snippet' ].map(function(item){
-      const el = $(item);
-      el.text(el.attr('data-default'));
-    })
-  }
-}
 
 function build(providerSpec, log, fitAddon, path, pathType) {
   updateFavicon(BASE_URL + "favicon_building.ico");
@@ -224,59 +112,6 @@ function build(providerSpec, log, fitAddon, path, pathType) {
 
   image.fetch();
   return image;
-}
-
-function setUpLog() {
-  const log = new Terminal({
-    convertEol: true,
-    disableStdin: true
-  });
-
-  const fitAddon = new FitAddon();
-  log.loadAddon(fitAddon);
-  const logMessages = [];
-
-  log.open(document.getElementById('log'), false);
-  fitAddon.fit();
-
-  $(window).resize(function() {
-    fitAddon.fit();
-  });
-
-  const $panelBody = $("div.panel-body");
-  log.show = function () {
-    $('#toggle-logs button.toggle').text('hide');
-    $panelBody.removeClass('hidden');
-  };
-
-  log.hide = function () {
-    $('#toggle-logs button.toggle').text('show');
-    $panelBody.addClass('hidden');
-  };
-
-  log.toggle = function () {
-    if ($panelBody.hasClass('hidden')) {
-      log.show();
-    } else {
-      log.hide();
-    }
-  };
-
-  $('#view-raw-logs').on('click', function(ev) {
-    const blob = new Blob([logMessages.join('')], { type: 'text/plain' });
-    this.href = window.URL.createObjectURL(blob);
-    // Prevent the toggle action from firing
-    ev.stopPropagation();
-  });
-
-  $('#toggle-logs').click(log.toggle);
-
-  log.writeAndStore = function (msg) {
-    logMessages.push(msg);
-    log.write(msg);
-  }
-
-  return [log, fitAddon];
 }
 
 function indexMain() {
