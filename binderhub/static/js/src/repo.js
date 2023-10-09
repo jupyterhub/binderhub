@@ -1,5 +1,7 @@
 import { BASE_URL } from "./constants";
 
+let configDict = {};
+
 function setLabels() {
   const provider = $("#provider_prefix").val();
   const text = configDict[provider]["text"];
