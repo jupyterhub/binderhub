@@ -85,7 +85,6 @@ function build(providerSpec, log, fitAddon, path, pathType) {
   image.onStateChange('built', function() {
     $('#phase-already-built').removeClass('hidden');
     $('#phase-launching').removeClass('hidden');
-    $('#phase-launching').removeClass('hidden');
     updateFavicon(BASE_URL + "favicon_success.ico");
   });
 
