@@ -1,18 +1,5 @@
 import { BASE_URL } from "./constants";
 
-let configDict = {};
-
-export function loadConfig(callback) {
-  const req = new XMLHttpRequest();
-  req.onreadystatechange = function() {
-    if (req.readyState == 4 && req.status == 200)
-      callback(req.responseText)
-  };
-  req.open('GET', BASE_URL + "_config", true);
-  req.send(null);
-}
-
-
 function setLabels() {
   const provider = $("#provider_prefix").val();
   const text = configDict[provider]["text"];
