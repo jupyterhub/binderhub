@@ -1,4 +1,5 @@
 import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
+import { EventIterator } from "event-iterator";
 
 // Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
@@ -34,29 +35,38 @@ export class BinderRepository {
     if (buildToken) {
       this.buildUrl.searchParams.append("build_token", buildToken);
     }
-    this.callbacks = {};
+
+    this.eventIteratorQueue = null;
   }
 
   /**
-   * Call the BinderHub API
+   * Call the binderhub API and yield responses as they come in
+   *
+   * Returns an Async Generator yielding each item returned by the
+   * server API.
    */
   fetch() {
     this.eventSource = new EventSource(this.buildUrl);
-    this.eventSource.onerror = (err) => {
-      console.error("Failed to construct event stream", err);
-      this._changeState("failed", {
-        message: "Failed to connect to event stream\n",
+    return new EventIterator((queue) => {
+      this.eventIteratorQueue = queue;
+      this.eventSource.onerror = (err) => {
+        queue.push({
+          phase: "failed",
+          message: "Failed to connect to event stream\n",
+        });
+        queue.stop();
+      };
+
+      this.eventSource.addEventListener("message", (event) => {
+        // console.log("message received")
+        // console.log(event)
+        const data = JSON.parse(event.data);
+        // FIXME: fix case of phase/state upstream
+        if (data.phase) {
+          data.phase = data.phase.toLowerCase();
+        }
+        queue.push(data);
       });
-    };
-    this.eventSource.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
-      // FIXME: Rename 'phase' to 'state' upstream
-      // FIXME: fix case of phase/state upstream
-      let state = null;
-      if (data.phase) {
-        state = data.phase.toLowerCase();
-      }
-      this._changeState(state, data);
     });
   }
 
@@ -66,6 +76,10 @@ export class BinderRepository {
   close() {
     if (this.eventSource !== undefined) {
       this.eventSource.close();
+    }
+    if (this.eventIteratorQueue !== null) {
+      // Stop any currently running fetch() iterations
+      this.eventIteratorQueue.stop();
     }
   }
 
@@ -112,30 +126,5 @@ export class BinderRepository {
 
     url.searchParams.append("token", token);
     return url;
-  }
-
-  /**
-   * Add callback whenever state of the current build changes
-   *
-   * @param {str} state The state to add this callback to. '*' to add callback for all state changes
-   * @param {*} cb Callback function to call whenever this state is reached
-   */
-  onStateChange(state, cb) {
-    if (this.callbacks[state] === undefined) {
-      this.callbacks[state] = [cb];
-    } else {
-      this.callbacks[state].push(cb);
-    }
-  }
-
-  _changeState(state, data) {
-    [state, "*"].map((key) => {
-      const callbacks = this.callbacks[key];
-      if (callbacks) {
-        for (let i = 0; i < callbacks.length; i++) {
-          callbacks[i](data);
-        }
-      }
-    });
   }
 }

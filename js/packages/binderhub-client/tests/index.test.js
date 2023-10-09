@@ -1,4 +1,6 @@
-import { BinderRepository } from ".";
+import { BinderRepository } from "@jupyterhub/binderhub-client";
+import { parseEventSource, simpleEventSourceServer } from "./utils";
+import fs from "node:fs";
 
 test("Passed in URL object is not modified", () => {
   const buildEndpointUrl = new URL("https://test-binder.org/build");
@@ -163,3 +165,63 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=file)
     "https://hub.test-binder.org/user/something/tree/directory/index.ipynb?token=token",
   );
 });
+
+describe(
+  "Iterate over full output from calling the binderhub API",
+  () => {
+    let closeServer, serverUrl;
+
+    let responseContents = fs.readFileSync(
+      `${__dirname}/fixtures/fullbuild.eventsource`,
+      { encoding: "utf-8" },
+    );
+    beforeEach(async () => {
+      [serverUrl, closeServer] = await simpleEventSourceServer({
+        "/build/gh/test/test": responseContents,
+      });
+      console.log(serverUrl);
+    });
+
+    afterEach(() => closeServer());
+    test("Iterate over full output from fetch", async () => {
+      let i = 0;
+      const buildEndpointUrl = new URL(`${serverUrl}/build`);
+      const br = new BinderRepository("gh/test/test", buildEndpointUrl);
+      const messages = parseEventSource(responseContents);
+      for await (const item of br.fetch()) {
+        expect(item).toStrictEqual(messages[i]);
+        i += 1;
+        if (item.phase && item.phase === "ready") {
+          br.close();
+        }
+      }
+    });
+  },
+  10 * 1000,
+);
+
+describe(
+  "Invalid eventsource response causes failure",
+  () => {
+    let closeServer, serverUrl;
+
+    beforeEach(async () => {
+      [serverUrl, closeServer] = await simpleEventSourceServer({
+        "/build/gh/test/test": "invalid",
+      });
+    });
+
+    afterEach(() => closeServer());
+    test("Invalid eventsource response should cause failure", async () => {
+      const buildEndpointUrl = new URL(`${serverUrl}/build`);
+      const br = new BinderRepository("gh/test/test", buildEndpointUrl);
+      for await (const item of br.fetch()) {
+        expect(item).toStrictEqual({
+          phase: "failed",
+          message: "Failed to connect to event stream\n",
+        });
+      }
+    });
+  },
+  10 * 1000,
+);

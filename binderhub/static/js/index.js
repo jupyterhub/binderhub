@@ -22,7 +22,7 @@ import { BASE_URL } from "./src/constants";
 import { getBuildFormValues } from "./src/form";
 import { updateRepoText } from "./src/repo";
 
-function build(providerSpec, log, fitAddon, path, pathType) {
+async function build(providerSpec, log, fitAddon, path, pathType) {
   updateFavicon(BASE_URL + "favicon_building.ico");
   // split provider prefix off of providerSpec
   const spec = providerSpec.slice(providerSpec.indexOf("/") + 1);
@@ -52,67 +52,67 @@ function build(providerSpec, log, fitAddon, path, pathType) {
     buildToken,
   );
 
-  image.onStateChange("*", function (data) {
+  for await (const data of image.fetch()) {
+    // Write message to the log terminal if there is a message
     if (data.message !== undefined) {
       log.writeAndStore(data.message);
       fitAddon.fit();
     } else {
       console.log(data);
     }
-  });
 
-  image.onStateChange("waiting", function () {
-    $("#phase-waiting").removeClass("hidden");
-  });
+    switch (data.phase) {
+      case "waiting":
+        $("#phase-waiting").removeClass("hidden");
+        break;
+      case "building":
+        $("#phase-building").removeClass("hidden");
+        log.show();
+        break;
+      case "pushing":
+        $("#phase-pushing").removeClass("hidden");
+        break;
+      case "failed":
+        $("#build-progress .progress-bar").addClass("hidden");
+        $("#phase-failed").removeClass("hidden");
 
-  image.onStateChange("building", function () {
-    $("#phase-building").removeClass("hidden");
-    log.show();
-  });
+        $("#loader").addClass("paused");
 
-  image.onStateChange("pushing", function () {
-    $("#phase-pushing").removeClass("hidden");
-  });
-
-  image.onStateChange("failed", function () {
-    $("#build-progress .progress-bar").addClass("hidden");
-    $("#phase-failed").removeClass("hidden");
-
-    $("#loader").addClass("paused");
-
-    // If we fail for any reason, show an error message and logs
-    updateFavicon(BASE_URL + "favicon_fail.ico");
-    log.show();
-    if ($("div#loader-text").length > 0) {
-      $("#loader").addClass("error");
-      $("div#loader-text p.launching").html(
-        "Error loading " + spec + "!<br /> See logs below for details.",
-      );
+        // If we fail for any reason, show an error message and logs
+        updateFavicon(BASE_URL + "favicon_fail.ico");
+        log.show();
+        if ($("div#loader-text").length > 0) {
+          $("#loader").addClass("error");
+          $("div#loader-text p.launching").html(
+            "Error loading " + spec + "!<br /> See logs below for details.",
+          );
+        }
+        image.close();
+        break;
+      case "built":
+        $("#phase-already-built").removeClass("hidden");
+        $("#phase-launching").removeClass("hidden");
+        updateFavicon(BASE_URL + "favicon_success.ico");
+        break;
+      case "ready":
+        image.close();
+        // If data.url is an absolute URL, it'll be used. Else, it'll be interpreted
+        // relative to current page's URL.
+        const serverUrl = new URL(data.url, window.location.href);
+        // user server is ready, redirect to there
+        window.location.href = image.getFullRedirectURL(
+          serverUrl,
+          data.token,
+          path,
+          pathType,
+        );
+        break;
+      default:
+        console.log("Unknown phase in response from server");
+        console.log(data);
+        break;
     }
-    image.close();
-  });
-
-  image.onStateChange("built", function () {
-    $("#phase-already-built").removeClass("hidden");
-    $("#phase-launching").removeClass("hidden");
-    updateFavicon(BASE_URL + "favicon_success.ico");
-  });
-
-  image.onStateChange("ready", function (data) {
-    image.close();
-    // If data.url is an absolute URL, it'll be used. Else, it'll be interpreted
-    // relative to current page's URL.
-    const serverUrl = new URL(data.url, window.location.href);
-    // user server is ready, redirect to there
-    window.location.href = image.getFullRedirectURL(
-      serverUrl,
-      data.token,
-      path,
-      pathType,
-    );
-  });
-
-  image.fetch();
+  }
   return image;
 }
 
@@ -170,21 +170,21 @@ function indexMain() {
     return false;
   });
 
-  $("#build-form").submit(function () {
+  $("#build-form").submit(async function (e) {
+    e.preventDefault();
     const formValues = getBuildFormValues();
     updateUrls(formValues);
-    build(
+    await build(
       formValues.providerPrefix + "/" + formValues.repo + "/" + formValues.ref,
       log,
       fitAddon,
       formValues.path,
       formValues.pathType,
     );
-    return false;
   });
 }
 
-function loadingMain(providerSpec) {
+async function loadingMain(providerSpec) {
   const [log, fitAddon] = setUpLog();
   // retrieve (encoded) filepath/urlpath from URL
   // URLSearchParams.get returns the decoded value,
@@ -205,7 +205,7 @@ function loadingMain(providerSpec) {
       }
     }
   }
-  build(providerSpec, log, fitAddon, path, pathType);
+  await build(providerSpec, log, fitAddon, path, pathType);
 
   // Looping through help text every few seconds
   const launchMessageInterval = 6 * 1000;

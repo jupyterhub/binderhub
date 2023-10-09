@@ -1,0 +1,736 @@
+data: {"phase":"waiting","message":"Waiting for build to start...\n"}
+data: {"message":"Picked Git content provider.\n"}
+data: {"message":"Cloning into '/tmp/repo2dockern6amo21f'...\n","phase":"fetching"}
+data: {"message":"HEAD is now at 1479e02 Merge pull request #2 from binder-examples/betatim-patch-1\n","phase":"fetching"}
+data: {"phase":"unknown","message":"/usr/lib/python3.10/site-packages/repo2docker/app.py:268: UserWarning: Building for linux/arm64 is experimental. To use the recommended platform set --Repo2Docker.platform=linux/amd64. To silence this warning set --Repo2Docker.platform=linux/arm64.\n"}
+data: {"phase":"unknown","message":"  warnings.warn(\n"}
+data: {"message":"Python version unspecified, using current default Python version 3.10. This will change in the future."}
+data: {"message":"Building conda environment for python=3.10\n"}
+data: {"message":"Using CondaBuildPack builder\n","phase":"building"}
+data: {"message":"Step 1/51 : FROM docker.io/library/buildpack-deps:bionic","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":"Fetching base image...\r","phase":"building"}
+data: {"message":"Fetching base image...\r","phase":"building"}
+data: {"message":"Fetching base image...\r","phase":"building"}
+data: {"message":" ---> 0707eec19ac4\n","phase":"building"}
+data: {"message":"Step 2/51 : ENV DEBIAN_FRONTEND=noninteractive","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 66b3afffd3b7\n","phase":"building"}
+data: {"message":"Step 3/51 : RUN apt-get -qq update &&     apt-get -qq install --yes --no-install-recommends locales > /dev/null &&     apt-get -qq purge &&     apt-get -qq clean &&     rm -rf /var/lib/apt/lists/*","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 781cf147fe59\n","phase":"building"}
+data: {"message":"Step 4/51 : RUN echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen &&     locale-gen","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 6c545659c6b3\n","phase":"building"}
+data: {"message":"Step 5/51 : ENV LC_ALL=en_US.UTF-8     LANG=en_US.UTF-8     LANGUAGE=en_US.UTF-8","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 09938ce1b249\n","phase":"building"}
+data: {"message":"Step 6/51 : ENV SHELL=/bin/bash","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 0c5abd3db2bc\n","phase":"building"}
+data: {"message":"Step 7/51 : ARG NB_USER","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 2aa20881663a\n","phase":"building"}
+data: {"message":"Step 8/51 : ARG NB_UID","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 8dd97aeefd07\n","phase":"building"}
+data: {"message":"Step 9/51 : ENV USER=${NB_USER}     HOME=/home/${NB_USER}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> ef40fdc6eb91\n","phase":"building"}
+data: {"message":"Step 10/51 : RUN groupadd         --gid ${NB_UID}         ${NB_USER} &&     useradd         --comment \"Default user\"         --create-home         --gid ${NB_UID}         --no-log-init         --shell /bin/bash         --uid ${NB_UID}         ${NB_USER}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 7cb44a9a28b7\n","phase":"building"}
+data: {"message":"Step 11/51 : RUN apt-get -qq update &&     apt-get -qq install --yes --no-install-recommends        gettext-base        less        unzip        > /dev/null &&     apt-get -qq purge &&     apt-get -qq clean &&     rm -rf /var/lib/apt/lists/*","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 08decbd768b9\n","phase":"building"}
+data: {"message":"Step 12/51 : EXPOSE 8888","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 3bc7304dd086\n","phase":"building"}
+data: {"message":"Step 13/51 : ENV APP_BASE=/srv","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 31aea037615e\n","phase":"building"}
+data: {"message":"Step 14/51 : ENV CONDA_DIR=${APP_BASE}/conda","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 71c42b08c9d7\n","phase":"building"}
+data: {"message":"Step 15/51 : ENV NB_PYTHON_PREFIX=${CONDA_DIR}/envs/notebook","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 79557ac9fb88\n","phase":"building"}
+data: {"message":"Step 16/51 : ENV NPM_DIR=${APP_BASE}/npm","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> fe2cb5c566cf\n","phase":"building"}
+data: {"message":"Step 17/51 : ENV NPM_CONFIG_GLOBALCONFIG=${NPM_DIR}/npmrc","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> cf08cabfe351\n","phase":"building"}
+data: {"message":"Step 18/51 : ENV NB_ENVIRONMENT_FILE=/tmp/env/environment.lock","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> ea809a584201\n","phase":"building"}
+data: {"message":"Step 19/51 : ENV MAMBA_ROOT_PREFIX=${CONDA_DIR}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 8a2cbf4ba45b\n","phase":"building"}
+data: {"message":"Step 20/51 : ENV MAMBA_EXE=${CONDA_DIR}/bin/mamba","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 008b234371dc\n","phase":"building"}
+data: {"message":"Step 21/51 : ENV CONDA_PLATFORM=linux-aarch64","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 471eca34fd79\n","phase":"building"}
+data: {"message":"Step 22/51 : ENV KERNEL_PYTHON_PREFIX=${NB_PYTHON_PREFIX}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 7513f4c33ca9\n","phase":"building"}
+data: {"message":"Step 23/51 : ENV PATH=${NB_PYTHON_PREFIX}/bin:${CONDA_DIR}/bin:${NPM_DIR}/bin:${PATH}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 9c05e2ffba4e\n","phase":"building"}
+data: {"message":"Step 24/51 : COPY --chown=1000:1000 build_script_files/-2fusr-2flib-2fpython3-2e10-2fsite-2dpackages-2frepo2docker-2fbuildpacks-2fconda-2factivate-2dconda-2esh-44e764 /etc/profile.d/activate-conda.sh","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 67f798e0256e\n","phase":"building"}
+data: {"message":"Step 25/51 : COPY --chown=1000:1000 build_script_files/-2fusr-2flib-2fpython3-2e10-2fsite-2dpackages-2frepo2docker-2fbuildpacks-2fconda-2fenvironment-2epy-2d3-2e10-2dlinux-2daarch64-2elock-c8df09 /tmp/env/environment.lock","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 7ed2544e1161\n","phase":"building"}
+data: {"message":"Step 26/51 : COPY --chown=1000:1000 build_script_files/-2fusr-2flib-2fpython3-2e10-2fsite-2dpackages-2frepo2docker-2fbuildpacks-2fconda-2finstall-2dbase-2denv-2ebash-e5509f /tmp/install-base-env.bash","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 6def06bb384d\n","phase":"building"}
+data: {"message":"Step 27/51 : RUN TIMEFORMAT='time: %3R' bash -c 'time /tmp/install-base-env.bash' && rm -rf /tmp/install-base-env.bash /tmp/env","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 868562294f2c\n","phase":"building"}
+data: {"message":"Step 28/51 : RUN mkdir -p ${NPM_DIR} && chown -R ${NB_USER}:${NB_USER} ${NPM_DIR}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 70c093a1060d\n","phase":"building"}
+data: {"message":"Step 29/51 : USER root","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 58d990bc3ece\n","phase":"building"}
+data: {"message":"Step 30/51 : ARG REPO_DIR=${HOME}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 50c380286059\n","phase":"building"}
+data: {"message":"Step 31/51 : ENV REPO_DIR=${REPO_DIR}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 7c02be884b1a\n","phase":"building"}
+data: {"message":"Step 32/51 : RUN if [ ! -d \"${REPO_DIR}\" ]; then         /usr/bin/install -o ${NB_USER} -g ${NB_USER} -d \"${REPO_DIR}\";     fi","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> a0c5530b8b32\n","phase":"building"}
+data: {"message":"Step 33/51 : WORKDIR ${REPO_DIR}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 19a94ed107dd\n","phase":"building"}
+data: {"message":"Step 34/51 : RUN chown ${NB_USER}:${NB_USER} ${REPO_DIR}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 2e5a901f33d0\n","phase":"building"}
+data: {"message":"Step 35/51 : ENV PATH=${HOME}/.local/bin:${REPO_DIR}/.local/bin:${PATH}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> c33e84dd8f2d\n","phase":"building"}
+data: {"message":"Step 36/51 : ENV CONDA_DEFAULT_ENV=${KERNEL_PYTHON_PREFIX}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Using cache\n","phase":"building"}
+data: {"message":" ---> 0581fa4c7fec\n","phase":"building"}
+data: {"message":"Step 37/51 : COPY --chown=1000:1000 src/environment.yml ${REPO_DIR}/environment.yml","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> 500bebd2b0b5\n","phase":"building"}
+data: {"message":"Step 38/51 : RUN apt-get -qq update && apt-get install --yes --no-install-recommends ghostscript gnuplot && apt-get -qq purge && apt-get -qq clean && rm -rf /var/lib/apt/lists/*","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 63fe4c697783\n","phase":"building"}
+data: {"message":"Reading package lists...","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":"Building dependency tree...","phase":"building"}
+data: {"message":"\nReading state information...","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":"The following additional packages will be installed:\n  adwaita-icon-theme aglfn gnuplot-data gnuplot-qt gtk-update-icon-cache\n  humanity-icon-theme libatk1.0-0 libatk1.0-data libavahi-client3\n  libavahi-common-data libavahi-common3 libcups2 libcupsimage2 libdbus-1-3\n  libdouble-conversion1 libdrm-amdgpu1 libdrm-common libdrm-nouveau2\n  libdrm-radeon1 libdrm2 libegl-mesa0 libegl1 libevdev2 libgbm1 libgd3 libgl1\n  libgl1-mesa-dri libglapi-mesa libgles2 libglvnd0 libglx-mesa0 libglx0 libgs9\n  libgs9-common libgtk2.0-0 libgtk2.0-common libgudev-1.0-0 libidn11\n  libijs-0.35 libinput-bin libinput10 libjbig2dec0 libllvm10 liblua5.3-0\n  libmtdev1 libnotify4 libpaper1 libqt5core5a libqt5dbus5 libqt5gui5\n  libqt5network5 libqt5printsupport5 libqt5svg5 libqt5widgets5 libsensors4\n  libwacom-common libwacom2 libwayland-client0 libwayland-server0\n  libwxbase3.0-0v5 libwxgtk3.0-0v5 libx11-xcb1 libxcb-dri2-0 libxcb-dri3-0\n  libxcb-glx0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-present0\n  libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 libxcb-util1\n  libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxcomposite1 libxcursor1\n  libxdamage1 libxfixes3 libxi6 libxinerama1 libxkbcommon-x11-0 libxkbcommon0\n","phase":"building"}
+data: {"message":"  libxpm4 libxrandr2 libxshmfence1 libxxf86vm1 poppler-data ubuntu-mono\n  xkb-data\n","phase":"building"}
+data: {"message":"Suggested packages:\n  ghostscript-x gnuplot-doc cups-common libgd-tools gvfs\n  qt5-image-formats-plugins qtwayland5 lm-sensors poppler-utils\n  fonts-japanese-mincho | fonts-ipafont-mincho fonts-japanese-gothic\n  | fonts-ipafont-gothic fonts-arphic-ukai fonts-arphic-uming fonts-nanum\nRecommended packages:\n  gsfonts libcupsfilters1 dbus fonts-droid-fallback libgail-common\n  libgtk2.0-bin notification-daemon libpaper-utils qttranslations5-l10n\n  qt5-gtk-platformtheme libwacom-bin\n","phase":"building"}
+data: {"message":"The following NEW packages will be installed:\n  adwaita-icon-theme aglfn ghostscript gnuplot gnuplot-data gnuplot-qt\n  gtk-update-icon-cache humanity-icon-theme libatk1.0-0 libatk1.0-data\n  libavahi-client3 libavahi-common-data libavahi-common3 libcups2\n  libcupsimage2 libdbus-1-3 libdouble-conversion1 libdrm-amdgpu1 libdrm-common\n  libdrm-nouveau2 libdrm-radeon1 libdrm2 libegl-mesa0 libegl1 libevdev2\n  libgbm1 libgd3 libgl1 libgl1-mesa-dri libglapi-mesa libgles2 libglvnd0\n  libglx-mesa0 libglx0 libgs9 libgs9-common libgtk2.0-0 libgtk2.0-common\n  libgudev-1.0-0 libidn11 libijs-0.35 libinput-bin libinput10 libjbig2dec0\n  libllvm10 liblua5.3-0 libmtdev1 libnotify4 libpaper1 libqt5core5a\n  libqt5dbus5 libqt5gui5 libqt5network5 libqt5printsupport5 libqt5svg5\n","phase":"building"}
+data: {"message":"  libqt5widgets5 libsensors4 libwacom-common libwacom2 libwayland-client0\n  libwayland-server0 libwxbase3.0-0v5 libwxgtk3.0-0v5 libx11-xcb1\n  libxcb-dri2-0 libxcb-dri3-0 libxcb-glx0 libxcb-icccm4 libxcb-image0\n  libxcb-keysyms1 libxcb-present0 libxcb-randr0 libxcb-render-util0\n  libxcb-shape0 libxcb-sync1 libxcb-util1 libxcb-xfixes0 libxcb-xinerama0\n  libxcb-xkb1 libxcomposite1 libxcursor1 libxdamage1 libxfixes3 libxi6\n  libxinerama1 libxkbcommon-x11-0 libxkbcommon0 libxpm4 libxrandr2\n  libxshmfence1 libxxf86vm1 poppler-data ubuntu-mono xkb-data\n","phase":"building"}
+data: {"message":"0 upgraded, 94 newly installed, 0 to remove and 1 not upgraded.\nNeed to get 48.4 MB of archives.\nAfter this operation, 740 MB of additional disk space will be used.\nGet:1 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libdouble-conversion1 arm64 2.0.1-4ubuntu1 [29.6 kB]\n","phase":"building"}
+data: {"message":"Get:2 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5core5a arm64 5.9.5+dfsg-0ubuntu2.6 [1,934 kB]\n","phase":"building"}
+data: {"message":"Get:3 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdrm-common all 2.4.101-2~18.04.1 [5,560 B]\nGet:4 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdrm2 arm64 2.4.101-2~18.04.1 [28.4 kB]\n","phase":"building"}
+data: {"message":"Get:5 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libglvnd0 arm64 1.0.0-2ubuntu2.3 [39.8 kB]\n","phase":"building"}
+data: {"message":"Get:6 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libwayland-server0 arm64 1.16.0-1ubuntu1.1~18.04.4 [25.6 kB]\n","phase":"building"}
+data: {"message":"Get:7 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgbm1 arm64 20.0.8-0ubuntu1~18.04.1 [24.8 kB]\n","phase":"building"}
+data: {"message":"Get:8 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libglapi-mesa arm64 20.0.8-0ubuntu1~18.04.1 [30.4 kB]\n","phase":"building"}
+data: {"message":"Get:9 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libwayland-client0 arm64 1.16.0-1ubuntu1.1~18.04.4 [20.6 kB]\n","phase":"building"}
+data: {"message":"Get:10 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libx11-xcb1 arm64 2:1.6.4-3ubuntu0.4 [9,680 B]\n","phase":"building"}
+data: {"message":"Get:11 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-dri2-0 arm64 1.13-2~ubuntu18.04 [6,256 B]\n","phase":"building"}
+data: {"message":"Get:12 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-dri3-0 arm64 1.13-2~ubuntu18.04 [6,044 B]\n","phase":"building"}
+data: {"message":"Get:13 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-present0 arm64 1.13-2~ubuntu18.04 [5,216 B]\n","phase":"building"}
+data: {"message":"Get:14 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-sync1 arm64 1.13-2~ubuntu18.04 [7,912 B]\n","phase":"building"}
+data: {"message":"Get:15 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-xfixes0 arm64 1.13-2~ubuntu18.04 [8,200 B]\n","phase":"building"}
+data: {"message":"Get:16 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxshmfence1 arm64 1.3-1 [4,868 B]\n","phase":"building"}
+data: {"message":"Get:17 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libegl-mesa0 arm64 20.0.8-0ubuntu1~18.04.1 [80.7 kB]\n","phase":"building"}
+data: {"message":"Get:18 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libegl1 arm64 1.0.0-2ubuntu2.3 [27.4 kB]\n","phase":"building"}
+data: {"message":"Get:19 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgles2 arm64 1.0.0-2ubuntu2.3 [17.3 kB]\n","phase":"building"}
+data: {"message":"Get:20 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libevdev2 arm64 1.5.8+dfsg-1ubuntu0.2 [25.6 kB]\n","phase":"building"}
+data: {"message":"Get:21 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libmtdev1 arm64 1.1.5-1ubuntu3 [12.9 kB]\n","phase":"building"}
+data: {"message":"Get:22 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libgudev-1.0-0 arm64 1:232-2 [11.5 kB]\n","phase":"building"}
+data: {"message":"Get:23 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libwacom-common all 0.29-1 [36.9 kB]\n","phase":"building"}
+data: {"message":"Get:24 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libwacom2 arm64 0.29-1 [15.8 kB]\n","phase":"building"}
+data: {"message":"Get:25 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libinput-bin arm64 1.10.4-1ubuntu0.18.04.3 [11.0 kB]\n","phase":"building"}
+data: {"message":"Get:26 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libinput10 arm64 1.10.4-1ubuntu0.18.04.3 [71.9 kB]\n","phase":"building"}
+data: {"message":"Get:27 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdbus-1-3 arm64 1.12.2-1ubuntu1.4 [152 kB]\n","phase":"building"}
+data: {"message":"Get:28 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5dbus5 arm64 5.9.5+dfsg-0ubuntu2.6 [167 kB]\n","phase":"building"}
+data: {"message":"Get:29 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5network5 arm64 5.9.5+dfsg-0ubuntu2.6 [534 kB]\n","phase":"building"}
+data: {"message":"Get:30 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcb-icccm4 arm64 0.4.1-1ubuntu1 [9,554 B]\n","phase":"building"}
+data: {"message":"Get:31 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcb-util1 arm64 0.4.0-0ubuntu3 [10.5 kB]\n","phase":"building"}
+data: {"message":"Get:32 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcb-image0 arm64 0.4.0-1build1 [11.1 kB]\nGet:33 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcb-keysyms1 arm64 0.4.0-1 [8,002 B]\n","phase":"building"}
+data: {"message":"Get:34 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-randr0 arm64 1.13-2~ubuntu18.04 [13.7 kB]\n","phase":"building"}
+data: {"message":"Get:35 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcb-render-util0 arm64 0.3.9-1 [9,060 B]\n","phase":"building"}
+data: {"message":"Get:36 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-shape0 arm64 1.13-2~ubuntu18.04 [5,532 B]\n","phase":"building"}
+data: {"message":"Get:37 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-xinerama0 arm64 1.13-2~ubuntu18.04 [5,068 B]\n","phase":"building"}
+data: {"message":"Get:38 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-xkb1 arm64 1.13-2~ubuntu18.04 [24.9 kB]\n","phase":"building"}
+data: {"message":"Get:39 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxi6 arm64 2:1.7.9-1 [25.4 kB]\n","phase":"building"}
+data: {"message":"Get:40 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 xkb-data all 2.23.1-1ubuntu1.18.04.1 [325 kB]\n","phase":"building"}
+data: {"message":"Get:41 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxkbcommon0 arm64 0.8.2-1~ubuntu18.04.1 [86.7 kB]\nGet:42 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxkbcommon-x11-0 arm64 0.8.2-1~ubuntu18.04.1 [12.2 kB]\nGet:43 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5gui5 arm64 5.9.5+dfsg-0ubuntu2.6 [2,093 kB]\n","phase":"building"}
+data: {"message":"Get:44 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5widgets5 arm64 5.9.5+dfsg-0ubuntu2.6 [1,914 kB]\n","phase":"building"}
+data: {"message":"Get:45 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5svg5 arm64 5.9.5-0ubuntu1.1 [109 kB]\n","phase":"building"}
+data: {"message":"Get:46 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxinerama1 arm64 2:1.1.3-1 [7,438 B]\n","phase":"building"}
+data: {"message":"Get:47 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxxf86vm1 arm64 1:1.1.4-1 [9,492 B]\n","phase":"building"}
+data: {"message":"Get:48 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 poppler-data all 0.4.8-2 [1,479 kB]\n","phase":"building"}
+data: {"message":"Get:49 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libidn11 arm64 1.33-2.1ubuntu1.2 [44.0 kB]\n","phase":"building"}
+data: {"message":"Get:50 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 gtk-update-icon-cache arm64 3.22.30-1ubuntu4 [27.0 kB]\n","phase":"building"}
+data: {"message":"Get:51 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 humanity-icon-theme all 0.6.15 [1,250 kB]\n","phase":"building"}
+data: {"message":"Get:52 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 ubuntu-mono all 16.10+18.04.20181005-0ubuntu1 [149 kB]\n","phase":"building"}
+data: {"message":"Get:53 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 adwaita-icon-theme all 3.28.0-1ubuntu1 [3,306 kB]\n","phase":"building"}
+data: {"message":"Get:54 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libavahi-common-data arm64 0.7-3.1ubuntu1.3 [22.2 kB]\nGet:55 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libavahi-common3 arm64 0.7-3.1ubuntu1.3 [18.4 kB]\n","phase":"building"}
+data: {"message":"Get:56 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libavahi-client3 arm64 0.7-3.1ubuntu1.3 [21.9 kB]\n","phase":"building"}
+data: {"message":"Get:57 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libcups2 arm64 2.2.7-1ubuntu2.10 [180 kB]\n","phase":"building"}
+data: {"message":"Get:58 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libcupsimage2 arm64 2.2.7-1ubuntu2.10 [16.7 kB]\n","phase":"building"}
+data: {"message":"Get:59 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libijs-0.35 arm64 0.35-13 [14.2 kB]\n","phase":"building"}
+data: {"message":"Get:60 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libjbig2dec0 arm64 0.13-6 [50.1 kB]\n","phase":"building"}
+data: {"message":"Get:61 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libpaper1 arm64 1.1.24+nmu5ubuntu1 [13.0 kB]\n","phase":"building"}
+data: {"message":"Get:62 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgs9-common all 9.26~dfsg+0-0ubuntu0.18.04.18 [5,092 kB]\n","phase":"building"}
+data: {"message":"Get:63 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgs9 arm64 9.26~dfsg+0-0ubuntu0.18.04.18 [1,943 kB]\n","phase":"building"}
+data: {"message":"Get:64 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 ghostscript arm64 9.26~dfsg+0-0ubuntu0.18.04.18 [51.0 kB]\n","phase":"building"}
+data: {"message":"Get:65 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 aglfn all 1.7-3 [29.4 kB]\nGet:66 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 gnuplot-data all 5.2.2+dfsg1-2ubuntu1 [56.7 kB]\n","phase":"building"}
+data: {"message":"Get:67 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxpm4 arm64 1:3.5.12-1ubuntu0.18.04.2 [30.1 kB]\n","phase":"building"}
+data: {"message":"Get:68 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgd3 arm64 2.2.5-4ubuntu0.5 [99.9 kB]\n","phase":"building"}
+data: {"message":"Get:69 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 liblua5.3-0 arm64 5.3.3-1ubuntu0.18.04.1 [105 kB]\n","phase":"building"}
+data: {"message":"Get:70 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libqt5printsupport5 arm64 5.9.5+dfsg-0ubuntu2.6 [159 kB]\n","phase":"building"}
+data: {"message":"Get:71 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 libwxbase3.0-0v5 arm64 3.0.4+dfsg-3 [849 kB]\n","phase":"building"}
+data: {"message":"Get:72 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libxcb-glx0 arm64 1.13-2~ubuntu18.04 [18.3 kB]\n","phase":"building"}
+data: {"message":"Get:73 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxdamage1 arm64 1:1.1.4-3 [6,668 B]\nGet:74 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxfixes3 arm64 1:5.0.3-1 [9,844 B]\n","phase":"building"}
+data: {"message":"Get:75 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdrm-amdgpu1 arm64 2.4.101-2~18.04.1 [15.8 kB]\n","phase":"building"}
+data: {"message":"Get:76 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdrm-nouveau2 arm64 2.4.101-2~18.04.1 [14.5 kB]\n","phase":"building"}
+data: {"message":"Get:77 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libdrm-radeon1 arm64 2.4.101-2~18.04.1 [19.2 kB]\n","phase":"building"}
+data: {"message":"Get:78 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libllvm10 arm64 1:10.0.0-4ubuntu1~18.04.2 [12.7 MB]\n","phase":"building"}
+data: {"message":"Get:79 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libsensors4 arm64 1:3.4.0-4ubuntu0.1 [25.4 kB]\n","phase":"building"}
+data: {"message":"Get:80 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgl1-mesa-dri arm64 20.0.8-0ubuntu1~18.04.1 [5,840 kB]\n","phase":"building"}
+data: {"message":"Get:81 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libglx-mesa0 arm64 20.0.8-0ubuntu1~18.04.1 [119 kB]\n","phase":"building"}
+data: {"message":"Get:82 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libglx0 arm64 1.0.0-2ubuntu2.3 [24.0 kB]\nGet:83 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libgl1 arm64 1.0.0-2ubuntu2.3 [86.0 kB]\n","phase":"building"}
+data: {"message":"Get:84 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libgtk2.0-common all 2.24.32-1ubuntu1 [125 kB]\n","phase":"building"}
+data: {"message":"Get:85 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libatk1.0-data all 2.28.1-1 [2,992 B]\n","phase":"building"}
+data: {"message":"Get:86 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libatk1.0-0 arm64 2.28.1-1 [37.0 kB]\n","phase":"building"}
+data: {"message":"Get:87 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcomposite1 arm64 1:0.4.4-2 [6,646 B]\nGet:88 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxcursor1 arm64 1:1.1.15-1 [17.4 kB]\n","phase":"building"}
+data: {"message":"Get:89 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libxrandr2 arm64 2:1.5.1-1 [16.0 kB]\n","phase":"building"}
+data: {"message":"Get:90 http://ports.ubuntu.com/ubuntu-ports bionic/main arm64 libgtk2.0-0 arm64 2.24.32-1ubuntu1 [1,454 kB]\n","phase":"building"}
+data: {"message":"Get:91 http://ports.ubuntu.com/ubuntu-ports bionic-updates/main arm64 libnotify4 arm64 0.7.7-3ubuntu0.18.04.1 [16.8 kB]\n","phase":"building"}
+data: {"message":"Get:92 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 libwxgtk3.0-0v5 arm64 3.0.4+dfsg-3 [3,836 kB]\n","phase":"building"}
+data: {"message":"Get:93 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 gnuplot-qt arm64 5.2.2+dfsg1-2ubuntu1 [897 kB]\n","phase":"building"}
+data: {"message":"Get:94 http://ports.ubuntu.com/ubuntu-ports bionic/universe arm64 gnuplot all 5.2.2+dfsg1-2ubuntu1 [3,816 B]\n","phase":"building"}
+data: {"message":"\u001b[91mdebconf: delaying package configuration, since apt-utils is not installed\n\u001b[0m","phase":"building"}
+data: {"message":"Fetched 48.4 MB in 20s (2,454 kB/s)\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdouble-conversion1:arm64.\r\n(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r","phase":"building"}
+data: {"message":"(Reading database ... 70%\r","phase":"building"}
+data: {"message":"(Reading database ... 75%\r","phase":"building"}
+data: {"message":"(Reading database ... 80%\r","phase":"building"}
+data: {"message":"(Reading database ... 85%\r","phase":"building"}
+data: {"message":"(Reading database ... 90%\r","phase":"building"}
+data: {"message":"(Reading database ... 95%\r","phase":"building"}
+data: {"message":"(Reading database ... 100%\r(Reading database ... 22814 files and directories currently installed.)\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../00-libdouble-conversion1_2.0.1-4ubuntu1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdouble-conversion1:arm64 (2.0.1-4ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5core5a:arm64.\r\nPreparing to unpack .../01-libqt5core5a_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5core5a:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdrm-common.\r\nPreparing to unpack .../02-libdrm-common_2.4.101-2~18.04.1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdrm-common (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdrm2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../03-libdrm2_2.4.101-2~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdrm2:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libglvnd0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../04-libglvnd0_1.0.0-2ubuntu2.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libglvnd0:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwayland-server0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../05-libwayland-server0_1.16.0-1ubuntu1.1~18.04.4_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwayland-server0:arm64 (1.16.0-1ubuntu1.1~18.04.4) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgbm1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../06-libgbm1_20.0.8-0ubuntu1~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgbm1:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libglapi-mesa:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../07-libglapi-mesa_20.0.8-0ubuntu1~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libglapi-mesa:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwayland-client0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../08-libwayland-client0_1.16.0-1ubuntu1.1~18.04.4_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwayland-client0:arm64 (1.16.0-1ubuntu1.1~18.04.4) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libx11-xcb1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../09-libx11-xcb1_2%3a1.6.4-3ubuntu0.4_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libx11-xcb1:arm64 (2:1.6.4-3ubuntu0.4) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-dri2-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../10-libxcb-dri2-0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-dri2-0:arm64 (1.13-2~ubuntu18.04) ...","phase":"building"}
+data: {"message":"\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-dri3-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../11-libxcb-dri3-0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-dri3-0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-present0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../12-libxcb-present0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-present0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-sync1:arm64.\r\nPreparing to unpack .../13-libxcb-sync1_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-sync1:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-xfixes0:arm64.\r\nPreparing to unpack .../14-libxcb-xfixes0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-xfixes0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxshmfence1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../15-libxshmfence1_1.3-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxshmfence1:arm64 (1.3-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libegl-mesa0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../16-libegl-mesa0_20.0.8-0ubuntu1~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libegl-mesa0:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libegl1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../17-libegl1_1.0.0-2ubuntu2.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libegl1:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgles2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../18-libgles2_1.0.0-2ubuntu2.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgles2:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libevdev2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../19-libevdev2_1.5.8+dfsg-1ubuntu0.2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libevdev2:arm64 (1.5.8+dfsg-1ubuntu0.2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libmtdev1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../20-libmtdev1_1.1.5-1ubuntu3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libmtdev1:arm64 (1.1.5-1ubuntu3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgudev-1.0-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../21-libgudev-1.0-0_1%3a232-2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgudev-1.0-0:arm64 (1:232-2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwacom-common.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../22-libwacom-common_0.29-1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwacom-common (0.29-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwacom2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../23-libwacom2_0.29-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwacom2:arm64 (0.29-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libinput-bin.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../24-libinput-bin_1.10.4-1ubuntu0.18.04.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libinput-bin (1.10.4-1ubuntu0.18.04.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libinput10:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../25-libinput10_1.10.4-1ubuntu0.18.04.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libinput10:arm64 (1.10.4-1ubuntu0.18.04.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdbus-1-3:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../26-libdbus-1-3_1.12.2-1ubuntu1.4_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdbus-1-3:arm64 (1.12.2-1ubuntu1.4) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5dbus5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../27-libqt5dbus5_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5dbus5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5network5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../28-libqt5network5_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5network5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-icccm4:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../29-libxcb-icccm4_0.4.1-1ubuntu1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-icccm4:arm64 (0.4.1-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-util1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../30-libxcb-util1_0.4.0-0ubuntu3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-util1:arm64 (0.4.0-0ubuntu3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-image0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../31-libxcb-image0_0.4.0-1build1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-image0:arm64 (0.4.0-1build1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-keysyms1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../32-libxcb-keysyms1_0.4.0-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-keysyms1:arm64 (0.4.0-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-randr0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../33-libxcb-randr0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-randr0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-render-util0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../34-libxcb-render-util0_0.3.9-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-render-util0:arm64 (0.3.9-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-shape0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../35-libxcb-shape0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-shape0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-xinerama0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../36-libxcb-xinerama0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-xinerama0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-xkb1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../37-libxcb-xkb1_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-xkb1:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxi6:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../38-libxi6_2%3a1.7.9-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxi6:arm64 (2:1.7.9-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package xkb-data.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../39-xkb-data_2.23.1-1ubuntu1.18.04.1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking xkb-data (2.23.1-1ubuntu1.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxkbcommon0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../40-libxkbcommon0_0.8.2-1~ubuntu18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxkbcommon0:arm64 (0.8.2-1~ubuntu18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxkbcommon-x11-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../41-libxkbcommon-x11-0_0.8.2-1~ubuntu18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxkbcommon-x11-0:arm64 (0.8.2-1~ubuntu18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5gui5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../42-libqt5gui5_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5gui5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5widgets5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../43-libqt5widgets5_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5widgets5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5svg5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../44-libqt5svg5_5.9.5-0ubuntu1.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5svg5:arm64 (5.9.5-0ubuntu1.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxinerama1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../45-libxinerama1_2%3a1.1.3-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxinerama1:arm64 (2:1.1.3-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxxf86vm1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../46-libxxf86vm1_1%3a1.1.4-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxxf86vm1:arm64 (1:1.1.4-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package poppler-data.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../47-poppler-data_0.4.8-2_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking poppler-data (0.4.8-2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libidn11:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../48-libidn11_1.33-2.1ubuntu1.2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libidn11:arm64 (1.33-2.1ubuntu1.2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package gtk-update-icon-cache.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../49-gtk-update-icon-cache_3.22.30-1ubuntu4_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"No diversion 'diversion of /usr/sbin/update-icon-caches to /usr/sbin/update-icon-caches.gtk2 by libgtk-3-bin', none removed.\r\n","phase":"building"}
+data: {"message":"No diversion 'diversion of /usr/share/man/man8/update-icon-caches.8.gz to /usr/share/man/man8/update-icon-caches.gtk2.8.gz by libgtk-3-bin', none removed.\r\n","phase":"building"}
+data: {"message":"Unpacking gtk-update-icon-cache (3.22.30-1ubuntu4) ...","phase":"building"}
+data: {"message":"\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package humanity-icon-theme.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../50-humanity-icon-theme_0.6.15_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking humanity-icon-theme (0.6.15) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package ubuntu-mono.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../51-ubuntu-mono_16.10+18.04.20181005-0ubuntu1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking ubuntu-mono (16.10+18.04.20181005-0ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package adwaita-icon-theme.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../52-adwaita-icon-theme_3.28.0-1ubuntu1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking adwaita-icon-theme (3.28.0-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libavahi-common-data:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../53-libavahi-common-data_0.7-3.1ubuntu1.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libavahi-common-data:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libavahi-common3:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../54-libavahi-common3_0.7-3.1ubuntu1.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libavahi-common3:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libavahi-client3:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../55-libavahi-client3_0.7-3.1ubuntu1.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libavahi-client3:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libcups2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../56-libcups2_2.2.7-1ubuntu2.10_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libcups2:arm64 (2.2.7-1ubuntu2.10) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libcupsimage2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../57-libcupsimage2_2.2.7-1ubuntu2.10_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libcupsimage2:arm64 (2.2.7-1ubuntu2.10) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libijs-0.35:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../58-libijs-0.35_0.35-13_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libijs-0.35:arm64 (0.35-13) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libjbig2dec0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../59-libjbig2dec0_0.13-6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libjbig2dec0:arm64 (0.13-6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libpaper1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../60-libpaper1_1.1.24+nmu5ubuntu1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libpaper1:arm64 (1.1.24+nmu5ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgs9-common.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../61-libgs9-common_9.26~dfsg+0-0ubuntu0.18.04.18_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgs9-common (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgs9:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../62-libgs9_9.26~dfsg+0-0ubuntu0.18.04.18_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgs9:arm64 (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package ghostscript.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../63-ghostscript_9.26~dfsg+0-0ubuntu0.18.04.18_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking ghostscript (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package aglfn.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../64-aglfn_1.7-3_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking aglfn (1.7-3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package gnuplot-data.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../65-gnuplot-data_5.2.2+dfsg1-2ubuntu1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking gnuplot-data (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxpm4:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../66-libxpm4_1%3a3.5.12-1ubuntu0.18.04.2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxpm4:arm64 (1:3.5.12-1ubuntu0.18.04.2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgd3:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../67-libgd3_2.2.5-4ubuntu0.5_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgd3:arm64 (2.2.5-4ubuntu0.5) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package liblua5.3-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../68-liblua5.3-0_5.3.3-1ubuntu0.18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking liblua5.3-0:arm64 (5.3.3-1ubuntu0.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libqt5printsupport5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../69-libqt5printsupport5_5.9.5+dfsg-0ubuntu2.6_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libqt5printsupport5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwxbase3.0-0v5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../70-libwxbase3.0-0v5_3.0.4+dfsg-3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwxbase3.0-0v5:arm64 (3.0.4+dfsg-3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcb-glx0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../71-libxcb-glx0_1.13-2~ubuntu18.04_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcb-glx0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxdamage1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../72-libxdamage1_1%3a1.1.4-3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxdamage1:arm64 (1:1.1.4-3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxfixes3:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../73-libxfixes3_1%3a5.0.3-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxfixes3:arm64 (1:5.0.3-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdrm-amdgpu1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../74-libdrm-amdgpu1_2.4.101-2~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdrm-amdgpu1:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdrm-nouveau2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../75-libdrm-nouveau2_2.4.101-2~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdrm-nouveau2:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libdrm-radeon1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../76-libdrm-radeon1_2.4.101-2~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libdrm-radeon1:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libllvm10:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../77-libllvm10_1%3a10.0.0-4ubuntu1~18.04.2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libllvm10:arm64 (1:10.0.0-4ubuntu1~18.04.2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libsensors4:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../78-libsensors4_1%3a3.4.0-4ubuntu0.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libsensors4:arm64 (1:3.4.0-4ubuntu0.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgl1-mesa-dri:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../79-libgl1-mesa-dri_20.0.8-0ubuntu1~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgl1-mesa-dri:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libglx-mesa0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../80-libglx-mesa0_20.0.8-0ubuntu1~18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libglx-mesa0:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libglx0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../81-libglx0_1.0.0-2ubuntu2.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libglx0:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgl1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../82-libgl1_1.0.0-2ubuntu2.3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgl1:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgtk2.0-common.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../83-libgtk2.0-common_2.24.32-1ubuntu1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgtk2.0-common (2.24.32-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libatk1.0-data.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../84-libatk1.0-data_2.28.1-1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libatk1.0-data (2.28.1-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libatk1.0-0:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../85-libatk1.0-0_2.28.1-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libatk1.0-0:arm64 (2.28.1-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcomposite1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../86-libxcomposite1_1%3a0.4.4-2_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcomposite1:arm64 (1:0.4.4-2) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxcursor1:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../87-libxcursor1_1%3a1.1.15-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxcursor1:arm64 (1:1.1.15-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libxrandr2:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../88-libxrandr2_2%3a1.5.1-1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libxrandr2:arm64 (2:1.5.1-1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libgtk2.0-0:arm64.\r\nPreparing to unpack .../89-libgtk2.0-0_2.24.32-1ubuntu1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libgtk2.0-0:arm64 (2.24.32-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libnotify4:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../90-libnotify4_0.7.7-3ubuntu0.18.04.1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libnotify4:arm64 (0.7.7-3ubuntu0.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package libwxgtk3.0-0v5:arm64.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../91-libwxgtk3.0-0v5_3.0.4+dfsg-3_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking libwxgtk3.0-0v5:arm64 (3.0.4+dfsg-3) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package gnuplot-qt.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../92-gnuplot-qt_5.2.2+dfsg1-2ubuntu1_arm64.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking gnuplot-qt (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Selecting previously unselected package gnuplot.\r\n","phase":"building"}
+data: {"message":"Preparing to unpack .../93-gnuplot_5.2.2+dfsg1-2ubuntu1_all.deb ...\r\n","phase":"building"}
+data: {"message":"Unpacking gnuplot (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgs9-common (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxi6:arm64 (2:1.7.9-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-xinerama0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libpaper1:arm64 (1.1.24+nmu5ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"\r\nCreating config file /etc/papersize with new version\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-present0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libglvnd0:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libnotify4:arm64 (0.7.7-3ubuntu0.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxinerama1:arm64 (2:1.1.3-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-dri2-0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-dri3-0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-render-util0:arm64 (0.3.9-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-glx0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-randr0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-xfixes0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-icccm4:arm64 (0.4.1-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgtk2.0-common (2.24.32-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libllvm10:arm64 (1:10.0.0-4ubuntu1~18.04.2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwacom-common (0.29-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxdamage1:arm64 (1:1.1.4-3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdouble-conversion1:arm64 (2.0.1-4ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxfixes3:arm64 (1:5.0.3-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libevdev2:arm64 (1.5.8+dfsg-1ubuntu0.2) ...\r\n","phase":"building"}
+data: {"message":"Setting up poppler-data (0.4.8-2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxshmfence1:arm64 (1.3-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwayland-client0:arm64 (1.16.0-1ubuntu1.1~18.04.4) ...\r\n","phase":"building"}
+data: {"message":"Setting up xkb-data (2.23.1-1ubuntu1.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libglapi-mesa:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-util1:arm64 (0.4.0-0ubuntu3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwxbase3.0-0v5:arm64 (3.0.4+dfsg-3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdrm-common (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-sync1:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libatk1.0-data (2.28.1-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libjbig2dec0:arm64 (0.13-6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libx11-xcb1:arm64 (2:1.6.4-3ubuntu0.4) ...\r\n","phase":"building"}
+data: {"message":"Setting up gtk-update-icon-cache (3.22.30-1ubuntu4) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcursor1:arm64 (1:1.1.15-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libatk1.0-0:arm64 (2.28.1-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libmtdev1:arm64 (1.1.5-1ubuntu3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libijs-0.35:arm64 (0.35-13) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcomposite1:arm64 (1:0.4.4-2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxpm4:arm64 (1:3.5.12-1ubuntu0.18.04.2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-shape0:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libsensors4:arm64 (1:3.4.0-4ubuntu0.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgles2:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxkbcommon0:arm64 (0.8.2-1~ubuntu18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgudev-1.0-0:arm64 (1:232-2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-keysyms1:arm64 (0.4.0-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up aglfn (1.7-3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxxf86vm1:arm64 (1:1.1.4-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up liblua5.3-0:arm64 (5.3.3-1ubuntu0.18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libidn11:arm64 (1.33-2.1ubuntu1.2) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxrandr2:arm64 (2:1.5.1-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdbus-1-3:arm64 (1.12.2-1ubuntu1.4) ...\r\n","phase":"building"}
+data: {"message":"Setting up libavahi-common-data:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwayland-server0:arm64 (1.16.0-1ubuntu1.1~18.04.4) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-xkb1:arm64 (1.13-2~ubuntu18.04) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5core5a:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5dbus5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5network5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwacom2:arm64 (0.29-1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxcb-image0:arm64 (0.4.0-1build1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgd3:arm64 (2.2.5-4ubuntu0.5) ...\r\n","phase":"building"}
+data: {"message":"Setting up gnuplot-data (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libinput-bin (1.10.4-1ubuntu0.18.04.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libxkbcommon-x11-0:arm64 (0.8.2-1~ubuntu18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdrm2:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libavahi-common3:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdrm-radeon1:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdrm-nouveau2:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libdrm-amdgpu1:arm64 (2.4.101-2~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgbm1:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libinput10:arm64 (1.10.4-1ubuntu0.18.04.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgl1-mesa-dri:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libavahi-client3:arm64 (0.7-3.1ubuntu1.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libegl-mesa0:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libglx-mesa0:arm64 (20.0.8-0ubuntu1~18.04.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libcups2:arm64 (2.2.7-1ubuntu2.10) ...\r\n","phase":"building"}
+data: {"message":"Setting up libcupsimage2:arm64 (2.2.7-1ubuntu2.10) ...\r\n","phase":"building"}
+data: {"message":"Setting up libegl1:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5gui5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libglx0:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgs9:arm64 (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5widgets5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up ghostscript (9.26~dfsg+0-0ubuntu0.18.04.18) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5printsupport5:arm64 (5.9.5+dfsg-0ubuntu2.6) ...\r\n","phase":"building"}
+data: {"message":"Setting up libqt5svg5:arm64 (5.9.5-0ubuntu1.1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libgl1:arm64 (1.0.0-2ubuntu2.3) ...\r\n","phase":"building"}
+data: {"message":"Setting up adwaita-icon-theme (3.28.0-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"update-alternatives: using /usr/share/icons/Adwaita/cursor.theme to provide /usr/share/icons/default/index.theme (x-cursor-theme) in auto mode\r\n","phase":"building"}
+data: {"message":"Setting up libgtk2.0-0:arm64 (2.24.32-1ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up libwxgtk3.0-0v5:arm64 (3.0.4+dfsg-3) ...\r\n","phase":"building"}
+data: {"message":"Setting up humanity-icon-theme (0.6.15) ...\r\n","phase":"building"}
+data: {"message":"Setting up ubuntu-mono (16.10+18.04.20181005-0ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Setting up gnuplot-qt (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"update-alternatives: using /usr/bin/gnuplot-qt to provide /usr/bin/gnuplot (gnuplot) in auto mode\r\n","phase":"building"}
+data: {"message":"update-alternatives: warning: skip creation of /usr/share/man/man1/gnuplot.1.gz because associated file /usr/share/man/man1/gnuplot-qt.1.gz (of link group gnuplot) doesn't exist\r\n","phase":"building"}
+data: {"message":"Setting up gnuplot (5.2.2+dfsg1-2ubuntu1) ...\r\n","phase":"building"}
+data: {"message":"Processing triggers for libc-bin (2.27-3ubuntu1.6) ...\r\n","phase":"building"}
+data: {"message":"Processing triggers for fontconfig (2.12.6-0ubuntu2) ...\r\n","phase":"building"}
+data: {"message":"Removing intermediate container 63fe4c697783\n","phase":"building"}
+data: {"message":" ---> eedb0f1fa21a\n","phase":"building"}
+data: {"message":"Step 39/51 : USER ${NB_USER}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 2513587e3713\n","phase":"building"}
+data: {"message":"Removing intermediate container 2513587e3713\n","phase":"building"}
+data: {"message":" ---> c0bb1203c9bf\n","phase":"building"}
+data: {"message":"Step 40/51 : RUN TIMEFORMAT='time: %3R' bash -c 'time ${MAMBA_EXE} env update -p ${NB_PYTHON_PREFIX} --file \"environment.yml\" && time ${MAMBA_EXE} clean --all -f -y && ${MAMBA_EXE} list -p ${NB_PYTHON_PREFIX} '","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 597c980456b5\n","phase":"building"}
+data: {"message":"\n\nLooking for: ['octave_kernel', 'octave']\n\n\n","phase":"building"}
+data: {"message":"Transaction\n\n  Prefix: /srv/conda/envs/notebook\n\n  Updating specs:\n\n   - octave_kernel\n   - octave\n\n\n","phase":"building"}
+data: {"message":"  Package                           Version  Build                     Channel                        Size\n────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Install:\n────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n  + alsa-lib                         1.2.10  h31becfc_0                conda-forge/linux-aarch64     584kB\n  + arpack                            3.7.0  hf862f49_2                conda-forge/linux-aarch64     193kB\n  + atk-1.0                          2.38.0  hf4e84e4_1                conda-forge/linux-aarch64     538kB\n  + attr                              2.5.1  h4e544f5_1                conda-forge/linux-aarch64      75kB\n  + c-ares                           1.19.1  h31becfc_0                conda-forge/linux-aarch64     117kB\n  + cairo                            1.16.0  hd7f43fd_1017             conda-forge/linux-aarch64       1MB\n  + chrpath                            0.16  hf897c2e_1002             conda-forge/linux-aarch64      29kB\n  + colorama                          0.4.6  pyhd8ed1ab_0              conda-forge/noarch             25kB\n  + curl                              8.3.0  h4e8248e_0                conda-forge/linux-aarch64      96kB\n  + dbus                             1.13.6  h12b9eeb_3                conda-forge/linux-aarch64     673kB\n  + expat                             2.5.0  hd600fc2_1                conda-forge/linux-aarch64     126kB\n  + fftw                             3.3.10  nompi_h2dcef8e_108        conda-forge/linux-aarch64       2MB\n  + fltk                              1.3.8  he871f2f_2                conda-forge/linux-aarch64       1MB\n  + font-ttf-dejavu-sans-mono          2.37  hab24e00_0                conda-forge/noarch            397kB\n  + font-ttf-inconsolata              3.000  h77eed37_0                conda-forge/noarch             97kB\n  + font-ttf-source-code-pro          2.038  h77eed37_0                conda-forge/noarch            701kB\n  + font-ttf-ubuntu                    0.83  hab24e00_0                conda-forge/noarch              2MB\n  + fontconfig                       2.14.2  ha9a116f_0                conda-forge/linux-aarch64     280kB\n  + fonts-conda-ecosystem                 1  0                         conda-forge/noarch              4kB\n  + fonts-conda-forge                     1  0                         conda-forge/noarch              4kB\n  + freetype                         2.12.1  hf0a5ef3_2                conda-forge/linux-aarch64     642kB\n  + fribidi                          1.0.10  hb9de7d4_0                conda-forge/linux-aarch64     116kB\n  + gdk-pixbuf                      2.42.10  ha28a4fe_3                conda-forge/linux-aarch64     582kB\n  + gettext                          0.21.1  ha18d298_0                conda-forge/linux-aarch64       5MB\n  + ghostscript                     10.02.0  h2f0025b_0                conda-forge/linux-aarch64      64MB\n  + giflib                            5.2.1  hb4cce97_3                conda-forge/linux-aarch64      82kB\n  + gl2ps                             1.4.2  hdf53a3c_0                conda-forge/linux-aarch64     143kB\n  + glib                             2.78.0  hd84c7bf_0                conda-forge/linux-aarch64     501kB\n  + glib-tools                       2.78.0  hd84c7bf_0                conda-forge/linux-aarch64     122kB\n  + glpk                                5.0  h66325d0_0                conda-forge/linux-aarch64       1MB\n  + gmp                               6.2.1  h7fd3ca4_0                conda-forge/linux-aarch64     755kB\n  + gnuplot                           5.4.8  h1fafa18_0                conda-forge/linux-aarch64       1MB\n  + graphicsmagick                   1.3.40  h8d545bc_3                conda-forge/linux-aarch64       4MB\n  + graphite2                        1.3.13  h7fd3ca4_1001             conda-forge/linux-aarch64     107kB\n  + gst-plugins-base                 1.22.6  h6d82d15_2                conda-forge/linux-aarch64       3MB\n  + gstreamer                        1.22.6  hed71854_2                conda-forge/linux-aarch64       2MB\n  + gtk2                            2.24.33  h49e3f37_2                conda-forge/linux-aarch64       8MB\n  + harfbuzz                          8.2.1  hebeb849_0                conda-forge/linux-aarch64       2MB\n  + hdf5                             1.14.2  nompi_ha486f32_100        conda-forge/linux-aarch64       4MB\n  + ipyparallel                       8.6.1  pyhd8ed1ab_0              conda-forge/noarch            208kB\n  + keyutils                          1.6.1  h4e544f5_0                conda-forge/linux-aarch64     112kB\n  + krb5                             1.21.2  hc419048_0                conda-forge/linux-aarch64       1MB\n  + lame                              3.100  h4e544f5_1003             conda-forge/linux-aarch64     605kB\n  + lerc                              4.0.0  h4de3ea5_0                conda-forge/linux-aarch64     262kB\n  + libaec                            1.1.2  h2f0025b_1                conda-forge/linux-aarch64      35kB\n  + libblas                           3.9.0  17_linuxaarch64_openblas  conda-forge/linux-aarch64      15kB\n  + libcap                             2.69  h883460d_0                conda-forge/linux-aarch64     103kB\n  + libcblas                          3.9.0  17_linuxaarch64_openblas  conda-forge/linux-aarch64      14kB\n  + libclang                         15.0.7  default_hdf9a116_3        conda-forge/linux-aarch64     133kB\n  + libclang13                       15.0.7  default_hc086480_3        conda-forge/linux-aarch64       9MB\n  + libcups                           2.3.3  h405e4a8_4                conda-forge/linux-aarch64       5MB\n  + libcurl                           8.3.0  h4e8248e_0                conda-forge/linux-aarch64     397kB\n  + libdeflate                         1.19  h31becfc_0                conda-forge/linux-aarch64      68kB\n  + libedit                    3.1.20191231  he28a2e2_2                conda-forge/linux-aarch64     134kB\n  + libev                              4.33  h516909a_1                conda-forge/linux-aarch64     106kB\n  + libevent                         2.1.12  h4ba1bb4_1                conda-forge/linux-aarch64     439kB\n  + libexpat                          2.5.0  hd600fc2_1                conda-forge/linux-aarch64      77kB\n  + libflac                           1.4.3  h2f0025b_0                conda-forge/linux-aarch64     372kB\n  + libgcrypt                        1.10.1  h4e544f5_0                conda-forge/linux-aarch64     701kB\n  + libgd                             2.3.3  h71b7332_8                conda-forge/linux-aarch64     228kB\n  + libgfortran-ng                   13.2.0  he9431aa_0                conda-forge/linux-aarch64      23kB\n  + libgfortran5                     13.2.0  h582850c_0                conda-forge/linux-aarch64       1MB\n  + libglib                          2.78.0  h0464669_0                conda-forge/linux-aarch64       3MB\n  + libglu                            9.0.0  hf4b6fbe_1003             conda-forge/linux-aarch64     318kB\n  + libgpg-error                       1.47  h5ce24db_0                conda-forge/linux-aarch64     273kB\n  + libhwloc                          2.9.3  default_hda148da_1009     conda-forge/linux-aarch64       3MB\n  + libiconv                           1.17  h9cdd2b7_0                conda-forge/linux-aarch64       1MB\n  + libjpeg-turbo                   2.1.5.1  h31becfc_1                conda-forge/linux-aarch64     509kB\n  + liblapack                         3.9.0  17_linuxaarch64_openblas  conda-forge/linux-aarch64      15kB\n  + liblapacke                        3.9.0  17_linuxaarch64_openblas  conda-forge/linux-aarch64      15kB\n  + libllvm15                        15.0.7  hc720cd8_3                conda-forge/linux-aarch64      33MB\n  + libnghttp2                       1.52.0  h250e5c5_0                conda-forge/linux-aarch64     673kB\n  + libogg                            1.3.4  h3557bc0_1                conda-forge/linux-aarch64     214kB\n  + libopenblas                      0.3.23  pthreads_hd703e6f_0       conda-forge/linux-aarch64       4MB\n  + libopus                           1.3.1  hf897c2e_1                conda-forge/linux-aarch64     329kB\n  + libpng                           1.6.39  hf9034f9_0                conda-forge/linux-aarch64     299kB\n  + libpq                              15.4  h04b8c23_2                conda-forge/linux-aarch64       2MB\n  + libsndfile                        1.2.2  h79657aa_1                conda-forge/linux-aarch64     397kB\n  + libssh2                          1.11.0  h492db2e_0                conda-forge/linux-aarch64     284kB\n  + libsystemd0                         254  h91e93f8_0                conda-forge/linux-aarch64     421kB\n  + libtiff                           4.6.0  hffba272_1                conda-forge/linux-aarch64     308kB\n  + libvorbis                         1.3.7  h01db608_0                conda-forge/linux-aarch64     292kB\n  + libwebp                           1.3.2  h850206a_0                conda-forge/linux-aarch64      95kB\n  + libwebp-base                      1.3.2  h31becfc_0                conda-forge/linux-aarch64     363kB\n  + libxcb                             1.15  h2a766a3_0                conda-forge/linux-aarch64     389kB\n  + libxkbcommon                      1.6.0  h307e02a_0                conda-forge/linux-aarch64     578kB\n  + libxml2                          2.11.5  h3091e33_1                conda-forge/linux-aarch64     748kB\n  + lz4-c                             1.9.4  hd600fc2_0                conda-forge/linux-aarch64     164kB\n  + metakernel                       0.30.1  pyhd8ed1ab_0              conda-forge/noarch            187kB\n  + metis                             5.1.0  h2f0025b_1007             conda-forge/linux-aarch64       4MB\n  + mpfr                              4.2.0  h96f194b_0                conda-forge/linux-aarch64     420kB\n  + mpg123                           1.32.3  h2f0025b_0                conda-forge/linux-aarch64     561kB\n  + mysql-common                     8.0.33  hb6794ad_5                conda-forge/linux-aarch64     760kB\n  + mysql-libs                       8.0.33  hf629957_5                conda-forge/linux-aarch64       2MB\n  + nspr                               4.35  h4de3ea5_0                conda-forge/linux-aarch64     233kB\n  + nss                                3.94  hc5a5cc2_0                conda-forge/linux-aarch64       2MB\n  + octave                            8.3.0  hcc7940c_1                conda-forge/linux-aarch64      20MB\n  + octave_kernel                    0.35.1  pyhd8ed1ab_0              conda-forge/noarch             29kB\n  + pango                           1.50.14  h11ef544_2                conda-forge/linux-aarch64     454kB\n  + pcre                               8.45  h01db608_0                conda-forge/linux-aarch64     250kB\n  + pcre2                             10.40  he7b27c6_0                conda-forge/linux-aarch64       2MB\n  + perl                             5.32.1  4_h31becfc_perl5          conda-forge/linux-aarch64      13MB\n  + pixman                           0.42.2  h2f0025b_0                conda-forge/linux-aarch64     293kB\n  + ply                                3.11  py_1                      conda-forge/noarch             45kB\n  + portalocker                       2.8.2  py310hbbe02a8_1           conda-forge/linux-aarch64      36kB\n  + portaudio                        19.6.0  h5c6c0ed_9                conda-forge/linux-aarch64     118kB\n  + pthread-stubs                       0.4  hb9de7d4_1001             conda-forge/linux-aarch64       6kB\n  + pulseaudio-client                  16.1  h729494f_5                conda-forge/linux-aarch64     758kB\n  + pyqt                             5.15.9  py310h948ff9b_5           conda-forge/linux-aarch64       5MB\n  + pyqt5-sip                       12.12.2  py310hbb3657e_5           conda-forge/linux-aarch64      89kB\n  + qhull                            2020.2  hd62202e_2                conda-forge/linux-aarch64       2MB\n  + qscintilla2                      2.14.1  py310h752ed23_0           conda-forge/linux-aarch64       2MB\n  + qt-main                          5.15.8  h8e8b9a1_16               conda-forge/linux-aarch64      60MB\n  + sip                              6.7.11  py310h0d1d2ea_1           conda-forge/linux-aarch64     489kB\n  + suitesparse                      5.10.1  h1404dd6_1                conda-forge/linux-aarch64       2MB\n  + sundials                          6.6.1  haeb97ba_0                conda-forge/linux-aarch64     896kB\n  + tbb                           2021.10.0  h2a328a1_1                conda-forge/linux-aarch64     155kB\n  + texinfo                             7.0  pl5321h17f021e_0          conda-forge/linux-aarch64       2MB\n  + toml                             0.10.2  pyhd8ed1ab_0              conda-forge/noarch             18kB\n  + tqdm                             4.66.1  pyhd8ed1ab_0              conda-forge/noarch             89kB\n  + xcb-util                          0.4.0  h31becfc_1                conda-forge/linux-aarch64      21kB\n  + xcb-util-image                    0.4.0  hcb25cf1_1                conda-forge/linux-aarch64      25kB\n  + xcb-util-keysyms                  0.4.0  hcb25cf1_1                conda-forge/linux-aarch64      14kB\n  + xcb-util-renderutil               0.3.9  h31becfc_1                conda-forge/linux-aarch64      18kB\n  + xcb-util-wm                       0.4.1  hcb25cf1_1                conda-forge/linux-aarch64      50kB\n  + xkeyboard-config                   2.40  h31becfc_0                conda-forge/linux-aarch64     889kB\n  + xorg-fixesproto                     5.0  h3557bc0_1002             conda-forge/linux-aarch64       9kB\n  + xorg-kbproto                      1.0.7  h3557bc0_1002             conda-forge/linux-aarch64      27kB\n  + xorg-libice                       1.1.1  h7935292_0                conda-forge/linux-aarch64      60kB\n  + xorg-libsm                        1.2.4  h5a01bc2_0                conda-forge/linux-aarch64      29kB\n  + xorg-libx11                       1.8.6  h055a233_0                conda-forge/linux-aarch64     850kB\n  + xorg-libxau                      1.0.11  h31becfc_0                conda-forge/linux-aarch64      15kB\n  + xorg-libxdmcp                     1.1.3  h3557bc0_0                conda-forge/linux-aarch64      20kB\n  + xorg-libxext                      1.3.4  h2a766a3_2                conda-forge/linux-aarch64      51kB\n  + xorg-libxfixes                    5.0.3  h3557bc0_1004             conda-forge/linux-aarch64      19kB\n  + xorg-libxrender                  0.9.11  h7935292_0                conda-forge/linux-aarch64      37kB\n  + xorg-libxt                        1.3.0  h7935292_1                conda-forge/linux-aarch64     384kB\n  + xorg-renderproto                 0.11.1  h3557bc0_1002             conda-forge/linux-aarch64      10kB\n  + xorg-xextproto                    7.3.0  h2a766a3_1003             conda-forge/linux-aarch64      30kB\n  + xorg-xf86vidmodeproto             2.3.1  hf897c2e_1002             conda-forge/linux-aarch64      24kB\n  + xorg-xproto                      7.0.31  h3557bc0_1007             conda-forge/linux-aarch64      75kB\n  + zstd                              1.5.5  h4c53e97_0                conda-forge/linux-aarch64     529kB\n\n  Upgrade:\n────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n  - icu                                72.1  hcf00150_0                conda-forge                        \n  + icu                                73.2  h787c7f5_0                conda-forge/linux-aarch64      12MB\n  - libsqlite                        3.42.0  h194ca79_0                conda-forge                        \n  + libsqlite                        3.43.0  h194ca79_0                conda-forge/linux-aarch64       1MB\n  - nodejs                          18.15.0  hcab9400_1                conda-forge                        \n  + nodejs                           20.5.1  hc1f8a26_1                conda-forge/linux-aarch64      17MB\n  - openssl                           3.1.1  h31becfc_1                conda-forge                        \n  + openssl                           3.1.3  h31becfc_0                conda-forge/linux-aarch64       3MB\n\n  Summary:\n\n  Install: 142 packages\n  Upgrade: 4 packages\n\n  Total download: 338MB\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n\n","phase":"building"}
+data: {"message":"\nDownloading and Extracting Packages\n\r\nPreparing transaction: ...working... ","phase":"building"}
+data: {"message":"done\n","phase":"building"}
+data: {"message":"Verifying transaction: ...working... ","phase":"building"}
+data: {"message":"done\n","phase":"building"}
+data: {"message":"Executing transaction: ...working... ","phase":"building"}
+data: {"message":"\ndone\n","phase":"building"}
+data: {"message":"#\n# To activate this environment, use\n#\n#     $ conda activate /srv/conda/envs/notebook\n#\n# To deactivate an active environment, use\n#\n#     $ conda deactivate\n\n","phase":"building"}
+data: {"message":"\u001b[91mtime: 34.494\n\u001b[0m","phase":"building"}
+data: {"message":"Will remove 1 package cache(s).\n","phase":"building"}
+data: {"message":"\u001b[91mtime: 0.628\n\u001b[0m","phase":"building"}
+data: {"message":"# packages in environment at /srv/conda/envs/notebook:\n#\n# Name                    Version                   Build  Channel\n_openmp_mutex             4.5                       2_gnu    conda-forge\naiofiles                  22.1.0             pyhd8ed1ab_0    conda-forge\naiosqlite                 0.19.0             pyhd8ed1ab_0    conda-forge\nalembic                   1.11.1             pyhd8ed1ab_0    conda-forge\nalsa-lib                  1.2.10               h31becfc_0    conda-forge\nanyio                     3.7.0              pyhd8ed1ab_1    conda-forge\nargon2-cffi               21.3.0             pyhd8ed1ab_0    conda-forge\nargon2-cffi-bindings      21.2.0          py310h761cc84_3    conda-forge\narpack                    3.7.0                hf862f49_2    conda-forge\nasttokens                 2.2.1              pyhd8ed1ab_0    conda-forge\nasync_generator           1.10                       py_0    conda-forge\natk-1.0                   2.38.0               hf4e84e4_1    conda-forge\nattr                      2.5.1                h4e544f5_1    conda-forge\nattrs                     23.1.0             pyh71513ae_1    conda-forge\nbabel                     2.12.1             pyhd8ed1ab_1    conda-forge\nbackcall                  0.2.0              pyh9f0ad1d_0    conda-forge\nbackports                 1.0                pyhd8ed1ab_3    conda-forge\nbackports.functools_lru_cache 1.6.4              pyhd8ed1ab_0    conda-forge\nbeautifulsoup4            4.12.2             pyha770c72_0    conda-forge\nbleach                    6.0.0              pyhd8ed1ab_0    conda-forge\nblinker                   1.6.2              pyhd8ed1ab_0    conda-forge\nbrotli                    1.0.9                h4e544f5_8    conda-forge\nbrotli-bin                1.0.9                h4e544f5_8    conda-forge\nbzip2                     1.0.8                hf897c2e_4    conda-forge\nc-ares                    1.19.1               h31becfc_0    conda-forge\nca-certificates           2023.5.7             hcefe29a_0    conda-forge\ncairo                     1.16.0            hd7f43fd_1017    conda-forge\ncertifi                   2023.5.7           pyhd8ed1ab_0    conda-forge\ncertipy                   0.1.3                      py_0    conda-forge\ncffi                      1.15.1          py310hf0c4615_3    conda-forge\ncharset-normalizer        3.1.0              pyhd8ed1ab_0    conda-forge\nchrpath                   0.16              hf897c2e_1002    conda-forge\ncolorama                  0.4.6              pyhd8ed1ab_0    conda-forge\ncomm                      0.1.3              pyhd8ed1ab_0    conda-forge\ncryptography              41.0.1          py310h34e2850_0    conda-forge\ncurl                      8.3.0                h4e8248e_0    conda-forge\ndbus                      1.13.6               h12b9eeb_3    conda-forge\ndebugpy                   1.6.7           py310hbc44c02_0    conda-forge\ndecorator                 5.1.1              pyhd8ed1ab_0    conda-forge\ndefusedxml                0.7.1              pyhd8ed1ab_0    conda-forge\nentrypoints               0.4                pyhd8ed1ab_0    conda-forge\nexceptiongroup            1.1.1              pyhd8ed1ab_0    conda-forge\nexecuting                 1.2.0              pyhd8ed1ab_0    conda-forge\nexpat                     2.5.0                hd600fc2_1    conda-forge\nfftw                      3.3.10          nompi_h2dcef8e_108    conda-forge\nflit-core                 3.9.0              pyhd8ed1ab_0    conda-forge\nfltk                      1.3.8                he871f2f_2    conda-forge\nfont-ttf-dejavu-sans-mono 2.37                 hab24e00_0    conda-forge\nfont-ttf-inconsolata      3.000                h77eed37_0    conda-forge\nfont-ttf-source-code-pro  2.038                h77eed37_0    conda-forge\nfont-ttf-ubuntu           0.83                 hab24e00_0    conda-forge\nfontconfig                2.14.2               ha9a116f_0    conda-forge\nfonts-conda-ecosystem     1                             0    conda-forge\nfonts-conda-forge         1                             0    conda-forge\nfreetype                  2.12.1               hf0a5ef3_2    conda-forge\nfribidi                   1.0.10               hb9de7d4_0    conda-forge\ngdk-pixbuf                2.42.10              ha28a4fe_3    conda-forge\ngettext                   0.21.1               ha18d298_0    conda-forge\nghostscript               10.02.0              h2f0025b_0    conda-forge\ngiflib                    5.2.1                hb4cce97_3    conda-forge\ngl2ps                     1.4.2                hdf53a3c_0    conda-forge\nglib                      2.78.0               hd84c7bf_0    conda-forge\nglib-tools                2.78.0               hd84c7bf_0    conda-forge\nglpk                      5.0                  h66325d0_0    conda-forge\ngmp                       6.2.1                h7fd3ca4_0    conda-forge\ngnuplot                   5.4.8                h1fafa18_0    conda-forge\ngraphicsmagick            1.3.40               h8d545bc_3    conda-forge\ngraphite2                 1.3.13            h7fd3ca4_1001    conda-forge\ngreenlet                  2.0.2           py310hbb3657e_1    conda-forge\ngst-plugins-base          1.22.6               h6d82d15_2    conda-forge\ngstreamer                 1.22.6               hed71854_2    conda-forge\ngtk2                      2.24.33              h49e3f37_2    conda-forge\nharfbuzz                  8.2.1                hebeb849_0    conda-forge\nhdf5                      1.14.2          nompi_ha486f32_100    conda-forge\nicu                       73.2                 h787c7f5_0    conda-forge\nidna                      3.4                pyhd8ed1ab_0    conda-forge\nimportlib-metadata        6.6.0              pyha770c72_0    conda-forge\nimportlib_metadata        6.6.0                hd8ed1ab_0    conda-forge\nimportlib_resources       5.12.0             pyhd8ed1ab_0    conda-forge\nipykernel                 6.23.1             pyh210e3f2_0    conda-forge\nipyparallel               8.6.1              pyhd8ed1ab_0    conda-forge\nipython                   8.14.0             pyh41d4057_0    conda-forge\nipython_genutils          0.2.0                      py_1    conda-forge\nipywidgets                8.0.6              pyhd8ed1ab_0    conda-forge\njedi                      0.18.2             pyhd8ed1ab_0    conda-forge\njinja2                    3.1.2              pyhd8ed1ab_1    conda-forge\njson5                     0.9.5              pyh9f0ad1d_0    conda-forge\njsonschema                4.17.3             pyhd8ed1ab_0    conda-forge\njupyter-offlinenotebook   0.2.2              pyh1d7be83_0    conda-forge\njupyter-resource-usage    0.7.1              pyhd8ed1ab_0    conda-forge\njupyter_client            8.2.0              pyhd8ed1ab_0    conda-forge\njupyter_core              5.3.0           py310h4c7bcd0_0    conda-forge\njupyter_events            0.6.3              pyhd8ed1ab_0    conda-forge\njupyter_server            1.23.6             pyhd8ed1ab_0    conda-forge\njupyter_server_fileid     0.9.0              pyhd8ed1ab_0    conda-forge\njupyter_server_ydoc       0.8.0              pyhd8ed1ab_0    conda-forge\njupyter_telemetry         0.1.0              pyhd8ed1ab_1    conda-forge\njupyter_ydoc              0.2.4              pyhd8ed1ab_0    conda-forge\njupyterhub-base           3.1.1              pyh2a2186d_0    conda-forge\njupyterhub-singleuser     3.1.1              pyh2a2186d_0    conda-forge\njupyterlab                3.6.4              pyhd8ed1ab_0    conda-forge\njupyterlab_pygments       0.2.2              pyhd8ed1ab_0    conda-forge\njupyterlab_server         2.22.1             pyhd8ed1ab_0    conda-forge\njupyterlab_widgets        3.0.7              pyhd8ed1ab_1    conda-forge\nkeyutils                  1.6.1                h4e544f5_0    conda-forge\nkrb5                      1.21.2               hc419048_0    conda-forge\nlame                      3.100             h4e544f5_1003    conda-forge\nld_impl_linux-aarch64     2.40                 h2d8c526_0    conda-forge\nlerc                      4.0.0                h4de3ea5_0    conda-forge\nlibaec                    1.1.2                h2f0025b_1    conda-forge\nlibblas                   3.9.0           17_linuxaarch64_openblas    conda-forge\nlibbrotlicommon           1.0.9                h4e544f5_8    conda-forge\nlibbrotlidec              1.0.9                h4e544f5_8    conda-forge\nlibbrotlienc              1.0.9                h4e544f5_8    conda-forge\nlibcap                    2.69                 h883460d_0    conda-forge\nlibcblas                  3.9.0           17_linuxaarch64_openblas    conda-forge\nlibclang                  15.0.7          default_hdf9a116_3    conda-forge\nlibclang13                15.0.7          default_hc086480_3    conda-forge\nlibcups                   2.3.3                h405e4a8_4    conda-forge\nlibcurl                   8.3.0                h4e8248e_0    conda-forge\nlibdeflate                1.19                 h31becfc_0    conda-forge\nlibedit                   3.1.20191231         he28a2e2_2    conda-forge\nlibev                     4.33                 h516909a_1    conda-forge\nlibevent                  2.1.12               h4ba1bb4_1    conda-forge\nlibexpat                  2.5.0                hd600fc2_1    conda-forge\nlibffi                    3.4.2                h3557bc0_5    conda-forge\nlibflac                   1.4.3                h2f0025b_0    conda-forge\nlibgcc-ng                 13.1.0               h2b4548d_0    conda-forge\nlibgcrypt                 1.10.1               h4e544f5_0    conda-forge\nlibgd                     2.3.3                h71b7332_8    conda-forge\nlibgfortran-ng            13.2.0               he9431aa_0    conda-forge\nlibgfortran5              13.2.0               h582850c_0    conda-forge\nlibglib                   2.78.0               h0464669_0    conda-forge\nlibglu                    9.0.0             hf4b6fbe_1003    conda-forge\nlibgomp                   13.1.0               h2b4548d_0    conda-forge\nlibgpg-error              1.47                 h5ce24db_0    conda-forge\nlibhwloc                  2.9.3           default_hda148da_1009    conda-forge\nlibiconv                  1.17                 h9cdd2b7_0    conda-forge\nlibjpeg-turbo             2.1.5.1              h31becfc_1    conda-forge\nliblapack                 3.9.0           17_linuxaarch64_openblas    conda-forge\nliblapacke                3.9.0           17_linuxaarch64_openblas    conda-forge\nlibllvm15                 15.0.7               hc720cd8_3    conda-forge\nlibnghttp2                1.52.0               h250e5c5_0    conda-forge\nlibnsl                    2.0.0                hf897c2e_0    conda-forge\nlibogg                    1.3.4                h3557bc0_1    conda-forge\nlibopenblas               0.3.23          pthreads_hd703e6f_0    conda-forge\nlibopus                   1.3.1                hf897c2e_1    conda-forge\nlibpng                    1.6.39               hf9034f9_0    conda-forge\nlibpq                     15.4                 h04b8c23_2    conda-forge\nlibsndfile                1.2.2                h79657aa_1    conda-forge\nlibsodium                 1.0.18               hb9de7d4_1    conda-forge\nlibsqlite                 3.43.0               h194ca79_0    conda-forge\nlibssh2                   1.11.0               h492db2e_0    conda-forge\nlibstdcxx-ng              13.1.0               h452befe_0    conda-forge\nlibsystemd0               254                  h91e93f8_0    conda-forge\nlibtiff                   4.6.0                hffba272_1    conda-forge\nlibuuid                   2.38.1               hb4cce97_0    conda-forge\nlibuv                     1.44.2               h4e544f5_0    conda-forge\nlibvorbis                 1.3.7                h01db608_0    conda-forge\nlibwebp                   1.3.2                h850206a_0    conda-forge\nlibwebp-base              1.3.2                h31becfc_0    conda-forge\nlibxcb                    1.15                 h2a766a3_0    conda-forge\nlibxkbcommon              1.6.0                h307e02a_0    conda-forge\nlibxml2                   2.11.5               h3091e33_1    conda-forge\nlibzlib                   1.2.13               h4e544f5_4    conda-forge\nlz4-c                     1.9.4                hd600fc2_0    conda-forge\nmako                      1.2.4              pyhd8ed1ab_0    conda-forge\nmarkupsafe                2.1.3           py310h7c1f4a2_0    conda-forge\nmatplotlib-inline         0.1.6              pyhd8ed1ab_0    conda-forge\nmetakernel                0.30.1             pyhd8ed1ab_0    conda-forge\nmetis                     5.1.0             h2f0025b_1007    conda-forge\nmistune                   2.0.5              pyhd8ed1ab_0    conda-forge\nmpfr                      4.2.0                h96f194b_0    conda-forge\nmpg123                    1.32.3               h2f0025b_0    conda-forge\nmysql-common              8.0.33               hb6794ad_5    conda-forge\nmysql-libs                8.0.33               hf629957_5    conda-forge\nnbclassic                 1.0.0              pyhb4ecaf3_1    conda-forge\nnbclient                  0.8.0              pyhd8ed1ab_0    conda-forge\nnbconvert                 7.4.0              pyhd8ed1ab_0    conda-forge\nnbconvert-core            7.4.0              pyhd8ed1ab_0    conda-forge\nnbconvert-pandoc          7.4.0              pyhd8ed1ab_0    conda-forge\nnbformat                  5.9.0              pyhd8ed1ab_0    conda-forge\nncurses                   6.4                  h2e1726e_0    conda-forge\nnest-asyncio              1.5.6              pyhd8ed1ab_0    conda-forge\nnodejs                    20.5.1               hc1f8a26_1    conda-forge\nnotebook                  6.5.4              pyha770c72_0    conda-forge\nnotebook-shim             0.2.3              pyhd8ed1ab_0    conda-forge\nnspr                      4.35                 h4de3ea5_0    conda-forge\nnss                       3.94                 hc5a5cc2_0    conda-forge\noauthlib                  3.2.2              pyhd8ed1ab_0    conda-forge\noctave                    8.3.0                hcc7940c_1    conda-forge\noctave_kernel             0.35.1             pyhd8ed1ab_0    conda-forge\nopenssl                   3.1.3                h31becfc_0    conda-forge\npackaging                 23.1               pyhd8ed1ab_0    conda-forge\npamela                    1.0.0                      py_0    conda-forge\npandoc                    2.19.2               h8af1aa0_2    conda-forge\npandocfilters             1.5.0              pyhd8ed1ab_0    conda-forge\npango                     1.50.14              h11ef544_2    conda-forge\nparso                     0.8.3              pyhd8ed1ab_0    conda-forge\npcre                      8.45                 h01db608_0    conda-forge\npcre2                     10.40                he7b27c6_0    conda-forge\nperl                      5.32.1          4_h31becfc_perl5    conda-forge\npexpect                   4.8.0              pyh1a96a4e_2    conda-forge\npickleshare               0.7.5                   py_1003    conda-forge\npip                       23.1.2             pyhd8ed1ab_0    conda-forge\npixman                    0.42.2               h2f0025b_0    conda-forge\npkgutil-resolve-name      1.3.10             pyhd8ed1ab_0    conda-forge\nplatformdirs              3.5.1              pyhd8ed1ab_0    conda-forge\nply                       3.11                       py_1    conda-forge\nportalocker               2.8.2           py310hbbe02a8_1    conda-forge\nportaudio                 19.6.0               h5c6c0ed_9    conda-forge\nprometheus_client         0.17.0             pyhd8ed1ab_0    conda-forge\nprompt-toolkit            3.0.38             pyha770c72_0    conda-forge\nprompt_toolkit            3.0.38               hd8ed1ab_0    conda-forge\npsutil                    5.9.5           py310hb89b984_0    conda-forge\npthread-stubs             0.4               hb9de7d4_1001    conda-forge\nptyprocess                0.7.0              pyhd3deb0d_0    conda-forge\npulseaudio-client         16.1                 h729494f_5    conda-forge\npure_eval                 0.2.2              pyhd8ed1ab_0    conda-forge\npycparser                 2.21               pyhd8ed1ab_0    conda-forge\npygments                  2.15.1             pyhd8ed1ab_0    conda-forge\npyjwt                     2.7.0              pyhd8ed1ab_0    conda-forge\npyopenssl                 23.2.0             pyhd8ed1ab_1    conda-forge\npyqt                      5.15.9          py310h948ff9b_5    conda-forge\npyqt5-sip                 12.12.2         py310hbb3657e_5    conda-forge\npyrsistent                0.19.3          py310h734f5e8_0    conda-forge\npysocks                   1.7.1              pyha2e5f31_6    conda-forge\npython                    3.10.11         ha43d526_0_cpython    conda-forge\npython-dateutil           2.8.2              pyhd8ed1ab_0    conda-forge\npython-fastjsonschema     2.17.1             pyhd8ed1ab_0    conda-forge\npython-json-logger        2.0.7              pyhd8ed1ab_0    conda-forge\npython_abi                3.10                    3_cp310    conda-forge\npytz                      2023.3             pyhd8ed1ab_0    conda-forge\npyyaml                    6.0             py310h761cc84_5    conda-forge\npyzmq                     25.1.0          py310hdaec954_0    conda-forge\nqhull                     2020.2               hd62202e_2    conda-forge\nqscintilla2               2.14.1          py310h752ed23_0    conda-forge\nqt-main                   5.15.8              h8e8b9a1_16    conda-forge\nreadline                  8.2                  h8fc344f_1    conda-forge\nrequests                  2.31.0             pyhd8ed1ab_0    conda-forge\nrfc3339-validator         0.1.4              pyhd8ed1ab_0    conda-forge\nrfc3986-validator         0.1.1              pyh9f0ad1d_0    conda-forge\nruamel.yaml               0.17.31         py310hb299538_0    conda-forge\nruamel.yaml.clib          0.2.7           py310hb89b984_1    conda-forge\nsend2trash                1.8.2              pyh41d4057_0    conda-forge\nsetuptools                67.7.2             pyhd8ed1ab_0    conda-forge\nsip                       6.7.11          py310h0d1d2ea_1    conda-forge\nsix                       1.16.0             pyh6c4a22f_0    conda-forge\nsniffio                   1.3.0              pyhd8ed1ab_0    conda-forge\nsoupsieve                 2.3.2.post1        pyhd8ed1ab_0    conda-forge\nsqlalchemy                2.0.15          py310h7c1f4a2_0    conda-forge\nstack_data                0.6.2              pyhd8ed1ab_0    conda-forge\nsuitesparse               5.10.1               h1404dd6_1    conda-forge\nsundials                  6.6.1                haeb97ba_0    conda-forge\ntbb                       2021.10.0            h2a328a1_1    conda-forge\nterminado                 0.17.1             pyh41d4057_0    conda-forge\ntexinfo                   7.0             pl5321h17f021e_0    conda-forge\ntinycss2                  1.2.1              pyhd8ed1ab_0    conda-forge\ntk                        8.6.12               hd8af866_0    conda-forge\ntoml                      0.10.2             pyhd8ed1ab_0    conda-forge\ntomli                     2.0.1              pyhd8ed1ab_0    conda-forge\ntornado                   6.3.2           py310h7c1f4a2_0    conda-forge\ntqdm                      4.66.1             pyhd8ed1ab_0    conda-forge\ntraitlets                 5.9.0              pyhd8ed1ab_0    conda-forge\ntyping-extensions         4.6.3                hd8ed1ab_0    conda-forge\ntyping_extensions         4.6.3              pyha770c72_0    conda-forge\ntzdata                    2023c                h71feb2d_0    conda-forge\nurllib3                   2.0.3              pyhd8ed1ab_0    conda-forge\nwcwidth                   0.2.6              pyhd8ed1ab_0    conda-forge\nwebencodings              0.5.1                      py_1    conda-forge\nwebsocket-client          1.5.2              pyhd8ed1ab_0    conda-forge\nwheel                     0.40.0             pyhd8ed1ab_0    conda-forge\nwidgetsnbextension        4.0.7              pyhd8ed1ab_0    conda-forge\nxcb-util                  0.4.0                h31becfc_1    conda-forge\nxcb-util-image            0.4.0                hcb25cf1_1    conda-forge\nxcb-util-keysyms          0.4.0                hcb25cf1_1    conda-forge\nxcb-util-renderutil       0.3.9                h31becfc_1    conda-forge\nxcb-util-wm               0.4.1                hcb25cf1_1    conda-forge\nxkeyboard-config          2.40                 h31becfc_0    conda-forge\nxorg-fixesproto           5.0               h3557bc0_1002    conda-forge\nxorg-kbproto              1.0.7             h3557bc0_1002    conda-forge\nxorg-libice               1.1.1                h7935292_0    conda-forge\nxorg-libsm                1.2.4                h5a01bc2_0    conda-forge\nxorg-libx11               1.8.6                h055a233_0    conda-forge\nxorg-libxau               1.0.11               h31becfc_0    conda-forge\nxorg-libxdmcp             1.1.3                h3557bc0_0    conda-forge\nxorg-libxext              1.3.4                h2a766a3_2    conda-forge\nxorg-libxfixes            5.0.3             h3557bc0_1004    conda-forge\nxorg-libxrender           0.9.11               h7935292_0    conda-forge\nxorg-libxt                1.3.0                h7935292_1    conda-forge\nxorg-renderproto          0.11.1            h3557bc0_1002    conda-forge\nxorg-xextproto            7.3.0             h2a766a3_1003    conda-forge\nxorg-xf86vidmodeproto     2.3.1             hf897c2e_1002    conda-forge\nxorg-xproto               7.0.31            h3557bc0_1007    conda-forge\nxz                        5.2.6                h9cdd2b7_0    conda-forge\ny-py                      0.5.9           py310hf87a4cc_0    conda-forge\nyaml                      0.2.5                hf897c2e_2    conda-forge\nypy-websocket             0.8.2              pyhd8ed1ab_0    conda-forge\nzeromq                    4.3.4                h01db608_1    conda-forge\nzipp                      3.15.0             pyhd8ed1ab_0    conda-forge\nzlib                      1.2.13               h4e544f5_4    conda-forge\nzstd                      1.5.5                h4c53e97_0    conda-forge\n","phase":"building"}
+data: {"message":"Removing intermediate container 597c980456b5\n","phase":"building"}
+data: {"message":" ---> e11e9c0da4f5\n","phase":"building"}
+data: {"message":"Step 41/51 : USER root","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 7903472f1a31\n","phase":"building"}
+data: {"message":"Removing intermediate container 7903472f1a31\n","phase":"building"}
+data: {"message":" ---> 70bb5cdbc848\n","phase":"building"}
+data: {"message":"Step 42/51 : COPY --chown=1000:1000 src/ ${REPO_DIR}/","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> 709dd0afcbc6\n","phase":"building"}
+data: {"message":"Step 43/51 : LABEL repo2docker.ref=\"1479e0252b2e648bb755ee913292b79495931717\"","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in d37b1731f87c\n","phase":"building"}
+data: {"message":"Removing intermediate container d37b1731f87c\n","phase":"building"}
+data: {"message":" ---> 9d2c4a904a66\n","phase":"building"}
+data: {"message":"Step 44/51 : LABEL repo2docker.repo=\"https://github.com/binder-examples/octave\"","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 1920e64534fb\n","phase":"building"}
+data: {"message":"Removing intermediate container 1920e64534fb\n","phase":"building"}
+data: {"message":" ---> ea6076e720e9\n","phase":"building"}
+data: {"message":"Step 45/51 : LABEL repo2docker.version=\"2023.06.0\"","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in fd2f221b727a\n","phase":"building"}
+data: {"message":"Removing intermediate container fd2f221b727a\n","phase":"building"}
+data: {"message":" ---> f5e76530de72\n","phase":"building"}
+data: {"message":"Step 46/51 : USER ${NB_USER}","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in ebe3cd790278\n","phase":"building"}
+data: {"message":"Removing intermediate container ebe3cd790278\n","phase":"building"}
+data: {"message":" ---> e215e12c0502\n","phase":"building"}
+data: {"message":"Step 47/51 : ENV PYTHONUNBUFFERED=1","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 705ceab0d3cb\n","phase":"building"}
+data: {"message":"Removing intermediate container 705ceab0d3cb\n","phase":"building"}
+data: {"message":" ---> f2fccbfd8918\n","phase":"building"}
+data: {"message":"Step 48/51 : COPY /python3-login /usr/local/bin/python3-login","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> 9eda69f3f391\n","phase":"building"}
+data: {"message":"Step 49/51 : COPY /repo2docker-entrypoint /usr/local/bin/repo2docker-entrypoint","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> 579b73a4f26d\n","phase":"building"}
+data: {"message":"Step 50/51 : ENTRYPOINT [\"/usr/local/bin/repo2docker-entrypoint\"]","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in f7150e769210\n","phase":"building"}
+data: {"message":"Removing intermediate container f7150e769210\n","phase":"building"}
+data: {"message":" ---> 0bea9a282c20\n","phase":"building"}
+data: {"message":"Step 51/51 : CMD [\"jupyter\", \"notebook\", \"--ip\", \"0.0.0.0\"]","phase":"building"}
+data: {"message":"\n","phase":"building"}
+data: {"message":" ---> Running in 42bdce0d8db0\n","phase":"building"}
+data: {"message":"Removing intermediate container 42bdce0d8db0\n","phase":"building"}
+data: {"message":" ---> 4abce9060522\n","phase":"building"}
+data: {"message":"{\"aux\": {\"ID\": \"sha256:4abce90605228bf00e4b42ea83644ca0c909299d322d1dc08c6c1ab882a64286\"}}","phase":"building"}
+data: {"message":"Successfully built 4abce9060522\n","phase":"building"}
+data: {"message":"Successfully tagged binder-2dexamples-2doctave-03025a:1479e0252b2e648bb755ee913292b79495931717\n","phase":"building"}
+data: {"phase":"built","message":"Built image, launching...\n","imageName":"binder-2dexamples-2doctave-03025a:1479e0252b2e648bb755ee913292b79495931717"}
+data: {"phase":"launching","message":"Launching server...\n"}
+data: {"phase":"launching","message":"Server requested\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:53.262879Z [Normal] Successfully assigned default/jupyter-binder-2dexamples-2doctave-2d3ilc7xl2 to minikube\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:53Z [Normal] Container image \"jupyterhub/k8s-network-tools:3.1.0\" already present on machine\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:53Z [Normal] Created container block-cloud-metadata\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:53Z [Normal] Started container block-cloud-metadata\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:54Z [Normal] Container image \"binder-2dexamples-2doctave-03025a:1479e0252b2e648bb755ee913292b79495931717\" already present on machine\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:54Z [Normal] Created container notebook\n"}
+data: {"phase":"launching","message":"2023-10-09T06:46:54Z [Normal] Started container notebook\n"}
+data: {"phase":"launching","message":"Server ready at /user/binder-examples-octave-3ilc7xl2/\n"}
+data: {"phase":"ready","message":"server running at http://192.168.105.2:30902/user/binder-examples-octave-3ilc7xl2/\n","image":"binder-2dexamples-2doctave-03025a:1479e0252b2e648bb755ee913292b79495931717","repo_url":"https://github.com/binder-examples/octave","token":"tY_U1yMSSeKyCKPMg6GVIg","binder_ref_url":"https://github.com/binder-examples/octave/tree/1479e0252b2e648bb755ee913292b79495931717","binder_launch_host":"http://127.0.0.1:8585/","binder_request":"v2/gh/binder-examples/octave/HEAD","binder_persistent_request":"v2/gh/binder-examples/octave/1479e0252b2e648bb755ee913292b79495931717","url":"http://192.168.105.2:30902/user/binder-examples-octave-3ilc7xl2/"}
