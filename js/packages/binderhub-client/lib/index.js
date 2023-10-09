@@ -10,13 +10,28 @@ export class BinderRepository {
   /**
    *
    * @param {string} providerSpec Spec of the form <provider>/<repo>/<ref> to pass to the binderhub API.
-   * @param {string} baseUrl Base URL (including the trailing slash) of the binderhub installation to talk to.
-   * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokesn
+   * @param {URL} buildEndpointUrl API URL of the build endpoint to talk to
+   * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokens
    */
-  constructor(providerSpec, baseUrl, buildToken) {
+  constructor(providerSpec, buildEndpointUrl, buildToken) {
     this.providerSpec = providerSpec;
-    this.baseUrl = baseUrl;
-    this.buildToken = buildToken;
+    // Make sure that buildEndpointUrl is a real URL - this ensures hostname is properly set
+    if(!(buildEndpointUrl instanceof URL)) {
+      throw new TypeError(`buildEndpointUrl must be a URL object, got ${buildEndpointUrl} instead`);
+    }
+    // We make a copy here so we don't modify the passed in URL object
+    this.buildEndpointUrl = new URL(buildEndpointUrl);
+    // The binderHub API is path based, so the buildEndpointUrl must have a trailing slash. We add
+    // it if it is not passed in here to us.
+    if(!this.buildEndpointUrl.pathname.endsWith('/')) {
+      this.buildEndpointUrl.pathname += "/";
+    }
+
+    // The actual URL we'll make a request to build this particular providerSpec
+    this.buildUrl = new URL(this.providerSpec, this.buildEndpointUrl);
+    if(buildToken) {
+      this.buildUrl.searchParams.append("build_token", buildToken);
+    }
     this.callbacks = {};
     this.state = null;
   }
@@ -25,12 +40,7 @@ export class BinderRepository {
    * Call the BinderHub API
    */
   fetch() {
-    let apiUrl = this.baseUrl + "build/" + this.providerSpec;
-    if (this.buildToken) {
-        apiUrl = apiUrl + `?build_token=${this.buildToken}`;
-    }
-
-    this.eventSource = new EventSource(apiUrl);
+    this.eventSource = new EventSource(this.buildUrl);
     this.eventSource.onerror = (err) => {
       console.error("Failed to construct event stream", err);
       this._changeState("failed", {
@@ -59,38 +69,48 @@ export class BinderRepository {
   }
 
   /**
-   * Redirect user to a running jupyter server with given token
+   * Get URL to redirect user to on a Jupyter Server to display a given path
 
-   * @param {URL} url URL to the running jupyter server
+   * @param {URL} serverUrl URL to the running jupyter server
    * @param {string} token Secret token used to authenticate to the jupyter server
    * @param {string} path The path of the file or url suffix to launch the user into
    * @param {string} pathType One of "lab", "file" or "url", denoting what kinda path we are launching the user into
+   *
+   * @returns {URL} A URL to redirect the user to
    */
-  launch(url, token, path, pathType) {
-    // redirect a user to a running server with a token
+  getFullRedirectURL(serverUrl, token, path, pathType) {
+    // Make a copy of the URL so we don't mangle the original
+    let url = new URL(serverUrl);
     if (path) {
-      // strip trailing /
-      url = url.replace(/\/$/, "");
-      // trim leading '/'
+      // strip trailing / from URL
+      url.pathname = url.pathname.replace(/\/$/, "");
+
+      // trim leading '/' from path to launch users into
       path = path.replace(/(^\/)/g, "");
+
       if (pathType === "lab") {
+        // The path is a specific *file* we should open with JupyterLab
+
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
+
         // /doc/tree is safe because it allows redirect to files
-        url = url + "/doc/tree/" + encodeURI(path);
+        url.pathname = url.pathname + "/doc/tree/" + encodeURI(path);
       } else if (pathType === "file") {
+        // The path is a specific file we should open with *classic notebook*
+
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
         // /tree is safe because it allows redirect to files
-        url = url + "/tree/" + encodeURI(path);
+        url.pathname = url.pathname + "/tree/" + encodeURI(path);
       } else {
-        // pathType === 'url'
-        url = url + "/" + path;
+        // pathType is 'url' and we should just pass it on
+        url.pathname = url.pathname + "/" + path;
       }
     }
-    const sep = url.indexOf("?") == -1 ? "?" : "&";
-    url = url + sep + $.param({ token: token });
-    window.location.href = url;
+
+    url.searchParams.append('token', token);
+    return url;
   }
 
 

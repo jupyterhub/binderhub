@@ -13,9 +13,14 @@
     "@babel/cli": "^7.21.0",
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
+    "@types/jest": "^29.5.5",
+    "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.3",
     "eslint": "^8.38.0",
+    "eslint-plugin-jest": "^27.4.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "mini-css-extract-plugin": "^2.7.5",
     "webpack": "^5.78.0",
     "webpack-cli": "^5.0.1"
@@ -26,6 +31,15 @@
   "scripts": {
     "webpack": "webpack",
     "webpack:watch": "webpack --watch",
-    "lint": "eslint binderhub/static/js"
+    "lint": "eslint binderhub/static/js",
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "text",
+      "cobertura"
+    ]
   }
 }

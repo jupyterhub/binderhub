@@ -1,0 +1,36 @@
+# Runs jest based unit tests for frontend javascript and @jupyterhub/binderhub-client
+name: "JS Unit tests"
+
+on:
+  pull_request:
+    paths:
+      - "binderhub/static/js/**"
+      - "js/packages/binderhub-client/**"
+      - ".github/workflows/jest.yml"
+  push:
+    paths:
+      - "binderhub/static/js/**"
+      - "js/packages/binderhub-client/**"
+      - ".github/workflows/jest.yml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+      - "update-*"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Setup dependencies"
+        run: |
+          npm install
+
+      - name: "Run all unit tests"
+        run: |
+          npm test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
