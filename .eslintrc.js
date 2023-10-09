@@ -2,16 +2,14 @@ module.exports = {
     "env": {
         "browser": true,
         "jquery": true,
-        "es6": true,
-        "jest/globals": true
+        "jest/globals": true,
     },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "rules": {
-    },
+    "extends": [
+        "eslint:recommended",
+    ],
+    "parser": "@babel/eslint-parser",
     "plugins": [
-        "jest"
-    ]
+        "jest",
+    ],
+    "rules": {},
 };
