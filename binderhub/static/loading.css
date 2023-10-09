@@ -2,61 +2,63 @@
 https://ihatetomatoes.net for initial code templates.*/
 
 #loader {
-    display: block;
-    position: relative;
-    left: 50%;
-    top: 50%;
-    width: 150px;
-    height: 150px;
-    margin: -20px 0 0 -75px;
-    border-radius: 50%;
-    border: 7px solid transparent;
-    border-top-color: #f5a252;
-    animation: spin 2s linear infinite;
-    z-index: 1001;
+  display: block;
+  position: relative;
+  left: 50%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -20px 0 0 -75px;
+  border-radius: 50%;
+  border: 7px solid transparent;
+  border-top-color: #f5a252;
+  animation: spin 2s linear infinite;
+  z-index: 1001;
 }
 
-    #loader:before {
-        content: "";
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        right: 5px;
-        bottom: 5px;
-        border-radius: 50%;
-        border: 7px solid transparent;
-        border-top-color: #579aca;
-        animation: spin 3s linear infinite;
-    }
+#loader:before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border-radius: 50%;
+  border: 7px solid transparent;
+  border-top-color: #579aca;
+  animation: spin 3s linear infinite;
+}
 
-    #loader:after {
-        content: "";
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        right: 15px;
-        bottom: 15px;
-        border-radius: 50%;
-        border: 7px solid transparent;
-        border-top-color: #e66581;
-        animation: spin 1.5s linear infinite;
-    }
+#loader:after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-radius: 50%;
+  border: 7px solid transparent;
+  border-top-color: #e66581;
+  animation: spin 1.5s linear infinite;
+}
 
-    @keyframes spin {
-        0%   {
-            transform: rotateZ(0deg);
-        }
-        100% {
-            transform: rotateZ(360deg);
-        }
-    }
+@keyframes spin {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
 
-.error, .error:after, .error:before {
-    border-top-color: red !important;
+.error,
+.error:after,
+.error:before {
+  border-top-color: red !important;
 }
 
 .error {
-    animation: spin 30s linear infinite !important;
+  animation: spin 30s linear infinite !important;
 }
 
 .error:after {
@@ -67,47 +69,49 @@ https://ihatetomatoes.net for initial code templates.*/
   animation: spin 20s linear infinite !important;
 }
 
-.paused, .paused:after, .paused:before {
-   animation-play-state: paused !important;
+.paused,
+.paused:after,
+.paused:before {
+  animation-play-state: paused !important;
 }
 
 #demo-content {
-	padding-top: 100px;
+  padding-top: 100px;
 }
 
 div#loader-text {
-    min-height: 3em;
+  min-height: 3em;
 }
 
 #loader-text p {
-    z-index: 1002;
-    max-width: 750px;
-    text-align: center;
-    margin: 0px auto 10px auto;
+  z-index: 1002;
+  max-width: 750px;
+  text-align: center;
+  margin: 0px auto 10px auto;
 }
 
 #loader-text p.launching {
-    font-size: 2em;
+  font-size: 2em;
 }
 
 div#loader-links {
-    min-height: 6em;
+  min-height: 6em;
 }
 
 #loader-links p {
-    font-size: 1.5em;
-    text-align: center;
-    max-width:700px;
-    margin: 0px auto 10px auto;
+  font-size: 1.5em;
+  text-align: center;
+  max-width: 700px;
+  margin: 0px auto 10px auto;
 }
 
 div#log-container {
-    width: 80%;
-    margin: 0% 10%;
+  width: 80%;
+  margin: 0% 10%;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .preview {
