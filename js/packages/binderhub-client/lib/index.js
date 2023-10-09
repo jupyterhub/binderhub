@@ -33,7 +33,6 @@ export class BinderRepository {
       this.buildUrl.searchParams.append("build_token", buildToken);
     }
     this.callbacks = {};
-    this.state = null;
   }
 
   /**
@@ -128,39 +127,14 @@ export class BinderRepository {
     }
   }
 
-  /**
-   * @param {string} oldState Old state the building process was in
-   * @param {string} newState New state the building process is in
-   * @returns True if transition from oldState to newState is valid, False otherwise
-   */
-  validateStateTransition(oldState, newState) {
-    if (oldState === "start") {
-      return (
-        newState === "waiting" || newState === "built" || newState === "failed"
-      );
-    } else if (oldState === "waiting") {
-      return newState === "building" || newState === "failed";
-    } else if (oldState === "building") {
-      return newState === "pushing" || newState === "failed";
-    } else if (oldState === "pushing") {
-      return newState === "built" || newState === "failed";
-    } else {
-      return false;
-    }
-  }
-
   _changeState(state, data) {
     [state, "*"].map(key => {
       const callbacks = this.callbacks[key];
       if (callbacks) {
         for (let i = 0; i < callbacks.length; i++) {
-          callbacks[i](this.state, state || this.state, data);
+          callbacks[i](data);
         }
       }
     });
-
-    if (state && this.validateStateTransition(this.state, state)) {
-      this.state = state;
-    }
   }
 }
