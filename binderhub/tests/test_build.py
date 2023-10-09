@@ -13,7 +13,7 @@ from kubernetes import client
 from tornado.httputil import url_concat
 from tornado.queues import Queue
 
-from binderhub.build import KubernetesBuildExecutor, ProgressEvent
+from binderhub.build import BuildExecutor, KubernetesBuildExecutor, ProgressEvent
 from binderhub.build_local import LocalRepo2dockerBuild, ProcessTerminated, _execute_cmd
 
 from .utils import async_requests
@@ -415,3 +415,21 @@ def test_execute_cmd_break():
             lines.append(line)
     assert lines == ["1\n"]
     assert str(exc.value) == f"ProcessTerminated: {cmd}"
+
+
+def test_extra_r2d_options():
+    bex = BuildExecutor()
+    bex.repo2docker_extra_args = ["--repo-dir=/srv/repo"]
+    bex.image_name = "test:test"
+    bex.ref = "main"
+
+    assert bex.get_r2d_cmd_options() == [
+        "--ref=main",
+        "--image=test:test",
+        "--no-clean",
+        "--no-run",
+        "--json-logs",
+        "--user-name=jovyan",
+        "--user-id=1000",
+        "--repo-dir=/srv/repo",
+    ]
