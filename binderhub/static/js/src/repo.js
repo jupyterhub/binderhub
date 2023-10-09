@@ -25,6 +25,5 @@ export function updateRepoText() {
     })
   } else {
     setLabels();
-
   }
 }

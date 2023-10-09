@@ -2,7 +2,7 @@ import { makeBadgeMarkup } from './badge';
 import { getBuildFormValues } from './form';
 import { BADGE_BASE_URL, BASE_URL } from './constants';
 
- function v2url(providerPrefix, repository, ref, path, pathType) {
+function v2url(providerPrefix, repository, ref, path, pathType) {
   // return a v2 url from a providerPrefix, repository, ref, and (file|url)path
   if (repository.length === 0) {
     // no repo, no url
