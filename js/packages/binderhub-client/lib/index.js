@@ -1,4 +1,4 @@
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
 
 // Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
@@ -16,20 +16,22 @@ export class BinderRepository {
   constructor(providerSpec, buildEndpointUrl, buildToken) {
     this.providerSpec = providerSpec;
     // Make sure that buildEndpointUrl is a real URL - this ensures hostname is properly set
-    if(!(buildEndpointUrl instanceof URL)) {
-      throw new TypeError(`buildEndpointUrl must be a URL object, got ${buildEndpointUrl} instead`);
+    if (!(buildEndpointUrl instanceof URL)) {
+      throw new TypeError(
+        `buildEndpointUrl must be a URL object, got ${buildEndpointUrl} instead`,
+      );
     }
     // We make a copy here so we don't modify the passed in URL object
     this.buildEndpointUrl = new URL(buildEndpointUrl);
     // The binderHub API is path based, so the buildEndpointUrl must have a trailing slash. We add
     // it if it is not passed in here to us.
-    if(!this.buildEndpointUrl.pathname.endsWith('/')) {
+    if (!this.buildEndpointUrl.pathname.endsWith("/")) {
       this.buildEndpointUrl.pathname += "/";
     }
 
     // The actual URL we'll make a request to build this particular providerSpec
     this.buildUrl = new URL(this.providerSpec, this.buildEndpointUrl);
-    if(buildToken) {
+    if (buildToken) {
       this.buildUrl.searchParams.append("build_token", buildToken);
     }
     this.callbacks = {};
@@ -44,7 +46,7 @@ export class BinderRepository {
     this.eventSource.onerror = (err) => {
       console.error("Failed to construct event stream", err);
       this._changeState("failed", {
-        message: "Failed to connect to event stream\n"
+        message: "Failed to connect to event stream\n",
       });
     };
     this.eventSource.addEventListener("message", (event) => {
@@ -109,10 +111,9 @@ export class BinderRepository {
       }
     }
 
-    url.searchParams.append('token', token);
+    url.searchParams.append("token", token);
     return url;
   }
-
 
   /**
    * Add callback whenever state of the current build changes
@@ -150,7 +151,7 @@ export class BinderRepository {
   }
 
   _changeState(state, data) {
-    [state, "*"].map(key => {
+    [state, "*"].map((key) => {
       const callbacks = this.callbacks[key];
       if (callbacks) {
         for (let i = 0; i < callbacks.length; i++) {

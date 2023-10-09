@@ -58,8 +58,6 @@ repos:
           # separate run of pre-commit where we configure a line spacing of 4
           # for these file formats.
           - html
-          - javascript
-          - css
 
   # Misc autoformatting and linting
   - repo: https://github.com/pre-commit/pre-commit-hooks
