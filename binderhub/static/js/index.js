@@ -1,14 +1,4 @@
 /* If this file gets over 200 lines of code long (not counting docs / comments), start using a framework
-  State transitions that are valid are:
-  start -> waiting
-  start -> built
-  start -> failed
-  waiting -> building
-  waiting -> failed
-  building -> pushing
-  building -> failed
-  pushing -> built
-  pushing -> failed
 */
 import ClipboardJS from 'clipboard';
 import 'event-source-polyfill';
@@ -54,7 +44,7 @@ function build(providerSpec, log, fitAddon, path, pathType) {
   const buildEndpointUrl = new URL("build", new URL(BASE_URL, window.location.href));
   const image = new BinderRepository(providerSpec, buildEndpointUrl, buildToken);
 
-  image.onStateChange('*', function(oldState, newState, data) {
+  image.onStateChange('*', function(data) {
     if (data.message !== undefined) {
       log.writeAndStore(data.message);
       fitAddon.fit();
@@ -92,16 +82,14 @@ function build(providerSpec, log, fitAddon, path, pathType) {
     image.close();
   });
 
-  image.onStateChange('built', function(oldState) {
-    if (oldState === null) {
-      $('#phase-already-built').removeClass('hidden');
-      $('#phase-launching').removeClass('hidden');
-    }
+  image.onStateChange('built', function() {
+    $('#phase-already-built').removeClass('hidden');
+    $('#phase-launching').removeClass('hidden');
     $('#phase-launching').removeClass('hidden');
     updateFavicon(BASE_URL + "favicon_success.ico");
   });
 
-  image.onStateChange('ready', function(oldState, newState, data) {
+  image.onStateChange('ready', function(data) {
     image.close();
     // If data.url is an absolute URL, it'll be used. Else, it'll be interpreted
     // relative to current page's URL.
