@@ -37,7 +37,7 @@ config:
   BinderHub:
     base_url: /
     port: 8585
-    require_build_only: true
+    enable_api_only_mode: true
   KubernetesBuildExecutor:
     # docker_host must not be updated, assumptions about it are hardcoded in
     # docker-api/daemonset.yaml
