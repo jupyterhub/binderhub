@@ -796,6 +796,7 @@ class BinderHub(Application):
             - /build/([^/]+)/(.+)
             - /health
             - /_config
+            - /* -> shows a 404 page
         """,
         config=True,
     )

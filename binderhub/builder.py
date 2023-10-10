@@ -228,23 +228,24 @@ class BuildHandler(BaseHandler):
         self.set_header("content-type", "text/event-stream")
         self.set_header("cache-control", "no-cache")
 
-    def _get_build_only_outcome(self):
+    def _get_build_only(self):
         # Get the value of the `enable_api_only_mode` traitlet
         enable_api_only_mode = self.settings.get("enable_api_only_mode", False)
         # Get the value of the `build_only` query parameter if present
         build_only_query_parameter = str(
             self.get_query_argument(name="build_only", default="")
         )
-        build_only_outcome = False
+        build_only = False
         if build_only_query_parameter.lower() == "true":
             if not enable_api_only_mode:
                 raise HTTPError(
+                    status_code=400,
                     log_message="Building but not launching is not permitted when"
                     " the API only mode was not enabled by setting `enable_api_only_mode` to True. "
                 )
-            build_only_outcome = True
+            build_only = True
 
-        return build_only_outcome
+        return build_only
 
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
@@ -426,8 +427,8 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
-        build_only_outcome = self._get_build_only_outcome()
-        if build_only_outcome:
+        build_only = self._get_build_only()
+        if build_only:
             await self.emit(
                 {
                     "phase": "info",
@@ -437,7 +438,7 @@ class BuildHandler(BaseHandler):
                 }
             )
         if image_found:
-            if build_only_outcome:
+            if build_only:
                 await self.emit(
                     {
                         "phase": "ready",
@@ -549,7 +550,7 @@ class BuildHandler(BaseHandler):
                         # nothing to do, just waiting
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.BUILT:
-                        if build_only_outcome:
+                        if build_only:
                             message = "Done! Image built\n"
                             phase = "ready"
                         else:
@@ -598,7 +599,7 @@ class BuildHandler(BaseHandler):
                         ).inc()
                 await self.emit(event)
 
-        if build_only_outcome:
+        if build_only:
             return
 
         if not failed:
