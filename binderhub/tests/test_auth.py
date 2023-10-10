@@ -23,17 +23,17 @@ def use_session():
 @pytest.mark.parametrize(
     "app,path,authenticated",
     [
-        (True, "/", True),  # main page
+        ("app_with_auth_config", "/", True),  # main page
         (
             True,
             "/v2/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
             True,
         ),
-        (True, "/metrics", False),
+        ("app_with_auth_config", "/metrics", False),
     ],
     indirect=[
         "app"
-    ],  # send param True to app fixture, so that it loads authentication configuration
+    ],  # send param "app_with_auth_config" to app fixture, so that it loads authentication configuration
 )
 @pytest.mark.auth
 async def test_auth(app, path, authenticated, use_session):

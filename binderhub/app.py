@@ -786,6 +786,21 @@ class BinderHub(Application):
         help="Origin to use when emitting events. Defaults to hostname of request when empty",
     )
 
+    enable_api_only_mode = Bool(
+        False,
+        help="""
+        When enabled, BinderHub will operate in an API only mode,
+        without a UI, and with the only registered endpoints being:
+            - /metrics
+            - /versions
+            - /build/([^/]+)/(.+)
+            - /health
+            - /_config
+            - /* -> shows a 404 page
+        """,
+        config=True,
+    )
+
     _build_config_deprecated_map = {
         "appendix": ("BuildExecutor", "appendix"),
         "push_secret": ("BuildExecutor", "push_secret"),
@@ -943,6 +958,7 @@ class BinderHub(Application):
                 "auth_enabled": self.auth_enabled,
                 "event_log": self.event_log,
                 "normalized_origin": self.normalized_origin,
+                "enable_api_only_mode": self.enable_api_only_mode,
             }
         )
         if self.auth_enabled:
@@ -956,55 +972,85 @@ class BinderHub(Application):
             (r"/metrics", MetricsHandler),
             (r"/versions", VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
-            (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-            (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
-            # for backward-compatible mybinder.org badge URLs
-            # /assets/images/badge.svg
-            (
-                r"/assets/(images/badge\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": self.tornado_settings["static_path"]},
-            ),
-            # /badge.svg
-            (
-                r"/(badge\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /badge_logo.svg
-            (
-                r"/(badge\_logo\.svg)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /logo_social.png
-            (
-                r"/(logo\_social\.png)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            # /favicon_XXX.ico
-            (
-                r"/(favicon\_fail\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (
-                r"/(favicon\_success\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (
-                r"/(favicon\_building\.ico)",
-                tornado.web.StaticFileHandler,
-                {"path": os.path.join(self.tornado_settings["static_path"], "images")},
-            ),
-            (r"/about", AboutHandler),
             (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
             (r"/_config", ConfigHandler),
-            (r"/", MainHandler),
-            (r".*", Custom404),
         ]
+        if not self.enable_api_only_mode:
+            # In API only mode the endpoints in the list below
+            # are unregistered as they don't make sense in a API only scenario
+            handlers += [
+                (r"/about", AboutHandler),
+                (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
+                (r"/", MainHandler),
+                (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
+                # for backward-compatible mybinder.org badge URLs
+                # /assets/images/badge.svg
+                (
+                    r"/assets/(images/badge\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {"path": self.tornado_settings["static_path"]},
+                ),
+                # /badge.svg
+                (
+                    r"/(badge\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+                # /badge_logo.svg
+                (
+                    r"/(badge\_logo\.svg)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+                # /logo_social.png
+                (
+                    r"/(logo\_social\.png)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+                # /favicon_XXX.ico
+                (
+                    r"/(favicon\_fail\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+                (
+                    r"/(favicon\_success\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+                (
+                    r"/(favicon\_building\.ico)",
+                    tornado.web.StaticFileHandler,
+                    {
+                        "path": os.path.join(
+                            self.tornado_settings["static_path"], "images"
+                        )
+                    },
+                ),
+            ]
+        # This needs to be the last handler in the list, because it needs to match "everything else"
+        handlers.append((r".*", Custom404))
         handlers = self.add_url_prefix(self.base_url, handlers)
         if self.extra_static_path:
             handlers.insert(

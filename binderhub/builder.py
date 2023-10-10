@@ -19,7 +19,7 @@ from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.log import app_log
 from tornado.queues import Queue
-from tornado.web import Finish, authenticated
+from tornado.web import Finish, HTTPError, authenticated
 
 from .base import BaseHandler
 from .build import ProgressEvent
@@ -228,6 +228,25 @@ class BuildHandler(BaseHandler):
         self.set_header("content-type", "text/event-stream")
         self.set_header("cache-control", "no-cache")
 
+    def _get_build_only(self):
+        # Get the value of the `enable_api_only_mode` traitlet
+        enable_api_only_mode = self.settings.get("enable_api_only_mode", False)
+        # Get the value of the `build_only` query parameter if present
+        build_only_query_parameter = str(
+            self.get_query_argument(name="build_only", default="")
+        )
+        build_only = False
+        if build_only_query_parameter.lower() == "true":
+            if not enable_api_only_mode:
+                raise HTTPError(
+                    status_code=400,
+                    log_message="Building but not launching is not permitted when"
+                    " the API only mode was not enabled by setting `enable_api_only_mode` to True. ",
+                )
+            build_only = True
+
+        return build_only
+
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
@@ -408,33 +427,52 @@ class BuildHandler(BaseHandler):
             else:
                 image_found = True
 
-        if image_found:
+        build_only = self._get_build_only()
+        if build_only:
             await self.emit(
                 {
-                    "phase": "built",
+                    "phase": "info",
                     "imageName": image_name,
-                    "message": "Found built image, launching...\n",
+                    "message": "The built image will not be launched "
+                    "because the API only mode was enabled and the query parameter `build_only` was set to true\n",
                 }
             )
-            with LAUNCHES_INPROGRESS.track_inprogress():
-                try:
-                    await self.launch(provider)
-                except LaunchQuotaExceeded:
-                    return
-            self.event_log.emit(
-                "binderhub.jupyter.org/launch",
-                5,
-                {
-                    "provider": provider.name,
-                    "spec": spec,
-                    "ref": ref,
-                    "status": "success",
-                    "build_token": self._have_build_token,
-                    "origin": self.settings["normalized_origin"]
-                    if self.settings["normalized_origin"]
-                    else self.request.host,
-                },
-            )
+        if image_found:
+            if build_only:
+                await self.emit(
+                    {
+                        "phase": "ready",
+                        "imageName": image_name,
+                        "message": "Done! Found built image\n",
+                    }
+                )
+            else:
+                await self.emit(
+                    {
+                        "phase": "built",
+                        "imageName": image_name,
+                        "message": "Found built image, launching...\n",
+                    }
+                )
+                with LAUNCHES_INPROGRESS.track_inprogress():
+                    try:
+                        await self.launch(provider)
+                    except LaunchQuotaExceeded:
+                        return
+                self.event_log.emit(
+                    "binderhub.jupyter.org/launch",
+                    5,
+                    {
+                        "provider": provider.name,
+                        "spec": spec,
+                        "ref": ref,
+                        "status": "success",
+                        "build_token": self._have_build_token,
+                        "origin": self.settings["normalized_origin"]
+                        if self.settings["normalized_origin"]
+                        else self.request.host,
+                    },
+                )
             return
 
         # Don't allow builds when quota is exceeded
@@ -504,7 +542,6 @@ class BuildHandler(BaseHandler):
 
             while not done:
                 progress = await q.get()
-
                 # FIXME: If pod goes into an unrecoverable stage, such as ImagePullBackoff or
                 # whatever, we should fail properly.
                 if progress.kind == ProgressEvent.Kind.BUILD_STATUS_CHANGE:
@@ -513,11 +550,22 @@ class BuildHandler(BaseHandler):
                         # nothing to do, just waiting
                         continue
                     elif progress.payload == ProgressEvent.BuildStatus.BUILT:
+                        if build_only:
+                            message = "Done! Image built\n"
+                            phase = "ready"
+                        else:
+                            message = "Built image, launching...\n"
                         event = {
                             "phase": phase,
-                            "message": "Built image, launching...\n",
+                            "message": message,
                             "imageName": image_name,
                         }
+                        BUILD_TIME.labels(status="success").observe(
+                            time.perf_counter() - build_starttime
+                        )
+                        BUILD_COUNT.labels(
+                            status="success", **self.repo_metric_labels
+                        ).inc()
                         done = True
                     elif progress.payload == ProgressEvent.BuildStatus.RUNNING:
                         # start capturing build logs once the pod is running
@@ -549,15 +597,13 @@ class BuildHandler(BaseHandler):
                         BUILD_COUNT.labels(
                             status="failure", **self.repo_metric_labels
                         ).inc()
-
                 await self.emit(event)
 
-        # Launch after building an image
+        if build_only:
+            return
+
         if not failed:
-            BUILD_TIME.labels(status="success").observe(
-                time.perf_counter() - build_starttime
-            )
-            BUILD_COUNT.labels(status="success", **self.repo_metric_labels).inc()
+            # Launch after building an image
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(provider)
             self.event_log.emit(

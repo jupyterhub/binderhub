@@ -15,14 +15,18 @@ import webbrowser
 import requests
 
 
-def build_binder(repo, ref, *, binder_url="https://mybinder.org"):
+def build_binder(repo, ref, *, binder_url="https://mybinder.org", build_only):
     """Launch a binder
 
     Yields Binder's event-stream events (dicts)
     """
     print(f"Building binder for {repo}@{ref}")
     url = binder_url + f"/build/gh/{repo}/{ref}"
-    r = requests.get(url, stream=True)
+    params = {}
+    if build_only:
+        params = {"build_only": "true"}
+
+    r = requests.get(url, stream=True, params=params)
     r.raise_for_status()
     for line in r.iter_lines():
         line = line.decode("utf8", "replace")
@@ -34,6 +38,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=str, help="The GitHub repo to build")
     parser.add_argument("--ref", default="HEAD", help="The ref of the repo to build")
+    parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="When passed, the image will not be launched after build",
+    )
     file_or_url = parser.add_mutually_exclusive_group()
     file_or_url.add_argument("--filepath", type=str, help="The file to open, if any.")
     file_or_url.add_argument("--urlpath", type=str, help="The url to open, if any.")
@@ -47,7 +56,9 @@ if __name__ == "__main__":
     )
     opts = parser.parse_args()
 
-    for evt in build_binder(opts.repo, ref=opts.ref, binder_url=opts.binder):
+    for evt in build_binder(
+        opts.repo, ref=opts.ref, binder_url=opts.binder, build_only=opts.build_only
+    ):
         if "message" in evt:
             print(
                 "[{phase}] {message}".format(
@@ -56,7 +67,9 @@ if __name__ == "__main__":
                 )
             )
         if evt.get("phase") == "ready":
-            if opts.filepath:
+            if opts.build_only:
+                break
+            elif opts.filepath:
                 url = "{url}notebooks/{filepath}?token={token}".format(
                     **evt, filepath=opts.filepath
                 )

@@ -16,6 +16,7 @@ import pytest
 import requests
 from tornado.httpclient import AsyncHTTPClient
 from tornado.platform.asyncio import AsyncIOMainLoop
+from traitlets.config import Config
 from traitlets.config.loader import PyFileConfigLoader
 
 from ..app import BinderHub
@@ -252,10 +253,25 @@ def app(request, io_loop, _binderhub_config):
         app._configured_bhub = BinderHub(config=_binderhub_config)
         return app
 
-    if hasattr(request, "param") and request.param is True:
-        # load conf for auth test
-        cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
+    api_only_app = False
+    if hasattr(request, "param"):
+        if request.param == "app_with_auth_config":
+            # load conf for auth test
+            cfg = PyFileConfigLoader(binderhub_config_auth_additions_path).load_config()
+            _binderhub_config.merge(cfg)
+        elif request.param == "api_only_app":
+            # load conf that sets BinderHub.enable_api_only_mode = True
+            cfg = Config({"BinderHub": {"enable_api_only_mode": True}})
+            _binderhub_config.merge(cfg)
+            api_only_app = True
+
+    if not api_only_app:
+        # load conf that sets BinderHub.require_build_only = False
+        # otherwise because _binderhub_config has a session scope,
+        # any previous set of require_build_only to True will stick around
+        cfg = Config({"BinderHub": {"enable_api_only_mode": False}})
         _binderhub_config.merge(cfg)
+
     bhub = BinderHub.instance(config=_binderhub_config)
     bhub.initialize([])
     bhub.start(run_loop=False)
