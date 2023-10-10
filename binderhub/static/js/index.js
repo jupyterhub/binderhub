@@ -62,17 +62,20 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
     }
 
     switch (data.phase) {
-      case "waiting":
+      case "waiting": {
         $("#phase-waiting").removeClass("hidden");
         break;
-      case "building":
+      }
+      case "building": {
         $("#phase-building").removeClass("hidden");
         log.show();
         break;
-      case "pushing":
+      }
+      case "pushing": {
         $("#phase-pushing").removeClass("hidden");
         break;
-      case "failed":
+      }
+      case "failed": {
         $("#build-progress .progress-bar").addClass("hidden");
         $("#phase-failed").removeClass("hidden");
 
@@ -89,12 +92,14 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
         }
         image.close();
         break;
-      case "built":
+      }
+      case "built": {
         $("#phase-already-built").removeClass("hidden");
         $("#phase-launching").removeClass("hidden");
         updateFavicon(BASE_URL + "favicon_success.ico");
         break;
-      case "ready":
+      }
+      case "ready": {
         image.close();
         // If data.url is an absolute URL, it'll be used. Else, it'll be interpreted
         // relative to current page's URL.
@@ -107,10 +112,12 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
           pathType,
         );
         break;
-      default:
+      }
+      default: {
         console.log("Unknown phase in response from server");
         console.log(data);
         break;
+      }
     }
   }
   return image;
