@@ -1,8 +1,5 @@
 # This config is used when both BinderHub and the JupyterHub it uses are
 # deployed to a kubernetes cluster.
-# note: when changing the config schema,
-# the old version of this file may need to be copied to ./binderhub-chart-config-old.yaml
-# before updating, and then deleted in a subsequent PR.
 
 service:
   type: NodePort
