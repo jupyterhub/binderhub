@@ -16,6 +16,14 @@ test("Invalid URL errors out", () => {
   }).toThrow(TypeError);
 });
 
+test("Passing buildOnly flag works", () => {
+  const buildEndpointUrl = new URL("https://test-binder.org/build");
+  const br = new BinderRepository("gh/test/test", buildEndpointUrl, null, true);
+  expect(br.buildUrl.toString()).toEqual(
+    "https://test-binder.org/build/gh/test/test?build_only=true",
+  );
+});
+
 test("Trailing slash added if needed", () => {
   const buildEndpointUrl = new URL("https://test-binder.org/build");
   const br = new BinderRepository("gh/test/test", buildEndpointUrl);

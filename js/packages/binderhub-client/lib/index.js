@@ -13,8 +13,9 @@ export class BinderRepository {
    * @param {string} providerSpec Spec of the form <provider>/<repo>/<ref> to pass to the binderhub API.
    * @param {URL} buildEndpointUrl API URL of the build endpoint to talk to
    * @param {string} buildToken Optional JWT based build token if this binderhub installation requires using build tokens
+   * @param {boolean} buildOnly Opt out of launching built image by default by passing `build_only` param
    */
-  constructor(providerSpec, buildEndpointUrl, buildToken) {
+  constructor(providerSpec, buildEndpointUrl, buildToken, buildOnly) {
     this.providerSpec = providerSpec;
     // Make sure that buildEndpointUrl is a real URL - this ensures hostname is properly set
     if (!(buildEndpointUrl instanceof URL)) {
@@ -34,6 +35,10 @@ export class BinderRepository {
     this.buildUrl = new URL(this.providerSpec, this.buildEndpointUrl);
     if (buildToken) {
       this.buildUrl.searchParams.append("build_token", buildToken);
+    }
+
+    if (buildOnly) {
+      this.buildUrl.searchParams.append("build_only", "true");
     }
 
     this.eventIteratorQueue = null;
