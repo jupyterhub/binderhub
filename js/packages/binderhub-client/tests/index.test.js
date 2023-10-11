@@ -233,3 +233,22 @@ describe(
   },
   10 * 1000,
 );
+
+test("Get full redirect URL and deal with query (with pathType=url)", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build"),
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        "https://hub.test-binder.org/user/something/",
+        "token",
+        "endpoint?a=1/2&b=3",
+        "url",
+      )
+      .toString(),
+  ).toBe(
+    "https://hub.test-binder.org/user/something/endpoint?a=1/2&b=3&token=token",
+  );
+});
