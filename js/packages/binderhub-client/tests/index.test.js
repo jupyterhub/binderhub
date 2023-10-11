@@ -234,7 +234,7 @@ describe(
   10 * 1000,
 );
 
-test("Get full redirect URL and deal with query (with pathType=url)", () => {
+test("Get full redirect URL and deal with query and encoded query (with pathType=url)", () => {
   const br = new BinderRepository(
     "gh/test/test",
     new URL("https://test-binder.org/build"),
@@ -244,11 +244,11 @@ test("Get full redirect URL and deal with query (with pathType=url)", () => {
       .getFullRedirectURL(
         "https://hub.test-binder.org/user/something/",
         "token",
-        "endpoint?a=1/2&b=3",
+        "endpoint?a=1/2&b=3%3F%2F",
         "url",
       )
       .toString(),
   ).toBe(
-    "https://hub.test-binder.org/user/something/endpoint?a=1/2&b=3&token=token",
+    "https://hub.test-binder.org/user/something/endpoint?a=1/2&b=3%3F%2F&token=token",
   );
 });
