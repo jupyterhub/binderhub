@@ -118,30 +118,30 @@ export class BinderRepository {
     // Make a copy of the URL so we don't mangle the original
     let url = new URL(serverUrl);
     if (path) {
-      // strip trailing / from URL
-      url.pathname = url.pathname.replace(/\/$/, "");
-
+      // Ensure there is a trailing / in serverUrl
+      if (!url.pathname.endsWith("/")) {
+        url.pathname += "/";
+      }
       // trim leading '/' from path to launch users into
       path = path.replace(/(^\/)/g, "");
 
       if (pathType === "lab") {
         // The path is a specific *file* we should open with JupyterLab
-
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
 
         // /doc/tree is safe because it allows redirect to files
-        url.pathname = url.pathname + "/doc/tree/" + encodeURI(path);
+        url = new URL("doc/tree/" + encodeURI(path), url);
       } else if (pathType === "file") {
         // The path is a specific file we should open with *classic notebook*
 
         // trim trailing / on file paths
         path = path.replace(/(\/$)/g, "");
-        // /tree is safe because it allows redirect to files
-        url.pathname = url.pathname + "/tree/" + encodeURI(path);
+
+        url = new URL("tree/" + encodeURI(path), url);
       } else {
         // pathType is 'url' and we should just pass it on
-        url.pathname = url.pathname + "/" + path;
+        url = new URL(path, url);
       }
     }
 
