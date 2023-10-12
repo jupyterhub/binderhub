@@ -1,5 +1,15 @@
 import { getPathType } from "./path";
 
+/**
+ * Parse current values in form and return them with appropriate URL encoding
+ * @typedef FormValues
+ * @prop {string} providerPrefix prefix denoting what provider was selected
+ * @prop {string} repo repo to build
+ * @prop {[string]} ref optional ref in this repo to build
+ * @prop {string} path Path to launch after this repo has been built
+ * @prop {string} pathType Type of thing to open path with (raw url, notebook file, lab, etc)
+ * @returns {}
+ */
 export function getBuildFormValues() {
   const providerPrefix = $("#provider_prefix").val().trim();
   let repo = $("#repository").val().trim();

@@ -1,5 +1,8 @@
 import { BASE_URL } from "./constants";
 
+/**
+ * Dict holding cached values of API request to _config endpoint
+ */
 let configDict = {};
 
 function setLabels() {
@@ -18,6 +21,9 @@ function setLabels() {
   $("label[for=repository]").text(text);
 }
 
+/**
+ * Update labels for various inputboxes based on user selection of repo provider
+ */
 export function updateRepoText() {
   if (Object.keys(configDict).length === 0) {
     const configUrl = BASE_URL + "_config";
