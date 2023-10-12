@@ -5,7 +5,7 @@ import { EventIterator } from "event-iterator";
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
 /**
- * Build and launch a repository by talking to a BinderHub API endpoint
+ * Build (and optionally launch) a repository by talking to a BinderHub API endpoint
  */
 export class BinderRepository {
   /**
@@ -44,6 +44,22 @@ export class BinderRepository {
    *
    * Returns an Async Generator yielding each item returned by the
    * server API.
+   *
+   * @typedef Line
+   * @prop {[string]} phase The phase the build is currently in. One of: building, built, fetching, launching, ready, unknown, waiting
+   * @prop {[string]} message Human readable message to display to the user. Extra newlines must *not* be added
+   * @prop {[string]} imageName (only with built) Full name of the image that has been built
+   * @prop {[string]} binder_launch_host (only with phase=ready) The host this binderhub API request was serviced by.
+   *                                     Could be different than the host the request was made to in federated cases
+   * @prop {[string]} binder_request (only with phase=ready) Request used to construct this image, of form v2/<provider>/<repo>/<ref>
+   * @prop {[string]} binder_persistent_request (only with phase=ready) Same as binder_request, but <ref> is fully resolved
+   * @prop {[string]} binder_ref_url (only with phase=ready) A URL to the repo provider where the repo can be browsed
+   * @prop {[string]} image (only with phase=ready) Full name of the image that has been built
+   * @prop {[string]} token (only with phase=ready) Token to use to authenticate with jupyter server at url
+   * @prop {[string]} url (only with phase=ready) URL where a jupyter server has been started
+   * @prop {[string]} repo_url (only with phase=ready) URL of the repository that is ready to be launched
+   *
+   * @returns {AsyncGenerator<Line>} An async generator yielding responses from the API as they come in
    */
   fetch() {
     this.eventSource = new EventSource(this.buildUrl);
