@@ -244,11 +244,11 @@ test("Get full redirect URL and deal with query and encoded query (with pathType
       .getFullRedirectURL(
         "https://hub.test-binder.org/user/something/",
         "token",
-        "endpoint?a=1/2&b=3%3F%2F",
+        "endpoint?a=1%2F2&b=3%3F%2F",
         "url",
       )
       .toString(),
   ).toBe(
-    "https://hub.test-binder.org/user/something/endpoint?a=1/2&b=3%3F%2F&token=token",
+    "https://hub.test-binder.org/user/something/endpoint?a=1%2F2&b=3%3F%2F&token=token",
   );
 });
