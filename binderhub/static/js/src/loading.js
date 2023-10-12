@@ -1,4 +1,6 @@
-// Cycle through helpful messages on the loading page
+/**
+ * List of help messages we will cycle through randomly in the loading page
+ */
 const help_messages = [
   'New to Binder? Check out the <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/">Binder Documentation</a> for more information.',
   'You can learn more about building your own Binder repositories in <a target="_blank" href="https://docs.mybinder.org">the Binder community documentation</a>.',
@@ -15,7 +17,9 @@ const help_messages = [
   'Read our <a target="_blank" href="https://discourse.jupyter.org/t/how-to-reduce-mybinder-org-repository-startup-time/4956">advice for speeding up your Binder launch</a>.',
 ];
 
-// Set a launch timeout beyond-which we'll stop cycling messages
+/**
+ * Randomly display a help messages in the loading page
+ */
 export function nextHelpText() {
   const text = $("div#loader-links p.text-center");
   let msg;

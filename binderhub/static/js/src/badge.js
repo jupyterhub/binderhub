@@ -1,3 +1,12 @@
+/**
+ * Generate markdown that people can put on their README or documentation to link to this binder
+ *
+ * @param {string} badgeBaseUrl Optional base URL to use for badge images. If not passed, current origin + baseUrl is used
+ * @param {string} baseUrl Base URL of this binderhub installation. Used only if badgeBaseUrl is not passed
+ * @param {string} url Link target URL that represents this binder installation
+ * @param {string} syntax Kind of markup to generate. Supports 'markdown' and 'rst'
+ * @returns {string}
+ */
 export function makeBadgeMarkup(badgeBaseUrl, baseUrl, url, syntax) {
   let badgeImageUrl;
 
