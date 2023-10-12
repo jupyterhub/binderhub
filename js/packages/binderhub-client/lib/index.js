@@ -1,10 +1,11 @@
 import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
+import { EventIterator } from "event-iterator";
 
 // Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
 /**
- * Build and launch a repository by talking to a BinderHub API endpoint
+ * Build (and optionally launch) a repository by talking to a BinderHub API endpoint
  */
 export class BinderRepository {
   /**
@@ -34,29 +35,54 @@ export class BinderRepository {
     if (buildToken) {
       this.buildUrl.searchParams.append("build_token", buildToken);
     }
-    this.callbacks = {};
+
+    this.eventIteratorQueue = null;
   }
 
   /**
-   * Call the BinderHub API
+   * Call the binderhub API and yield responses as they come in
+   *
+   * Returns an Async Generator yielding each item returned by the
+   * server API.
+   *
+   * @typedef Line
+   * @prop {[string]} phase The phase the build is currently in. One of: building, built, fetching, launching, ready, unknown, waiting
+   * @prop {[string]} message Human readable message to display to the user. Extra newlines must *not* be added
+   * @prop {[string]} imageName (only with built) Full name of the image that has been built
+   * @prop {[string]} binder_launch_host (only with phase=ready) The host this binderhub API request was serviced by.
+   *                                     Could be different than the host the request was made to in federated cases
+   * @prop {[string]} binder_request (only with phase=ready) Request used to construct this image, of form v2/<provider>/<repo>/<ref>
+   * @prop {[string]} binder_persistent_request (only with phase=ready) Same as binder_request, but <ref> is fully resolved
+   * @prop {[string]} binder_ref_url (only with phase=ready) A URL to the repo provider where the repo can be browsed
+   * @prop {[string]} image (only with phase=ready) Full name of the image that has been built
+   * @prop {[string]} token (only with phase=ready) Token to use to authenticate with jupyter server at url
+   * @prop {[string]} url (only with phase=ready) URL where a jupyter server has been started
+   * @prop {[string]} repo_url (only with phase=ready) URL of the repository that is ready to be launched
+   *
+   * @returns {AsyncGenerator<Line>} An async generator yielding responses from the API as they come in
    */
   fetch() {
     this.eventSource = new EventSource(this.buildUrl);
-    this.eventSource.onerror = (err) => {
-      console.error("Failed to construct event stream", err);
-      this._changeState("failed", {
-        message: "Failed to connect to event stream\n",
+    return new EventIterator((queue) => {
+      this.eventIteratorQueue = queue;
+      this.eventSource.onerror = (err) => {
+        queue.push({
+          phase: "failed",
+          message: "Failed to connect to event stream\n",
+        });
+        queue.stop();
+      };
+
+      this.eventSource.addEventListener("message", (event) => {
+        // console.log("message received")
+        // console.log(event)
+        const data = JSON.parse(event.data);
+        // FIXME: fix case of phase/state upstream
+        if (data.phase) {
+          data.phase = data.phase.toLowerCase();
+        }
+        queue.push(data);
       });
-    };
-    this.eventSource.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
-      // FIXME: Rename 'phase' to 'state' upstream
-      // FIXME: fix case of phase/state upstream
-      let state = null;
-      if (data.phase) {
-        state = data.phase.toLowerCase();
-      }
-      this._changeState(state, data);
     });
   }
 
@@ -66,6 +92,10 @@ export class BinderRepository {
   close() {
     if (this.eventSource !== undefined) {
       this.eventSource.close();
+    }
+    if (this.eventIteratorQueue !== null) {
+      // Stop any currently running fetch() iterations
+      this.eventIteratorQueue.stop();
     }
   }
 
@@ -112,30 +142,5 @@ export class BinderRepository {
 
     url.searchParams.append("token", token);
     return url;
-  }
-
-  /**
-   * Add callback whenever state of the current build changes
-   *
-   * @param {str} state The state to add this callback to. '*' to add callback for all state changes
-   * @param {*} cb Callback function to call whenever this state is reached
-   */
-  onStateChange(state, cb) {
-    if (this.callbacks[state] === undefined) {
-      this.callbacks[state] = [cb];
-    } else {
-      this.callbacks[state].push(cb);
-    }
-  }
-
-  _changeState(state, data) {
-    [state, "*"].map((key) => {
-      const callbacks = this.callbacks[key];
-      if (callbacks) {
-        for (let i = 0; i < callbacks.length; i++) {
-          callbacks[i](data);
-        }
-      }
-    });
   }
 }

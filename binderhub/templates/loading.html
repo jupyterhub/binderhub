@@ -59,6 +59,8 @@ Your binder will open automatically when it is ready.
 
 {% block footer %}
 <script type="text/javascript">
-loadingMain("{{provider_spec}}");
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadingMain("{{provider_spec}}");
+})
 </script>
 {% endblock footer %}

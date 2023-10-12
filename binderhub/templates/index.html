@@ -26,7 +26,7 @@
       {% block form %}
       <form id="build-form" class="form jumbotron">
         <h4 id="form-header" class='row'>Build and launch a repository</h4>
-        <input type="hidden" id="provider_prefix" value="{{repo_providers.keys() | list | first}}"/> 
+        <input type="hidden" id="provider_prefix" value="{{repo_providers.keys() | list | first}}"/>
         <div class="form-group row">
           <label for="repository">{{(repo_providers.values() | list | first).labels.text}}</label>
           <div class="input-group">
@@ -197,6 +197,8 @@
 {% block footer %}
 {{ super () }}
 <script type="text/javascript">
-indexMain();
+document.addEventListener("DOMContentLoaded", async () => {
+  await indexMain();
+})
 </script>
 {% endblock footer %}
