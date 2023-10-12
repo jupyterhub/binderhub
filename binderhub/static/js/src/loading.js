@@ -18,7 +18,7 @@ const help_messages = [
 ];
 
 /**
- * Randomly display a help messages in the loading page
+ * Display a randomly picked help message in the loading page
  */
 export function nextHelpText() {
   const text = $("div#loader-links p.text-center");
