@@ -154,6 +154,26 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=lab)"
   );
 });
 
+test("Get full redirect URL and deal with missing trailing slash", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build"),
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        // Missing trailing slash here should not affect target url
+        "https://hub.test-binder.org/user/something",
+        "token",
+        "/directory/index.ipynb/",
+        "lab",
+      )
+      .toString(),
+  ).toBe(
+    "https://hub.test-binder.org/user/something/doc/tree/directory/index.ipynb?token=token",
+  );
+});
+
 test("Get full redirect URL and deal with excessive slashes (with pathType=file)", () => {
   const br = new BinderRepository(
     "gh/test/test",
