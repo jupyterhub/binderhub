@@ -244,11 +244,34 @@ test("Get full redirect URL and deal with query and encoded query (with pathType
       .getFullRedirectURL(
         "https://hub.test-binder.org/user/something/",
         "token",
+        // url path here is already url encoded
         "endpoint?a=1%2F2&b=3%3F%2F",
         "url",
       )
       .toString(),
   ).toBe(
+    // url path here is exactly as encoded as passed in - not *double* encoded
     "https://hub.test-binder.org/user/something/endpoint?a=1%2F2&b=3%3F%2F&token=token",
+  );
+});
+
+test("Get full redirect URL with nbgitpuller URL", () => {
+  const br = new BinderRepository(
+    "gh/test/test",
+    new URL("https://test-binder.org/build"),
+  );
+  expect(
+    br
+      .getFullRedirectURL(
+        "https://hub.test-binder.org/user/something/",
+        "token",
+        // urlpath is not actually url encoded - note that / is / not %2F
+        "git-pull?repo=https://github.com/alperyilmaz/jupyterlab-python-intro&urlpath=lab/tree/jupyterlab-python-intro/&branch=master",
+        "url",
+      )
+      .toString(),
+  ).toBe(
+    // generated URL path here *is* url encoded
+    "https://hub.test-binder.org/user/something/git-pull?repo=https%3A%2F%2Fgithub.com%2Falperyilmaz%2Fjupyterlab-python-intro&urlpath=lab%2Ftree%2Fjupyterlab-python-intro%2F&branch=master&token=token",
   );
 });
