@@ -27,8 +27,14 @@ charts:
         # changes that should trigger a rebuild of this image.
         paths:
           - images/binderhub
-          - ../setup.py
           - ../binderhub
+          - ../js
+          - ../babel.config.json
+          - ../MANIFEST.in
           - ../package.json
+          - ../pyproject.toml
+          - ../requirements.txt
+          - ../setup.cfg
+          - ../setup.py
           - ../webpack.config.js
         valuesPath: image
