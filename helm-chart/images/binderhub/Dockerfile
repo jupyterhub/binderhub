@@ -8,7 +8,7 @@
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
-FROM python:3.11-bullseye as build-stage
+FROM python:3.12-bullseye as build-stage
 
 # Build wheels
 #
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 # ---------------
 # This stage is built and published as jupyterhub/k8s-binderhub.
 #
-FROM python:3.11-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
