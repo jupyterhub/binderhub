@@ -172,6 +172,9 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         badge_base_url = self.settings["badge_base_url"]
         if callable(badge_base_url):
             badge_base_url = badge_base_url(self)
+            # Make sure the url has a trailing slash
+            if not badge_base_url.endswith("/"):
+                badge_base_url += "/"
         return badge_base_url
 
     def render_template(self, name, **extra_ns):
