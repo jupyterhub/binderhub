@@ -18,12 +18,12 @@ import "bootstrap/dist/css/bootstrap-theme.min.css";
 import "../index.css";
 import { setUpLog } from "./src/log";
 import { updateUrls } from "./src/urls";
-import { BASE_URL } from "./src/constants";
+import { BASE_URL, BADGE_BASE_URL } from "./src/constants";
 import { getBuildFormValues } from "./src/form";
 import { updateRepoText } from "./src/repo";
 
 async function build(providerSpec, log, fitAddon, path, pathType) {
-  updateFavicon(BASE_URL + "favicon_building.ico");
+  updateFavicon(new URL("favicon_building.ico", BASE_URL));
   // split provider prefix off of providerSpec
   const spec = providerSpec.slice(providerSpec.indexOf("/") + 1);
   // Update the text of the loading page if it exists
@@ -39,13 +39,7 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
   $(".on-build").removeClass("hidden");
 
   const buildToken = $("#build-token").data("token");
-  // If BASE_URL is absolute, use that as the base for build endpoint URL.
-  // Else, first resolve BASE_URL relative to current URL, then use *that* as the
-  // base for the build endpoint url.
-  const buildEndpointUrl = new URL(
-    "build",
-    new URL(BASE_URL, window.location.href),
-  );
+  const buildEndpointUrl = new URL("build", BASE_URL);
   const image = new BinderRepository(
     providerSpec,
     buildEndpointUrl,
@@ -82,7 +76,7 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
         $("#loader").addClass("paused");
 
         // If we fail for any reason, show an error message and logs
-        updateFavicon(BASE_URL + "favicon_fail.ico");
+        updateFavicon(new URL("favicon_fail.ico", BASE_URL));
         log.show();
         if ($("div#loader-text").length > 0) {
           $("#loader").addClass("error");
@@ -96,7 +90,7 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
       case "built": {
         $("#phase-already-built").removeClass("hidden");
         $("#phase-launching").removeClass("hidden");
-        updateFavicon(BASE_URL + "favicon_success.ico");
+        updateFavicon(new URL("favicon_success.ico", BASE_URL));
         break;
       }
       case "ready": {
@@ -127,7 +121,7 @@ function indexMain() {
   const [log, fitAddon] = setUpLog();
 
   // setup badge dropdown and default values.
-  updateUrls();
+  updateUrls(BADGE_BASE_URL);
 
   $("#provider_prefix_sel li").click(function (event) {
     event.preventDefault();
@@ -135,7 +129,7 @@ function indexMain() {
     $("#provider_prefix-selected").text($(this).text());
     $("#provider_prefix").val($(this).attr("value"));
     updateRepoText();
-    updateUrls();
+    updateUrls(BADGE_BASE_URL);
   });
 
   $("#url-or-file-btn")
@@ -145,21 +139,21 @@ function indexMain() {
 
       $("#url-or-file-selected").text($(this).text());
       updatePathText();
-      updateUrls();
+      updateUrls(BADGE_BASE_URL);
     });
   updatePathText();
   updateRepoText();
 
   $("#repository").on("keyup paste change", function () {
-    updateUrls();
+    updateUrls(BADGE_BASE_URL);
   });
 
   $("#ref").on("keyup paste change", function () {
-    updateUrls();
+    updateUrls(BADGE_BASE_URL);
   });
 
   $("#filepath").on("keyup paste change", function () {
-    updateUrls();
+    updateUrls(BADGE_BASE_URL);
   });
 
   $("#toggle-badge-snippet").on("click", function () {
@@ -180,7 +174,7 @@ function indexMain() {
   $("#build-form").submit(async function (e) {
     e.preventDefault();
     const formValues = getBuildFormValues();
-    updateUrls(formValues);
+    updateUrls(BADGE_BASE_URL, formValues);
     await build(
       formValues.providerPrefix + "/" + formValues.repo + "/" + formValues.ref,
       log,

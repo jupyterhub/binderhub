@@ -1,4 +1,8 @@
-import { BinderRepository } from "@jupyterhub/binderhub-client";
+import {
+  BinderRepository,
+  makeShareableBinderURL,
+  makeBadgeMarkup,
+} from "@jupyterhub/binderhub-client";
 import { parseEventSource, simpleEventSourceServer } from "./utils";
 import fs from "node:fs";
 
@@ -294,4 +298,95 @@ test("Get full redirect URL with nbgitpuller URL", () => {
     // generated URL path here *is* url encoded
     "https://hub.test-binder.org/user/something/git-pull?repo=https%3A%2F%2Fgithub.com%2Falperyilmaz%2Fjupyterlab-python-intro&urlpath=lab%2Ftree%2Fjupyterlab-python-intro%2F&branch=master&token=token",
   );
+});
+
+test("Make a shareable URL", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+  );
+  expect(url.toString()).toBe(
+    "https://test.binder.org/v2/gh/yuvipanda/requirements",
+  );
+});
+
+test("Make a shareable path with URL", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+    "url",
+    "git-pull?repo=https://github.com/alperyilmaz/jupyterlab-python-intro&urlpath=lab/tree/jupyterlab-python-intro/&branch=master",
+  );
+  expect(url.toString()).toBe(
+    "https://test.binder.org/v2/gh/yuvipanda/requirements?git-pull%3Frepo%3Dhttps%3A%2F%2Fgithub.com%2Falperyilmaz%2Fjupyterlab-python-intro%26urlpath%3Dlab%2Ftree%2Fjupyterlab-python-intro%2F%26branch%3Dmasterpath=url",
+  );
+});
+
+test("Making a shareable URL with base URL without trailing / throws error", () => {
+  expect(() => {
+    makeShareableBinderURL(
+      new URL("https://test.binder.org/suffix"),
+      "gh",
+      "yuvipanda",
+      "requirements",
+    );
+  }).toThrow(Error);
+});
+
+test("Make a markdown badge", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+  );
+  const badge = makeBadgeMarkup(
+    new URL("https://test.binder.org"),
+    url,
+    "markdown",
+  );
+  expect(badge).toBe(
+    "[![Binder](https://test.binder.org/badge_logo.svg)](https://test.binder.org/v2/gh/yuvipanda/requirements)",
+  );
+});
+
+test("Make a rst badge", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+  );
+  const badge = makeBadgeMarkup(new URL("https://test.binder.org"), url, "rst");
+  expect(badge).toBe(
+    ".. image:: https://test.binder.org/badge_logo.svg\n :target: https://test.binder.org/v2/gh/yuvipanda/requirements",
+  );
+});
+
+test("Making a badge with an unsupported syntax throws error", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+  );
+  expect(() => {
+    makeBadgeMarkup(new URL("https://test.binder.org"), url, "docx");
+  }).toThrow(Error);
+});
+
+test("Making a badge with base URL without trailing / throws error", () => {
+  const url = makeShareableBinderURL(
+    new URL("https://test.binder.org"),
+    "gh",
+    "yuvipanda",
+    "requirements",
+  );
+  expect(() => {
+    makeBadgeMarkup(new URL("https://test.binder.org/suffix"), url, "markdown");
+  }).toThrow(Error);
 });

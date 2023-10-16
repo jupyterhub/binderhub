@@ -26,7 +26,7 @@ function setLabels() {
  */
 export function updateRepoText() {
   if (Object.keys(configDict).length === 0) {
-    const configUrl = BASE_URL + "_config";
+    const configUrl = new URL("_config", BASE_URL);
     fetch(configUrl).then((resp) => {
       resp.json().then((data) => {
         configDict = data;
