@@ -149,3 +149,65 @@ export class BinderRepository {
     return url;
   }
 }
+
+/**
+ * Generate a shareable binder URL for given repository
+ *
+ * @param {URL} publicBaseUrl Base URL to use for making public URLs. Must end with a trailing slash.
+ * @param {string} providerPrefix prefix denoting what provider was selected
+ * @param {string} repo repo to build
+ * @param {string} ref optional ref in this repo to build
+ * @param {[string]} path Path to launch after this repo has been built
+ * @param {[string]} pathType Type of thing to open path with (raw url, notebook file, lab, etc)
+ *
+ * @returns {URL} A URL that can be shared with others, and clicking which will launch the repo
+ */
+export function makeShareableBinderURL(
+  publicBaseUrl,
+  providerPrefix,
+  repository,
+  ref,
+  path,
+  pathType,
+) {
+  if (!publicBaseUrl.pathname.endsWith("/")) {
+    throw new Error(
+      `publicBaseUrl must end with a trailing slash, got ${publicBaseUrl}`,
+    );
+  }
+  const url = new URL(
+    `v2/${providerPrefix}/${repository}/${ref}`,
+    publicBaseUrl,
+  );
+  if (path && path.length > 0) {
+    url.searchParams.append(`${pathType}path`, path);
+  }
+  return url;
+}
+
+/**
+ * Generate markup that people can put on their README or documentation to link to a specific binder
+ *
+ * @param {URL} publicBaseUrl Base URL to use for making public URLs
+ * @param {URL} url Link target URL that represents this binder installation
+ * @param {string} syntax Kind of markup to generate. Supports 'markdown' and 'rst'
+ * @returns {string}
+ */
+export function makeBadgeMarkup(publicBaseUrl, url, syntax) {
+  if (!publicBaseUrl.pathname.endsWith("/")) {
+    throw new Error(
+      `publicBaseUrl must end with a trailing slash, got ${publicBaseUrl}`,
+    );
+  }
+  const badgeImageUrl = new URL("badge_logo.svg", publicBaseUrl);
+
+  if (syntax === "markdown") {
+    return `[![Binder](${badgeImageUrl})](${url})`;
+  } else if (syntax === "rst") {
+    return `.. image:: ${badgeImageUrl}\n :target: ${url}`;
+  } else {
+    throw new Error(
+      `Only markdown or rst badges are supported, got ${syntax} instead`,
+    );
+  }
+}

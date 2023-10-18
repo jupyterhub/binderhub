@@ -1,7 +1,7 @@
 /**
  * Dynamically set current page's favicon.
  *
- * @param {String} href Path to Favicon to use
+ * @param {URL} href Path to Favicon to use
  */
 function updateFavicon(href) {
   let link = document.querySelector("link[rel*='icon']");
