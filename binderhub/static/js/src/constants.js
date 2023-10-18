@@ -2,7 +2,7 @@
  * @type {URL}
  * Base URL of this binderhub installation.
  *
- * Guaranteed to have a trailing slash by the binderhub python configuration.
+ * Guaranteed to have a leading & trailing slash by the binderhub python configuration.
  */
 export const BASE_URL = new URL(
   document.getElementById("base-url").dataset.url,
