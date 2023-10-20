@@ -1,5 +1,3 @@
-import { BASE_URL } from "./constants";
-
 /**
  * Dict holding cached values of API request to _config endpoint
  */
@@ -21,10 +19,12 @@ function setLabels() {
 
 /**
  * Update labels for various inputboxes based on user selection of repo provider
+ *
+ * @param {URL} baseUrl Base URL to use for constructing path to _config endpoint
  */
-export function updateRepoText() {
+export function updateRepoText(baseUrl) {
   if (Object.keys(configDict).length === 0) {
-    const configUrl = new URL("_config", BASE_URL);
+    const configUrl = new URL("_config", baseUrl);
     fetch(configUrl).then((resp) => {
       resp.json().then((data) => {
         configDict = data;
