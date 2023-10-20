@@ -1,4 +1,4 @@
-import http from "node:http";
+import { createServer } from "node:http";
 
 /**
  * Parse an existing stored EventSource response body into an array of JSON objects
@@ -29,7 +29,7 @@ export function parseEventSource(responseBody) {
  */
 export async function simpleEventSourceServer(fakeResponses) {
   return new Promise((resolve) => {
-    const server = http.createServer(async (req, res) => {
+    const server = createServer(async (req, res) => {
       if (fakeResponses[req.url]) {
         res.statusCode = 200;
         res.setHeader("Content-Type", "text/event-stream");
