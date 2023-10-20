@@ -8,15 +8,13 @@ let configDict = {};
 function setLabels() {
   const provider = $("#provider_prefix").val();
   const text = configDict[provider]["text"];
-  const tag_text = configDict[provider]["tag_text"];
-  const ref_prop_disabled = configDict[provider]["ref_prop_disabled"];
-  const label_prop_disabled = configDict[provider]["label_prop_disabled"];
+  const tagText = configDict[provider]["tag_text"];
+  const refPropDisabled = configDict[provider]["ref_prop_disabled"];
+  const labelPropDisabled = configDict[provider]["label_prop_disabled"];
   const placeholder = "HEAD";
 
-  $("#ref")
-    .attr("placeholder", placeholder)
-    .prop("disabled", ref_prop_disabled);
-  $("label[for=ref]").text(tag_text).prop("disabled", label_prop_disabled);
+  $("#ref").attr("placeholder", placeholder).prop("disabled", refPropDisabled);
+  $("label[for=ref]").text(tagText).prop("disabled", labelPropDisabled);
   $("#repository").attr("placeholder", text);
   $("label[for=repository]").text(text);
 }
