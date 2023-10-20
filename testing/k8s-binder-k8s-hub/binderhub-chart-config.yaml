@@ -52,15 +52,8 @@ jupyterhub:
     config:
       BinderSpawner:
         cors_allow_origin: "*"
-      JupyterHub:
-        # Cull servers quickly to free up K3s resources on CI
-        last_activity_interval: 30
     db:
       type: "sqlite-memory"
-
-  cull:
-    every: 30
-    maxAge: 45
 
   proxy:
     service:
