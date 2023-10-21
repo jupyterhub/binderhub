@@ -95,6 +95,12 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     r.raise_for_status()
     assert r.url.startswith(final["url"])
 
+    # stop the server
+    stop = await async_requests.post(
+        url_concat(f"{final['url']}api/shutdown", {"token": final["token"]})
+    )
+    stop.raise_for_status()
+
 
 @pytest.mark.asyncio(timeout=900)
 @pytest.mark.parametrize(
