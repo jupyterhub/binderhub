@@ -150,7 +150,7 @@ function indexMain() {
 
     $("#provider_prefix-selected").text($(this).text());
     $("#provider_prefix").val($(this).attr("value"));
-    updateRepoText();
+    updateRepoText(BASE_URL);
     updateUrls(BADGE_BASE_URL);
   });
 
@@ -164,7 +164,7 @@ function indexMain() {
       updateUrls(BADGE_BASE_URL);
     });
   updatePathText();
-  updateRepoText();
+  updateRepoText(BASE_URL);
 
   $("#repository").on("keyup paste change", function () {
     updateUrls(BADGE_BASE_URL);
