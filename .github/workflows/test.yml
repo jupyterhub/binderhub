@@ -243,17 +243,23 @@ jobs:
         if: matrix.test-variation == 'upgrade'
         run: |
           . ./ci/common
-          UPGRADE_FROM_VERSION=$(curl -sSL https://jupyterhub.github.io/helm-chart/info.json | jq -er '.binderhub.${{ matrix.upgrade-from }}')
+          # NOTE: We change the directory so binderhub the chart name won't be
+          #       misunderstood as the local folder name.
+          #
+          #       https://github.com/helm/helm/issues/9244
+          cd ci
+
+          if [ ${{ matrix.upgrade-from }} = stable ]; then
+            UPGRADE_FROM_VERSION=$(helm show chart --repo=https://hub.jupyter.org/helm-chart/ binderhub | yq e '.version' -)
+          elif [ ${{ matrix.upgrade-from }} = dev ]; then
+            UPGRADE_FROM_VERSION=$(helm show chart --devel --repo=https://hub.jupyter.org/helm-chart/ binderhub | yq e '.version' -)
+          else
+            UPGRADE_FROM_VERSION=${{ matrix.upgrade-from }}
+          fi
           echo "UPGRADE_FROM_VERSION=$UPGRADE_FROM_VERSION" >> $GITHUB_ENV
 
           echo ""
           echo "Installing already released binderhub version $UPGRADE_FROM_VERSION"
-
-          # FIXME: We change the directory so binderhub the chart name won't be
-          #        misunderstood as the local folder name.
-          #
-          #        https://github.com/helm/helm/issues/9244
-          cd ci
 
           old_config="../testing/k8s-binder-k8s-hub/binderhub-chart-config-old.yaml"
           if [ -f "$old_config" ]; then
