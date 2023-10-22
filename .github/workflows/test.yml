@@ -57,7 +57,7 @@ jobs:
         k3s-channel:
           # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
           # Don't use "latest", instead bump it using a PR so we know when a new version breaks BinderHub
-          - v1.27
+          - v1.28
         test:
           - main
           - auth
@@ -77,14 +77,14 @@ jobs:
               --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: v1.27
+          - k3s-channel: v1.28
             test: helm
             test-variation: pink
             local-chart-extra-args: >-
               --values testing/k8s-binder-k8s-hub/binderhub-chart+pink.yaml
               --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
               --set registry.url=http://$REGISTRY_HOST
-          - k3s-channel: v1.27
+          - k3s-channel: v1.28
             test: helm
             test-variation: upgrade
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
