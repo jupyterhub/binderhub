@@ -1,7 +1,7 @@
 /**
  * List of help messages we will cycle through randomly in the loading page
  */
-const help_messages = [
+const helpMessages = [
   'New to Binder? Check out the <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/">Binder Documentation</a> for more information.',
   'You can learn more about building your own Binder repositories in <a target="_blank" href="https://docs.mybinder.org">the Binder community documentation</a>.',
   'We use the <a target="_blank" href="https://repo2docker.readthedocs.io/">repo2docker</a> tool to automatically build the environment in which to run your code.',
@@ -26,7 +26,7 @@ export function nextHelpText() {
   if (text !== null) {
     if (!text.hasClass("longLaunch")) {
       // Pick a random help message and update
-      msg = help_messages[Math.floor(Math.random() * help_messages.length)];
+      msg = helpMessages[Math.floor(Math.random() * helpMessages.length)];
     } else {
       msg =
         "Your session is taking longer than usual to start!<br />Check the log messages below to see what is happening.";
