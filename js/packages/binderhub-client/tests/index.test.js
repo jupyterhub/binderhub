@@ -4,7 +4,7 @@ import {
   makeBadgeMarkup,
 } from "@jupyterhub/binderhub-client";
 import { parseEventSource, simpleEventSourceServer } from "./utils";
-import fs from "node:fs";
+import { readFileSync } from "node:fs";
 
 test("Passed in URL object is not modified", () => {
   const buildEndpointUrl = new URL("https://test-binder.org/build");
@@ -59,7 +59,10 @@ test("Get full redirect URL with correct token but no path", () => {
   );
   expect(
     br
-      .getFullRedirectURL("https://hub.test-binder.org/user/something", "token")
+      .getFullRedirectURL(
+        new URL("https://hub.test-binder.org/user/something"),
+        "token",
+      )
       .toString(),
   ).toBe("https://hub.test-binder.org/user/something?token=token");
 });
@@ -72,7 +75,7 @@ test("Get full redirect URL with urlpath", () => {
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something",
+        new URL("https://hub.test-binder.org/user/something"),
         "token",
         "rstudio",
         "url",
@@ -89,7 +92,7 @@ test("Get full redirect URL when opening a file with jupyterlab", () => {
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something",
+        new URL("https://hub.test-binder.org/user/something"),
         "token",
         "index.ipynb",
         "lab",
@@ -108,7 +111,7 @@ test("Get full redirect URL when opening a file with classic notebook (with file
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something",
+        new URL("https://hub.test-binder.org/user/something"),
         "token",
         "index.ipynb",
         "file",
@@ -128,7 +131,7 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=url)"
     br
       .getFullRedirectURL(
         // Trailing slash should not be preserved here
-        "https://hub.test-binder.org/user/something/",
+        new URL("https://hub.test-binder.org/user/something/"),
         "token",
         // Trailing slash should be preserved here, but leading slash should not be repeated
         "/rstudio/",
@@ -146,7 +149,7 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=lab)"
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something/",
+        new URL("https://hub.test-binder.org/user/something/"),
         "token",
         // Both leading and trailing slashes should be gone here.
         "/directory/index.ipynb/",
@@ -167,7 +170,7 @@ test("Get full redirect URL and deal with missing trailing slash", () => {
     br
       .getFullRedirectURL(
         // Missing trailing slash here should not affect target url
-        "https://hub.test-binder.org/user/something",
+        new URL("https://hub.test-binder.org/user/something"),
         "token",
         "/directory/index.ipynb/",
         "lab",
@@ -186,7 +189,7 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=file)
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something/",
+        new URL("https://hub.test-binder.org/user/something/"),
         "token",
         // Both leading and trailing slashes should be gone here.
         "/directory/index.ipynb/",
@@ -198,65 +201,57 @@ test("Get full redirect URL and deal with excessive slashes (with pathType=file)
   );
 });
 
-describe(
-  "Iterate over full output from calling the binderhub API",
-  () => {
-    let closeServer, serverUrl;
+describe("Iterate over full output from calling the binderhub API", () => {
+  let closeServer, serverUrl;
 
-    let responseContents = fs.readFileSync(
-      `${__dirname}/fixtures/fullbuild.eventsource`,
-      { encoding: "utf-8" },
-    );
-    beforeEach(async () => {
-      [serverUrl, closeServer] = await simpleEventSourceServer({
-        "/build/gh/test/test": responseContents,
-      });
-      console.log(serverUrl);
+  let responseContents = readFileSync(
+    `${__dirname}/fixtures/fullbuild.eventsource`,
+    { encoding: "utf-8" },
+  );
+  beforeEach(async () => {
+    [serverUrl, closeServer] = await simpleEventSourceServer({
+      "/build/gh/test/test": responseContents,
     });
+    console.log(serverUrl);
+  });
 
-    afterEach(() => closeServer());
-    test("Iterate over full output from fetch", async () => {
-      let i = 0;
-      const buildEndpointUrl = new URL(`${serverUrl}/build`);
-      const br = new BinderRepository("gh/test/test", buildEndpointUrl);
-      const messages = parseEventSource(responseContents);
-      for await (const item of br.fetch()) {
-        expect(item).toStrictEqual(messages[i]);
-        i += 1;
-        if (item.phase && item.phase === "ready") {
-          br.close();
-        }
+  afterEach(() => closeServer());
+  test("Iterate over full output from fetch", async () => {
+    let i = 0;
+    const buildEndpointUrl = new URL(`${serverUrl}/build`);
+    const br = new BinderRepository("gh/test/test", buildEndpointUrl);
+    const messages = parseEventSource(responseContents);
+    for await (const item of br.fetch()) {
+      expect(item).toStrictEqual(messages[i]);
+      i += 1;
+      if (item.phase && item.phase === "ready") {
+        br.close();
       }
+    }
+  });
+});
+
+describe("Invalid eventsource response causes failure", () => {
+  let closeServer, serverUrl;
+
+  beforeEach(async () => {
+    [serverUrl, closeServer] = await simpleEventSourceServer({
+      "/build/gh/test/test": "invalid",
     });
-  },
-  10 * 1000,
-);
+  });
 
-describe(
-  "Invalid eventsource response causes failure",
-  () => {
-    let closeServer, serverUrl;
-
-    beforeEach(async () => {
-      [serverUrl, closeServer] = await simpleEventSourceServer({
-        "/build/gh/test/test": "invalid",
+  afterEach(() => closeServer());
+  test("Invalid eventsource response should cause failure", async () => {
+    const buildEndpointUrl = new URL(`${serverUrl}/build`);
+    const br = new BinderRepository("gh/test/test", buildEndpointUrl);
+    for await (const item of br.fetch()) {
+      expect(item).toStrictEqual({
+        phase: "failed",
+        message: "Failed to connect to event stream\n",
       });
-    });
-
-    afterEach(() => closeServer());
-    test("Invalid eventsource response should cause failure", async () => {
-      const buildEndpointUrl = new URL(`${serverUrl}/build`);
-      const br = new BinderRepository("gh/test/test", buildEndpointUrl);
-      for await (const item of br.fetch()) {
-        expect(item).toStrictEqual({
-          phase: "failed",
-          message: "Failed to connect to event stream\n",
-        });
-      }
-    });
-  },
-  10 * 1000,
-);
+    }
+  });
+});
 
 test("Get full redirect URL and deal with query and encoded query (with pathType=url)", () => {
   const br = new BinderRepository(
@@ -266,7 +261,7 @@ test("Get full redirect URL and deal with query and encoded query (with pathType
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something/",
+        new URL("https://hub.test-binder.org/user/something/"),
         "token",
         // url path here is already url encoded
         "endpoint?a=1%2F2&b=3%3F%2F",
@@ -287,7 +282,7 @@ test("Get full redirect URL with nbgitpuller URL", () => {
   expect(
     br
       .getFullRedirectURL(
-        "https://hub.test-binder.org/user/something/",
+        new URL("https://hub.test-binder.org/user/something/"),
         "token",
         // urlpath is not actually url encoded - note that / is / not %2F
         "git-pull?repo=https://github.com/alperyilmaz/jupyterlab-python-intro&urlpath=lab/tree/jupyterlab-python-intro/&branch=master",
