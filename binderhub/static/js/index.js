@@ -18,9 +18,31 @@ import "bootstrap/dist/css/bootstrap-theme.min.css";
 import "../index.css";
 import { setUpLog } from "./src/log";
 import { updateUrls } from "./src/urls";
-import { BASE_URL, BADGE_BASE_URL } from "./src/constants";
 import { getBuildFormValues } from "./src/form";
 import { updateRepoText } from "./src/repo";
+
+/**
+ * @type {URL}
+ * Base URL of this binderhub installation.
+ *
+ * Guaranteed to have a leading & trailing slash by the binderhub python configuration.
+ */
+const BASE_URL = new URL(
+  document.getElementById("base-url").dataset.url,
+  document.location.origin,
+);
+
+const badge_base_url = document.getElementById("badge-base-url").dataset.url;
+/**
+ * @type {URL}
+ * Base URL to use for both badge images as well as launch links.
+ *
+ * If not explicitly set, will default to BASE_URL. Primarily set up different than BASE_URL
+ * when used as part of a federation
+ */
+const BADGE_BASE_URL = badge_base_url
+  ? new URL(badge_base_url, document.location.origin)
+  : BASE_URL;
 
 async function build(providerSpec, log, fitAddon, path, pathType) {
   updateFavicon(new URL("favicon_building.ico", BASE_URL));
@@ -128,7 +150,7 @@ function indexMain() {
 
     $("#provider_prefix-selected").text($(this).text());
     $("#provider_prefix").val($(this).attr("value"));
-    updateRepoText();
+    updateRepoText(BASE_URL);
     updateUrls(BADGE_BASE_URL);
   });
 
@@ -142,7 +164,7 @@ function indexMain() {
       updateUrls(BADGE_BASE_URL);
     });
   updatePathText();
-  updateRepoText();
+  updateRepoText(BASE_URL);
 
   $("#repository").on("keyup paste change", function () {
     updateUrls(BADGE_BASE_URL);
