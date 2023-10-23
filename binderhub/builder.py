@@ -428,15 +428,6 @@ class BuildHandler(BaseHandler):
                 image_found = True
 
         build_only = self._get_build_only()
-        if build_only:
-            await self.emit(
-                {
-                    "phase": "info",
-                    "imageName": image_name,
-                    "message": "The built image will not be launched "
-                    "because the API only mode was enabled and the query parameter `build_only` was set to true\n",
-                }
-            )
         if image_found:
             if build_only:
                 await self.emit(
