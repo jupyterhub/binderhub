@@ -81,7 +81,7 @@ jobs:
           echo "${{ secrets.JUPYTERHUB_HELM_CHART_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Setup push rights to Docker Hub
+      - name: Setup push rights to Quay.io
         # This was setup by...
         # 1. Creating a [Robot Account](https://quay.io/organization/jupyterhub?tab=robots) in the JupyterHub
         # .  quay.io org
