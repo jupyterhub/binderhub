@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 
 # The final stage
 # ---------------
-# This stage is built and published as jupyterhub/k8s-binderhub.
+# This stage is built and published as quay.io/jupyterhub/k8s-binderhub.
 #
 FROM python:3.11-slim-bullseye
 
