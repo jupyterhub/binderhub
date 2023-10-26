@@ -17,7 +17,7 @@ nodeSelector: {}
 tolerations: []
 
 image:
-  name: jupyterhub/k8s-binderhub
+  name: quay.io/jupyterhub/k8s-binderhub
   tag: "set-by-chartpress"
   pullPolicy: ""
   pullSecrets: []

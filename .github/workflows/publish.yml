@@ -24,12 +24,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Builds and pushes docker images to DockerHub, packages the Helm chart and
+  # Builds and pushes docker images to quay.io, packages the Helm chart and
   # pushes it to jupyterhub/helm-chart@gh-pages where index.yaml represents the
   # JupyterHub organization Helm chart repository.
   #
   # ref: https://github.com/jupyterhub/helm-chart
-  # ref: https://hub.docker.com/orgs/jupyterhub
+  # ref: https://quay.io/organization/jupyterhub
   #
   Publish:
     runs-on: ubuntu-latest
@@ -83,15 +83,12 @@ jobs:
 
       - name: Setup push rights to Docker Hub
         # This was setup by...
-        # 1. Creating a Docker Hub service account "jupyterhubbot"
-        # 2. Making the account part of the "bots" team, and granting that team
-        #    permissions to push to the relevant images:
-        #    https://hub.docker.com/orgs/jupyterhub/teams/bots/permissions
-        # 3. Registering the username and password as a secret for this repo:
-        #    https://github.com/jupyterhub/binderhub/settings/secrets/actions
-        #
+        # 1. Creating a [Robot Account](https://quay.io/organization/jupyterhub?tab=robots) in the JupyterHub
+        # .  quay.io org
+        # 2. Giving it enough permissions to push to the binderhub image
+        # 3. Putting the robot account's username and password in GitHub actions environment
         run: |
-          docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+          docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
 
       - name: Configure a git user
         # Having a user.email and user.name configured with git is required to
