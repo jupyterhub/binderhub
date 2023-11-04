@@ -54,6 +54,8 @@ extraConfig: {}
 
 extraFiles: {}
 
+extraPodSpec: {}
+
 # Two bits of config need to be set to fully enable cors.
 # config.BinderHub.cors_allow_origin controls the allowed origins for the
 # binderhub api, and jupyterhub.hub.config.BinderSpawner.cors_allow_origin

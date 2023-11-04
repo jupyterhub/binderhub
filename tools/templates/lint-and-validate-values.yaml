@@ -158,6 +158,8 @@ extraEnv: &extraEnv
   MOCK_ENV_VAR_NAME2:
     value: MOCK_ENV_VAR_VALUE2
 extraFiles: {}
+extraPodSpec:
+  priorityClassName: my-priority-class
 podAnnotations: *annotations
 
 global:
