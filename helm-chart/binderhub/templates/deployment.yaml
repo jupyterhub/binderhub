@@ -168,3 +168,6 @@ spec:
           timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
           failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
         {{- end }}
+      {{- with .Values.extraPodSpec }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}

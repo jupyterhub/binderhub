@@ -39,6 +39,7 @@ required:
   - extraVolumes
   - extraVolumeMounts
   - extraEnv
+  - extraPodSpec
   - podAnnotations
   - global
 properties:
@@ -604,6 +605,21 @@ properties:
 
       For more information, see the [Kubernetes EnvVar
       specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvar-v1-core).
+  extraPodSpec:
+    type: object
+    additionalProperties: true
+    description: |
+      Arbitrary extra k8s pod specification for the binder pod, as a YAML object.
+
+      Use this to set extra pod fields that aren't supported by the Helm chart, e.g.
+
+      ```yaml
+      extraPodSpec:
+        priorityClassName: my-priority-class
+      ```
+
+      See [PodSpec](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#PodSpec)
+
   podAnnotations:
     type: object
     additionalProperties: false
