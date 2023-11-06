@@ -302,7 +302,9 @@ class KubernetesBuildExecutor(BuildExecutor):
         help=(
             "The docker socket to use for building the image. "
             "Must be a unix domain socket on a filesystem path accessible on the node "
-            "in which the build pod is running."
+            "in which the build pod is running. "
+            "This is mounted into the build pod, set to empty string to disable, "
+            "e.g. if you are subclassing this builder and don't need the docker socket."
         ),
         config=True,
     )
@@ -416,6 +418,42 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         return affinity
 
+    def get_builder_volumes(self):
+        """
+        Get the lists of volumes and volume-mounts for the build pod.
+        """
+        volume_mounts = []
+        volumes = []
+
+        if self.docker_host:
+            volume_mounts.append(
+                client.V1VolumeMount(
+                    mount_path="/var/run/docker.sock", name="docker-socket"
+                )
+            )
+            docker_socket_path = urlparse(self.docker_host).path
+            volumes.append(
+                client.V1Volume(
+                    name="docker-socket",
+                    host_path=client.V1HostPathVolumeSource(
+                        path=docker_socket_path, type="Socket"
+                    ),
+                )
+            )
+
+        if not self.registry_credentials and self.push_secret:
+            volume_mounts.append(
+                client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
+            )
+            volumes.append(
+                client.V1Volume(
+                    name="docker-config",
+                    secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
+                )
+            )
+
+        return volumes, volume_mounts
+
     def submit(self):
         """
         Submit a build pod to create the image for the repository.
@@ -423,20 +461,7 @@ class KubernetesBuildExecutor(BuildExecutor):
         Progress of the build can be monitored by listening for items in
         the Queue passed to the constructor as `q`.
         """
-        volume_mounts = [
-            client.V1VolumeMount(
-                mount_path="/var/run/docker.sock", name="docker-socket"
-            )
-        ]
-        docker_socket_path = urlparse(self.docker_host).path
-        volumes = [
-            client.V1Volume(
-                name="docker-socket",
-                host_path=client.V1HostPathVolumeSource(
-                    path=docker_socket_path, type="Socket"
-                ),
-            )
-        ]
+        volumes, volume_mounts = self.get_builder_volumes()
 
         env = [
             client.V1EnvVar(name=key, value=value)
@@ -452,16 +477,6 @@ class KubernetesBuildExecutor(BuildExecutor):
                 client.V1EnvVar(
                     name="CONTAINER_ENGINE_REGISTRY_CREDENTIALS",
                     value=json.dumps(self.registry_credentials),
-                )
-            )
-        elif self.push_secret:
-            volume_mounts.append(
-                client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
-            )
-            volumes.append(
-                client.V1Volume(
-                    name="docker-config",
-                    secret=client.V1SecretVolumeSource(secret_name=self.push_secret),
                 )
             )
 
