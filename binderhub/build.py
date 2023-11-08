@@ -299,12 +299,13 @@ class KubernetesBuildExecutor(BuildExecutor):
 
     docker_host = Unicode(
         "/var/run/docker.sock",
+        allow_none=True,
         help=(
             "The docker socket to use for building the image. "
             "Must be a unix domain socket on a filesystem path accessible on the node "
             "in which the build pod is running. "
-            "This is mounted into the build pod, set to empty string to disable, "
-            "e.g. if you are subclassing this builder and don't need the docker socket."
+            "This is mounted into the build pod, set to None to disable, "
+            "e.g. if you are using an alternative builder that doesn't need the docker socket."
         ),
         config=True,
     )
@@ -425,7 +426,7 @@ class KubernetesBuildExecutor(BuildExecutor):
         volume_mounts = []
         volumes = []
 
-        if self.docker_host:
+        if self.docker_host is not None:
             volume_mounts.append(
                 client.V1VolumeMount(
                     mount_path="/var/run/docker.sock", name="docker-socket"
