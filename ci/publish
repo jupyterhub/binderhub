@@ -6,10 +6,10 @@
 # Exit on errors, assert env vars, log commands
 set -eux
 
-PUBLISH_ARGS="--push --publish-chart \
+PUBLISH_ARGS="--push \
     --builder docker-buildx \
     --platform linux/amd64 --platform linux/arm64 \
-    "
+"
 
 cd helm-chart
 # chartpress use git to push to our Helm chart repository, which is the gh-pages
@@ -32,11 +32,13 @@ if [[ $GITHUB_REF != refs/tags/* ]]; then
     PR_OR_HASH=$(git log -1 --pretty=%h-%B | head -n1 | sed 's/^.*\(#[0-9]*\).*/\1/' | sed 's/^\([0-9a-f]*\)-.*/@\1/')
     LATEST_COMMIT_TITLE=$(git log -1 --pretty=%B | head -n1)
     EXTRA_MESSAGE="${GITHUB_REPOSITORY}${PR_OR_HASH} ${LATEST_COMMIT_TITLE}"
-    chartpress $PUBLISH_ARGS --extra-message "${EXTRA_MESSAGE}"
+    chartpress $PUBLISH_ARGS --extra-message "${EXTRA_MESSAGE}" --publish-chart
+    chartpress $PUBLISH_ARGS --extra-message "${EXTRA_MESSAGE}" --image-prefix=jupyterhub/k8s-
 else
     # Setting a tag explicitly enforces a rebuild if this tag had already been
     # built and we wanted to override it.
-    chartpress $PUBLISH_ARGS --tag "${GITHUB_REF:10}"
+    chartpress $PUBLISH_ARGS --tag "${GITHUB_REF:10}" --publish-chart
+    chartpress $PUBLISH_ARGS --tag "${GITHUB_REF:10}" --image-prefix=jupyterhub/k8s-
 fi
 
 # Let us log the changes chartpress did, it should include replacements for

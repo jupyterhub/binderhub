@@ -91,6 +91,20 @@ The minimum Python version is 3.8, and the Helm Chart BinderHub image has been u
 [#1610](https://github.com/jupyterhub/binderhub/pull/1610)
 [#1611](https://github.com/jupyterhub/binderhub/pull/1611).
 
+### Default image registry changed to Quay.io
+
+We now publish the chart's docker images to both [Quay.io] and [Docker Hub] and
+the chart is from now configured to use the images at Quay.io by default.
+
+The change is to ensure that images can be pulled without a [Docker Hub rate
+limit] even if the [JupyterHub organization on Docker Hub] wouldn't be sponsored
+by Docker Hub in the future, something we need to apply for each year.
+
+[docker hub]: https://hub.docker.com
+[docker hub rate limit]: https://docs.docker.com/docker-hub/download-rate-limit/
+[jupyterhub organization on docker hub]: https://hub.docker.com/u/jupyterhub
+[quay.io]: https://quay.io
+
 # 0.2.0
 
 # master@{2019-07-01}...master@{2019-10-01}
