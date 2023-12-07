@@ -24,6 +24,7 @@ class LocalContainerSpawner(BinderSpawnerMixin, DockerSpawner):
 
 c.JupyterHub.spawner_class = LocalContainerSpawner
 c.DockerSpawner.remove = True
+c.DockerSpawner.allowed_images = "*"
 c.LocalContainerSpawner.cmd = "jupyter-notebook"
 
 c.Application.log_level = "DEBUG"
