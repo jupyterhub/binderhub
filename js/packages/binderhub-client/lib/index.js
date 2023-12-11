@@ -1,6 +1,8 @@
 import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
 import { EventIterator } from "event-iterator";
 
+import { detect, getRepoProviders } from "./autodetect";
+
 // Use native browser EventSource if available, and use the polyfill if not available
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
@@ -211,3 +213,5 @@ export function makeBadgeMarkup(publicBaseUrl, url, syntax) {
     );
   }
 }
+
+export { detect, getRepoProviders };

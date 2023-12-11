@@ -99,6 +99,10 @@ class RepoProvider(LoggingConfigurable):
         config=True,
     )
 
+    # Not a traitlet because the class property is serialised in
+    # config.ConfigHandler.generate_config()
+    regex_detect = None
+
     unresolved_ref = Unicode()
 
     git_credentials = Unicode(
@@ -191,6 +195,15 @@ class RepoProvider(LoggingConfigurable):
 
 class FakeProvider(RepoProvider):
     """Fake provider for local testing of the UI"""
+
+    name = Unicode("Fake")
+
+    display_name = "Fake GitHub"
+
+    regex_detect = [
+        r"^https://github\.com/(?<repo>[^/]+/[^/]+)(/blob/(?<ref>[^/]+)(/(?<filepath>.+))?)?$",
+        r"^https://github\.com/(?<repo>[^/]+/[^/]+)(/tree/(?<ref>[^/]+)(/(?<urlpath>.+))?)?$",
+    ]
 
     labels = {
         "text": "Fake Provider",
@@ -627,6 +640,13 @@ class GitLabRepoProvider(RepoProvider):
             return rf"username=binderhub\npassword={self.private_token}"
         return ""
 
+    # Gitlab repos can be nested under projects
+    _regex_detect_base = r"^https://gitlab\.com/(?<repo>[^/]+/[^/]+(/[^/-][^/]+)*)"
+    regex_detect = [
+        _regex_detect_base + r"(/-/blob/(?<ref>[^/]+)(/(?<filepath>.+))?)?$",
+        _regex_detect_base + r"(/-/tree/(?<ref>[^/]+)(/(?<urlpath>.+))?)?$",
+    ]
+
     labels = {
         "text": "GitLab.com repository or URL",
         "tag_text": "Git ref (branch, tag, or commit)",
@@ -779,6 +799,11 @@ class GitHubRepoProvider(RepoProvider):
             else:
                 return rf"username={self.access_token}\npassword=x-oauth-basic"
         return ""
+
+    regex_detect = [
+        r"^https://github\.com/(?<repo>[^/]+/[^/]+)(/blob/(?<ref>[^/]+)(/(?<filepath>.+))?)?$",
+        r"^https://github\.com/(?<repo>[^/]+/[^/]+)(/tree/(?<ref>[^/]+)(/(?<urlpath>.+))?)?$",
+    ]
 
     labels = {
         "text": "GitHub repository name or URL",
@@ -972,6 +997,10 @@ class GistRepoProvider(GitHubRepoProvider):
         config=True,
         help="Flag for allowing usages of secret Gists.  The default behavior is to disallow secret gists.",
     )
+
+    regex_detect = [
+        r"^https://gist\.github\.com/(?<repo>[^/]+/[^/]+)(/(?<ref>[^/]+))?$"
+    ]
 
     labels = {
         "text": "Gist ID (username/gistId) or URL",

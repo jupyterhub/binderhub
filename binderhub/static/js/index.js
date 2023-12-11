@@ -19,7 +19,7 @@ import "../index.css";
 import { setUpLog } from "./src/log";
 import { updateUrls } from "./src/urls";
 import { getBuildFormValues } from "./src/form";
-import { updateRepoText } from "./src/repo";
+import { detectPastedRepo, updateRepoText } from "./src/repo";
 
 /**
  * @type {URL}
@@ -166,7 +166,19 @@ function indexMain() {
   updatePathText();
   updateRepoText(BASE_URL);
 
-  $("#repository").on("keyup paste change", function () {
+  // If the user pastes a URL into the repository field try to autodetect
+  // In all other cases don't do anything to avoid overwriting the user's input
+  // We need to wait for the paste to complete before we can read the input field
+  // https://stackoverflow.com/questions/10972954/javascript-onpaste/10972973#10972973
+  $("#repository").on("paste", () => {
+    setTimeout(() => {
+      detectPastedRepo(BASE_URL).then(() => {
+        updateUrls(BADGE_BASE_URL);
+      });
+    }, 0);
+  });
+
+  $("#repository").on("keyup change", function () {
     updateUrls(BADGE_BASE_URL);
   });
 

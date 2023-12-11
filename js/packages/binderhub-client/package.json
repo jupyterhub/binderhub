@@ -14,7 +14,8 @@
   },
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "dependencies": {
+    "event-iterator": "^2.0.0",
     "event-source-polyfill": "^1.0.31",
-    "event-iterator": "^2.0.0"
+    "whatwg-fetch": "^3.6.19"
   }
 }
