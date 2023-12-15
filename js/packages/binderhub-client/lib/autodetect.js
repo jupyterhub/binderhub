@@ -1,10 +1,3 @@
-import { fetch as fetchPolyfill } from "whatwg-fetch";
-
-// Use native browser fetch if available, and use the polyfill if not available
-// (e.g. in tests https://github.com/jestjs/jest/issues/13834#issuecomment-1407375787)
-// @todo: this is only a problem in the jest tests, so get rid of this and mock fetch instead
-const fetch = window.fetch || fetchPolyfill;
-
 /**
  * Dict holding cached values of API request to _config endpoint for base URL
  */
@@ -50,7 +43,7 @@ export async function detect(baseUrl, text) {
         return {
           providerPrefix: provider,
           repository: m.groups.repo,
-          ref: m.groups.ref,
+          ref: m.groups.ref || null,
           path: m.groups.filepath || m.groups.urlpath || null,
           pathType: m.groups.filepath
             ? "filepath"

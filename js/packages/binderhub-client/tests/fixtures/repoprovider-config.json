@@ -1,0 +1,74 @@
+{
+  "gh": {
+    "text": "GitHub repository name or URL",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": false,
+    "label_prop_disabled": false,
+    "display_name": "GitHub",
+    "regex_detect": [
+      "^https://github\\.com/(?<repo>[^/]+/[^/]+)(/blob/(?<ref>[^/]+)(/(?<filepath>.+))?)?$",
+      "^https://github\\.com/(?<repo>[^/]+/[^/]+)(/tree/(?<ref>[^/]+)(/(?<urlpath>.+))?)?$"
+    ]
+  },
+  "gist": {
+    "text": "Gist ID (username/gistId) or URL",
+    "tag_text": "Git commit SHA",
+    "ref_prop_disabled": false,
+    "label_prop_disabled": false,
+    "display_name": "Gist",
+    "regex_detect": [
+      "^https://gist\\.github\\.com/(?<repo>[^/]+/[^/]+)(/(?<ref>[^/]+))?$"
+    ]
+  },
+  "git": {
+    "text": "Arbitrary git repository URL (http://git.example.com/repo)",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": false,
+    "label_prop_disabled": false,
+    "display_name": "Git repository",
+    "regex_detect": null
+  },
+  "gl": {
+    "text": "GitLab.com repository or URL",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": false,
+    "label_prop_disabled": false,
+    "display_name": "GitLab.com",
+    "regex_detect": [
+      "^https://gitlab\\.com/(?<repo>[^/]+/[^/]+(/[^/-][^/]+)*)(/-/blob/(?<ref>[^/]+)(/(?<filepath>.+))?)?$",
+      "^https://gitlab\\.com/(?<repo>[^/]+/[^/]+(/[^/-][^/]+)*)(/-/tree/(?<ref>[^/]+)(/(?<urlpath>.+))?)?$"
+    ]
+  },
+  "zenodo": {
+    "text": "Zenodo DOI (10.5281/zenodo.3242074)",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": true,
+    "label_prop_disabled": true,
+    "display_name": "Zenodo DOI",
+    "regex_detect": null
+  },
+  "figshare": {
+    "text": "Figshare DOI (10.6084/m9.figshare.9782777.v1)",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": true,
+    "label_prop_disabled": true,
+    "display_name": "Figshare DOI",
+    "regex_detect": null
+  },
+  "hydroshare": {
+    "text": "Hydroshare resource id or URL",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": true,
+    "label_prop_disabled": true,
+    "display_name": "Hydroshare resource",
+    "regex_detect": null
+  },
+  "dataverse": {
+    "text": "Dataverse DOI (10.7910/DVN/TJCLKP)",
+    "tag_text": "Git ref (branch, tag, or commit)",
+    "ref_prop_disabled": true,
+    "label_prop_disabled": true,
+    "display_name": "Dataverse DOI",
+    "regex_detect": null
+  }
+}
