@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function copy_link_into_clipboard(b) {
   var $temp = $("<input>");
   $(b).parent().append($temp);

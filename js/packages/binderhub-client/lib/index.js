@@ -70,7 +70,7 @@ export class BinderRepository {
     this.eventSource = new EventSource(this.buildUrl);
     return new EventIterator((queue) => {
       this.eventIteratorQueue = queue;
-      this.eventSource.onerror = (err) => {
+      this.eventSource.onerror = () => {
         queue.push({
           phase: "failed",
           message: "Failed to connect to event stream\n",
