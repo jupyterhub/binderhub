@@ -417,6 +417,44 @@ def test_extra_environment_variables_passed_to_podspec_upon_submit():
     assert env == extra_environments
 
 
+def test_build_image_pull_secrets():
+    build_pull_secrets = ["build-image-secret", "build-image-secret-2"]
+
+    mock_k8s_api = _list_image_builder_pods_mock()
+
+    class PullBuild(KubernetesBuildExecutor):
+        q = mock.MagicMock()
+        api = mock_k8s_api
+        name = "test_build"
+        repo_url = "repo"
+        ref = "ref"
+        image_name = "name"
+        namespace = "build_namespace"
+        push_secret = ""
+        build_image = "image"
+        image_pull_secrets = build_pull_secrets
+        memory_limit = 0
+        docker_host = "http://mydockerregistry.local"
+        node_selector = {}
+
+    build = PullBuild()
+
+    with mock.patch.object(build.stop_event, "is_set", return_value=True):
+        build.submit()
+
+    call_args_list = mock_k8s_api.create_namespaced_pod.call_args_list
+    assert len(call_args_list) == 1
+
+    args = call_args_list[0][0]
+    pod = args[1]
+
+    assert len(pod.spec.containers) == 1
+
+    pull_secrets = [secret.name for secret in pod.spec.image_pull_secrets]
+
+    assert pull_secrets == build_pull_secrets
+
+
 async def test_local_repo2docker_build():
     q = Queue()
     repo_url = "https://github.com/binderhub-ci-repos/cached-minimal-dockerfile"

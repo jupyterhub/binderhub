@@ -297,6 +297,10 @@ class KubernetesBuildExecutor(BuildExecutor):
     def _default_builder_info(self):
         return {"build_image": self.build_image}
 
+    image_pull_secrets = List(
+        [], help="Pull secrets for the builder image", config=True
+    )
+
     docker_host = Unicode(
         "/var/run/docker.sock",
         allow_none=True,
@@ -455,6 +459,18 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         return volumes, volume_mounts
 
+    def get_image_pull_secrets(self):
+        """
+        Get the list of image pull secrets to be used for the builder image
+        """
+
+        image_pull_secrets = []
+
+        for secret in self.image_pull_secrets:
+            image_pull_secrets.append(client.V1LocalObjectReference(name=secret))
+
+        return image_pull_secrets
+
     def submit(self):
         """
         Submit a build pod to create the image for the repository.
@@ -526,6 +542,7 @@ class KubernetesBuildExecutor(BuildExecutor):
                 volumes=volumes,
                 restart_policy="Never",
                 affinity=self.get_affinity(),
+                image_pull_secrets=self.get_image_pull_secrets(),
             ),
         )
 
