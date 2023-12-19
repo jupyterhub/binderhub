@@ -43,6 +43,113 @@ The documentation should help configure the BinderHub service to:
 [persistent binderhub chart]: https://github.com/gesiscss/persistent_binderhub
 [was added]: https://github.com/jupyterhub/binderhub/pull/666
 
+## Installation
+
+1. Add the `binderhub-service` chart repository to helm:
+
+   ```bash
+   helm repo add binderhub-service https://2i2c.org/binderhub-service
+   helm repo update
+   ```
+
+   Note this URL will change eventually, as binderhub-service is designed
+   to be a generic service, not something for use only by 2i2c.
+
+2. Install the latest development version of `binderhub-service` into a
+   namespace.
+
+   ```bash
+   helm upgrade \
+    --install \
+    --create-namespace \
+    --dev \
+    --wait \
+    --namespace <namespace>
+    <name> \
+    binderhub-service/binderhub-service
+   ```
+
+   This sets up a binderhub service, but not in a publicly visible way.
+
+3. Test that it's running by port-forwarding to the correct pod:
+
+   ```bash
+   kubectl -n <namespace> port-forward $(kubectl -n <namespace> get pod -l app.kubernetes.io/component=binderhub -o name) 8585:8585
+   ```
+
+   This should forward requests on port 8585 on your localhost, to the binder service running inside the pod. So if you go
+   to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, *success!*.
+
+4. Create a docker registry for binderhub to push built images to. In this tutorial, we will be using Google Artifact Registry,
+   but you can use anything else as well.
+
+5. In your GCP project, [enable Google Artifact Registry](https://cloud.google.com/artifact-registry/docs/enable-service) if
+   you have not done so before.
+
+6. Create a new Artifact Registry ([via this URL](https://console.cloud.google.com/artifacts/create-repo) - make sure you are in
+   the correct project!). Give it a name (ideally same name you are using for
+   helm chart), select 'Docker' as the format, 'Standard' as the mode, 'Region'
+   as the location and select the same region your kubernetes cluster is in. Hit "Create".
+
+7. Find the full path of the registry you just created, by opening it in the list
+   and looking for the small 'copy' icon next to the name of the registry. If you
+   hit it, it should copy something like `<region>-docker.pkg.dev/<project-name>/<registry-name>`.
+   Save this.
+
+8. Create a Google Cloud Service Account that has permissions to push to this
+   registry ([via this URL]
+   (https://console.cloud.google.com/iam-admin/serviceaccounts/create) - make
+   sure you are in the correct project). Give it a name (same as the name you used
+   for the helm chart, but with a '-pusher' suffix) and click 'Create and Continue'.
+   In the next step, select 'Artifact Registry Writer' as a role. If you are in
+   an environment with multiple artifact registries, you may want to add a condition
+   here to restrict this service account's permissions. Click "Next". In the final
+   step, just click "Done".
+
+9. Now that the service account is created, find it in the list and open it. You will
+   find a tab named 'Keys' once the informational display opens - select that. Click
+   'Add Key' -> 'Create New Key'. In the dialog box that pops up, select 'JSON' as the
+   key type and click 'Create'. This should download a key file. **Keep this file safe**!
+
+10. Now that we have the appropriate permissions, let's set up our configuration! Create a
+    new file named `binderhub-service-config.yaml` with the following contents:
+
+   ```yaml
+    config:
+      BinderHub:
+        use_registry: true
+        image_prefix: <registry-path>/binder
+    buildPodsRegistryCredentials:
+      server: "https://<region>-docker.pkg.dev"
+      username: "_json_key"
+      password: |
+        <json-key-from-service-account>
+   ```
+
+   where:
+     1. `<registry-path>` is what you copied from step 7
+     2. `<json-key-from-service-account>` is the JSON file you downloaded in step 9. This is
+        a multi-line file - either indent it correctly to match up (the `|` allows multiline strings),
+        or simply edit the contents to be a single line. Since it is JSON, it does not matter.
+     3. `<region>` is the region your artifact registry was created in.
+
+11. Run a `helm upgrade` to use the new configuration you just created:
+
+    ```bash
+    helm upgrade \
+     --install \
+     --create-namespace \
+     --dev \
+     --wait \
+     --namespace <namespace>
+     <name> \
+     binderhub-service/binderhub-service \
+     -f binderhub-service-config.yaml
+    ```
+
+    This should set up binderhub with this custom config. If you run a `kubectl -n <namespace> get pod`,
+    you will see that the binderhub pod has restarted - this confirms that the config has been set up!
+
 ## Funding
 
 Funded in part by [GESIS](http://notebooks.gesis.org) in cooperation with
