@@ -8,14 +8,11 @@
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
-FROM python:3.11-bullseye as build-stage
+FROM python:3.11-bookworm as build-stage
 
-# install node as required to build binderhub from source
-RUN echo "deb https://deb.nodesource.com/node_16.x bullseye main" > /etc/apt/sources.list.d/nodesource.list \
- && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN apt-get update \
  && apt-get install --yes \
-        nodejs \
+        nodejs npm \
  && rm -rf /var/lib/apt/lists/*
 
 # Build wheels
@@ -37,7 +34,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 # ---------------
 # This stage is built and published as quay.io/2i2c/binderhub-service.
 #
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
