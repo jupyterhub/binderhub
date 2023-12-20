@@ -78,7 +78,7 @@ The documentation should help configure the BinderHub service to:
    ```
 
    This should forward requests on port 8585 on your localhost, to the binder service running inside the pod. So if you go
-   to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, *success!*.
+   to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, _success!_.
 
 4. Create a docker registry for binderhub to push built images to. In this tutorial, we will be using Google Artifact Registry,
    but you can use anything else as well.
@@ -114,26 +114,23 @@ The documentation should help configure the BinderHub service to:
 10. Now that we have the appropriate permissions, let's set up our configuration! Create a
     new file named `binderhub-service-config.yaml` with the following contents:
 
-   ```yaml
-    config:
-      BinderHub:
-        use_registry: true
-        image_prefix: <registry-path>/binder
-        # Temporarily enable the binderhub UI so we can test image building and pushing
-        enable_api_only_mode: false
-    buildPodsRegistryCredentials:
-      server: "https://<region>-docker.pkg.dev"
-      username: "_json_key"
-      password: |
-        <json-key-from-service-account>
-   ```
+```yaml
+config:
+  BinderHub:
+    use_registry: true
+    image_prefix: <registry-path>/binder
+    # Temporarily enable the binderhub UI so we can test image building and pushing
+    enable_api_only_mode: false
+buildPodsRegistryCredentials:
+  server: "https://<region>-docker.pkg.dev"
+  username: "_json_key"
+  password: |
+    <json-key-from-service-account>
+```
 
-   where:
-     1. `<registry-path>` is what you copied from step 7
-     2. `<json-key-from-service-account>` is the JSON file you downloaded in step 9. This is
-        a multi-line file - either indent it correctly to match up (the `|` allows multiline strings),
-        or simply edit the contents to be a single line. Since it is JSON, it does not matter.
-     3. `<region>` is the region your artifact registry was created in.
+where: 1. `<registry-path>` is what you copied from step 7 2. `<json-key-from-service-account>` is the JSON file you downloaded in step 9. This is
+a multi-line file - either indent it correctly to match up (the `|` allows multiline strings),
+or simply edit the contents to be a single line. Since it is JSON, it does not matter. 3. `<region>` is the region your artifact registry was created in.
 
 11. Run a `helm upgrade` to use the new configuration you just created:
 
@@ -152,11 +149,11 @@ The documentation should help configure the BinderHub service to:
     This should set up binderhub with this custom config. If you run a `kubectl -n <namespace> get pod`,
     you will see that the binderhub pod has restarted - this confirms that the config has been set up!
 
-12. Let's verify that *image building and pushing* works. Access the binderhub pod by following the
+12. Let's verify that _image building and pushing_ works. Access the binderhub pod by following the
     same instructions as step 3. But this time, you should see a binderhub page very similar to that
     on [mybinder.org](https://mybinder.org). You can test build a repository here - I recommend trying
     out `binder-examples/requirements`. It might take a while to build, but you should be able to see
-    logs in the UI. It should succeed at *pushing* the github image, but will fail to launch. The last
+    logs in the UI. It should succeed at _pushing_ the github image, but will fail to launch. The last
     lines in the log in the UI should look like:
 
     ```
