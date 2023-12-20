@@ -80,7 +80,7 @@ The documentation should help configure the BinderHub service to:
    This should forward requests on port 8585 on your localhost, to the binder service running inside the pod. So if you go
    to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, _success!_.
 
-4. Create a docker registry for binderhub to push built images to. In this tutorial, we will be using Google Artifact Registry,
+4. Create a docker repository for binderhub to push built images to. In this tutorial, we will be using Google Artifact Registry,
    but you can use anything else as well.
 
 5. In your GCP project, [enable Google Artifact Registry](https://cloud.google.com/artifact-registry/docs/enable-service) if
@@ -91,13 +91,13 @@ The documentation should help configure the BinderHub service to:
    helm chart), select 'Docker' as the format, 'Standard' as the mode, 'Region'
    as the location and select the same region your kubernetes cluster is in. Hit "Create".
 
-7. Find the full path of the registry you just created, by opening it in the list
-   and looking for the small 'copy' icon next to the name of the registry. If you
-   hit it, it should copy something like `<region>-docker.pkg.dev/<project-name>/<registry-name>`.
+7. Find the full path of the repository you just created, by opening it in the list
+   and looking for the small 'copy' icon next to the name of the repository. If you
+   hit it, it should copy something like `<region>-docker.pkg.dev/<project-name>/<repository-name>`.
    Save this.
 
 8. Create a Google Cloud Service Account that has permissions to push to this
-   registry ([via this URL]
+   repository ([via this URL]
    (https://console.cloud.google.com/iam-admin/serviceaccounts/create) - make
    sure you are in the correct project). Give it a name (same as the name you used
    for the helm chart, but with a '-pusher' suffix) and click 'Create and Continue'.
@@ -118,7 +118,7 @@ The documentation should help configure the BinderHub service to:
 config:
   BinderHub:
     use_registry: true
-    image_prefix: <registry-path>/binder
+    image_prefix: <repository-path>/binder
     # Temporarily enable the binderhub UI so we can test image building and pushing
     enable_api_only_mode: false
 buildPodsRegistryCredentials:
@@ -128,9 +128,9 @@ buildPodsRegistryCredentials:
     <json-key-from-service-account>
 ```
 
-where: 1. `<registry-path>` is what you copied from step 7 2. `<json-key-from-service-account>` is the JSON file you downloaded in step 9. This is
+where: 1. `<repository-path>` is what you copied from step 7 2. `<json-key-from-service-account>` is the JSON file you downloaded in step 9. This is
 a multi-line file - either indent it correctly to match up (the `|` allows multiline strings),
-or simply edit the contents to be a single line. Since it is JSON, it does not matter. 3. `<region>` is the region your artifact registry was created in.
+or simply edit the contents to be a single line. Since it is JSON, it does not matter. 3. `<region>` is the region your artifact repository was created in.
 
 11. Run a `helm upgrade` to use the new configuration you just created:
 
@@ -163,7 +163,7 @@ or simply edit the contents to be a single line. Since it is JSON, it does not m
     Launch attempt 2 failed, retrying...
     ```
 
-    You can also go back to the Google Artifact Registry you created earlier to verify that the built
+    You can also go back to the Google Artifact Registry repository you created earlier to verify that the built
     image is indeed there.
 
 13. Now that we have verified this is working, we can disable the binderhub UI as we will not be using it.
