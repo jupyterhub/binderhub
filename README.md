@@ -84,7 +84,7 @@ The documentation should help configure the BinderHub service to:
    but binderhub supports using other registries.
 
    Create a new Artifact Registry ([via this URL](https://console.cloud.google.com/artifacts/create-repo). Make sure you're in the correct project (look at the drop
-   down in the top bar).  If this is the first time you are using Artifact Registry, it may ask you to enable the service.
+   down in the top bar). If this is the first time you are using Artifact Registry, it may ask you to enable the service.
 
    In the repository creation page, give it a name (ideally same name you are using for
    helm chart), select 'Docker' as the format, 'Standard' as the mode, 'Region'
@@ -130,10 +130,10 @@ The documentation should help configure the BinderHub service to:
    1. `<repository-path>` is what you copied from step 5.
 
    2. `<json-key-from-service-account>` is the JSON file you downloaded in step 7.
-       This is a multi-line file - either indent it correctly to match up (the `|`
-       allows multiline strings),
-       or simply edit the contents to be a single line. Since it is JSON,
-       it does not matter.
+      This is a multi-line file - either indent it correctly to match up (the `|`
+      allows multiline strings),
+      or simply edit the contents to be a single line. Since it is JSON,
+      it does not matter.
 
    3. `<region>` is the region your artifact repository was created in. You can see
       this in the first part of `<repository-path>` as well.
@@ -172,7 +172,7 @@ The documentation should help configure the BinderHub service to:
     You can also go back to the Google Artifact Registry repository you created earlier to verify that the built
     image is indeed there.
 
-12. Now that we have verified this is working, we can disable the binderhub UI as we will not be using it.
+11. Now that we have verified this is working, we can disable the binderhub UI as we will not be using it.
     Remove the `config.BinderHub.enable_api_only_mode` configuration from the binderhub config, and redeploy
     using the command from step 9.
 
