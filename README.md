@@ -123,7 +123,7 @@ The documentation should help configure the BinderHub service to:
      username: "_json_key"
      password: |
        <json-key-from-service-account>
-  ```
+   ```
 
    where:
 
