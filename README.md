@@ -42,3 +42,9 @@ The documentation should help configure the BinderHub service to:
 [jupyterhub chart]: https://github.com/jupyterhub/zero-to-jupyterhub-k8s
 [persistent binderhub chart]: https://github.com/gesiscss/persistent_binderhub
 [was added]: https://github.com/jupyterhub/binderhub/pull/666
+
+## Funding
+
+Funded in part by [GESIS](http://notebooks.gesis.org) in cooperation with
+NFDI4DS [460234259](https://gepris.dfg.de/gepris/projekt/460234259?context=projekt&task=showDetail&id=460234259&)
+and [CESSDA](https://www.cessda.eu).
