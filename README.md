@@ -119,6 +119,8 @@ The documentation should help configure the BinderHub service to:
       BinderHub:
         use_registry: true
         image_prefix: <registry-path>/binder
+        # Temporarily enable the binderhub UI so we can test image building and pushing
+        enable_api_only_mode: false
     buildPodsRegistryCredentials:
       server: "https://<region>-docker.pkg.dev"
       username: "_json_key"
@@ -149,6 +151,31 @@ The documentation should help configure the BinderHub service to:
 
     This should set up binderhub with this custom config. If you run a `kubectl -n <namespace> get pod`,
     you will see that the binderhub pod has restarted - this confirms that the config has been set up!
+
+12. Let's verify that *image building and pushing* works. Access the binderhub pod by following the
+    same instructions as step 3. But this time, you should see a binderhub page very similar to that
+    on [mybinder.org](https://mybinder.org). You can test build a repository here - I recommend trying
+    out `binder-examples/requirements`. It might take a while to build, but you should be able to see
+    logs in the UI. It should succeed at *pushing* the github image, but will fail to launch. The last
+    lines in the log in the UI should look like:
+
+    ```
+    Successfully pushed europe-west10-docker.pkg.dev/binderhub-service-development/bh-service-test/binderbinder-2dexamples-2drequirements-55ab5c:50533eb470ee6c24e872043d30b2fee463d6943fBuilt image, launching...
+    Launching server...
+    Launch attempt 1 failed, retrying...
+    Launch attempt 2 failed, retrying...
+    ```
+
+    You can also go back to the Google Artifact Registry you created earlier to verify that the built
+    image is indeed there.
+
+13. Now that we have verified this is working, we can disable the binderhub UI as we will not be using it.
+    Remove the `config.BinderHub.enable_api_only_mode` configuration from the binderhub config, and redeploy
+    using the command from step 11.
+
+You now have a working binderhub-service! It's now time to deploy a [z2jh](https://z2jh.jupyter.org) JupyterHub
+with [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles) installed. Instructions
+for that are coming soon.
 
 ## Funding
 
