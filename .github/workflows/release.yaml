@@ -124,7 +124,7 @@ jobs:
         run: helm package binderhub-service
 
       # ref: https://github.com/actions/upload-artifact
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: steps.publishing.outputs.publishing == ''
         with:
           name: binderhub-service-${{ github.sha }}
