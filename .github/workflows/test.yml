@@ -152,7 +152,7 @@ jobs:
           npm install
           npm run webpack
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         id: setup-python
         with:
           python-version: "3.11"
@@ -399,7 +399,7 @@ jobs:
           path: ~/.npm
           key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         id: setup-python
         with:
           python-version: "3.11"
