@@ -28,5 +28,7 @@ maintainers:
   # listed, we have added some below, but in practice the entire JupyterHub team
   # contributes to the maintenance of this Helm chart. Please go ahead and add
   # yourself!
+  - name: Yuvi
+    email: yuvipanda@gmail.com
   - name: Erik Sundell
     email: erik@sundellopensource.se
