@@ -116,7 +116,8 @@ ingress:
 dockerApi:
   image:
     repository: docker.io/library/docker
-    tag: "24.0.7-dind" # ref: https://hub.docker.com/_/docker/tags
+    # Temporarily pinned, until https://github.com/2i2c-org/infrastructure/issues/3588 is fixed
+    tag: "24.0.6-dind" # source: https://hub.docker.com/_/docker/tags
     pullPolicy: ""
     pullSecrets: []
   resources: {}
