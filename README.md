@@ -87,7 +87,7 @@ The documentation should help configure the BinderHub service to:
    down in the top bar). If this is the first time you are using Artifact Registry, it may ask you to enable the service.
 
    In the repository creation page, give it a name (ideally same name you are using for
-   helm chart), select 'Docker' as the format, 'Standard' as the mode, 'Region'
+   dedicated to the chart installation), select 'Docker' as the format, 'Standard' as the mode, 'Region'
    as the location type and select the same region your kubernetes cluster is in. The
    settings about encryption and other options can be left in their default. Hit "Create".
 
@@ -100,7 +100,7 @@ The documentation should help configure the BinderHub service to:
    repository ([via this URL]
    (https://console.cloud.google.com/iam-admin/serviceaccounts/create) - make
    sure you are in the correct project again). You may also need appropriate permissions to set this up. Give it a name (same as the name you used
-   for the helm chart, but with a '-pusher' suffix) and click 'Create and Continue'.
+   for the chart installation, but with a '-pusher' suffix) and click 'Create and Continue'.
    In the next step, select 'Artifact Registry Writer' as a role. Click "Next". In the final step, just click "Done".
 
 7. Now that the service account is created, find it in the list and open it. You will
@@ -149,7 +149,7 @@ The documentation should help configure the BinderHub service to:
     --namespace <namespace>
     <name> \
     binderhub-service/binderhub-service \
-    -f binderhub-service-config.yaml
+    --values binderhub-service-config.yaml
    ```
 
    This should set up binderhub with this custom config. If you run a `kubectl -n <namespace> get pod`,
