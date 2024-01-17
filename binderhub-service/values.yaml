@@ -50,7 +50,7 @@ extraConfig:
     import os
     helm_deployment_name = os.environ["HELM_DEPLOYMENT_NAME"]
     namespace = os.environ["NAMESPACE"]
-    c.KubernetesBuildExecutor.docker_host = f"/var/lib/{ namespace }/{ helm_deployment_name }/docker-api/docker-api.sock"
+    c.KubernetesBuildExecutor.docker_host = f"/var/lib/{ namespace }-{ helm_deployment_name }/docker-api/docker-api.sock"
 
 
 replicas: 1
