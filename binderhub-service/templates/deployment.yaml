@@ -41,7 +41,13 @@ spec:
           env:
             - name: HELM_DEPLOYMENT_NAME
               value: {{ include "binderhub-service.fullname" . }}
+            # Namespace build pods should be placed in
             - name: BUILD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Namespace the binderhub pod is running in
+            - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace

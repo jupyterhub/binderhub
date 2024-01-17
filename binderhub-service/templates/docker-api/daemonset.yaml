@@ -25,17 +25,17 @@ spec:
           image: {{ .Values.dockerApi.image.repository }}:{{ .Values.dockerApi.image.tag }}
           args:
             - dockerd
-            - --data-root=/var/lib/docker-api
-            - --exec-root=/var/run/docker-api
-            - --host=unix:///var/run/docker-api/docker-api.sock
+            - --data-root=/var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            - --exec-root=/var/run/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            - --host=unix:///var/run/{{ .Release.Namespace}}-{{ .Release.Name }}/docker-api/docker-api.sock
             {{- with .Values.dockerApi.extraArgs }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}
           volumeMounts:
             - name: data
-              mountPath: /var/lib/docker-api
+              mountPath: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }} /docker-api
             - name: exec
-              mountPath: /var/run/docker-api
+              mountPath: /var/run/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
             {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
             - name: files
               mountPath: {{ $file_details.mountPath }}
@@ -48,11 +48,11 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /var/lib/docker-api
+            path: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
             type: DirectoryOrCreate
         - name: exec
           hostPath:
-            path: /var/run/docker-api
+            path: /var/run/{{ .Release.Namespace}}-{{ .Release.Name }}/docker-api
             type: DirectoryOrCreate
         {{- if .Values.dockerApi.extraFiles }}
         - name: files
