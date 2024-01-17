@@ -52,7 +52,6 @@ extraConfig:
     namespace = os.environ["NAMESPACE"]
     c.KubernetesBuildExecutor.docker_host = f"/var/run/{ namespace }-{ helm_deployment_name }/docker-api/docker-api.sock"
 
-
 replicas: 1
 image:
   repository: quay.io/2i2c/binderhub-service
