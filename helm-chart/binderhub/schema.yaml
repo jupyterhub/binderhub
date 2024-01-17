@@ -519,10 +519,6 @@ properties:
             type: boolean
             description: |
               TODO
-          type:
-            type: string
-            description: |
-              TODO
       annotations:
         type: object
         additionalProperties: false
