@@ -38,17 +38,20 @@ config:
     base_url: /
     port: 8585
     enable_api_only_mode: true
-  KubernetesBuildExecutor:
-    # docker_host must not be updated, assumptions about it are hardcoded in
-    # docker-api/daemonset.yaml
-    docker_host: /var/run/docker-api/docker-api.sock
 extraConfig:
   # binderhub-service creates a k8s Secret with a docker config.json file
   # including registry credentials.
-  binderhub_service_00_build_pods_docker_config: |
+  binderhub-service-01-build-pods-docker-config: |
     import os
     helm_deployment_name = os.environ["HELM_DEPLOYMENT_NAME"]
     c.KubernetesBuildExecutor.push_secret = f"{helm_deployment_name}-build-pods-docker-config"
+
+  binderhub-service-02-set-docker-api: |
+    import os
+    helm_deployment_name = os.environ["HELM_DEPLOYMENT_NAME"]
+    namespace = os.environ["NAMESPACE"]
+    c.KubernetesBuildExecutor.docker_host = f"/var/lib/{ namespace }/{ helm_deployment_name }/docker-api/docker-api.sock"
+
 
 replicas: 1
 image:
