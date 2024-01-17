@@ -509,16 +509,6 @@ properties:
         description: |
           Enable the creation of a Kubernetes Ingress referencing incoming
           network network traffic to the binder k8s Service.
-      https:
-        type: object
-        additionalProperties: false
-        description: |
-          TODO
-        properties:
-          enabled:
-            type: boolean
-            description: |
-              TODO
       annotations:
         type: object
         additionalProperties: false

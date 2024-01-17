@@ -327,9 +327,6 @@ imageCleaner:
 
 ingress:
   enabled: false
-  https:
-    enabled: false
-    type: kube-lego
   hosts: []
   ingressClassName:
   annotations:

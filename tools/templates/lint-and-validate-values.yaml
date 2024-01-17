@@ -133,9 +133,6 @@ imageCleaner:
 
 ingress:
   enabled: true
-  https:
-    enabled: false
-    type: kube-lego
   hosts: [domain.com]
   annotations: *annotations
   ingressClassName: mock-ingress-class-name
