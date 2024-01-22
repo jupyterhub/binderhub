@@ -1,12 +1,6 @@
 #!/bin/sh
 # Use https://www.shellcheck.net/ to reduce mistakes if you make changes to this file.
 
-setup_helm() {
-    helm_version="${1}"
-    echo "setup helm ${helm_version}"
-    curl -sf https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | DESIRED_VERSION="${helm_version}" bash
-}
-
 await_jupyterhub() {
     kubectl rollout status --watch --timeout 300s deployment/proxy \
  && kubectl rollout status --watch --timeout 300s deployment/hub \
