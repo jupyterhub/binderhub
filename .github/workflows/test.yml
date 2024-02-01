@@ -119,7 +119,7 @@ jobs:
                 - "http://$REGISTRY_HOST"
           EOF
 
-      - uses: jupyterhub/action-k3s-helm@v3
+      - uses: jupyterhub/action-k3s-helm@v4
         with:
           k3s-channel: ${{ matrix.k3s-channel }}
           helm-version: ${{ matrix.helm-version }}
