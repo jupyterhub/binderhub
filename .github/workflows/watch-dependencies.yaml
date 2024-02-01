@@ -76,7 +76,7 @@ jobs:
         run: git --no-pager diff --color=always
 
       # ref: https://github.com/peter-evans/create-pull-request
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         if: github.event_name != 'pull_request'
         with:
           branch: update-image-dependencies
@@ -104,7 +104,7 @@ jobs:
         run: git --no-pager diff --color=always
 
       # ref: https://github.com/peter-evans/create-pull-request
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         if: github.event_name != 'pull_request'
         with:
           branch: update-image-requirements
