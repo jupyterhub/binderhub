@@ -365,7 +365,7 @@ jobs:
             daemonset/binderhub-test-pink
 
       # GitHub action reference: https://github.com/codecov/codecov-action
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
 
   test-local:
     runs-on: ubuntu-22.04
@@ -447,4 +447,4 @@ jobs:
         run: cat testing/local-binder-local-hub/jupyterhub.log
 
       # GitHub action reference: https://github.com/codecov/codecov-action
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
