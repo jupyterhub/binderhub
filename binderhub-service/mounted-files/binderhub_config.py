@@ -2,6 +2,7 @@
 This configuration file is mounted to be read by binderhub with the sole purpose
 of loading chart configuration passed via "config" and "extraConfig".
 """
+
 from functools import lru_cache
 
 from ruamel.yaml import YAML
