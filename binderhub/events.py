@@ -1,6 +1,7 @@
 """
 Emit structured, discrete events when various actions happen.
 """
+
 import json
 import logging
 from datetime import datetime

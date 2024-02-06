@@ -1,4 +1,5 @@
 """Miscellaneous utilities"""
+
 import ipaddress
 import time
 from collections import OrderedDict

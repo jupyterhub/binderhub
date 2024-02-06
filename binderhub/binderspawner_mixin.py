@@ -15,6 +15,7 @@ Longer term options include:
 - Override the Z2JH hub with a custom image built in this repository
 - Duplicate the code here and in binderhub/binderspawner_mixin.py
 """
+
 from tornado import web
 from traitlets import Bool, Unicode
 from traitlets.config import Configurable

@@ -1,6 +1,7 @@
 """
 The binderhub application
 """
+
 import asyncio
 import ipaddress
 import json
@@ -865,9 +866,9 @@ class BinderHub(Application):
                 kubernetes.config.load_incluster_config()
             except kubernetes.config.ConfigException:
                 kubernetes.config.load_kube_config()
-            self.tornado_settings[
-                "kubernetes_client"
-            ] = self.kube_client = kubernetes.client.CoreV1Api()
+            self.tornado_settings["kubernetes_client"] = self.kube_client = (
+                kubernetes.client.CoreV1Api()
+            )
 
         # times 2 for log + build threads
         self.build_pool = ThreadPoolExecutor(self.concurrent_build_limit * 2)

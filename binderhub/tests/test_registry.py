@@ -1,4 +1,5 @@
 """Tests for the registry"""
+
 import base64
 import json
 import os

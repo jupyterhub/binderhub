@@ -1,4 +1,5 @@
 """Test launch quotas"""
+
 import concurrent.futures
 import json
 from unittest import mock
