@@ -176,9 +176,97 @@ The documentation should help configure the BinderHub service to:
     Remove the `config.BinderHub.enable_api_only_mode` configuration from the binderhub config, and redeploy
     using the command from step 9.
 
-You now have a working binderhub-service! It's now time to deploy a [z2jh](https://z2jh.jupyter.org) JupyterHub
-with [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles) installed. Instructions
-for that are coming soon.
+## Connect with a JupyterHub installation
+
+Next, let's connect this to a JupyterHub set up via [z2jh](https://z2jh.jupyter.org/). While any JupyterHub
+that can run containers will work with this, the *most common* setup is to use this with z2jh. The first
+few steps are lifted directly from the [install JupyterHub](https://z2jh.jupyter.org/en/stable/jupyterhub/installation.html)
+section of z2jh.
+
+1. Add the z2jh chart repository to helm:
+
+   ```
+   helm repo add jupyterhub https://hub.jupyter.org/helm-chart/
+   helm repo update
+   ```
+
+2. Figure out the name of the binderhub service.
+
+2. Create a config file, `z2jh-config.yaml`, to hold the config values for the JupyterHub.
+
+   ```yaml
+   hub:
+      loadRoles:
+         user:
+            scopes:
+            - self
+            - "access:services"
+   services:
+      binder:
+         # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
+         # for something more readable and requiring less copy-pasting
+         url: http://binderhub-service-test:80
+   ```
+
+4. Install the JupyterHub
+
+5. Test access to service. Note that it looks broken.
+
+5. Change binder config
+
+```yaml
+config:
+  BinderHub:
+    base_url: /services/binder
+```
+
+6. Test, see that it works!
+
+7. Connect with `jupyterhub-fancy-profiles`
+
+```yaml
+singleuser:
+   profileList:
+      - display_name: "Only Profile Available, this info is not shown in the UI"
+        slug: only-choice
+        profile_options:
+          image:
+            display_name: Image
+            unlisted_choice: &profile_list_unlisted_choice
+              enabled: True
+              display_name: "Custom image"
+              validation_regex: "^.+:.+$"
+              validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
+              display_name_in_choices: "Specify an existing docker image"
+              description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
+              kubespawner_override:
+                image: "{value}"
+            choices:
+              pangeo:
+                display_name: Pangeo Notebook Image
+                description: "Python image with scientific, dask and geospatial tools"
+                kubespawner_override:
+                  image: pangeo/pangeo-notebook:2023.09.11
+              scipy:
+                display_name: Jupyter SciPy Notebook
+                slug: scipy
+                kubespawner_override:
+                  image: jupyter/scipy-notebook:2023-06-26
+hub:
+  image:
+    # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
+    name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
+    tag: z2jh-v3.2.1-fancy-profiles-sha-5874628
+
+  extraConfig:
+    enable-fancy-profiles: |
+      from jupyterhub_fancy_profiles import setup_ui
+      setup_ui(c)
+```
+
+8. Deploy
+
+9. Test!
 
 ## Funding
 
