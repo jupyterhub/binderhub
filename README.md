@@ -179,7 +179,7 @@ The documentation should help configure the BinderHub service to:
 ## Connect with a JupyterHub installation
 
 Next, let's connect this to a JupyterHub set up via [z2jh](https://z2jh.jupyter.org/). While any JupyterHub
-that can run containers will work with this, the *most common* setup is to use this with z2jh. The first
+that can run containers will work with this, the _most common_ setup is to use this with z2jh. The first
 few steps are lifted directly from the [install JupyterHub](https://z2jh.jupyter.org/en/stable/jupyterhub/installation.html)
 section of z2jh.
 
@@ -196,7 +196,7 @@ section of z2jh.
    This provides two things:
 
    a. Routing from `{{hub url }}/services/{{ service name }}` to the service, allowing us to
-      expose the service to the external world without needing its own loadbalancer or ingress.
+   expose the service to the external world without needing its own loadbalancer or ingress.
    b. (Eventually) Appropriate credentials for authenticated network calls between these two services.
 
    To make this connection, we need to tell JupyterHub where to find BinderHub. Eventually
@@ -214,10 +214,10 @@ section of z2jh.
 
    ```yaml
    services:
-      binder:
-         # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
-         # for something more readable and requiring less copy-pasting
-         url: http://{{ service name from step 2}}
+     binder:
+       # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
+       # for something more readable and requiring less copy-pasting
+       url: http://{{ service name from step 2}}
    ```
 
 4. Install the JupyterHub helm chart with the following command:
@@ -236,7 +236,7 @@ section of z2jh.
    - `<helm-release-name>` is any name you can use to refer to this imag
      (like `jupyterhub`)
 
-   - `<namespace>` is the *same* namespace used for the BinderHub install
+   - `<namespace>` is the _same_ namespace used for the BinderHub install
 
    - `<chart-version>` is the latest stable version of the JupyterHub
      helm chart, available from [the chart repository](https://hub.jupyter.org/helm-chart/).
@@ -256,14 +256,14 @@ section of z2jh.
 
    ```yaml
    config:
-      BinderHub:
-         base_url: /services/binder
+     BinderHub:
+       base_url: /services/binder
    ```
 
    Deploy this using the `helm upgrade` command from step 9 in the previous section.
 
-6. Test by going to `http://{{ external ip from step 5}}/services/binder` again, and you
-   should see a *styled* 404 page! Success - this means BinderHub is now connected to
+8. Test by going to `http://{{ external ip from step 5}}/services/binder` again, and you
+   should see a _styled_ 404 page! Success - this means BinderHub is now connected to
    JupyterHub, even if the end users can't see it yet. Let's connect them!
 
 ## Connect with `jupyterhub-fancy-profiles`
@@ -299,32 +299,34 @@ allowing them to build their own images the same way they would on `mybinder.org
 
    ```yaml
    singleuser:
-      profileList:
-         - display_name: "Only Profile Available, this info is not shown in the UI"
-           slug: only-choice
-           profile_options:
-             image:
-               display_name: Image
-               unlisted_choice: &profile_list_unlisted_choice
-                  enabled: True
-                  display_name: "Custom image"
-                  validation_regex: "^.+:.+$"
-                  validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
-                  display_name_in_choices: "Specify an existing docker image"
-                  description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
-                  kubespawner_override:
-                     image: "{value}"
-               choices:
-                  pangeo:
-                     display_name: Pangeo Notebook Image
-                     description: "Python image with scientific, dask and geospatial tools"
-                     kubespawner_override:
-                        image: pangeo/pangeo-notebook:2023.09.11
-                  scipy:
-                     display_name: Jupyter SciPy Notebook
-                     slug: scipy
-                     kubespawner_override:
-                        image: jupyter/scipy-notebook:2023-06-26
+     profileList:
+       - display_name: "Only Profile Available, this info is not shown in the UI"
+         slug: only-choice
+         profile_options:
+           image:
+             display_name: Image
+             unlisted_choice: &profile_list_unlisted_choice
+               enabled: True
+               display_name: "Custom image"
+               validation_regex: "^.+:.+$"
+               validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
+               display_name_in_choices: "Specify an existing docker image"
+               description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
+               kubespawner_override:
+                 image: "{value}"
+             choices:
+               pangeo:
+                 display_name: Pangeo Notebook Image
+                 description: "Python image with scientific, dask and geospatial tools"
+                 kubespawner_override:
+                   image: pangeo/pangeo-notebook:2023.09.11
+               scipy:
+                 display_name: Jupyter SciPy Notebook
+                 slug: scipy
+                 kubespawner_override:
+                   image: jupyter/scipy-notebook:2023-06-26
+   ```
+
 ```
 
 3. Deploy, using the command from step 3 of the section above.
@@ -339,3 +341,4 @@ allowing them to build their own images the same way they would on `mybinder.org
 Funded in part by [GESIS](http://notebooks.gesis.org) in cooperation with
 NFDI4DS [460234259](https://gepris.dfg.de/gepris/projekt/460234259?context=projekt&task=showDetail&id=460234259&)
 and [CESSDA](https://www.cessda.eu).
+```
