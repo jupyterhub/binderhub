@@ -39,8 +39,10 @@ spec:
               mountPath: /etc/binderhub/mounted-secret/
               readOnly: true
           env:
-            - name: HELM_DEPLOYMENT_NAME
-              value: {{ include "binderhub-service.fullname" . }}
+            - name: PUSH_SECRET_NAME
+              value: {{ include "binderhub-service.fullname" . }}-build-pods-docker-config
+            - name: HELM_RELEASE_NAME
+              value: {{ .Release.Name }}
             # Namespace build pods should be placed in
             - name: BUILD_NAMESPACE
               valueFrom:
