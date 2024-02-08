@@ -33,7 +33,7 @@ spec:
             {{- end }}
           volumeMounts:
             - name: data
-              mountPath: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }} /docker-api
+              mountPath: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
             - name: exec
               mountPath: /var/run/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
             {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
