@@ -64,7 +64,7 @@ The documentation should help configure the BinderHub service to:
     --create-namespace \
     --devel \
     --wait \
-    --namespace <namespace>
+    --namespace <namespace> \
     <name> \
     binderhub-service/binderhub-service
    ```
@@ -190,83 +190,149 @@ section of z2jh.
    helm repo update
    ```
 
-2. Figure out the name of the binderhub service.
+2. We want the binderhub to be available under `http://{{hub url}}/services/binder`, because
+   that is what `jupyterhub-fancy-profiles` expects. Eventually we would also want authentication
+   to work correctly. For that, we must set up binderhub as a [JupyterHub Service](https://jupyterhub.readthedocs.io/en/stable/reference/services.html).
+   This provides two things:
 
-2. Create a config file, `z2jh-config.yaml`, to hold the config values for the JupyterHub.
+   a. Routing from `{{hub url }}/services/{{ service name }}` to the service, allowing us to
+      expose the service to the external world without needing its own loadbalancer or ingress.
+   b. (Eventually) Appropriate credentials for authenticated network calls between these two services.
+
+   To make this connection, we need to tell JupyterHub where to find BinderHub. Eventually
+   this can be automatic (once [this issue](https://github.com/2i2c-org/binderhub-service/issues/57)
+   gets resolved). In the meantime, you can get the name of the BinderHub service by executing
+   the following command:
+
+   ```bash
+   kubectl -n <namespace> get svc -l app.kubernetes.io/name=binderhub-service -o name
+   ```
+
+   Make a note of this, we will use it in the next step.
+
+3. Create a config file, `z2jh-config.yaml`, to hold the config values for the JupyterHub.
 
    ```yaml
-   hub:
-      loadRoles:
-         user:
-            scopes:
-            - self
-            - "access:services"
    services:
       binder:
          # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
          # for something more readable and requiring less copy-pasting
-         url: http://binderhub-service-test:80
+         url: http://{{ service name from step 2}}
    ```
 
-4. Install the JupyterHub
+4. Install the JupyterHub helm chart with the following command:
 
-5. Test access to service. Note that it looks broken.
+   ```bash
+   helm upgrade --cleanup-on-fail \
+      --install <helm-release-name> jupyterhub/jupyterhub \
+      --namespace <namespace> \
+      --version=<chart-version> \
+      --values z2jh-config.yaml \
+      --wait
+   ```
 
-5. Change binder config
+   where:
 
-```yaml
-config:
-  BinderHub:
-    base_url: /services/binder
+   - `<helm-release-name>` is any name you can use to refer to this imag
+     (like `jupyterhub`)
+
+   - `<namespace>` is the *same* namespace used for the BinderHub install
+
+   - `<chart-version>` is the latest stable version of the JupyterHub
+     helm chart, available from [the chart repository](https://hub.jupyter.org/helm-chart/).
+
+5. Find the external IP on which the JupyterHub is accessible:
+
+   ```bash
+   kubectl -n <namespace> get svc proxy-public
+   ```
+
+6. Access the binder service by going to `http://{{ external ip from step 5}}/services/binder`.
+   You should see an unstyled, somewhat broken 404 page. This is great and expected. Let's fix
+   that.
+
+7. Change BinderHub config in `binderhub-service-config.yaml`, telling BinderHub it should now
+   be available under `/services/binder`.
+
+   ```yaml
+   config:
+      BinderHub:
+         base_url: /services/binder
+   ```
+
+   Deploy this using the `helm upgrade` command from step 9 in the previous section.
+
+6. Test by going to `http://{{ external ip from step 5}}/services/binder` again, and you
+   should see a *styled* 404 page! Success - this means BinderHub is now connected to
+   JupyterHub, even if the end users can't see it yet. Let's connect them!
+
+## Connect with `jupyterhub-fancy-profiles`
+
+The [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles)
+project provides a user facing frontend for connecting the JupyterHub to BinderHub,
+allowing them to build their own images the same way they would on `mybinder.org`!
+
+1. First, we need to install the `jupyterhub-fancy-profiles` package in the container
+   that is running the JupyterHub process itself (not the user containers). The
+   easiest way to do this is to use one of the pre-built images provided by
+   the `jupyterhub-fancy-profiles` project. In the [list of tags](https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags),
+   select the latest tag that also includes the version of the z2jh chart you are
+   using (the `version` specified in step 4 of the previous step). Once you
+   select the tag, add it to the `z2jh-config.yaml` file:
+
+   ```yaml
+   hub:
+     image:
+        # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
+        name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
+        tag: <tag> # example: "z2jh-v3.2.1-fancy-profiles-sha-5874628"
+
+      extraConfig:
+         enable-fancy-profiles: |
+            from jupyterhub_fancy_profiles import setup_ui
+            setup_ui(c)
+   ```
+
+2. Since `jupyterhub-fancy-profiles` adds on to the [profileList](https://z2jh.jupyter.org/en/stable/jupyterhub/customizing/user-environment.html#using-multiple-profiles-to-let-users-select-their-environment)
+   feature of KubeSpawner, we need to configure a profile list here as well.
+   Add this to the `z2jh-config.yaml` file:
+
+   ```yaml
+   singleuser:
+      profileList:
+         - display_name: "Only Profile Available, this info is not shown in the UI"
+           slug: only-choice
+           profile_options:
+             image:
+               display_name: Image
+               unlisted_choice: &profile_list_unlisted_choice
+                  enabled: True
+                  display_name: "Custom image"
+                  validation_regex: "^.+:.+$"
+                  validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
+                  display_name_in_choices: "Specify an existing docker image"
+                  description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
+                  kubespawner_override:
+                     image: "{value}"
+               choices:
+                  pangeo:
+                     display_name: Pangeo Notebook Image
+                     description: "Python image with scientific, dask and geospatial tools"
+                     kubespawner_override:
+                        image: pangeo/pangeo-notebook:2023.09.11
+                  scipy:
+                     display_name: Jupyter SciPy Notebook
+                     slug: scipy
+                     kubespawner_override:
+                        image: jupyter/scipy-notebook:2023-06-26
 ```
 
-6. Test, see that it works!
+3. Deploy, using the command from step 3 of the section above.
 
-7. Connect with `jupyterhub-fancy-profiles`
-
-```yaml
-singleuser:
-   profileList:
-      - display_name: "Only Profile Available, this info is not shown in the UI"
-        slug: only-choice
-        profile_options:
-          image:
-            display_name: Image
-            unlisted_choice: &profile_list_unlisted_choice
-              enabled: True
-              display_name: "Custom image"
-              validation_regex: "^.+:.+$"
-              validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
-              display_name_in_choices: "Specify an existing docker image"
-              description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
-              kubespawner_override:
-                image: "{value}"
-            choices:
-              pangeo:
-                display_name: Pangeo Notebook Image
-                description: "Python image with scientific, dask and geospatial tools"
-                kubespawner_override:
-                  image: pangeo/pangeo-notebook:2023.09.11
-              scipy:
-                display_name: Jupyter SciPy Notebook
-                slug: scipy
-                kubespawner_override:
-                  image: jupyter/scipy-notebook:2023-06-26
-hub:
-  image:
-    # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
-    name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
-    tag: z2jh-v3.2.1-fancy-profiles-sha-5874628
-
-  extraConfig:
-    enable-fancy-profiles: |
-      from jupyterhub_fancy_profiles import setup_ui
-      setup_ui(c)
-```
-
-8. Deploy
-
-9. Test!
+4. Access the JupyterHub itself, using the external IP you got from step 5 of the section
+   above. You should see a UI that allows you to choose two pre-existing images (pangeo and scipy),
+   specify your own image, or 'build' your own image. The last option lets you access the binder functionality!
+   Test it out :)
 
 ## Funding
 
