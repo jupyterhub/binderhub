@@ -43,14 +43,13 @@ extraConfig:
   # including registry credentials.
   binderhub-service-01-build-pods-docker-config: |
     import os
-    helm_deployment_name = os.environ["HELM_DEPLOYMENT_NAME"]
-    c.KubernetesBuildExecutor.push_secret = f"{helm_deployment_name}-build-pods-docker-config"
+    c.KubernetesBuildExecutor.push_secret = os.environ["PUSH_SECRET_NAME"]
 
   binderhub-service-02-set-docker-api: |
     import os
-    helm_deployment_name = os.environ["HELM_DEPLOYMENT_NAME"]
+    helm_release_name = os.environ["HELM_RELEASE_NAME"]
     namespace = os.environ["NAMESPACE"]
-    c.KubernetesBuildExecutor.docker_host = f"/var/run/{ namespace }-{ helm_deployment_name }/docker-api/docker-api.sock"
+    c.KubernetesBuildExecutor.docker_host = f"/var/run/{ namespace }-{ helm_release_name }/docker-api/docker-api.sock"
 
 replicas: 1
 image:
