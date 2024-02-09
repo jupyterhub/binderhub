@@ -195,8 +195,8 @@ section of z2jh.
    This provides two things:
 
    a. Routing from `{{hub url }}/services/{{ service name }}` to the service, allowing us to
-      expose the service to the external world using JupyterHub's ingress / loadbalancer, without
-      needint a dedicated ingress / loadbalancer for BinderHub.
+   expose the service to the external world using JupyterHub's ingress / loadbalancer, without
+   needint a dedicated ingress / loadbalancer for BinderHub.
 
    b. (Eventually) Appropriate credentials for authenticated network calls between these two services.
 
@@ -215,11 +215,11 @@ section of z2jh.
 
    ```yaml
    hub:
-      services:
-         binder:
-            # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
-            # for something more readable and requiring less copy-pasting
-            url: http://{{ service name from step 2}}
+     services:
+       binder:
+         # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
+         # for something more readable and requiring less copy-pasting
+         url: http://{{ service name from step 2}}
    ```
 
 4. Find the latest version of the z2jh helm chart. The easiest way is to run the
@@ -229,7 +229,7 @@ section of z2jh.
    helm search repo jupyterhub
    ```
 
-   This should output a few columns. Look for the version under **CHART VERSION** (not *APP VERSION*)
+   This should output a few columns. Look for the version under **CHART VERSION** (not _APP VERSION_)
    for `jupyterhub/jupyterhub`. That's the latest z2jh chart version, and that is what
    we will be using.
 
@@ -261,7 +261,7 @@ section of z2jh.
    ```
 
 7. Access the binder service by going to `http://{{ external ip from step 5}}/services/binder/` (the
-   trailing slash is *important*).  You should see an unstyled, somewhat broken
+   trailing slash is _important_). You should see an unstyled, somewhat broken
    404 page. This is great and expected. Let's fix that.
 
 8. Change BinderHub config in `binderhub-service-config.yaml`, telling BinderHub it should now
@@ -276,7 +276,7 @@ section of z2jh.
    Deploy this using the `helm upgrade` command from step 9 in the previous section.
 
 9. Test by going to `http://{{ external ip from step 5}}/services/binder/` (the trailing slash
-   is *important*!) again, and you should see a _styled_ 404 page! Success -
+   is _important_!) again, and you should see a _styled_ 404 page! Success -
    this means BinderHub is now connected to JupyterHub, even if the end users
    can't see it yet. Let's connect them!
 
@@ -291,26 +291,25 @@ allowing them to build their own images the same way they would on `mybinder.org
    easiest way to do this is to use one of the pre-built images provided by
    the `jupyterhub-fancy-profiles` project. In the [list of tags](https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags),
    select the latest tag that also includes the version of the z2jh chart you are
-   using (the `version` specified in step 4 of the previous step). This is *most likely*
+   using (the `version` specified in step 4 of the previous step). This is _most likely_
    the tag on the top of the page, and looks something like `z2jh-v{{ z2jh version }}-fancy-profiles-sha-{{ some string}}`.
 
-   Once you find the tag, *modify* the `z2jh-config.yaml` file to enable `jupyterhub-fancy-profiles`.
+   Once you find the tag, _modify_ the `z2jh-config.yaml` file to enable `jupyterhub-fancy-profiles`.
    While it is hidden here for clarity, make sure to preserve the `hub.services` section that
    you added in step 3 of the previous section while editing this file.
 
    ```yaml
    hub:
-     services:
-      ...
+     services: ...
      image:
-        # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
-        name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
-        tag: "<tag>" # example: "z2jh-v3.2.1-fancy-profiles-sha-5874628"
+       # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
+       name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
+       tag: "<tag>" # example: "z2jh-v3.2.1-fancy-profiles-sha-5874628"
 
      extraConfig:
-        enable-fancy-profiles: |
-          from jupyterhub_fancy_profiles import setup_ui
-          setup_ui(c)
+       enable-fancy-profiles: |
+         from jupyterhub_fancy_profiles import setup_ui
+         setup_ui(c)
    ```
 
 2. Since `jupyterhub-fancy-profiles` adds on to the [profileList](https://z2jh.jupyter.org/en/stable/jupyterhub/customizing/user-environment.html#using-multiple-profiles-to-let-users-select-their-environment)
@@ -350,10 +349,10 @@ allowing them to build their own images the same way they would on `mybinder.org
 3. Deploy, using the command from step 5 of the section above.
 
 4. Access the JupyterHub itself, using the external IP you got from step 5 of the section
-   above (not `{{ hub IP }}/services/binder/`). Once you log in (you can use *any* username
+   above (not `{{ hub IP }}/services/binder/`). Once you log in (you can use _any_ username
    and password), you should see a UI that allows you to choose two pre-existing
    images (pangeo and scipy), specify your own image, or 'build' your own image.
-   The last option lets you access the binder functionality!  Test it out :)
+   The last option lets you access the binder functionality! Test it out :)
 
 From now on, you can customize this JupyterHub as you would any other JupyterHub set up
 using z2jh. The [customization guide](https://z2jh.jupyter.org/en/stable/jupyterhub/customization.html)
@@ -366,4 +365,7 @@ not everyone can log in to your hub!
 Funded in part by [GESIS](http://notebooks.gesis.org) in cooperation with
 NFDI4DS [460234259](https://gepris.dfg.de/gepris/projekt/460234259?context=projekt&task=showDetail&id=460234259&)
 and [CESSDA](https://www.cessda.eu).
+
+```
+
 ```
