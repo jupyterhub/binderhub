@@ -64,7 +64,7 @@ The documentation should help configure the BinderHub service to:
     --create-namespace \
     --devel \
     --wait \
-    --namespace <namespace>
+    --namespace <namespace> \
     <name> \
     binderhub-service/binderhub-service
    ```
@@ -101,7 +101,7 @@ The documentation should help configure the BinderHub service to:
    (https://console.cloud.google.com/iam-admin/serviceaccounts/create) - make
    sure you are in the correct project again). You may also need appropriate permissions to set this up. Give it a name (same as the name you used
    for the chart installation, but with a '-pusher' suffix) and click 'Create and Continue'.
-   In the next step, select 'Artifact Registry Writer' as a role. Click "Next". In the final step, just click "Done".
+   In the next step, select 'Artifact Registry Writer' as a role. Click "Continue". In the final step, just click "Done".
 
 7. Now that the service account is created, find it in the list and open it. You will
    find a tab named 'Keys' once the informational display opens - select that. Click
@@ -130,10 +130,9 @@ The documentation should help configure the BinderHub service to:
    1. `<repository-path>` is what you copied from step 5.
 
    2. `<json-key-from-service-account>` is the JSON file you downloaded in step 7.
-      This is a multi-line file - either indent it correctly to match up (the `|`
-      allows multiline strings),
-      or simply edit the contents to be a single line. Since it is JSON,
-      it does not matter.
+      This is a multi-line file and will need to be indented correctly. The `|` after
+      `password` allows the value to be multi-line, and each line should be indented at least
+      2 spaces from `password`.
 
    3. `<region>` is the region your artifact repository was created in. You can see
       this in the first part of `<repository-path>` as well.
@@ -176,9 +175,191 @@ The documentation should help configure the BinderHub service to:
     Remove the `config.BinderHub.enable_api_only_mode` configuration from the binderhub config, and redeploy
     using the command from step 9.
 
-You now have a working binderhub-service! It's now time to deploy a [z2jh](https://z2jh.jupyter.org) JupyterHub
-with [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles) installed. Instructions
-for that are coming soon.
+## Connect with a JupyterHub installation
+
+Next, let's connect this to a JupyterHub set up via [z2jh](https://z2jh.jupyter.org/). While any JupyterHub
+that can run containers will work with this, the _most common_ setup is to use this with z2jh. The first
+few steps are lifted directly from the [install JupyterHub](https://z2jh.jupyter.org/en/stable/jupyterhub/installation.html)
+section of z2jh.
+
+1. Add the z2jh chart repository to helm:
+
+   ```
+   helm repo add jupyterhub https://hub.jupyter.org/helm-chart/
+   helm repo update
+   ```
+
+2. We want the binderhub to be available under `http://{{hub url}}/services/binder`, because
+   that is what `jupyterhub-fancy-profiles` expects. Eventually we would also want authentication
+   to work correctly. For that, we must set up binderhub as a [JupyterHub Service](https://jupyterhub.readthedocs.io/en/stable/reference/services.html).
+   This provides two things:
+
+   a. Routing from `{{hub url }}/services/{{ service name }}` to the service, allowing us to
+   expose the service to the external world using JupyterHub's ingress / loadbalancer, without
+   needing a dedicated ingress / loadbalancer for BinderHub.
+
+   b. (Eventually) Appropriate credentials for authenticated network calls between these two services.
+
+   To make this connection, we need to tell JupyterHub where to find BinderHub. Eventually
+   this can be automatic (once [this issue](https://github.com/2i2c-org/binderhub-service/issues/57)
+   gets resolved). In the meantime, you can get the name of the BinderHub service by executing
+   the following command:
+
+   ```bash
+   kubectl -n <namespace> get svc -l app.kubernetes.io/name=binderhub-service
+   ```
+
+   Make a note of the name under the `NAME` column, we will use it in the next step.
+
+3. Create a config file, `z2jh-config.yaml`, to hold the config values for the JupyterHub.
+
+   ```yaml
+   hub:
+     services:
+       binder:
+         # FIXME: ref https://github.com/2i2c-org/binderhub-service/issues/57
+         # for something more readable and requiring less copy-pasting
+         url: http://{{ service name from step 2}}
+   ```
+
+4. Find the latest version of the z2jh helm chart. The easiest way is to run the
+   following command:
+
+   ```bash
+   helm search repo jupyterhub
+   ```
+
+   This should output a few columns. Look for the version under **CHART VERSION** (not _APP VERSION_)
+   for `jupyterhub/jupyterhub`. That's the latest z2jh chart version, and that is what
+   we will be using.
+
+5. Install the JupyterHub helm chart with the following command:
+
+   ```bash
+   helm upgrade --cleanup-on-fail \
+      --install <helm-release-name> jupyterhub/jupyterhub \
+      --namespace <namespace> \
+      --version=<chart-version> \
+      --values z2jh-config.yaml \
+      --wait
+   ```
+
+   where:
+
+   - `<helm-release-name>` is any name you can use to refer to this imag
+     (like `jupyterhub`)
+
+   - `<namespace>` is the _same_ namespace used for the BinderHub install
+
+   - `<chart-version>` is the latest stable version of the JupyterHub
+     helm chart, determined in the previous step.
+
+6. Find the external IP on which the JupyterHub is accessible:
+
+   ```bash
+   kubectl -n <namespace> get svc proxy-public
+   ```
+
+7. Access the binder service by going to `http://{{ external ip from step 5}}/services/binder/` (the
+   trailing slash is _important_). You should see an unstyled, somewhat broken
+   404 page. This is great and expected. Let's fix that.
+
+8. Change BinderHub config in `binderhub-service-config.yaml`, telling BinderHub it should now
+   be available under `/services/binder`.
+
+   ```yaml
+   config:
+     BinderHub:
+       base_url: /services/binder
+   ```
+
+   Deploy this using the `helm upgrade` command from step 9 in the previous section.
+
+9. Test by going to `http://{{ external ip from step 5}}/services/binder/` (the trailing slash
+   is _important_!) again, and you should see a _styled_ 404 page! Success -
+   this means BinderHub is now connected to JupyterHub, even if the end users
+   can't see it yet. Let's connect them!
+
+## Connect with `jupyterhub-fancy-profiles`
+
+The [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles)
+project provides a user facing frontend for connecting the JupyterHub to BinderHub,
+allowing them to build their own images the same way they would on `mybinder.org`!
+
+1. First, we need to install the `jupyterhub-fancy-profiles` package in the container
+   that is running the JupyterHub process itself (not the user containers). The
+   easiest way to do this is to use one of the pre-built images provided by
+   the `jupyterhub-fancy-profiles` project. In the [list of tags](https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags),
+   select the latest tag that also includes the version of the z2jh chart you are
+   using (the `version` specified in step 4 of the previous step). This is _most likely_
+   the tag on the top of the page, and looks something like `z2jh-v{{ z2jh version }}-fancy-profiles-sha-{{ some string}}`.
+
+   Once you find the tag, _modify_ the `z2jh-config.yaml` file to enable `jupyterhub-fancy-profiles`.
+   While it is hidden here for clarity, make sure to preserve the `hub.services` section that
+   you added in step 3 of the previous section while editing this file.
+
+   ```yaml
+   hub:
+     services: ...
+     image:
+       # from https://quay.io/repository/yuvipanda/z2jh-hub-with-fancy-profiles?tab=tags
+       name: quay.io/yuvipanda/z2jh-hub-with-fancy-profiles
+       tag: "<tag>" # example: "z2jh-v3.2.1-fancy-profiles-sha-5874628"
+
+     extraConfig:
+       enable-fancy-profiles: |
+         from jupyterhub_fancy_profiles import setup_ui
+         setup_ui(c)
+   ```
+
+2. Since `jupyterhub-fancy-profiles` adds on to the [profileList](https://z2jh.jupyter.org/en/stable/jupyterhub/customizing/user-environment.html#using-multiple-profiles-to-let-users-select-their-environment)
+   feature of KubeSpawner, we need to configure a profile list here as well.
+   Add this to the `z2jh-config.yaml` file:
+
+   ```yaml
+   singleuser:
+     profileList:
+       - display_name: "Only Profile Available, this info is not shown in the UI"
+         slug: only-choice
+         profile_options:
+           image:
+             display_name: Image
+             unlisted_choice:
+               enabled: True
+               display_name: "Custom image"
+               validation_regex: "^.+:.+$"
+               validation_message: "Must be a publicly available docker image, of form <image-name>:<tag>"
+               display_name_in_choices: "Specify an existing docker image"
+               description_in_choices: "Use a pre-existing docker image from a public docker registry (dockerhub, quay, etc)"
+               kubespawner_override:
+                 image: "{value}"
+             choices:
+               pangeo:
+                 display_name: Pangeo Notebook Image
+                 description: "Python image with scientific, dask and geospatial tools"
+                 kubespawner_override:
+                   image: pangeo/pangeo-notebook:2023.09.11
+               scipy:
+                 display_name: Jupyter SciPy Notebook
+                 slug: scipy
+                 kubespawner_override:
+                   image: jupyter/scipy-notebook:2023-06-26
+   ```
+
+3. Deploy, using the command from step 5 of the section above.
+
+4. Access the JupyterHub itself, using the external IP you got from step 5 of the section
+   above (not `{{ hub IP }}/services/binder/`). Once you log in (you can use _any_ username
+   and password), you should see a UI that allows you to choose two pre-existing
+   images (pangeo and scipy), specify your own image, or 'build' your own image.
+   The last option lets you access the binder functionality! Test it out :)
+
+From now on, you can customize this JupyterHub as you would any other JupyterHub set up
+using z2jh. The [customization guide](https://z2jh.jupyter.org/en/stable/jupyterhub/customization.html)
+contains many helpful examples of how you can customize your hub. In particular,
+you probably want to set up more restrictive
+[authentication](https://z2jh.jupyter.org/en/stable/administrator/authentication.html)
+so not everyone can log in to your hub!
 
 ## Funding
 
