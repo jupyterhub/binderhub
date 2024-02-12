@@ -356,9 +356,10 @@ allowing them to build their own images the same way they would on `mybinder.org
 
 From now on, you can customize this JupyterHub as you would any other JupyterHub set up
 using z2jh. The [customization guide](https://z2jh.jupyter.org/en/stable/jupyterhub/customization.html)
-contains many helpful. In particular, you probably want to set up more restrictive
-[authentication](https://z2jh.jupyter.org/en/stable/administrator/authentication.html) so
-not everyone can log in to your hub!
+contains many helpful examples of how you can customize your hub. In particular,
+you probably want to set up more restrictive
+[authentication](https://z2jh.jupyter.org/en/stable/administrator/authentication.html)
+so not everyone can log in to your hub!
 
 ## Funding
 
