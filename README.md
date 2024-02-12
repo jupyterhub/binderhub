@@ -196,7 +196,7 @@ section of z2jh.
 
    a. Routing from `{{hub url }}/services/{{ service name }}` to the service, allowing us to
    expose the service to the external world using JupyterHub's ingress / loadbalancer, without
-   needint a dedicated ingress / loadbalancer for BinderHub.
+   needing a dedicated ingress / loadbalancer for BinderHub.
 
    b. (Eventually) Appropriate credentials for authenticated network calls between these two services.
 
