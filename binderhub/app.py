@@ -56,7 +56,6 @@ from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
 from .registry import DockerRegistry
 from .repoproviders import (
-    MecaRepoProvider,
     DataverseProvider,
     FigshareProvider,
     GistRepoProvider,
@@ -64,6 +63,7 @@ from .repoproviders import (
     GitLabRepoProvider,
     GitRepoProvider,
     HydroshareProvider,
+    MecaRepoProvider,
     RepoProvider,
     ZenodoProvider,
 )
