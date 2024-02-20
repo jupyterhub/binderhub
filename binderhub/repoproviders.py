@@ -15,10 +15,11 @@ import re
 import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse, urlunparse
 from hashlib import md5
+from urllib.parse import unquote, urlparse, urlunparse
 
 import escapism
+import validators as val
 from prometheus_client import Gauge
 from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httputil import url_concat
@@ -325,7 +326,9 @@ class MecaRepoProvider(RepoProvider):
         stripped_url = urlunparse(
             (parsed_url.scheme, parsed_url.netloc, parsed_url.path, "", "", "")
         )
-        return "meca-" + md5(f"{stripped_url}-{changes_with_content}".encode()).hexdigest()
+        return (
+            "meca-" + md5(f"{stripped_url}-{changes_with_content}".encode()).hexdigest()
+        )
 
     async def get_resolved_ref(self):
         # Check the URL is reachable
