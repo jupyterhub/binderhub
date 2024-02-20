@@ -264,20 +264,11 @@ class ZenodoProvider(RepoProvider):
         return f"zenodo-{self.record_id}"
 
 
-def get_hashed_slug(url, changes_with_content):
-    """Return a unique slug that is invariant to query parameters in the url"""
-    parsed_url = urlparse(url)
-    stripped_url = urlunparse(
-        (parsed_url.scheme, parsed_url.netloc, parsed_url.path, "", "", "")
-    )
-
-    return "meca-" + md5(f"{stripped_url}-{changes_with_content}".encode()).hexdigest()
-
 class MecaRepoProvider(RepoProvider):
     """BinderHub Provider that can handle the contents of a MECA bundle
 
     Users must provide a spec consisting of a public URL to the bundle
-    The URL origin must conform to the origin trait when that is set
+    The URL origin must be included in the list of allowed_origins when that trait is set
     """
 
     name = Unicode("MECA Bundle")
@@ -328,6 +319,14 @@ class MecaRepoProvider(RepoProvider):
         self.log.info(f"MECA Bundle URL: {self.url}")
         self.log.info(f"MECA Bundle raw spec: {self.spec}")
 
+    def get_hashed_slug(self, url, changes_with_content):
+        """Return a unique slug that is invariant to query parameters in the url"""
+        parsed_url = urlparse(url)
+        stripped_url = urlunparse(
+            (parsed_url.scheme, parsed_url.netloc, parsed_url.path, "", "", "")
+        )
+        return "meca-" + md5(f"{stripped_url}-{changes_with_content}".encode()).hexdigest()
+
     async def get_resolved_ref(self):
         # Check the URL is reachable
         client = AsyncHTTPClient()
@@ -336,11 +335,11 @@ class MecaRepoProvider(RepoProvider):
         try:
             r = await client.fetch(req)
             self.log.info(f"URL is reachable: {self.url}")
-            self.hashed_slug = get_hashed_slug(
+            self.hashed_slug = self.get_hashed_slug(
                 self.url, r.headers.get("ETag") or r.headers.get("Content-Length")
             )
         except Exception as e:
-            raise ValueError(f"URL is unreachable ({e})")
+            raise RuntimeError(f"URL is unreachable ({e})")
 
         self.log.info(f"hashed_slug: {self.hashed_slug}")
         return self.hashed_slug
