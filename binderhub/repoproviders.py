@@ -276,7 +276,7 @@ def get_hashed_slug(url, changes_with_content):
 class MecaRepoProvider(RepoProvider):
     """BinderHub Provider that can handle the contents of a MECA bundle
 
-    Users must provide a spec consisting of a public the URL to the bundle
+    Users must provide a spec consisting of a public URL to the bundle
     The URL origin must conform to the origin trait when that is set
     """
 
