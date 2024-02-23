@@ -37,9 +37,7 @@ spec:
         value: user
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
 
-      {{- if or $builder.cleanupIncorrectSocketDir $builder.initContainers }}
       initContainers:
-      {{- if $builder.cleanupIncorrectSocketDir }}
         - name: filesystem
           # Reuse the main container image since this is a simple shell command
           image: {{ $daemonset.image.name }}:{{ $daemonset.image.tag }}
@@ -59,10 +57,8 @@ spec:
           volumeMounts:
           - name: run-{{ $builderName }}
             mountPath: {{ $builder.hostSocketDir }}
-      {{- end }}
       {{- with $builder.initContainers }}
         {{- . | toYaml | nindent 8 }}
-      {{- end }}
       {{- end }}
 
       containers:

@@ -414,11 +414,6 @@ properties:
             type: array
             description: |
               Additional volume mounts for the Container. Use a k8s native syntax.
-      cleanupIncorrectSocketDir: &cleanupIncorrectSocketDir-spec
-        type: boolean
-        description: |
-          If the container socket has been incorrectly created as a directory
-          remove the directory
       storageDriver:
         type: string
         description: |
@@ -454,7 +449,6 @@ properties:
           lifecycle: *lifecycle-spec
           extraVolumes: *extraVolumes-spec
           extraVolumeMounts: *extraVolumeMounts-spec
-      cleanupIncorrectSocketDir: *cleanupIncorrectSocketDir-spec
       resources: *resources-spec
       hostStorageDir: *hostStorageDir-spec
       hostSocketDir: *hostSocketDir-spec

@@ -284,7 +284,6 @@ dind:
     lifecycle: {}
     extraVolumes: []
     extraVolumeMounts: []
-  cleanupIncorrectSocketDir: true
   storageDriver: overlay2
   resources: {}
   hostSocketDir: /var/run/dind
@@ -303,7 +302,6 @@ pink:
     lifecycle: {}
     extraVolumes: []
     extraVolumeMounts: []
-  cleanupIncorrectSocketDir: true
   resources: {}
   hostStorageDir: /var/lib/pink/storage
   hostSocketDir: /var/run/pink
