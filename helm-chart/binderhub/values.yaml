@@ -288,6 +288,7 @@ dind:
   resources: {}
   hostSocketDir: /var/run/dind
   hostLibDir: /var/lib/dind
+  hostSocketName: docker.sock
 
 # Podman in Kubernetes
 pink:
@@ -304,6 +305,7 @@ pink:
   resources: {}
   hostStorageDir: /var/lib/pink/storage
   hostSocketDir: /var/run/pink
+  hostSocketName: podman.sock
 
 imageCleaner:
   enabled: true

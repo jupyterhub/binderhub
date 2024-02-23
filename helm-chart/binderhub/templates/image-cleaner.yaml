@@ -78,7 +78,7 @@ spec:
           type: DirectoryOrCreate
       - name: socket-dind
         hostPath:
-          path: {{ .Values.dind.hostSocketDir }}/docker.sock
+          path: {{ .Values.dind.hostSocketDir }}/{{ .Values.dind.hostSocketName }}
           type: Socket
       {{- end }}
       {{- if eq .Values.imageBuilderType "pink" }}
@@ -88,7 +88,7 @@ spec:
           type: DirectoryOrCreate
       - name: socket-pink
         hostPath:
-          path: {{ .Values.pink.hostSocketDir }}/podman.sock
+          path: {{ .Values.pink.hostSocketDir }}/{{ .Values.pink.hostSocketName }}
           type: Socket
       {{- end }}
 {{- end }}
