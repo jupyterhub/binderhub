@@ -414,19 +414,28 @@ properties:
             type: array
             description: |
               Additional volume mounts for the Container. Use a k8s native syntax.
+      cleanupIncorrectSocketDir: &cleanupIncorrectSocketDir-spec
+        type: boolean
+        description: |
+          If the container socket has been incorrectly created as a directory
+          remove the directory
       storageDriver:
         type: string
         description: |
-          TODO
+          Docker storage driver
       resources: *resources-spec
-      hostSocketDir:
+      hostSocketDir: &hostSocketDir-spec
         type: string
         description: |
-          TODO
-      hostLibDir:
+          Host directory where the container socket will be located
+      hostLibDir: &hostStorageDir-spec
         type: string
         description: |
-          TODO
+          Host directory where the containers storage will be located
+      hostSocketName: &hostSocketName-spec
+        type: string
+        description: |
+          Name of the container socket file
 
   pink:
     type: object
@@ -445,15 +454,11 @@ properties:
           lifecycle: *lifecycle-spec
           extraVolumes: *extraVolumes-spec
           extraVolumeMounts: *extraVolumeMounts-spec
+      cleanupIncorrectSocketDir: *cleanupIncorrectSocketDir-spec
       resources: *resources-spec
-      hostStorageDir:
-        type: string
-        description: |
-          Host path where the containers storage will be located
-      hostSocketDir:
-        type: string
-        description: |
-          Host path where the podman socket will be located
+      hostStorageDir: *hostStorageDir-spec
+      hostSocketDir: *hostSocketDir-spec
+      hostSocketName: *hostSocketName-spec
 
   imageCleaner:
     type: object
