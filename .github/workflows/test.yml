@@ -299,6 +299,12 @@ jobs:
           timeout: 150
           max-restarts: 1
 
+      - name: Test the workaround for an incorrect docker.sock directory
+        if: matrix.test-variation == 'dind'
+        run: |
+          # {{ .Values.dind.hostSocketDir }}/{{ .Values.dind.hostSocketName }}
+          sudo mkdir -p /var/run/dind/docker.sock
+
       - name: Install the chart
         if: matrix.test == 'helm'
         run: |

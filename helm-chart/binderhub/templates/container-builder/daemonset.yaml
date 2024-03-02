@@ -2,6 +2,7 @@
 {{- $builderName := .Values.imageBuilderType -}}
 {{- $builder := index .Values $builderName -}}
 {{- $daemonset := $builder.daemonset -}}
+{{- $hostSocketPath := printf "%s/%s" $builder.hostSocketDir $builder.hostSocketName }}
 
 apiVersion: apps/v1
 kind: DaemonSet
@@ -36,8 +37,27 @@ spec:
         value: user
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
 
-      {{- with $builder.initContainers }}
       initContainers:
+        - name: filesystem
+          # Reuse the main container image since this is a simple shell command
+          image: {{ $daemonset.image.name }}:{{ $daemonset.image.tag }}
+          {{- with $daemonset.image.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          command:
+            - sh
+            - -c
+            - >
+              if [ -d "{{ $hostSocketPath }}" ]; then
+                echo "Removing incorrect socket directory {{ $hostSocketPath }}";
+                rmdir "{{ $hostSocketPath }}";
+              fi
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - name: run-{{ $builderName }}
+            mountPath: {{ $builder.hostSocketDir }}
+      {{- with $builder.initContainers }}
         {{- . | toYaml | nindent 8 }}
       {{- end }}
 
@@ -55,7 +75,7 @@ spec:
           args:
             - dockerd
             - --storage-driver={{ $builder.storageDriver }}
-            - -H unix://{{ $builder.hostSocketDir }}/docker.sock
+            - -H unix://{{ $hostSocketPath }}
             {{- with $daemonset.extraArgs }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}
@@ -73,7 +93,7 @@ spec:
             - system
             - service
             - --time=0
-            - unix://{{ $builder.hostSocketDir }}/podman.sock
+            - unix://{{ $hostSocketPath }}
             {{- with $daemonset.extraArgs }}
             {{- . | toYaml | nindent 12 }}
             {{- end }}

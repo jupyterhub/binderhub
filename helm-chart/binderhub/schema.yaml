@@ -417,16 +417,20 @@ properties:
       storageDriver:
         type: string
         description: |
-          TODO
+          Docker storage driver
       resources: *resources-spec
-      hostSocketDir:
+      hostSocketDir: &hostSocketDir-spec
         type: string
         description: |
-          TODO
-      hostLibDir:
+          Host directory where the container socket will be located
+      hostLibDir: &hostStorageDir-spec
         type: string
         description: |
-          TODO
+          Host directory where the containers storage will be located
+      hostSocketName: &hostSocketName-spec
+        type: string
+        description: |
+          Name of the container socket file
 
   pink:
     type: object
@@ -446,14 +450,9 @@ properties:
           extraVolumes: *extraVolumes-spec
           extraVolumeMounts: *extraVolumeMounts-spec
       resources: *resources-spec
-      hostStorageDir:
-        type: string
-        description: |
-          Host path where the containers storage will be located
-      hostSocketDir:
-        type: string
-        description: |
-          Host path where the podman socket will be located
+      hostStorageDir: *hostStorageDir-spec
+      hostSocketDir: *hostSocketDir-spec
+      hostSocketName: *hostSocketName-spec
 
   imageCleaner:
     type: object

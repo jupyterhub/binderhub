@@ -1,4 +1,7 @@
 {{- if .Values.imageCleaner.enabled -}}
+{{- $builderName := .Values.imageBuilderType -}}
+{{- $builder := index .Values $builderName -}}
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -35,15 +38,15 @@ spec:
       serviceAccountName: {{ .Release.Name }}-image-cleaner
       {{- end }}
       containers:
-      - name: image-cleaner-{{ .Values.imageBuilderType }}
+      - name: image-cleaner-{{ $builderName }}
         image: {{ .Values.imageCleaner.image.name }}:{{ .Values.imageCleaner.image.tag }}
         {{- with .Values.imageCleaner.image.pullPolicy }}
         imagePullPolicy: {{ . }}
         {{- end }}
         volumeMounts:
-        - name: storage-{{ .Values.imageBuilderType }}
-          mountPath: /var/lib/{{ .Values.imageBuilderType }}
-        - name: socket-{{ .Values.imageBuilderType }}
+        - name: storage-{{ $builderName }}
+          mountPath: /var/lib/{{ $builderName }}
+        - name: socket-{{ $builderName }}
           mountPath: /var/run/docker.sock
         env:
         - name: DOCKER_IMAGE_CLEANER_NODE_NAME
@@ -51,7 +54,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: DOCKER_IMAGE_CLEANER_PATH_TO_CHECK
-          value: /var/lib/{{ .Values.imageBuilderType }}
+          value: /var/lib/{{ $builderName }}
         - name: DOCKER_IMAGE_CLEANER_DELAY_SECONDS
           value: {{ .Values.imageCleaner.delay | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_TYPE
@@ -62,7 +65,7 @@ spec:
           value: {{ .Values.imageCleaner.imageGCThresholdLow | quote }}
       terminationGracePeriodSeconds: 0
       volumes:
-      {{- if eq .Values.imageBuilderType "host" }}
+      {{- if eq $builderName "host" }}
       - name: storage-host
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerLibDir }}
@@ -71,24 +74,14 @@ spec:
           path: {{ .Values.imageCleaner.host.dockerSocket }}
           type: Socket
       {{- end }}
-      {{- if eq .Values.imageBuilderType "dind" }}
-      - name: storage-dind
+      {{- if or (eq $builderName "dind") (eq $builderName "pink") }}
+      - name: storage-{{ $builderName }}
         hostPath:
-          path: {{ .Values.dind.hostLibDir }}
+          path: {{ eq $builderName "dind" | ternary $builder.hostLibDir $builder.hostStorageDir }}
           type: DirectoryOrCreate
-      - name: socket-dind
+      - name: socket-{{ $builderName }}
         hostPath:
-          path: {{ .Values.dind.hostSocketDir }}/docker.sock
-          type: Socket
-      {{- end }}
-      {{- if eq .Values.imageBuilderType "pink" }}
-      - name: storage-pink
-        hostPath:
-          path: {{ .Values.pink.hostStorageDir }}
-          type: DirectoryOrCreate
-      - name: socket-pink
-        hostPath:
-          path: {{ .Values.pink.hostSocketDir }}/podman.sock
+          path: {{ $builder.hostSocketDir }}/{{ $builder.hostSocketName }}
           type: Socket
       {{- end }}
 {{- end }}
