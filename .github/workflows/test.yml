@@ -426,10 +426,12 @@ jobs:
         #        binderhub/static/dist/bundle.js is built, and use "-e" to
         #        ensure code coverage is captured.
         #
+        # https://discourse.jupyter.org/t/suddenly-getting-oath-cert-error/24217/4
+        # pycurl wheels fail to pick up the system CA certs, so install from source
         run: |
           pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
-          pip install ".[pycurl]"
-          pip install -e ".[pycurl]"
+          pip install ".[pycurl]" --no-binary pycurl
+          pip install -e ".[pycurl]" --no-binary pycurl
 
       - name: Setup JupyterHub NPM dependencies
         run: npm install -g configurable-http-proxy
