@@ -428,6 +428,7 @@ jobs:
         #
         # https://discourse.jupyter.org/t/suddenly-getting-oath-cert-error/24217/4
         # pycurl wheels fail to pick up the system CA certs, so install from source
+        # until https://github.com/pycurl/pycurl/issues/834 resolves
         run: |
           pip install -r dev-requirements.txt -r testing/local-binder-local-hub/requirements.txt
           pip install ".[pycurl]" --no-binary pycurl
