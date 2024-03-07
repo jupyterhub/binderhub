@@ -448,6 +448,73 @@ class HydroshareProvider(RepoProvider):
         return f"hydroshare-{self.record_id}"
 
 
+class CKANProvider(RepoProvider):
+    """Provide contents of a CKAN dataset
+    Users must provide a spec consisting of the CKAN dataset URL.
+    """
+
+    name = Unicode("CKAN")
+
+    display_name = "CKAN dataset"
+
+    url_regex = r"/dataset/[a-z0-9_\\-]*$"
+
+    labels = {
+        "text": "CKAN dataset URL (https://demo.ckan.org/dataset/sample-dataset-1)",
+        "tag_text": "Git ref (branch, tag, or commit)",
+        "ref_prop_disabled": True,
+        "label_prop_disabled": True,
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.repo = urllib.parse.unquote(self.spec)
+
+    async def get_resolved_ref(self):
+        parsed_repo = urlparse(self.repo)
+        self.dataset_id = parsed_repo.path.rsplit("/", maxsplit=1)[1]
+
+        client = AsyncHTTPClient()
+
+        api = parsed_repo._replace(
+            path=re.sub(self.url_regex, "/api/3/action/", parsed_repo.path)
+        ).geturl()
+
+        package_show_url = f"{api}package_show?id={self.dataset_id}"
+
+        try:
+            r = await client.fetch(package_show_url, user_agent="BinderHub")
+        except HTTPError:
+            return None
+
+        def parse_date(json_body):
+            json_response = json.loads(json_body)
+            date = json_response["result"]["metadata_modified"]
+            parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+            epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
+            # truncate the timestamp
+            return str(int(epoch))
+
+        self.record_id = f"{self.dataset_id}.v{parse_date(r.body)}"
+
+        return self.record_id
+
+    async def get_resolved_spec(self):
+        if not hasattr(self, "record_id"):
+            await self.get_resolved_ref()
+        return self.repo
+
+    def get_repo_url(self):
+        return self.repo
+
+    async def get_resolved_ref_url(self):
+        resolved_spec = await self.get_resolved_spec()
+        return resolved_spec
+
+    def get_build_slug(self):
+        return f"ckan-{self.dataset_id}"
+
+
 class GitRepoProvider(RepoProvider):
     """Bare bones git repo provider.
 
