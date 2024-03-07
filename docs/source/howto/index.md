@@ -14,5 +14,4 @@ Please see our [contributing guide](contributing) if you'd like to add to it.
 ```
 
 ```{toctree}
-install.md
 ```

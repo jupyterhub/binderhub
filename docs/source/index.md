@@ -18,6 +18,7 @@ Write description here...
 
 ```{toctree}
 :maxdepth: 2
+howto/index
 ```
 
 ## Reference
