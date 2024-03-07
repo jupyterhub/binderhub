@@ -14,7 +14,8 @@
         "Zenodo",
         "Figshare",
         "Hydroshare",
-        "Dataverse"
+        "Dataverse",
+        "MECA"
       ],
       "description": "Provider for the repository being launched"
     },

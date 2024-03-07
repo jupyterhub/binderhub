@@ -18,7 +18,7 @@ export function getBuildFormValues() {
     repo = repo.replace(/^(https?:\/\/)?github.com\//, "");
     repo = repo.replace(/^(https?:\/\/)?gitlab.com\//, "");
   }
-  // trim trailing or leading '/' on repo
+  // trim trailing or leading "/" on repo
   repo = repo.replace(/(^\/)|(\/?$)/g, "");
   // git providers encode the URL of the git repository as the repo
   // argument.
@@ -31,7 +31,8 @@ export function getBuildFormValues() {
     providerPrefix === "zenodo" ||
     providerPrefix === "figshare" ||
     providerPrefix === "dataverse" ||
-    providerPrefix === "hydroshare"
+    providerPrefix === "hydroshare" ||
+    providerPrefix === "meca"
   ) {
     ref = "";
   }
