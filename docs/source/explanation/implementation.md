@@ -1,6 +1,6 @@
 # Implementation
 
-The [binderhub-service](https://github.com/2i2c-org/binderhub-service/) Helm chart runs BinderHub, the Python software, as a standalone service to build and push images with [repo2docker](https://github.com/jupyterhub/repo2docker), next to JupyterHub.
+The [binderhub-service](https://github.com/2i2c-org/binderhub-service/) Helm chart runs BinderHub, the Python software, as a standalone service to build and push images with [repo2docker], next to [JupyterHub].
 
 The `binderhub-service` installation starts a `docker-api` pod on each of the user nodes via the following [DaemonSet definition](https://github.com/2i2c-org/binderhub-service/blob/main/binderhub-service/templates/docker-api/daemonset.yaml).
 
@@ -10,10 +10,11 @@ The `build pods` are created as a result of an image build request, and they mus
 
 ## Technical stack
 
-[jupyterhub]: https://jupyterhub.readthedocs.io/en/stable/
+[JupyterHub]: https://jupyterhub.readthedocs.io/en/stable/
 [jupyterhub rbac]: https://jupyterhub.readthedocs.io/en/stable/rbac/index.html
 [readthedocs]: https://readthedocs.org/
 [sphinx]: https://www.sphinx-doc.org/en/master/
 [sphinx-book-theme]: https://sphinx-book-theme.readthedocs.io/en/stable/
 [myst-parser]: https://myst-parser.readthedocs.io/en/stable/
 [github actions]: https://github.com/features/actions
+[repo2docker]: https://github.com/jupyterhub/repo2docker
