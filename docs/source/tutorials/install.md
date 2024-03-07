@@ -132,4 +132,3 @@ The following steps describe how to install the `binderhub-service` helm chart.
 11. Now that we have verified this is working, we can disable the binderhub UI as we will not be using it.
     Remove the `config.BinderHub.enable_api_only_mode` configuration from the binderhub config, and redeploy
     using the command from step 9.
-

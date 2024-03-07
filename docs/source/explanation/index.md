@@ -1,4 +1,5 @@
 (explanation)=
+
 # Explanation
 
 The documentation in this sections aims to _explain_ and _clarify_ a particular
