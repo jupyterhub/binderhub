@@ -1,4 +1,4 @@
-# Connect with `jupyterhub-fancy-profiles`
+# Connect with jupyterhub-fancy-profiles
 
 The [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles)
 project provides a user facing frontend for connecting the JupyterHub to BinderHub,
