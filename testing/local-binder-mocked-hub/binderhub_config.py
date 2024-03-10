@@ -8,13 +8,13 @@
 
 from binderhub.build import FakeBuild
 from binderhub.registry import FakeRegistry
-from binderhub.repoproviders import FakeProvider
+from binderhub.repoproviders import FakeProvider, GitLabRepoProvider
 
 c.BinderHub.debug = True
 c.BinderHub.use_registry = True
 c.BinderHub.registry_class = FakeRegistry
 c.BinderHub.builder_required = False
-c.BinderHub.repo_providers = {"gh": FakeProvider}
+c.BinderHub.repo_providers = {"gh": FakeProvider, "gl": GitLabRepoProvider}
 c.BinderHub.build_class = FakeBuild
 
 # Uncomment the following line to enable BinderHub's API only mode

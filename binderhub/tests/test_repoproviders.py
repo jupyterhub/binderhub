@@ -539,3 +539,114 @@ def test_gist_secret():
 
     provider = GistRepoProvider(spec=spec, allow_secret_gist=True)
     assert IOLoop().run_sync(provider.get_resolved_ref) is not None
+
+
+@pytest.mark.parametrize(
+    "provider,url,groupdict",
+    [
+        (
+            GitHubRepoProvider,
+            "https://github.com/binder-examples/conda",
+            {"repo": "binder-examples/conda", "filepath": None, "ref": None},
+        ),
+        (
+            GitHubRepoProvider,
+            "https://github.com/binder-examples/conda/blob/main/index.ipynb",
+            {"repo": "binder-examples/conda", "ref": "main", "filepath": "index.ipynb"},
+        ),
+        (
+            GitHubRepoProvider,
+            "https://github.com/binder-examples/conda/tree/main/.github/workflows",
+            {
+                "repo": "binder-examples/conda",
+                "ref": "main",
+                "urlpath": ".github/workflows",
+            },
+        ),
+        (GitHubRepoProvider, "https://github.com/binder-examples/conda/pulls", None),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/repo",
+            {
+                "repo": "owner/repo",
+                "ref": None,
+                "filepath": None,
+            },
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/repo/-/tree/branch/folder?ref_type=heads",
+            {"repo": "owner/repo", "ref": "branch", "urlpath": "folder?ref_type=heads"},
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/repo/-/blob/branch/README.md?ref_type=heads",
+            {
+                "repo": "owner/repo",
+                "ref": "branch",
+                "filepath": "README.md?ref_type=heads",
+            },
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/project/repo",
+            {
+                "repo": "owner/project/repo",
+                "ref": None,
+                "filepath": None,
+            },
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/project/repo/-/tree/branch/folder?ref_type=heads",
+            {
+                "repo": "owner/project/repo",
+                "ref": "branch",
+                "urlpath": "folder?ref_type=heads",
+            },
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/project/repo/-/blob/branch/README.md?ref_type=heads",
+            {
+                "repo": "owner/project/repo",
+                "ref": "branch",
+                "filepath": "README.md?ref_type=heads",
+            },
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/owner/repo/-/merge_requests/123",
+            None,
+        ),
+        (
+            GistRepoProvider,
+            "https://gist.github.com/owner/0123456789abcde0123456789abcde01",
+            {
+                "repo": "owner/0123456789abcde0123456789abcde01",
+                "ref": None,
+            },
+        ),
+        (
+            GistRepoProvider,
+            "https://gist.github.com/owner/0123456789abcde0123456789abcde01/sha",
+            {
+                "repo": "owner/0123456789abcde0123456789abcde01",
+                "ref": "sha",
+            },
+        ),
+        (GistRepoProvider, "https://gist.github.com/owner", None),
+    ],
+)
+def test_provider_regex_detect(provider, url, groupdict):
+    regex_js = provider.regex_detect
+    regex_py = [r.replace("(?<", "(?P<") for r in regex_js]
+    m = None
+    for r in regex_py:
+        m = re.match(r, url)
+        if m:
+            break
+    if groupdict:
+        assert m.groupdict() == groupdict
+    else:
+        assert not m
