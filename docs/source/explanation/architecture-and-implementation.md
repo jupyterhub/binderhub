@@ -11,7 +11,13 @@ Thus, the architecture of this system must:
 - but also run as a standalone service
 - operate within a Kubernetes environment
 
-## Implementation details 
+## Implementation details
+
+% (This image was generated at the following URL: https://docs.google.com/presentation/d/1KC9cyXGPGBQoeZ0sLxHORyhjXDklIfn-rZ5SAdRB08Q/edit?usp=sharing) following the BinderHub architecture chart at https://docs.google.com/presentation/d/1t5W4Rnez6xBRz4YxCxWYAx8t4KRfUosbCjS4Z1or7rM/edit#slide=id.g25dbc82125_0_53
+
+``` {figure} ../_static/images/binderhub-service-diagram.png
+:alt: Here is a high-level overview of the components that make up binderhub-service.
+```
 
 When a build & push request is fired, the following events happen:
 
