@@ -1,11 +1,13 @@
 (architecture-and-implementation)=
+
 # Architecture and Implementation
 
 ## Architecture
 
-The `binderhub-service` chart runs the [BinderHub] Python software, in [api-only mode](https://binderhub.readthedocs.io/en/latest/reference/app.html#binderhub.app.BinderHub.enable_api_only_mode) (the default), as a standalone service to build, and push [Docker] images from source code repositories, on demand, using [repo2docker]. This service can then be paired with [JupyterHub] to allow users to initiate build requests from their hubs. 
+The `binderhub-service` chart runs the [BinderHub] Python software, in [api-only mode](https://binderhub.readthedocs.io/en/latest/reference/app.html#binderhub.app.BinderHub.enable_api_only_mode) (the default), as a standalone service to build, and push [Docker] images from source code repositories, on demand, using [repo2docker]. This service can then be paired with [JupyterHub] to allow users to initiate build requests from their hubs.
 
 Thus, the architecture of this system must:
+
 - facilitate the building and pushing of Docker images with repo2docker
 - easily integrate with a JupyterHub deployment
 - but also run as a standalone service
@@ -15,13 +17,14 @@ Thus, the architecture of this system must:
 
 % (This image was generated at the following URL: https://docs.google.com/presentation/d/1KC9cyXGPGBQoeZ0sLxHORyhjXDklIfn-rZ5SAdRB08Q/edit?usp=sharing) following the BinderHub architecture chart at https://docs.google.com/presentation/d/1t5W4Rnez6xBRz4YxCxWYAx8t4KRfUosbCjS4Z1or7rM/edit#slide=id.g25dbc82125_0_53
 
-``` {figure} ../_static/images/binderhub-service-diagram.png
+```{figure} ../_static/images/binderhub-service-diagram.png
 :alt: Here is a high-level overview of the components that make up binderhub-service.
 ```
 
 ```{tip}
 Checking out the BinderHub's architecture diagram might also be helpful.
 ```
+
 When a build & push request is fired, the following events happen:
 
 1. **BinderHub creates and starts a `build pod` that runs `repo2docker`**
@@ -44,7 +47,7 @@ When a build & push request is fired, the following events happen:
 
 3. **the build pods will then use the configured credentials to push the image to the repository**
 
-    The build pods mount [**a k8s Secret** with the docker config file](https://github.com/2i2c-org/binderhub-service/blob/308965029a901993293539f159c66d15b767e8c8/binderhub-service/templates/secret.yaml#L5) holding the necessary registry credentials so they can push to the container registry.
+   The build pods mount [**a k8s Secret** with the docker config file](https://github.com/2i2c-org/binderhub-service/blob/308965029a901993293539f159c66d15b767e8c8/binderhub-service/templates/secret.yaml#L5) holding the necessary registry credentials so they can push to the container registry.
 
 ```{warning}
 The `binderhub-service` chart currently only supports Docker and Podman is not yet available. Checkout https://github.com/2i2c-org/binderhub-service/issues/31 for updates on Podmand support.
