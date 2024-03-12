@@ -19,6 +19,9 @@ Thus, the architecture of this system must:
 :alt: Here is a high-level overview of the components that make up binderhub-service.
 ```
 
+```{tip}
+Checking out the BinderHub's architecture diagram might also be helpful.
+```
 When a build & push request is fired, the following events happen:
 
 1. **BinderHub creates and starts a `build pod` that runs `repo2docker`**
