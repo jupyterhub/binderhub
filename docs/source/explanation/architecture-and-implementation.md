@@ -1,7 +1,7 @@
 (architecture-and-implementation)=
 # Architecture and Implementation
 
-## The architecture
+## Architecture
 
 The `binderhub-service` chart runs the [BinderHub] Python software, in [api-only mode](https://binderhub.readthedocs.io/en/latest/reference/app.html#binderhub.app.BinderHub.enable_api_only_mode) (the default), as a standalone service to build, and push [Docker] images from source code repositories, on demand, using [repo2docker]. This service can then be paired with [JupyterHub] to allow users to initiate build requests from their hubs. 
 
@@ -11,34 +11,35 @@ Thus, the architecture of this system must:
 - but also run as a standalone service
 - operate within a Kubernetes environment
 
-### What happens when a build & push request is fired
+## Implementation details 
 
-1. BinderHub creates and starts a `build pod`
-2. this build pod needs to be able to run `repo2docker` to build and push the image to the registry that was setup via the config
-3. for this, repo2docker needs Docker to build and push the images
-4. a running daemon will intercept the docker commands initiated by the the docker client processes running on these build pods
-5. these build pods will then use the configured credentials to push the image to the repository.
+When a build & push request is fired, the following events happen:
 
-## Implementation details
+1. **BinderHub creates and starts a `build pod` that runs `repo2docker`**
 
-The following main resource components are most relevant for how the machinery works:
+   The `build pods` are managed by BinderHub through [`KubernetesBuildExecutor`](https://github.com/jupyterhub/binderhub/blob/7f8b6c3137a6f8e66e6c193ee81d32bcf0826a6e/binderhub/build.py#L222-L242) and are created as a result of an image build request.
 
-### The binderhub service
+   For the image build to work, the docker client processes running on these nodes need to be able to communicate with the dockerd daemon. This communication is done via unix socket mounted on the node.
 
+2. **repo2docker uses Docker to build and push the images**
 
-### The DaemonSet resource - DockerApi
+   A running [dockerd](https://docs.docker.com/engine/reference/commandline/dockerd/) daemon will intercept the docker commands initiated by the the docker client processes running on these build pods. This dockerd daemon is setup by the `docker-api` pods.
 
-The `binderhub-service` installation starts a `docker-api` pod on each of the user nodes via the following [DaemonSet definition](https://github.com/2i2c-org/binderhub-service/blob/main/binderhub-service/templates/docker-api/daemonset.yaml). The daemonset also setups a [hostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) volume that mounts a [unix socket](https://man7.org/linux/man-pages/man7/unix.7.html) from the user node into the `docker-api` pods.
+   The `docker-api` pods are setup to start on each node matching the [`dockerApi.nodeSelector`](https://github.com/2i2c-org/binderhub-service/blob/308965029a901993293539f159c66d15b767e8c8/binderhub-service/values.yaml#L131) by the following [DaemonSet definition](https://github.com/2i2c-org/binderhub-service/blob/main/binderhub-service/templates/docker-api/daemonset.yaml).
 
-The `docker-api` pod setups and starts the [dockerd](https://docs.docker.com/engine/reference/commandline/dockerd/) daemon, that will then be accessible via this unix socket by the `build pods`.
+   The daemonset also setups a [hostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) volume that mounts a [unix socket](https://man7.org/linux/man-pages/man7/unix.7.html) from this node into the `docker-api` pods.
+
+   ```{important}
+   The docker-api pods and the build pods must run on the same node so they can use the unix socket on it to interact with the docker daemon listening on this socket.
+   ```
+
+3. **the build pods will then use the configured credentials to push the image to the repository**
+
+    The build pods mount [**a k8s Secret** with the docker config file](https://github.com/2i2c-org/binderhub-service/blob/308965029a901993293539f159c66d15b767e8c8/binderhub-service/templates/secret.yaml#L5) holding the necessary registry credentials so they can push to the container registry.
 
 ```{warning}
-The `binderhub-service` chart currently support only Docker and not yet Podman. Checkout https://github.com/2i2c-org/binderhub-service/issues/31 for updates on Podmand support.
+The `binderhub-service` chart currently only supports Docker and Podman is not yet available. Checkout https://github.com/2i2c-org/binderhub-service/issues/31 for updates on Podmand support.
 ```
-
-#### The build pods
-
-The `build pods` are managed by BinderHub through [`KubernetesBuildExecutor`](https://github.com/jupyterhub/binderhub/blob/7f8b6c3137a6f8e66e6c193ee81d32bcf0826a6e/binderhub/build.py#L222-L242) and are created as a result of an image build request. They must run on the same node as the builder pods to make use of the docker daemon. These pods mount **a k8s Secret** with the docker config file holding the necessary registry credentials so they can push to the container registry.
 
 ## Technical stack
 
