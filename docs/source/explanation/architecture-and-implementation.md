@@ -22,7 +22,7 @@ Thus, the architecture of this system must:
 ```
 
 ```{tip}
-Checking out the BinderHub's architecture diagram might also be helpful.
+Checking out the [BinderHub's architecture diagram](https://binderhub.readthedocs.io/en/latest/overview.html) might also be helpful.
 ```
 
 When a build & push request is fired, the following events happen:
