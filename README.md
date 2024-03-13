@@ -1,5 +1,9 @@
 # binderhub-service
 
+[![Documentation Status](https://img.shields.io/readthedocs/binderhub-service?logo=read-the-docs)](https://binderhub-service.readthedocs.io/en/latest/)
+[![Latest chart development release](https://img.shields.io/badge/Helm_releases-https://2i2c.org/binderhub-service/blue?link=https://2i2c.org/binderhub-service/)](https://2i2c.org/binderhub-service/)
+
+
 The binderhub-service is a Helm chart and guide to run BinderHub (the Python
 software), as a standalone service to build and push images with repo2docker,
 possibly configured for use with a JupyterHub chart installation.
@@ -42,6 +46,10 @@ The documentation should help configure the BinderHub service to:
 [jupyterhub chart]: https://github.com/jupyterhub/zero-to-jupyterhub-k8s
 [persistent binderhub chart]: https://github.com/gesiscss/persistent_binderhub
 [was added]: https://github.com/jupyterhub/binderhub/pull/666
+
+## Installation
+
+Checkout this project's documentation for installation guide https://binderhub-service.readthedocs.io/en/latest.
 
 ## Funding
 
