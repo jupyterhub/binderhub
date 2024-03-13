@@ -1,6 +1,6 @@
-(architecture-and-implementation)=
+(architecture)=
 
-# Architecture and Implementation
+# Architecture
 
 The `binderhub-service` chart runs the [BinderHub] Python software, in [api-only mode](https://binderhub.readthedocs.io/en/latest/reference/app.html#binderhub.app.BinderHub.enable_api_only_mode) (the default), as a standalone service to build, and push [Docker] images from source code repositories, on demand, using [repo2docker]. This service can then be paired with [JupyterHub] to allow users to initiate build requests from their hubs.
 
