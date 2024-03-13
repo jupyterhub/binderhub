@@ -37,7 +37,7 @@ The following steps describe how to install the `binderhub-service` helm chart.
    ```
 
    This should forward requests on port 8585 on your localhost, to the binder service running inside the pod. So if you go
-   to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, _success!_.
+   to [localhost:8585](http://localhost:8585), you should see a binder styled page that says 404. If you do, _success_!
 
 4. Create a docker repository for binderhub to push built images to. In this tutorial, we will be using Google Artifact Registry, but [binderhub supports using other registries](https://binderhub.readthedocs.io/en/latest/zero-to-binderhub/setup-registry.html#set-up-the-container-registry).
 
