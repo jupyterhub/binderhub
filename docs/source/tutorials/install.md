@@ -47,11 +47,11 @@ The following steps describe how to install the `binderhub-service` helm chart.
    In the repository creation page, give it a name (ideally same name you are using for
    dedicated to the chart installation), select 'Docker' as the format, 'Standard' as the mode, 'Region'
    as the location type and select the same region your kubernetes cluster is in. The
-   settings about encryption and other options can be left in their default. Hit "Create".
+   settings about encryption and other options can be left in their default. Click "Create".
 
 5. Find the full path of the repository you just created, by opening it in the list
    and looking for the small 'copy' icon next to the name of the repository. If you
-   hit it, it should copy something like `<region>-docker.pkg.dev/<project-name>/<repository-name>`.
+   click it, it should copy something like `<region>-docker.pkg.dev/<project-name>/<repository-name>`.
    Save this.
 
 6. Create a Google Cloud Service Account that has permissions to push to this
