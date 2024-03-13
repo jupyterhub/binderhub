@@ -2,9 +2,9 @@
 
 # Architecture and Implementation
 
-## Architecture
-
 The `binderhub-service` chart runs the [BinderHub] Python software, in [api-only mode](https://binderhub.readthedocs.io/en/latest/reference/app.html#binderhub.app.BinderHub.enable_api_only_mode) (the default), as a standalone service to build, and push [Docker] images from source code repositories, on demand, using [repo2docker]. This service can then be paired with [JupyterHub] to allow users to initiate build requests from their hubs.
+
+## Architecture requirements
 
 Thus, the architecture of this system must:
 
@@ -13,7 +13,7 @@ Thus, the architecture of this system must:
 - but also run as a standalone service
 - operate within a Kubernetes environment
 
-## Implementation details
+## Architecture overview
 
 % (This image was generated at the following URL: https://docs.google.com/presentation/d/1KC9cyXGPGBQoeZ0sLxHORyhjXDklIfn-rZ5SAdRB08Q/edit?usp=sharing) following the BinderHub architecture chart at https://docs.google.com/presentation/d/1t5W4Rnez6xBRz4YxCxWYAx8t4KRfUosbCjS4Z1or7rM/edit#slide=id.g25dbc82125_0_53
 
@@ -24,6 +24,8 @@ Thus, the architecture of this system must:
 ```{tip}
 Checking out the [BinderHub's architecture diagram](https://binderhub.readthedocs.io/en/latest/overview.html) might also be helpful.
 ```
+
+## Details on how it works
 
 When a build & push request is fired, the following events happen:
 
