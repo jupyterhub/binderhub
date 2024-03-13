@@ -16,5 +16,5 @@ Please see our [contributing guide](contributing) if you'd like to add to it.
 
 ```{toctree}
 :maxdepth: 2
-architecture-and-implementation.md
+architecture.md
 ```
