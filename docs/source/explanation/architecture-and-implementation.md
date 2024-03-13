@@ -33,7 +33,7 @@ When a build & push request is fired, the following events happen:
 
    For the image build to work, the docker client processes running on these nodes need to be able to communicate with the dockerd daemon. This communication is done via unix socket mounted on the node.
 
-2. **repo2docker uses Docker to build and push the images**
+2. **repo2docker use a docker client to build and push images**
 
    A running [dockerd](https://docs.docker.com/engine/reference/commandline/dockerd/) daemon will intercept the docker commands initiated by the the docker client processes running on these build pods. This dockerd daemon is setup by the `docker-api` pods.
 
