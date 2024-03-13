@@ -2,7 +2,7 @@
 
 The [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles)
 project provides a user facing frontend for connecting the JupyterHub to BinderHub,
-allowing them to build their own images the same way they would on `mybinder.org`!
+allowing users to build their own images the same way they would on `mybinder.org`!
 
 The following steps describe how to connect your `binderhub-service` [](installation) to `jupyterhub-fancy-profiles`
 
