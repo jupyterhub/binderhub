@@ -50,7 +50,7 @@ When a build & push request is fired, the following events happen:
    The build pods mount [**a k8s Secret** with the docker config file](https://github.com/2i2c-org/binderhub-service/blob/308965029a901993293539f159c66d15b767e8c8/binderhub-service/templates/secret.yaml#L5) holding the necessary registry credentials so they can push to the container registry.
 
 ```{warning}
-The `binderhub-service` chart currently only supports Docker and Podman is not yet available. Checkout https://github.com/2i2c-org/binderhub-service/issues/31 for updates on Podmand support.
+The `binderhub-service` chart currently only supports Docker. Checkout https://github.com/2i2c-org/binderhub-service/issues/31 for updates on Podman support.
 ```
 
 ## Technical stack
