@@ -12,9 +12,9 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-cachetools==5.3.2
+cachetools==5.3.3
     # via google-auth
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   kubernetes
     #   requests
@@ -24,32 +24,33 @@ cffi==1.16.0
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
-cryptography==42.0.4
+cryptography==42.0.5
     # via pyopenssl
 docker==7.0.0
-    # via -r ../../../requirements.txt
+    # via -r helm-chart/images/binderhub/../../../requirements.txt
 escapism==1.0.1
-    # via -r ../../../requirements.txt
-google-api-core[grpc]==2.16.1
+    # via -r helm-chart/images/binderhub/../../../requirements.txt
+google-api-core[grpc]==2.17.1
+    # via
+    #   google-cloud-appengine-logging
+    #   google-cloud-core
+    #   google-cloud-logging
+google-auth==2.29.0
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.27.0
-    # via
-    #   google-api-core
-    #   google-cloud-core
     #   kubernetes
-google-cloud-appengine-logging==1.4.0
+google-cloud-appengine-logging==1.4.3
     # via google-cloud-logging
 google-cloud-audit-log==0.2.5
     # via google-cloud-logging
 google-cloud-core==2.4.1
     # via google-cloud-logging
-google-cloud-logging==3.9.0
-    # via -r requirements.in
-googleapis-common-protos[grpc]==1.62.0
+google-cloud-logging==3.10.0
+    # via -r helm-chart/images/binderhub/requirements.in
+googleapis-common-protos[grpc]==1.63.0
     # via
     #   google-api-core
     #   google-cloud-audit-log
@@ -59,39 +60,39 @@ greenlet==3.0.3
     # via sqlalchemy
 grpc-google-iam-v1==0.13.0
     # via google-cloud-logging
-grpcio==1.60.0
+grpcio==1.62.1
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.60.0
+grpcio-status==1.62.1
     # via google-api-core
 idna==3.6
     # via requests
 jinja2==3.1.3
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
 jsonschema==4.21.1
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
 jsonschema-specifications==2023.12.1
     # via jsonschema
 jupyter-telemetry==0.1.0
     # via jupyterhub
-jupyterhub==4.0.2
+jupyterhub==4.1.0
     # via
-    #   -r ../../../requirements.txt
-    #   -r requirements.in
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r helm-chart/images/binderhub/requirements.in
 kubernetes==9.0.1
     # via
-    #   -r ../../../requirements.txt
-    #   -r requirements.in
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
+    #   -r helm-chart/images/binderhub/requirements.in
 mako==1.3.2
     # via alembic
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   jinja2
     #   mako
@@ -99,21 +100,21 @@ oauthlib==3.2.2
     # via
     #   jupyterhub
     #   requests-oauthlib
-packaging==23.2
+packaging==24.0
     # via
     #   docker
     #   jupyterhub
 pamela==1.1.0
     # via jupyterhub
-prometheus-client==0.19.0
+prometheus-client==0.20.0
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
 proto-plus==1.23.0
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==4.25.2
+protobuf==4.25.3
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -131,23 +132,23 @@ pyasn1-modules==0.3.0
     # via google-auth
 pycparser==2.21
     # via cffi
-pycurl==7.45.2
-    # via -r requirements.in
+pycurl==7.45.3
+    # via -r helm-chart/images/binderhub/requirements.in
 pyjwt==2.8.0
-    # via -r ../../../requirements.txt
-pyopenssl==24.0.0
+    # via -r helm-chart/images/binderhub/../../../requirements.txt
+pyopenssl==24.1.0
     # via certipy
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   jupyterhub
     #   kubernetes
 python-json-logger==2.0.7
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
 pyyaml==6.0.1
     # via kubernetes
-referencing==0.33.0
+referencing==0.34.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -158,15 +159,15 @@ requests==2.31.0
     #   jupyterhub
     #   kubernetes
     #   requests-oauthlib
-requests-oauthlib==1.3.1
+requests-oauthlib==1.4.0
     # via kubernetes
-rpds-py==0.17.1
+rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.18.5
+ruamel-yaml==0.18.6
     # via jupyter-telemetry
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
@@ -174,24 +175,24 @@ six==1.16.0
     # via
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.25
+sqlalchemy==2.0.28
     # via
     #   alembic
     #   jupyterhub
 tornado==6.4
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyterhub
-traitlets==5.14.1
+traitlets==5.14.2
     # via
-    #   -r ../../../requirements.txt
+    #   -r helm-chart/images/binderhub/../../../requirements.txt
     #   jupyter-telemetry
     #   jupyterhub
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   alembic
     #   sqlalchemy
-urllib3==2.2.0
+urllib3==2.2.1
     # via
     #   docker
     #   kubernetes

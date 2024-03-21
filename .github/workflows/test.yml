@@ -170,7 +170,7 @@ jobs:
 
       - name: Setup Python package dependencies
         run: |
-          pip install -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+          pip install --no-binary pycurl -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
           pip install -e .
 
       - name: Install JupyterHub chart for main tests
