@@ -457,8 +457,6 @@ class CKANProvider(RepoProvider):
 
     display_name = "CKAN dataset"
 
-    url_regex = r"/dataset/[a-z0-9_\\-]*$"
-
     labels = {
         "text": "CKAN dataset URL (https://demo.ckan.org/dataset/sample-dataset-1)",
         "tag_text": "Git ref (branch, tag, or commit)",
@@ -476,8 +474,10 @@ class CKANProvider(RepoProvider):
 
         client = AsyncHTTPClient()
 
+        url_parts = parsed_repo.path.split("/")
+        api_url_path = "/api/3/action/"
         api = parsed_repo._replace(
-            path=re.sub(self.url_regex, "/api/3/action/", parsed_repo.path)
+            path="/".join(url_parts[:-2]) + api_url_path
         ).geturl()
 
         package_show_url = f"{api}package_show?id={self.dataset_id}"
