@@ -31,7 +31,8 @@ export function getBuildFormValues() {
     providerPrefix === "zenodo" ||
     providerPrefix === "figshare" ||
     providerPrefix === "dataverse" ||
-    providerPrefix === "hydroshare"
+    providerPrefix === "hydroshare" ||
+    providerPrefix === "ckan"
   ) {
     ref = "";
   }
