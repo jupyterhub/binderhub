@@ -487,15 +487,14 @@ class CKANProvider(RepoProvider):
         except HTTPError:
             return None
 
-        def parse_date(json_body):
-            json_response = json.loads(json_body)
-            date = json_response["result"]["metadata_modified"]
-            parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-            epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
-            # truncate the timestamp
-            return str(int(epoch))
+        json_response = json.loads(r.body)
+        date = json_response["result"]["metadata_modified"]
+        parsed_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        epoch = parsed_date.replace(tzinfo=timezone(timedelta(0))).timestamp()
+        # truncate the timestamp
+        dataset_version = str(int(epoch))
 
-        self.record_id = f"{self.dataset_id}.v{parse_date(r.body)}"
+        self.record_id = f"{self.dataset_id}.v{dataset_version}"
 
         return self.record_id
 
