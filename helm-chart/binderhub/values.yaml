@@ -276,7 +276,7 @@ dind:
   daemonset:
     image:
       name: docker.io/library/docker
-      tag: "25.0.3-dind" # ref: https://hub.docker.com/_/docker/tags
+      tag: "26.0.0-dind" # ref: https://hub.docker.com/_/docker/tags
       pullPolicy: ""
       pullSecrets: []
     # Additional command line arguments to pass to dockerd
