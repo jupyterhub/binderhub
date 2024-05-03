@@ -247,6 +247,10 @@ class BuildHandler(BaseHandler):
 
         return build_only
 
+    def redirect(self, *args, **kwargs):
+        # disable redirect to login, which won't work for EventSource
+        raise HTTPError(403)
+
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.

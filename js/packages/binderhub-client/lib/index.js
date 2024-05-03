@@ -1,9 +1,21 @@
-import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { EventIterator } from "event-iterator";
 
-// Use native browser EventSource if available, and use the polyfill if not available
-const EventSource = NativeEventSource || EventSourcePolyfill;
-
+function _getXSRFToken() {
+  // from @jupyterlab/services
+  let cookie = "";
+  try {
+    cookie = document.cookie;
+  } catch (e) {
+    // e.g. SecurityError in case of CSP Sandbox
+    return null;
+  }
+  const xsrfTokenMatch = cookie.match("\\b_xsrf=([^;]*)\\b");
+  if (xsrfTokenMatch) {
+    return xsrfTokenMatch[1];
+  }
+  return null;
+}
 /**
  * Build (and optionally launch) a repository by talking to a BinderHub API endpoint
  */
@@ -14,8 +26,15 @@ export class BinderRepository {
    * @param {URL} buildEndpointUrl API URL of the build endpoint to talk to
    * @param {string} [buildToken] Optional JWT based build token if this binderhub installation requires using build tokens
    * @param {boolean} [buildOnly] Opt out of launching built image by default by passing `build_only` param
+   * @param {string} [apiToken] Optional Bearer token for authenticating requests
    */
-  constructor(providerSpec, buildEndpointUrl, buildToken, buildOnly) {
+  constructor(
+    providerSpec,
+    buildEndpointUrl,
+    buildToken,
+    buildOnly,
+    { apiToken },
+  ) {
     this.providerSpec = providerSpec;
     // Make sure that buildEndpointUrl is a real URL - this ensures hostname is properly set
     if (!(buildEndpointUrl instanceof URL)) {
@@ -40,6 +59,7 @@ export class BinderRepository {
     if (buildOnly) {
       this.buildUrl.searchParams.append("build_only", "true");
     }
+    this.apiToken = apiToken;
 
     this.eventIteratorQueue = null;
   }
@@ -67,26 +87,37 @@ export class BinderRepository {
    * @returns {AsyncIterable<Line>} An async iterator yielding responses from the API as they come in
    */
   fetch() {
-    this.eventSource = new EventSource(this.buildUrl);
-    return new EventIterator((queue) => {
+    const headers = {};
+    if (this.apiToken && this.apiToken.length > 0) {
+      headers["Authorization"] = `Bearer ${this.apiToken}`;
+    } else {
+      const xsrf = _getXSRFToken();
+      if (xsrf) {
+        headers["X-Xsrftoken"] = xsrf;
+      }
+    }
+    return new EventIterator(async (queue) => {
       this.eventIteratorQueue = queue;
-      this.eventSource.onerror = () => {
-        queue.push({
-          phase: "failed",
-          message: "Failed to connect to event stream\n",
-        });
-        queue.stop();
-      };
+      await fetchEventSource(this.buildUrl, {
+        headers,
+        onerror: () => {
+          queue.push({
+            phase: "failed",
+            message: "Failed to connect to event stream\n",
+          });
+          queue.stop();
+        },
 
-      this.eventSource.addEventListener("message", (event) => {
-        // console.log("message received")
-        // console.log(event)
-        const data = JSON.parse(event.data);
-        // FIXME: fix case of phase/state upstream
-        if (data.phase) {
-          data.phase = data.phase.toLowerCase();
-        }
-        queue.push(data);
+        onmessage: (event) => {
+          // console.log("message received")
+          // console.log(event)
+          const data = JSON.parse(event.data);
+          // FIXME: fix case of phase/state upstream
+          if (data.phase) {
+            data.phase = data.phase.toLowerCase();
+          }
+          queue.push(data);
+        },
       });
     });
   }

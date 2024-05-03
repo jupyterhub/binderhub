@@ -1,7 +1,6 @@
 /* If this file gets over 200 lines of code long (not counting docs / comments), start using a framework
  */
 import ClipboardJS from "clipboard";
-import "event-source-polyfill";
 
 import { BinderRepository } from "@jupyterhub/binderhub-client";
 import { updatePathText } from "./src/path";
@@ -61,11 +60,14 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
   $(".on-build").removeClass("hidden");
 
   const buildToken = $("#build-token").data("token");
+  let apiToken = $("#api-token").data("token");
   const buildEndpointUrl = new URL("build", BASE_URL);
   const image = new BinderRepository(
     providerSpec,
     buildEndpointUrl,
     buildToken,
+    false,
+    { apiToken },
   );
 
   for await (const data of image.fetch()) {
