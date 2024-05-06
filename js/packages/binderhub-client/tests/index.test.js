@@ -9,6 +9,16 @@ import {
 import { parseEventSource, simpleEventSourceServer } from "./utils";
 import { readFileSync } from "node:fs";
 
+async function wrapFetch(resource, options) {
+  /* like fetch, but ignore signal input 
+  // abort signal shows up as uncaught in tests, despite  working fine
+  */
+  if (options) {
+    options.signal = null;
+  }
+  return fetch.apply(null, [resource, options]);
+}
+
 beforeAll(() => {
   // inject globals for fetch
   global.TextDecoder = TextDecoder;
@@ -16,13 +26,6 @@ beforeAll(() => {
     global.window = {};
   }
   if (!global.window.fetch) {
-    async function wrapFetch(resource, options) {
-      if (options) {
-        // abort signal shows up as uncaught in tests
-        options.signal = null;
-      }
-      return fetch.apply(null, [resource, options]);
-    }
     global.window.fetch = wrapFetch;
   }
 });

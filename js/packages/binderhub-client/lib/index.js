@@ -111,10 +111,7 @@ export class BinderRepository {
     // setTimeout(() => this.close(), 1000);
     return new EventIterator((queue) => {
       this.eventIteratorQueue = queue;
-      const fail = (e) => {
-        // handle error, either in original fetch, or
-      };
-      const fetchPromise = fetchEventSource(this.buildUrl, {
+      fetchEventSource(this.buildUrl, {
         headers,
         // signal used for closing
         signal: this.abortController.signal,
