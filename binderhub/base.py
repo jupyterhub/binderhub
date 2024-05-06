@@ -142,6 +142,7 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             static_url=self.static_url,
             banner=self.settings["banner_message"],
             auth_enabled=self.settings["auth_enabled"],
+            xsrf=self.xsrf_token.decode("ascii"),
         )
         if self.settings["auth_enabled"]:
             ns["api_token"] = self.hub_auth.get_token(self) or ""
