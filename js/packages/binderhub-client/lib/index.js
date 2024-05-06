@@ -1,6 +1,8 @@
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { EventIterator } from "event-iterator";
 
+// const windowFetch = fetch;
+
 function _getXSRFToken() {
   // from @jupyterlab/services
   let cookie = "";
@@ -16,6 +18,12 @@ function _getXSRFToken() {
   }
   return null;
 }
+
+/* throw this to close the event stream */
+class EventStreamClose extends Error {}
+/* throw this to close the event stream */
+class EventStreamRetry extends Error {}
+
 /**
  * Build (and optionally launch) a repository by talking to a BinderHub API endpoint
  */
@@ -59,6 +67,7 @@ export class BinderRepository {
     this.apiToken = apiToken;
 
     this.eventIteratorQueue = null;
+    this.abortSignal = null;
   }
 
   /**
@@ -85,6 +94,8 @@ export class BinderRepository {
    */
   fetch() {
     const headers = {};
+    this.abortController = new AbortController();
+
     if (this.apiToken && this.apiToken.length > 0) {
       headers["Authorization"] = `Bearer ${this.apiToken}`;
     } else {
@@ -93,27 +104,91 @@ export class BinderRepository {
         headers["X-Xsrftoken"] = xsrf;
       }
     }
-    return new EventIterator(async (queue) => {
+    // setTimeout(() => this.close(), 1000);
+    return new EventIterator((queue) => {
       this.eventIteratorQueue = queue;
-      await fetchEventSource(this.buildUrl, {
+      const fail = (e) => {
+        // handle error, either in original fetch, or
+      };
+      const fetchPromise = fetchEventSource(this.buildUrl, {
         headers,
-        onerror: () => {
-          queue.push({
-            phase: "failed",
-            message: "Failed to connect to event stream\n",
-          });
+        // signal used for closing
+        signal: this.abortController.signal,
+        // openWhenHidden leaves connection open (matches default)
+        // otherwise fetch-event closes connections,
+        // which would be nice if our javascript handled restarting messages better
+        openWhenHidden: true,
+        onopen: (response) => {
+          if (response.ok) {
+            return; // everything's good
+          } else if (
+            response.status >= 400 &&
+            response.status < 500 &&
+            response.status !== 429
+          ) {
+            queue.push({
+              phase: "failed",
+              message: `Failed to connect to event stream: ${response.status} - ${response.text}\n`,
+            });
+            throw new EventStreamClose();
+          } else {
+            queue.push({
+              phase: "unknown",
+              message: `Error connecting to event stream, retrying: ${response.status} - ${response.text}\n`,
+            });
+            throw new EventStreamRetry();
+          }
+        },
+
+        onclose: () => {
+          if (!queue.isStopped) {
+            // close called before queue finished
+            queue.push({
+              phase: "failed",
+              message: `Event stream closed unexpectedly\n`,
+            });
+            queue.stop();
+            // throw new EventStreamClose();
+          }
+        },
+        onerror: (error) => {
+          console.log("Event stream error", error);
+          if (error.name === "EventStreamRetry") {
+            // if we don't re-raise, connection will be retried;
+            queue.push({
+              phase: "unkown",
+              message: `Error in event stream: ${error}\n`,
+            });
+            return;
+          }
+          if (
+            !(error.name === "EventStreamClose" || error.name === "AbortError")
+          ) {
+            // errors _other_ than EventStreamClose get displayed
+            queue.push({
+              phase: "failed",
+              message: `Error in event stream: ${error}\n`,
+            });
+          }
           queue.stop();
+          // need to rethrow to prevent reconnection
+          throw error;
         },
 
         onmessage: (event) => {
-          // console.log("message received")
-          // console.log(event)
+          if (!event.data || event.data === "") {
+            // onmessage is called for the empty lines
+            return;
+          }
           const data = JSON.parse(event.data);
           // FIXME: fix case of phase/state upstream
           if (data.phase) {
             data.phase = data.phase.toLowerCase();
           }
           queue.push(data);
+          if (data.phase === "failed") {
+            throw new EventStreamClose();
+          }
         },
       });
     });
@@ -123,12 +198,15 @@ export class BinderRepository {
    * Close the EventSource connection to the BinderHub API if it is open
    */
   close() {
-    if (this.eventSource !== undefined) {
-      this.eventSource.close();
-    }
-    if (this.eventIteratorQueue !== null) {
+    if (this.eventIteratorQueue) {
       // Stop any currently running fetch() iterations
       this.eventIteratorQueue.stop();
+      this.eventIteratorQueue = null;
+    }
+    if (this.abortController) {
+      // close event source
+      this.abortController.abort();
+      this.abortController = null;
     }
   }
 

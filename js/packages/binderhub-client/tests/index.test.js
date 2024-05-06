@@ -1,3 +1,6 @@
+// fetch polyfill (only needed for node tests)
+import { fetch, TextDecoder } from "@whatwg-node/fetch";
+
 import {
   BinderRepository,
   makeShareableBinderURL,
@@ -5,6 +8,24 @@ import {
 } from "@jupyterhub/binderhub-client";
 import { parseEventSource, simpleEventSourceServer } from "./utils";
 import { readFileSync } from "node:fs";
+
+beforeAll(() => {
+  // inject globals for fetch
+  global.TextDecoder = TextDecoder;
+  if (!global.window) {
+    global.window = {};
+  }
+  if (!global.window.fetch) {
+    async function wrapFetch(resource, options) {
+      if (options) {
+        // abort signal shows up as uncaught in tests
+        options.signal = null;
+      }
+      return fetch.apply(null, [resource, options]);
+    }
+    global.window.fetch = wrapFetch;
+  }
+});
 
 test("Passed in URL object is not modified", () => {
   const buildEndpointUrl = new URL("https://test-binder.org/build");
@@ -250,12 +271,16 @@ describe("Invalid eventsource response causes failure", () => {
   test("Invalid eventsource response should cause failure", async () => {
     const buildEndpointUrl = new URL(`${serverUrl}/build`);
     const br = new BinderRepository("gh/test/test", buildEndpointUrl);
+    let messages = [];
     for await (const item of br.fetch()) {
-      expect(item).toStrictEqual({
-        phase: "failed",
-        message: "Failed to connect to event stream\n",
-      });
+      messages.push(item);
     }
+    expect(messages).toStrictEqual([
+      {
+        phase: "failed",
+        message: "Event stream closed unexpectedly\n",
+      },
+    ]);
   });
 });
 
