@@ -24,8 +24,16 @@ function setLabels() {
  */
 export function updateRepoText(baseUrl) {
   if (Object.keys(configDict).length === 0) {
+    const xsrf = $("#xsrf-token").data("token");
+    const apiToken = $("#api-token").data("token");
     const configUrl = new URL("_config", baseUrl);
-    fetch(configUrl).then((resp) => {
+    const headers = {};
+    if (apiToken && apiToken.length > 0) {
+      headers["Authorization"] = `Bearer ${apiToken}`;
+    } else if (xsrf && xsrf.length > 0) {
+      headers["X-Xsrftoken"] = xsrf;
+    }
+    fetch(configUrl, { headers }).then((resp) => {
       resp.json().then((data) => {
         configDict = data;
         setLabels();
