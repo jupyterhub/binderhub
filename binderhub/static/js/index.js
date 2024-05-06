@@ -62,13 +62,10 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
   const buildToken = $("#build-token").data("token");
   let apiToken = $("#api-token").data("token");
   const buildEndpointUrl = new URL("build", BASE_URL);
-  const image = new BinderRepository(
-    providerSpec,
-    buildEndpointUrl,
+  const image = new BinderRepository(providerSpec, buildEndpointUrl, {
+    apiToken,
     buildToken,
-    false,
-    { apiToken },
-  );
+  });
 
   for await (const data of image.fetch()) {
     // Write message to the log terminal if there is a message
