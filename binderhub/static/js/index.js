@@ -60,7 +60,7 @@ async function build(providerSpec, log, fitAddon, path, pathType) {
   $(".on-build").removeClass("hidden");
 
   const buildToken = $("#build-token").data("token");
-  let apiToken = $("#api-token").data("token");
+  const apiToken = $("#api-token").data("token");
   const buildEndpointUrl = new URL("build", BASE_URL);
   const image = new BinderRepository(providerSpec, buildEndpointUrl, {
     apiToken,

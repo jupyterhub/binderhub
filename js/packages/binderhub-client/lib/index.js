@@ -5,6 +5,7 @@ import { EventIterator } from "event-iterator";
 
 function _getXSRFToken() {
   // from @jupyterlab/services
+  // https://github.com/jupyterlab/jupyterlab/blob/69223102d717f3d3e9f976d32e657a4e2456e85d/packages/services/src/contents/index.ts#L1178-L1184
   let cookie = "";
   try {
     cookie = document.cookie;
@@ -12,6 +13,9 @@ function _getXSRFToken() {
     // e.g. SecurityError in case of CSP Sandbox
     return null;
   }
+  // extracts the value of the cookie named `_xsrf`
+  // by picking up everything between `_xsrf=` and the next semicolon or end-of-line
+  // `\b` ensures word boundaries, so it doesn't pick up `something_xsrf=`...
   const xsrfTokenMatch = cookie.match("\\b_xsrf=([^;]*)\\b");
   if (xsrfTokenMatch) {
     return xsrfTokenMatch[1];
