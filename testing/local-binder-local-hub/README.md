@@ -17,3 +17,8 @@ Run JupyterHub in one terminal
 
 BinderHub will be running as a managed JupyterHub service, go to http://localhost:8000
 and you should be redirected to BinderHub.
+
+If you want to test BinderHub with dummy authentication:
+
+    export AUTHENTICATOR=dummy
+    jupyterhub --config=jupyterhub_config.py
