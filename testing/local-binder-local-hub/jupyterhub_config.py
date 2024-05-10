@@ -30,7 +30,20 @@ c.LocalContainerSpawner.cmd = "jupyter-notebook"
 
 c.Application.log_level = "DEBUG"
 c.Spawner.debug = True
-c.JupyterHub.authenticator_class = "null"
+c.JupyterHub.authenticator_class = os.getenv("AUTHENTICATOR", "null")
+
+auth_enabled = c.JupyterHub.authenticator_class != "null"
+if auth_enabled:
+    c.JupyterHub.load_roles = [
+        {
+            "name": "user",
+            "description": "Standard user privileges",
+            "scopes": [
+                "self",
+                "access:services!service=binder",
+            ],
+        }
+    ]
 
 c.JupyterHub.hub_ip = "0.0.0.0"
 c.JupyterHub.hub_connect_ip = hostip
@@ -39,9 +52,11 @@ binderhub_service_name = "binder"
 binderhub_config = os.path.join(os.path.dirname(__file__), "binderhub_config.py")
 
 binderhub_environment = {}
-for env_var in ["JUPYTERHUB_EXTERNAL_URL", "GITHUB_ACCESS_TOKEN"]:
+for env_var in ["JUPYTERHUB_EXTERNAL_URL", "GITHUB_ACCESS_TOKEN", "DOCKER_HOST"]:
     if os.getenv(env_var) is not None:
         binderhub_environment[env_var] = os.getenv(env_var)
+    if auth_enabled:
+        binderhub_environment["AUTH_ENABLED"] = "1"
 c.JupyterHub.services = [
     {
         "name": binderhub_service_name,
