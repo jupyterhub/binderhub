@@ -137,11 +137,20 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
 
     @property
     def template_namespace(self):
-        return dict(
+
+        ns = dict(
             static_url=self.static_url,
             banner=self.settings["banner_message"],
-            **self.settings.get("template_variables", {}),
+            auth_enabled=self.settings["auth_enabled"],
         )
+        if self.settings["auth_enabled"]:
+            ns["xsrf"] = self.xsrf_token.decode("ascii")
+            ns["api_token"] = self.hub_auth.get_token(self) or ""
+
+        ns.update(
+            self.settings.get("template_variables", {}),
+        )
+        return ns
 
     def set_default_headers(self):
         headers = self.settings.get("headers", {})

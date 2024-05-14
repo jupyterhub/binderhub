@@ -4,7 +4,6 @@
   "dependencies": {
     "bootstrap": "^3.4.1",
     "clipboard": "^2.0.11",
-    "event-source-polyfill": "^1.0.31",
     "jquery": "^3.6.4",
     "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.7.0"
@@ -15,6 +14,7 @@
     "@babel/eslint-parser": "^7.22.15",
     "@babel/preset-env": "^7.21.4",
     "@types/jest": "^29.5.5",
+    "@whatwg-node/fetch": "^0.9.17",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.3",
