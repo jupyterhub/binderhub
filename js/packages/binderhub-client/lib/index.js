@@ -157,7 +157,7 @@ export class BinderRepository {
           if (error.name === "EventStreamRetry") {
             // if we don't re-raise, connection will be retried;
             queue.push({
-              phase: "unkown",
+              phase: "unknown",
               message: `Error in event stream: ${error}\n`,
             });
             return;
