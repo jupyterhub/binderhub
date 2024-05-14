@@ -1,8 +1,6 @@
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { EventIterator } from "event-iterator";
 
-// const windowFetch = fetch;
-
 function _getXSRFToken() {
   // from @jupyterlab/services
   // https://github.com/jupyterlab/jupyterlab/blob/69223102d717f3d3e9f976d32e657a4e2456e85d/packages/services/src/contents/index.ts#L1178-L1184
