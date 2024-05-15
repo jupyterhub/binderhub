@@ -15,7 +15,7 @@ import re
 import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 import escapism
 from prometheus_client import Gauge
@@ -470,20 +470,35 @@ class CKANProvider(RepoProvider):
 
     async def get_resolved_ref(self):
         parsed_repo = urlparse(self.repo)
-        self.dataset_id = parsed_repo.path.rsplit("/", maxsplit=1)[1]
 
-        client = AsyncHTTPClient()
+        url_parts_1 = parsed_repo.path.split("/history/")
+        url_parts_2 = url_parts_1[0].split("/")
+        if url_parts_2[-2] == "dataset":
+            self.dataset_id = url_parts_2[-1]
+        else:
+            return None
 
-        url_parts = parsed_repo.path.split("/")
         api_url_path = "/api/3/action/"
         api = parsed_repo._replace(
-            path="/".join(url_parts[:-2]) + api_url_path
+            path="/".join(url_parts_2[:-2]) + api_url_path, query=""
         ).geturl()
 
-        package_show_url = f"{api}package_show?id={self.dataset_id}"
+        # handle the activites
+        activity_id = None
+        if parse_qs(parsed_repo.query).get("activity_id") is not None:
+            activity_id = parse_qs(parsed_repo.query).get("activity_id")[0]
+        if len(url_parts_1) == 2:
+            activity_id = url_parts_1[-1]
+        if activity_id:
+            fetch_url = (
+                f"{api}activity_data_show?" f"id={activity_id}&object_type=package"
+            )
+        else:
+            fetch_url = f"{api}package_show?id={self.dataset_id}"
 
+        client = AsyncHTTPClient()
         try:
-            r = await client.fetch(package_show_url, user_agent="BinderHub")
+            r = await client.fetch(fetch_url, user_agent="BinderHub")
         except HTTPError:
             return None
 
