@@ -30,15 +30,20 @@ class MainHandler(BaseHandler):
 
     @authenticated
     def get(self):
+        repoproviders_display_config = [
+            repo_provider_class.display_config
+            for repo_provider_class in self.settings["repo_providers"].values()
+        ]
+        page_config = {
+            "baseUrl": self.settings["base_url"],
+            "badgeBaseUrl": self.get_badge_base_url(),
+            "logoUrl": self.static_url("logo.svg"),
+            "logoWidth": "320px",
+            "repoProviders": repoproviders_display_config,
+        }
         self.render_template(
-            "index.html",
-            badge_base_url=self.get_badge_base_url(),
-            base_url=self.settings["base_url"],
-            submit=False,
-            google_analytics_code=self.settings["google_analytics_code"],
-            google_analytics_domain=self.settings["google_analytics_domain"],
-            extra_footer_scripts=self.settings["extra_footer_scripts"],
-            repo_providers=self.settings["repo_providers"],
+            "page.html",
+            page_config=page_config,
         )
 
 

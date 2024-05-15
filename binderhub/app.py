@@ -45,8 +45,8 @@ from traitlets.config import Application
 from .base import AboutHandler, Custom404, VersionHandler
 from .build import BuildExecutor, KubernetesBuildExecutor, KubernetesCleaner
 from .builder import BuildHandler
-from .config import ConfigHandler
 from .events import EventLog
+from .handlers.repoproviders import RepoProvidersHandlers
 from .health import HealthHandler, KubernetesHealthHandler
 from .launcher import Launcher
 from .log import log_request
@@ -973,7 +973,6 @@ class BinderHub(Application):
             (r"/versions", VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
-            (r"/_config", ConfigHandler),
         ]
         if not self.enable_api_only_mode:
             # In API only mode the endpoints in the list below
@@ -983,6 +982,7 @@ class BinderHub(Application):
                 (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
                 (r"/", MainHandler),
                 (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
+                (r"/api/repoproviders", RepoProvidersHandlers),
                 # for backward-compatible mybinder.org badge URLs
                 # /assets/images/badge.svg
                 (
