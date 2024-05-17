@@ -2,7 +2,7 @@ import { BinderRepository } from "@jupyterhub/binderhub-client";
 import { useEffect, useRef, useState } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-import "../../../node_modules/xterm/css/xterm.css";
+import "xterm/css/xterm.css";
 import { Progress, PROGRESS_STATES } from "./progress.jsx";
 
 function redirectToRunningServer(serverUrl, token, urlPath) {

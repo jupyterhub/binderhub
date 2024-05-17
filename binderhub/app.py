@@ -50,7 +50,7 @@ from .handlers.repoproviders import RepoProvidersHandlers
 from .health import HealthHandler, KubernetesHealthHandler
 from .launcher import Launcher
 from .log import log_request
-from .main import LegacyRedirectHandler, MainHandler, ParameterizedMainHandler
+from .main import LegacyRedirectHandler, MainHandler
 from .metrics import MetricsHandler
 from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
@@ -979,8 +979,7 @@ class BinderHub(Application):
             # are unregistered as they don't make sense in a API only scenario
             handlers += [
                 (r"/about", AboutHandler),
-                (r"/v2/([^/]+)/(.+)", ParameterizedMainHandler),
-                (r"/", MainHandler),
+                (r"/(?:v2/.*)?", MainHandler),
                 (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
                 (r"/api/repoproviders", RepoProvidersHandlers),
                 # for backward-compatible mybinder.org badge URLs

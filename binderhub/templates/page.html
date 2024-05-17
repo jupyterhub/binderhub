@@ -13,18 +13,16 @@
   <meta property="og:image:alt" content="The Binder Project Logo" />
   <meta name="twitter:card" content="summary_large_image">
   {% endblock meta_social %}
-  {% block head %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
 
   <script>
     window.pageConfig = {{page_config|tojson}};
   </script>
-
-  {% endblock head %}
 </head>
 <body>
 <div id="root"></div>
 </body>
+
 <script src="{{static_url("dist/bundle.js")}}"></script>
 </html>
