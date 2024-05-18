@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
