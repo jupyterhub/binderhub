@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import copy from "copy-to-clipboard";
-import CopyIcon from "../copy.svg";
 
+/**
+ * @typedef {object} ProviderSelectorProps
+ * @prop {import("../App").Provider[]} providers
+ * @prop {import("../App").Provider} selectedProvider
+ * @prop {(p: import("../App").Provider) => void} setSelectedProvider
+ *
+ * @param {ProviderSelectorProps} props
+ * @returns
+ */
 function ProviderSelector({
   providers,
   selectedProvider,

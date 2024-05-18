@@ -6,23 +6,29 @@ import { PROGRESS_STATES } from "./Progress.jsx";
 import { useEffect } from "react";
 import { updateFavicon } from "../src/favicon";
 
+/**
+ * @typedef {object} FaviconUpdaterProps
+ * @prop {PROGRESS_STATES} progressState
+ * @param {FaviconUpdaterProps} props
+ */
 export function FaviconUpdater({ progressState }) {
-  useEffect(() => {
-    switch (progressState) {
-      case PROGRESS_STATES.FAILED: {
-        updateFavicon(FailIcon);
-        break;
-      }
-      case PROGRESS_STATES.SUCCESS: {
-        updateFavicon(SuccessIcon);
-        break;
-      }
-      case PROGRESS_STATES.BUILDING:
-      case PROGRESS_STATES.PUSHING:
-      case PROGRESS_STATES.LAUNCHING: {
-        updateFavicon(ProgressIcon);
-        break;
-      }
+  let icon;
+  switch (progressState) {
+    case PROGRESS_STATES.FAILED: {
+      icon = FailIcon;
+      break;
     }
-  }, [progressState]);
+    case PROGRESS_STATES.SUCCESS: {
+      icon = SuccessIcon;
+      break;
+    }
+    case PROGRESS_STATES.BUILDING:
+    case PROGRESS_STATES.PUSHING:
+    case PROGRESS_STATES.LAUNCHING: {
+      icon = ProgressIcon;
+      break;
+    }
+  }
+
+  return <link rel="icon" href={icon} type="image/x-icon"></link>;
 }

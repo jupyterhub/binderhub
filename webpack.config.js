@@ -22,13 +22,16 @@ module.exports = {
       filename: "styles.css",
     }),
   ],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", ".jsx"],
+  },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: "babel-loader",
+          loader: "ts-loader",
         },
       },
       {

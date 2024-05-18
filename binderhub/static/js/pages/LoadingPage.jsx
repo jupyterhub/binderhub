@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { BuilderLauncher } from "./components/BuilderLauncher.jsx";
+import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
 import { useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { NBViewerIFrame } from "./components/NBViewerIFrame.jsx";
-import { LoadingIndicator } from "./components/LoadingIndicator.jsx";
-import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
+import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
+import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
+import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
 
+/**
+ * @typedef {object} LoadingPageProps
+ * @prop {URL} baseUrl
+ * @param {LoadingPageProps} props
+ * @returns
+ */
 export function LoadingPage({ baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 

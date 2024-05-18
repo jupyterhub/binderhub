@@ -1,3 +1,10 @@
+/**
+ * @typedef {object} NBViewerIFrameProps
+ * @prop {string} spec
+ * @prop {string} urlPath
+ * @param {NBViewerIFrameProps} props
+ * @returns
+ */
 export function NBViewerIFrame({ spec, urlPath }) {
   // We only support GitHub links as preview right now
   if (!spec.startsWith("gh/")) {

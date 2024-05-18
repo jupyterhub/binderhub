@@ -20,6 +20,11 @@ const HELP_MESSAGES = [
   'Read our <a target="_blank" href="https://discourse.jupyter.org/t/how-to-reduce-mybinder-org-repository-startup-time/4956">advice for speeding up your Binder launch</a>.',
 ];
 
+/**
+ * @typedef {object} LoadingIndicatorProps
+ * @prop {PROGRESS_STATES} progressState
+ * @param {LoadingIndicatorProps} props
+ */
 export function LoadingIndicator({ progressState }) {
   const [currentMessage, setCurrentMessage] = useState(HELP_MESSAGES[0]);
 

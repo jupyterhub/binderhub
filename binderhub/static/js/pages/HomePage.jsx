@@ -1,9 +1,16 @@
-import { LinkGenerator } from "./components/LinkGenerator.jsx";
-import { BuilderLauncher } from "./components/BuilderLauncher.jsx";
-import { HowItWorks } from "./components/HowItWorks.jsx";
+import { LinkGenerator } from "../components/LinkGenerator.jsx";
+import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
+import { HowItWorks } from "../components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
-import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
+import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
 
+/**
+ * @typedef {object} HomePageProps
+ * @prop {import("../App.jsx").Provider[]} providers
+ * @prop {URL} publicBaseUrl
+ * @prop {URL} baseUrl
+ * @param {HomePageProps} props
+ */
 export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const defaultProvider = providers[0];
   const [selectedProvider, setSelectedProvider] = useState(defaultProvider);

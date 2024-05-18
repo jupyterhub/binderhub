@@ -12,8 +12,34 @@ import { HomePage } from "./pages/HomePage.jsx";
 import { createRoutesFromElements } from "react-router";
 
 export const PAGE_CONFIG = window.pageConfig;
+
+/**
+ * @typedef {object} RepoConfig
+ * @prop {string} label
+ * @prop {string} placeholder
+ *
+ * @typedef {object} DetectConfig
+ * @prop {string} regex
+ *
+ * @typedef {object} RefConfig
+ * @prop {boolean} enabled
+ * @prop {string} [default]
+ *
+ * @typedef {object} Provider
+ * @prop {string} displayName
+ * @prop {string} id
+ * @prop {DetectConfig} [detect]
+ * @prop {RepoConfig} repo
+ * @prop {RefConfig} ref
+ *
+ */
+/**
+ * @type {Array<Provider>}
+ */
 export const PROVIDERS = PAGE_CONFIG.repoProviders;
+
 export const BASE_URL = new URL(PAGE_CONFIG.baseUrl, window.location.href);
+
 export const PUBLIC_BASE_URL = PAGE_CONFIG.publicBaseUrl
   ? new URL(BASE_URL)
   : new URL(PAGE_CONFIG.baseUrl, window.location.href);
@@ -35,14 +61,13 @@ const router = createBrowserRouter(
         <Route
           key={p.id}
           path={`${PAGE_CONFIG.baseUrl}v2/*`}
-          element={<LoadingPage provider={p} baseUrl={BASE_URL} />}
+          element={<LoadingPage baseUrl={BASE_URL} />}
         />
       ))}
     </Route>,
   ),
 );
 function App() {
-  console.log(router);
   return (
     <div className="container-md">
       <div className="col-8 offset-md-2">

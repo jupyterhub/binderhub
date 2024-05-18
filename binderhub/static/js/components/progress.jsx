@@ -1,3 +1,6 @@
+/**
+ * @enum {string}
+ */
 export const PROGRESS_STATES = {
   WAITING: "Waiting",
   BUILDING: "Building",
@@ -49,24 +52,31 @@ progressDisplay[PROGRESS_STATES.FAILED] = {
   className: "text-bg-danger",
 };
 
-export function Progress({ state }) {
+/**
+ * @typedef {object} ProgressProps
+ * @prop {PROGRESS_STATES} progressState
+ * @param {ProgressProps} props
+ */
+export function Progress({ progressState }) {
   return (
     <div
       className="progress-stacked mb-2"
       role="progressbar"
       style={{ height: "24px" }}
     >
-      {state === null
+      {progressState === null
         ? ""
-        : progressDisplay[state].precursors.concat([state]).map((s) => (
-            <div
-              className={`progress-bar progress-bar-striped progress-bar-animated ${progressDisplay[s].className}`}
-              style={{ width: `${progressDisplay[s].widthPercent}%` }}
-              key={s}
-            >
-              <strong>{progressDisplay[s].label}</strong>
-            </div>
-          ))}
+        : progressDisplay[progressState].precursors
+            .concat([progressState])
+            .map((s) => (
+              <div
+                className={`progress-bar progress-bar-striped progress-bar-animated ${progressDisplay[s].className}`}
+                style={{ width: `${progressDisplay[s].widthPercent}%` }}
+                key={s}
+              >
+                <strong>{progressDisplay[s].label}</strong>
+              </div>
+            ))}
     </div>
   );
 }

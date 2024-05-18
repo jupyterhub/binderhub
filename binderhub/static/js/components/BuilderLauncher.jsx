@@ -5,14 +5,31 @@ import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 import { Progress, PROGRESS_STATES } from "./Progress.jsx";
 
+/**
+ *
+ * @param {string} serverUrl
+ * @param {string} token
+ * @param {string} urlPath
+ */
 function redirectToRunningServer(serverUrl, token, urlPath) {
   // Make sure urlPath doesn't start with a `/`
   urlPath = urlPath.replace(/^\//, "");
   const redirectUrl = new URL(urlPath, serverUrl);
   redirectUrl.searchParams.append("token", token);
-  window.location.href = redirectUrl;
+  window.location.href = redirectUrl.toString();
 }
 
+/**
+ *
+ * @param {URL} baseUrl
+ * @param {string} spec
+ * @param {Terminal} term
+ * @param {FitAddon} fitAddon
+ * @param {string} urlPath
+ * @param {(l: boolean) => void} setIsLaunching
+ * @param {(p: PROGRESS_STATES) => void} setProgressState
+ * @param {(e: boolean) => void} setEnsureLogsVisible
+ */
 async function buildImage(
   baseUrl,
   spec,
@@ -83,6 +100,16 @@ async function buildImage(
   }
 }
 
+/**
+ * @typedef {object} ImageLogsProps
+ * @prop {(t: Terminal) => void} setTerm
+ * @prop {(f: FitAddon) => void} setFitAddon
+ * @prop {boolean} logsVisible
+ * @prop {(l: boolean) => void} setLogsVisible
+ *
+ * @param {ImageLogsProps} props
+ * @returns
+ */
 function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
   const toggleLogsButton = useRef();
   useEffect(() => {
@@ -127,6 +154,20 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
     </div>
   );
 }
+
+/**
+ * @typedef {object} BuildLauncherProps
+ * @prop {URL} baseUrl
+ * @prop {string} spec
+ * @prop {string} urlPath
+ * @prop {boolean} isLaunching
+ * @prop {(l: boolean) => void} setIsLaunching
+ * @prop {PROGRESS_STATES} progressState
+ * @prop {(p: PROGRESS_STATES) => void} setProgressState
+ *
+ * @param {BuildLauncherProps} props
+ * @returns
+ */
 export function BuilderLauncher({
   baseUrl,
   spec,
@@ -158,7 +199,7 @@ export function BuilderLauncher({
   }, [isLaunching]);
   return (
     <div className="bg-light p-4">
-      <Progress state={progressState} />
+      <Progress progressState={progressState} />
       <ImageLogs
         setTerm={setTerm}
         setFitAddon={setFitAddon}
