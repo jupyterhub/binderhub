@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import copy from "copy-to-clipboard";
+import CopyIcon from "../copy.svg";
 
 function ProviderSelector({
   providers,
@@ -226,7 +227,7 @@ export function LinkGenerator({
                 onClick={() => copy(launchUrl)}
                 disabled={launchUrl === ""}
               >
-                <i className="bi-copy"></i>
+                <img src={CopyIcon} />
               </button>
             </div>
           </fieldset>

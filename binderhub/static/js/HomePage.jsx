@@ -2,6 +2,7 @@ import { LinkGenerator } from "./components/linkbuilder.jsx";
 import { ImageBuilder } from "./components/builder.jsx";
 import { HowItWorks } from "./components/howitworks.jsx";
 import { useEffect, useState } from "react";
+import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
 
 export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
   const defaultProvider = providers[0];
@@ -60,6 +61,7 @@ export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
         progressState={progressState}
         setProgressState={setProgressState}
       />
+      <FaviconUpdater progressState={progressState} />
       <HowItWorks />
     </>
   );

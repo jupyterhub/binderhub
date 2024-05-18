@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { NBViewerIFrame } from "./components/nbviewer.jsx";
 import { Loader } from "./components/loader.jsx";
+import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
 
 export function LoadingPage({ baseUrl }) {
   const [progressState, setProgressState] = useState(null);
@@ -49,6 +50,7 @@ export function LoadingPage({ baseUrl }) {
         progressState={progressState}
         setProgressState={setProgressState}
       />
+      <FaviconUpdater progressState={progressState} />
 
       <NBViewerIFrame spec={spec} urlPath={urlPath} />
     </>

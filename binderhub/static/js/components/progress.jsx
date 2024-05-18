@@ -1,23 +1,34 @@
-export const PROGRESS_STATES = {};
-PROGRESS_STATES.WAITING = {
+export const PROGRESS_STATES = {
+  WAITING: "Waiting",
+  BUILDING: "Building",
+  PUSHING: "Pushing",
+  LAUNCHING: "Launching",
+  SUCCESS: "Success",
+  FAILED: "Failed",
+};
+
+const progressDisplay = {};
+(progressDisplay[PROGRESS_STATES.WAITING] = {
   precursors: [],
   widthPercent: "10",
   label: "Waiting",
   className: "text-bg-danger",
-};
-PROGRESS_STATES.BUILDING = {
-  precursors: [PROGRESS_STATES.WAITING],
-  widthPercent: "50",
-  label: "Building",
-  className: "text-bg-warning",
-};
-PROGRESS_STATES.PUSHING = {
+}),
+  (progressDisplay[PROGRESS_STATES.BUILDING] = {
+    precursors: [PROGRESS_STATES.WAITING],
+    widthPercent: "50",
+    label: "Building",
+    className: "text-bg-warning",
+  });
+
+progressDisplay[PROGRESS_STATES.PUSHING] = {
   precursors: [PROGRESS_STATES.WAITING, PROGRESS_STATES.BUILDING],
   widthPercent: "30",
   label: "Pushing",
   className: "text-bg-info",
 };
-PROGRESS_STATES.LAUNCHING = {
+
+progressDisplay[PROGRESS_STATES.LAUNCHING] = {
   precursors: [
     PROGRESS_STATES.WAITING,
     PROGRESS_STATES.BUILDING,
@@ -27,7 +38,11 @@ PROGRESS_STATES.LAUNCHING = {
   label: "Launching",
   className: "text-bg-success",
 };
-PROGRESS_STATES.FAILED = {
+
+progressDisplay[PROGRESS_STATES.SUCCESS] =
+  progressDisplay[PROGRESS_STATES.LAUNCHING];
+
+progressDisplay[PROGRESS_STATES.FAILED] = {
   precursors: [],
   widthPercent: "100",
   label: "Failed",
@@ -43,12 +58,13 @@ export function Progress({ state }) {
     >
       {state === null
         ? ""
-        : state.precursors.concat([state]).map((s) => (
+        : progressDisplay[state].precursors.concat([state]).map((s) => (
             <div
-              className={`progress-bar progress-bar-striped progress-bar-animated ${s.className}`}
-              style={{ width: `${s.widthPercent}%` }}
+              className={`progress-bar progress-bar-striped progress-bar-animated ${progressDisplay[s].className}`}
+              style={{ width: `${progressDisplay[s].widthPercent}%` }}
+              key={s}
             >
-              <strong>{s.label}</strong>
+              <strong>{progressDisplay[s].label}</strong>
             </div>
           ))}
     </div>

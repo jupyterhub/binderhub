@@ -48,7 +48,7 @@ async function buildImage(
         break;
       }
       case "ready": {
-        // Close the EventStream when the image has been built
+        setProgressState(PROGRESS_STATES.SUCCESS);
         image.close();
         redirectToRunningServer(data.url, data.token, urlPath);
         console.log(data);

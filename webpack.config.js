@@ -11,7 +11,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "binderhub/static/dist/"),
     filename: "bundle.js",
-    publicPath: "/static/dist/",
+    publicPath: "auto",
   },
   plugins: [
     new webpack.ProvidePlugin({
@@ -73,7 +73,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(eot|woff|ttf|woff2|svg)$/,
+        test: /\.(eot|woff|ttf|woff2|svg|ico)$/,
         type: "asset/resource",
       },
     ],
