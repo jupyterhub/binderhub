@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 
-import { LoadingPage } from "./Loading.jsx";
+import { LoadingPage } from "./pages/LoadingPage.jsx";
 import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
 import "bootstrap/js/dist/dropdown.js";
 
@@ -8,7 +8,7 @@ import "./index.scss";
 import "@fontsource/clear-sans/100.css";
 import "@fontsource/clear-sans/300.css";
 import "@fontsource/clear-sans/400.css";
-import { BinderHomePage } from "./HomePage.jsx";
+import { HomePage } from "./pages/HomePage.jsx";
 import { createRoutesFromElements } from "react-router";
 
 export const PAGE_CONFIG = window.pageConfig;
@@ -24,7 +24,7 @@ const router = createBrowserRouter(
       <Route
         path={PAGE_CONFIG.baseUrl}
         element={
-          <BinderHomePage
+          <HomePage
             providers={PROVIDERS}
             baseUrl={BASE_URL}
             publicBaseUrl={PUBLIC_BASE_URL}

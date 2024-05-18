@@ -2,7 +2,7 @@ import ProgressIcon from "../../images/favicon/progress.ico";
 import FailIcon from "../../images/favicon/fail.ico";
 import SuccessIcon from "../../images/favicon/success.ico";
 
-import { PROGRESS_STATES } from "./progress.jsx";
+import { PROGRESS_STATES } from "./Progress.jsx";
 import { useEffect } from "react";
 import { updateFavicon } from "../src/favicon";
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { ImageBuilder } from "./components/builder.jsx";
+import { BuilderLauncher } from "./components/BuilderLauncher.jsx";
 import { useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { NBViewerIFrame } from "./components/nbviewer.jsx";
-import { Loader } from "./components/loader.jsx";
+import { NBViewerIFrame } from "./components/NBViewerIFrame.jsx";
+import { LoadingIndicator } from "./components/LoadingIndicator.jsx";
 import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
 
 export function LoadingPage({ baseUrl }) {
@@ -40,8 +40,8 @@ export function LoadingPage({ baseUrl }) {
 
   return (
     <>
-      <Loader progressState={progressState} />
-      <ImageBuilder
+      <LoadingIndicator progressState={progressState} />
+      <BuilderLauncher
         baseUrl={baseUrl}
         spec={spec}
         urlPath={urlPath}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import "./loader.css";
-import { PROGRESS_STATES } from "./progress.jsx";
+import "./LoadingIndicator.css";
+import { PROGRESS_STATES } from "./Progress.jsx";
 /**
  * List of help messages we will cycle through randomly in the loading page
  */
@@ -20,7 +20,7 @@ const HELP_MESSAGES = [
   'Read our <a target="_blank" href="https://discourse.jupyter.org/t/how-to-reduce-mybinder-org-repository-startup-time/4956">advice for speeding up your Binder launch</a>.',
 ];
 
-export function Loader({ progressState }) {
+export function LoadingIndicator({ progressState }) {
   const [currentMessage, setCurrentMessage] = useState(HELP_MESSAGES[0]);
 
   useEffect(() => {

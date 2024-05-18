@@ -1,10 +1,10 @@
-import { LinkGenerator } from "./components/linkbuilder.jsx";
-import { ImageBuilder } from "./components/builder.jsx";
-import { HowItWorks } from "./components/howitworks.jsx";
+import { LinkGenerator } from "./components/LinkGenerator.jsx";
+import { BuilderLauncher } from "./components/BuilderLauncher.jsx";
+import { HowItWorks } from "./components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
 import { FaviconUpdater } from "./components/FaviconUpdater.jsx";
 
-export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
+export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const defaultProvider = providers[0];
   const [selectedProvider, setSelectedProvider] = useState(defaultProvider);
   const [repo, setRepo] = useState("");
@@ -52,7 +52,7 @@ export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
       />
-      <ImageBuilder
+      <BuilderLauncher
         baseUrl={baseUrl}
         spec={spec}
         urlPath={urlPath}

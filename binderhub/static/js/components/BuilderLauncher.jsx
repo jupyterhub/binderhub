@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
-import { Progress, PROGRESS_STATES } from "./progress.jsx";
+import { Progress, PROGRESS_STATES } from "./Progress.jsx";
 
 function redirectToRunningServer(serverUrl, token, urlPath) {
   // Make sure urlPath doesn't start with a `/`
@@ -127,7 +127,7 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
     </div>
   );
 }
-export function ImageBuilder({
+export function BuilderLauncher({
   baseUrl,
   spec,
   urlPath,

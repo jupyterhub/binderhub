@@ -227,7 +227,7 @@ export function LinkGenerator({
                 onClick={() => copy(launchUrl)}
                 disabled={launchUrl === ""}
               >
-                <img src={CopyIcon} />
+                <i className="ba-copy"></i>
               </button>
             </div>
           </fieldset>
