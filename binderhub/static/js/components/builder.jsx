@@ -15,9 +15,7 @@ function redirectToRunningServer(serverUrl, token, urlPath) {
 
 async function buildImage(
   baseUrl,
-  provider,
-  repo,
-  ref,
+  spec,
   term,
   fitAddon,
   urlPath,
@@ -25,9 +23,8 @@ async function buildImage(
   setProgressState,
   setEnsureLogsVisible,
 ) {
-  const providerSpec = `${provider.id}/${repo}/${ref}`;
   const buildEndPointURL = new URL("build/", baseUrl);
-  const image = new BinderRepository(providerSpec, buildEndPointURL);
+  const image = new BinderRepository(spec, buildEndPointURL);
   // Clear the last line written, so we start from scratch
   term.write("\x1b[2K\r");
   fitAddon.fit();
@@ -111,7 +108,7 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
         <span className="flex-fill">Build Logs</span>
         <button
           ref={toggleLogsButton}
-          class="btn btn-link"
+          className="btn btn-link"
           type="button"
           aria-controls="terminal-container"
           onClick={() => {
@@ -132,9 +129,7 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
 }
 export function ImageBuilder({
   baseUrl,
-  selectedProvider,
-  repo,
-  reference,
+  spec,
   urlPath,
   isLaunching,
   setIsLaunching,
@@ -148,9 +143,7 @@ export function ImageBuilder({
       if (isLaunching) {
         await buildImage(
           baseUrl,
-          selectedProvider,
-          repo,
-          reference,
+          spec,
           term,
           fitAddon,
           urlPath,
