@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 
-import { Header } from "./components/header.jsx";
 import { LoadingPage } from "./Loading.jsx";
 import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
 import "bootstrap/js/dist/dropdown.js";
@@ -47,10 +46,9 @@ function App() {
   return (
     <div className="container-md">
       <div className="col-8 offset-md-2">
-        <Header
-          logoUrl={PAGE_CONFIG.logoUrl}
-          logoWidth={PAGE_CONFIG.logoWidth}
-        />
+        <div className="text-center m-4">
+          <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
+        </div>
         <RouterProvider router={router} />
       </div>
     </div>

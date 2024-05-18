@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ImageBuilder } from "./components/builder.jsx";
 import { useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
+import { NBViewerIFrame } from "./components/nbviewer.jsx";
 
 export function LoadingPage({ baseUrl }) {
   const params = useParams();
@@ -39,6 +40,8 @@ export function LoadingPage({ baseUrl }) {
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
       />
+
+      <NBViewerIFrame spec={spec} urlPath={urlPath} />
     </>
   );
 }
