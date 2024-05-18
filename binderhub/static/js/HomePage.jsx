@@ -11,6 +11,7 @@ export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
   const [urlPath, setUrlPath] = useState("");
   const [isLaunching, setIsLaunching] = useState(false);
   const [spec, setSpec] = useState("");
+  const [progressState, setProgressState] = useState(null);
 
   useEffect(() => {
     setSpec(`${selectedProvider.id}/${repo}/${ref}`);
@@ -56,6 +57,8 @@ export function BinderHomePage({ providers, publicBaseUrl, baseUrl }) {
         urlPath={urlPath}
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
+        progressState={progressState}
+        setProgressState={setProgressState}
       />
       <HowItWorks />
     </>

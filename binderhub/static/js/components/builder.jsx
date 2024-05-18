@@ -133,10 +133,11 @@ export function ImageBuilder({
   urlPath,
   isLaunching,
   setIsLaunching,
+  progressState,
+  setProgressState,
 }) {
   const [term, setTerm] = useState(null);
   const [fitAddon, setFitAddon] = useState(null);
-  const [progressState, setProgressState] = useState(null);
   const [logsVisible, setLogsVisible] = useState(false);
   useEffect(() => {
     async function setup() {

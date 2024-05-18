@@ -3,14 +3,20 @@ import { ImageBuilder } from "./components/builder.jsx";
 import { useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { NBViewerIFrame } from "./components/nbviewer.jsx";
+import { Loader } from "./components/loader.jsx";
 
 export function LoadingPage({ baseUrl }) {
+  const [progressState, setProgressState] = useState(null);
+
   const params = useParams();
   const spec = params["*"];
 
   const [searchParams, _] = useSearchParams();
 
   let urlPath = searchParams.get("urlpath");
+  if (urlPath === null) {
+    urlPath = "";
+  }
 
   // Handle legacy parameters for opening URLs after launching
   // labpath and filepath
@@ -33,12 +39,15 @@ export function LoadingPage({ baseUrl }) {
 
   return (
     <>
+      <Loader progressState={progressState} />
       <ImageBuilder
         baseUrl={baseUrl}
         spec={spec}
         urlPath={urlPath}
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
+        progressState={progressState}
+        setProgressState={setProgressState}
       />
 
       <NBViewerIFrame spec={spec} urlPath={urlPath} />
