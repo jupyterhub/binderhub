@@ -1,19 +1,20 @@
+import { Spec } from "../spec";
+
 /**
  * @typedef {object} NBViewerIFrameProps
- * @prop {string} spec
- * @prop {string} urlPath
+ * @prop {Spec} spec
  * @param {NBViewerIFrameProps} props
  * @returns
  */
-export function NBViewerIFrame({ spec, urlPath }) {
+export function NBViewerIFrame({ spec }) {
   // We only support GitHub links as preview right now
-  if (!spec.startsWith("gh/")) {
+  if (!spec.buildSpec.startsWith("gh/")) {
     return;
   }
 
-  const [_, org, repo, ref] = spec.split("/");
+  const [_, org, repo, ref] = spec.buildSpec.split("/");
 
-  urlPath = decodeURI(urlPath);
+  let urlPath = decodeURI(spec.urlPath);
   // Handle cases where urlPath starts with a `/`
   urlPath = urlPath.replace(/^\//, "");
   let filePath = "";

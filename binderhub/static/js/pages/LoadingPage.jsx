@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
 import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
+import { RuntimeParams, Spec } from "../spec.js";
 
 /**
  * @typedef {object} LoadingPageProps
@@ -16,28 +17,16 @@ export function LoadingPage({ baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
-  const spec = params["*"];
+  const buildSpec = params["*"];
 
   const [searchParams, _] = useSearchParams();
 
-  let urlPath = searchParams.get("urlpath");
-  if (urlPath === null) {
-    urlPath = "";
-  }
-
-  // Handle legacy parameters for opening URLs after launching
-  // labpath and filepath
-  if (searchParams.has("labpath")) {
-    // Trim trailing / on file paths
-    const filePath = searchParams.get("labpath").replace(/(\/$)/g, "");
-    urlPath = `doc/tree/${encodeURI(filePath)}`;
-  } else if (searchParams.has("filepath")) {
-    // Trim trailing / on file paths
-    const filePath = searchParams.get("filepath").replace(/(\/$)/g, "");
-    urlPath = `tree/${encodeURI(filePath)}`;
-  }
-
   const [isLaunching, setIsLaunching] = useState(false);
+
+  const spec = new Spec(
+    buildSpec,
+    RuntimeParams.fromSearchParams(searchParams),
+  );
 
   useEffect(() => {
     // Start launching after the DOM has fully loaded
@@ -50,7 +39,6 @@ export function LoadingPage({ baseUrl }) {
       <BuilderLauncher
         baseUrl={baseUrl}
         spec={spec}
-        urlPath={urlPath}
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
         progressState={progressState}
@@ -58,7 +46,7 @@ export function LoadingPage({ baseUrl }) {
       />
       <FaviconUpdater progressState={progressState} />
 
-      <NBViewerIFrame spec={spec} urlPath={urlPath} />
+      <NBViewerIFrame spec={spec} />
     </>
   );
 }

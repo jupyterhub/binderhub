@@ -9,7 +9,8 @@
     "module": "es6",
     "target": "es5",
     "jsx": "react-jsx",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "sourceMap": true
   },
   "include": ["binderhub/static/js/"]
 }

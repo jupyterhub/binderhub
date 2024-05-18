@@ -4,6 +4,7 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 import { Progress, PROGRESS_STATES } from "./Progress.jsx";
+import { Spec } from "../spec.js";
 
 /**
  *
@@ -12,8 +13,6 @@ import { Progress, PROGRESS_STATES } from "./Progress.jsx";
  * @param {string} urlPath
  */
 function redirectToRunningServer(serverUrl, token, urlPath) {
-  // Make sure urlPath doesn't start with a `/`
-  urlPath = urlPath.replace(/^\//, "");
   const redirectUrl = new URL(urlPath, serverUrl);
   redirectUrl.searchParams.append("token", token);
   window.location.href = redirectUrl.toString();
@@ -22,10 +21,9 @@ function redirectToRunningServer(serverUrl, token, urlPath) {
 /**
  *
  * @param {URL} baseUrl
- * @param {string} spec
+ * @param {Spec} spec
  * @param {Terminal} term
  * @param {FitAddon} fitAddon
- * @param {string} urlPath
  * @param {(l: boolean) => void} setIsLaunching
  * @param {(p: PROGRESS_STATES) => void} setProgressState
  * @param {(e: boolean) => void} setEnsureLogsVisible
@@ -35,13 +33,12 @@ async function buildImage(
   spec,
   term,
   fitAddon,
-  urlPath,
   setIsLaunching,
   setProgressState,
   setEnsureLogsVisible,
 ) {
   const buildEndPointURL = new URL("build/", baseUrl);
-  const image = new BinderRepository(spec, buildEndPointURL);
+  const image = new BinderRepository(spec.buildSpec, buildEndPointURL);
   // Clear the last line written, so we start from scratch
   term.write("\x1b[2K\r");
   fitAddon.fit();
@@ -67,7 +64,11 @@ async function buildImage(
       case "ready": {
         setProgressState(PROGRESS_STATES.SUCCESS);
         image.close();
-        redirectToRunningServer(data.url, data.token, urlPath);
+        redirectToRunningServer(
+          data.url,
+          data.token,
+          spec.runtimeParams.urlPath,
+        );
         console.log(data);
         break;
       }
@@ -158,8 +159,7 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
 /**
  * @typedef {object} BuildLauncherProps
  * @prop {URL} baseUrl
- * @prop {string} spec
- * @prop {string} urlPath
+ * @prop {Spec} spec
  * @prop {boolean} isLaunching
  * @prop {(l: boolean) => void} setIsLaunching
  * @prop {PROGRESS_STATES} progressState
@@ -171,7 +171,6 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
 export function BuilderLauncher({
   baseUrl,
   spec,
-  urlPath,
   isLaunching,
   setIsLaunching,
   progressState,
@@ -188,7 +187,6 @@ export function BuilderLauncher({
           spec,
           term,
           fitAddon,
-          urlPath,
           setIsLaunching,
           setProgressState,
           setLogsVisible,

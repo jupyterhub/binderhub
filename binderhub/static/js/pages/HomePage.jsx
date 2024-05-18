@@ -3,6 +3,7 @@ import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
 import { HowItWorks } from "../components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
+import { Spec, RuntimeParams } from "../spec.js";
 
 /**
  * @typedef {object} HomePageProps
@@ -22,8 +23,8 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   useEffect(() => {
-    setSpec(`${selectedProvider.id}/${repo}/${ref}`);
-  }, [selectedProvider, repo, ref]);
+    setSpec(new Spec(`${selectedProvider.id}/${repo}/${ref}`, rtp));
+  }, [selectedProvider, repo, ref, urlPath]);
 
   return (
     <>
@@ -62,7 +63,6 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
       <BuilderLauncher
         baseUrl={baseUrl}
         spec={spec}
-        urlPath={urlPath}
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
         progressState={progressState}
