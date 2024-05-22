@@ -21,6 +21,9 @@ buildPodsRegistryCredentials:
 image:
   repository: quay.io/2i2c/binderhub-service
   tag: "set-by-chartpress"
+extraEnv:
+  - name: HELM_RELEASE_NAME
+    value: "{{ .Release.Name }}"
 
 # RBAC resources
 # -----------------------------------------------------------------------------
