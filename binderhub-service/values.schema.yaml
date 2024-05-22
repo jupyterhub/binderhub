@@ -85,6 +85,8 @@ properties:
     patternProperties:
       ".*":
         type: [string, "null"]
+  extraEnv:
+    type: array
 
   replicas:
     type: integer
