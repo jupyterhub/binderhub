@@ -11,7 +11,7 @@ keywords: [binderhub, binderhub-service, repo2docker, jupyterhub, jupyter]
 home: https://2i2c.org/binderhub-service
 sources: [https://github.com/2i2c-org/binderhub-service]
 icon: https://binderhub.readthedocs.io/en/latest/_static/logo.png
-kubeVersion: ">=1.23.0-0"
+kubeVersion: ">=1.27.0-0"
 maintainers:
   - name: Erik Sundell
     email: erik@sundellopensource.se
