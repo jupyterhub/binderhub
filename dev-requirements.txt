@@ -15,3 +15,7 @@ pyyaml
 
 # yamllint is used by tools/templates/lint-and-validate.py script
 yamllint
+
+# FIXME: We pin requests as docker-py breaks when using 2.32.0, see
+#        https://github.com/docker/docker-py/issues/3256.
+requests==2.31.0
