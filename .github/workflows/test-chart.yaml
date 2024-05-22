@@ -115,7 +115,7 @@ jobs:
         include:
           - k3s-channel: latest
           - k3s-channel: stable
-          - k3s-channel: v1.24
+          - k3s-channel: v1.27
 
     steps:
       - uses: actions/checkout@v4
