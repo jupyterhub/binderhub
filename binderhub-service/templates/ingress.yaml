@@ -10,32 +10,26 @@ metadata:
     {{- . | toYaml | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.ingress.className }}
-  ingressClassName: {{ . }}
-  {{- end }}
-  {{- with .Values.ingress.tls }}
-  tls:
-    {{- range . }}
-    - hosts:
-        {{- .hosts | toYaml | nindent 8 }}
-      secretName: {{ .secretName }}
-    {{- end }}
+  {{- with .Values.ingress.ingressClassName }}
+  ingressClassName: "{{ . }}"
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
-      http:
+    {{- range $host := .Values.ingress.hosts | default (list "") }}
+    - http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            {{- with .pathType }}
-            pathType: {{ . }}
-            {{- end }}
+          - path: {{ $.Values.config.BinderHub.base_url | trimSuffix "/" }}/{{ $.Values.ingress.pathSuffix }}
+            pathType: {{ $.Values.ingress.pathType }}
             backend:
               service:
                 name: {{ include "binderhub-service.fullname" $ }}
                 port:
-                  number: {{ $.Values.service.port }}
-          {{- end }}
+                  name: http
+      {{- if $host }}
+      host: {{ $host | quote }}
+      {{- end }}
     {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
 {{- end }}

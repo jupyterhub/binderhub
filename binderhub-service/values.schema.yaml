@@ -178,7 +178,8 @@ properties:
     properties:
       enabled:
         type: boolean
-      className:
+      annotations: *labels-and-annotations
+      ingressClassName:
         type: [string, "null"]
       hosts:
         type: array
@@ -188,7 +189,6 @@ properties:
         enum: [Prefix, Exact, ImplementationSpecific]
       tls:
         type: array
-      annotations: *labels-and-annotations
 
   # DaemonSet resource - docker-api
   # ---------------------------------------------------------------------------

@@ -49,7 +49,18 @@ service:
 # -----------------------------------------------------------------------------
 #
 ingress:
-  enabled: false
+  enabled: true
+  ingressClassName: mock-ingress-class-name
+  hosts:
+    - mocked1.domain.name
+    - mocked2.domain.name
+  pathSuffix: dummy-pathSuffix
+  pathType: ImplementationSpecific
+  tls:
+    - secretName: tls
+      hosts:
+        - mocked1.domain.name
+        - mocked2.domain.name
 
 # DaemonSet resource - docker-api
 # -----------------------------------------------------------------------------
