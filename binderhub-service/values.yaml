@@ -117,7 +117,7 @@ dockerApi:
   image:
     repository: docker.io/library/docker
     # Temporarily pinned, until https://github.com/2i2c-org/infrastructure/issues/3588 is fixed
-    tag: "26.1.1-dind" # source: https://hub.docker.com/_/docker/tags
+    tag: "26.1.3-dind" # source: https://hub.docker.com/_/docker/tags
     pullPolicy: ""
     pullSecrets: []
   resources: {}
