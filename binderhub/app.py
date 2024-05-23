@@ -106,6 +106,11 @@ class BinderHub(Application):
         None,
         allow_none=True,
         help="""
+        ..deprecated::
+
+        No longer supported. If you want to use Google Analytics, use :attr:`extra_footer_scripts`
+        to load JS from Google Analytics.
+
         The Google Analytics code to use on the main page.
 
         Note that we'll respect Do Not Track settings, despite the fact that GA does not.
@@ -117,6 +122,11 @@ class BinderHub(Application):
     google_analytics_domain = Unicode(
         "auto",
         help="""
+        ..deprecated::
+
+        No longer supported. If you want to use Google Analytics, use :attr:`extra_footer_scripts`
+        to load JS from Google Analytics.
+
         The Google Analytics domain to use on the main page.
 
         By default this is set to 'auto', which sets it up for current domain and all
@@ -124,6 +134,13 @@ class BinderHub(Application):
         """,
         config=True,
     )
+
+    @observe("google_analytics_domain", "google_analytics_code")
+    def _google_analytics_deprecation(self, change):
+        if change.new:
+            raise ValueError(
+                f"Setting {change.owner.__class__.__name__}.{change.name} is no longer supported. Use {change.owner.__class__.__name__}.extra_footer_scripts to load Google Analytics JS directly"
+            )
 
     about_message = Unicode(
         "",
@@ -943,8 +960,6 @@ class BinderHub(Application):
                 "registry": registry,
                 "traitlets_config": self.config,
                 "traitlets_parent": self,
-                "google_analytics_code": self.google_analytics_code,
-                "google_analytics_domain": self.google_analytics_domain,
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,

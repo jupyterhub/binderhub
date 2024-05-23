@@ -27,6 +27,7 @@ class MainHandler(BaseHandler):
         self.render_template(
             "page.html",
             page_config=page_config,
+            extra_footer_scripts=self.settings["extra_footer_scripts"],
         )
 
 

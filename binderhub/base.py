@@ -239,8 +239,6 @@ class AboutHandler(BaseHandler):
             submit=False,
             binder_version=binder_version,
             message=self.settings["about_message"],
-            google_analytics_code=self.settings["google_analytics_code"],
-            google_analytics_domain=self.settings["google_analytics_domain"],
             extra_footer_scripts=self.settings["extra_footer_scripts"],
         )
 
