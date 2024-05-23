@@ -2,4 +2,4 @@
 # To update requirements.txt, use the "Run workflow" button at
 # https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
-binderhub[pycurl] @ git+https://github.com/jupyterhub/binderhub@0dde0c044e70b89ee7bceac9eac73928d215290c
+binderhub[pycurl] @ https://github.com/jupyterhub/binderhub/archive/main.zip
