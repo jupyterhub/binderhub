@@ -23,7 +23,12 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   useEffect(() => {
-    setSpec(new Spec(`${selectedProvider.id}/${repo}/${ref}`, rtp));
+    setSpec(
+      new Spec(
+        `${selectedProvider.id}/${repo}/${ref}`,
+        new LaunchSpec(urlPath),
+      ),
+    );
   }, [selectedProvider, repo, ref, urlPath]);
 
   return (
