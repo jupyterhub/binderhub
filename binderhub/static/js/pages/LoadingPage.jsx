@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
 import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
-import { RuntimeParams, Spec } from "../spec.js";
+import { LaunchSpec, Spec } from "../spec.js";
 
 /**
  * @typedef {object} LoadingPageProps
@@ -23,10 +23,7 @@ export function LoadingPage({ baseUrl }) {
 
   const [isLaunching, setIsLaunching] = useState(false);
 
-  const spec = new Spec(
-    buildSpec,
-    RuntimeParams.fromSearchParams(searchParams),
-  );
+  const spec = new Spec(buildSpec, LaunchSpec.fromSearchParams(searchParams));
 
   useEffect(() => {
     // Start launching after the DOM has fully loaded

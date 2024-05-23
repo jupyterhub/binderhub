@@ -3,7 +3,7 @@ import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
 import { HowItWorks } from "../components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
-import { Spec, RuntimeParams } from "../spec.js";
+import { Spec, LaunchSpec } from "../spec.js";
 
 /**
  * @typedef {object} HomePageProps

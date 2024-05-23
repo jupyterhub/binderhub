@@ -1,7 +1,7 @@
-export class RuntimeParams {
+export class LaunchSpec {
   /**
    *
-   * @param {string} urlPath
+   * @param {string} urlPath Path inside the Jupyter server to redirect the user to after launching
    */
   constructor(urlPath) {
     this.urlPath = urlPath;
@@ -10,10 +10,13 @@ export class RuntimeParams {
   }
 
   /**
+   * Create a LaunchSpec from given query parameters in the URL
+   *
+   * Handles backwards compatible parameters as needed.
    *
    * @param {URLSearchParams} searchParams
    *
-   * @returns {RuntimeParams}
+   * @returns {LaunchSpec}
    */
   static fromSearchParams(searchParams) {
     let urlPath = searchParams.get("urlpath");
@@ -33,17 +36,23 @@ export class RuntimeParams {
       urlPath = `tree/${encodeURI(filePath)}`;
     }
 
-    return new RuntimeParams(urlPath);
+    return new LaunchSpec(urlPath);
   }
 }
 
+/**
+ * A full binder specification
+ *
+ * Includes a *build* specification (determining what is built), and a
+ * *launch* specification (determining what is launched).
+ */
 export class Spec {
   /**
-   * @param {string} buildSpec
-   * @param {RuntimeParams} runtimeParams
+   * @param {string} buildSpec Build specification, passed directly to binderhub API
+   * @param {LaunchSpec} launchSpec Launch specification, determining what is launched
    */
-  constructor(buildSpec, runtimeParams) {
+  constructor(buildSpec, launchSpec) {
     this.buildSpec = buildSpec;
-    this.runtimeParams = runtimeParams;
+    this.launchSpec = launchSpec;
   }
 }

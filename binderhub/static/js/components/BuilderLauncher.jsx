@@ -64,11 +64,7 @@ async function buildImage(
       case "ready": {
         setProgressState(PROGRESS_STATES.SUCCESS);
         image.close();
-        redirectToRunningServer(
-          data.url,
-          data.token,
-          spec.runtimeParams.urlPath,
-        );
+        redirectToRunningServer(data.url, data.token, spec.launchSpec.urlPath);
         console.log(data);
         break;
       }
