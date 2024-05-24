@@ -8,18 +8,6 @@ import { Spec } from "../spec.js";
 
 /**
  *
- * @param {string} serverUrl
- * @param {string} token
- * @param {string} urlPath
- */
-function redirectToRunningServer(serverUrl, token, urlPath) {
-  const redirectUrl = new URL(urlPath, serverUrl);
-  redirectUrl.searchParams.append("token", token);
-  window.location.href = redirectUrl.toString();
-}
-
-/**
- *
  * @param {URL} baseUrl
  * @param {Spec} spec
  * @param {Terminal} term
@@ -64,7 +52,11 @@ async function buildImage(
       case "ready": {
         setProgressState(PROGRESS_STATES.SUCCESS);
         image.close();
-        redirectToRunningServer(data.url, data.token, spec.launchSpec.urlPath);
+        const serverUrl = new URL(data.url);
+        window.location.href = spec.launchSpec.getJupyterServerRedirectUrl(
+          serverUrl,
+          data.token,
+        );
         console.log(data);
         break;
       }

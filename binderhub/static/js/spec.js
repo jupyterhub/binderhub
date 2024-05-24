@@ -10,6 +10,20 @@ export class LaunchSpec {
   }
 
   /**
+   * Return a URL to redirect user to for use with this launch specification
+   *
+   * @param {URL} serverUrl Fully qualified URL to a running Jupyter Server
+   * @param {string} token Authentication token to pass to the Jupyter Server
+   *
+   * @returns {URL}
+   */
+  getJupyterServerRedirectUrl(serverUrl, token) {
+    const redirectUrl = new URL(this.urlPath, serverUrl);
+    redirectUrl.searchParams.append("token", token);
+    return redirectUrl;
+  }
+
+  /**
    * Create a LaunchSpec from given query parameters in the URL
    *
    * Handles backwards compatible parameters as needed.
