@@ -4,8 +4,6 @@
 #
 #    Use the "Run workflow" button at https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
---no-binary pycurl
-
 alembic==1.13.1
     # via jupyterhub
 annotated-types==0.7.0
@@ -16,8 +14,10 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-binderhub @ https://github.com/jupyterhub/binderhub/archive/main.zip
-    # via -r requirements.in
+binderhub @ git+https://github.com/jupyterhub/binderhub@main
+    # via
+    #   -r requirements.in
+    #   binderhub
 cachetools==5.3.3
     # via google-auth
 certifi==2024.2.2
@@ -94,6 +94,8 @@ pyasn1-modules==0.4.0
     # via google-auth
 pycparser==2.22
     # via cffi
+pycurl==7.45.3
+    # via binderhub
 pydantic==2.7.1
     # via jupyterhub
 pydantic-core==2.18.2
