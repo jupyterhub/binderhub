@@ -14,7 +14,7 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-binderhub @ https://github.com/jupyterhub/binderhub/archive/main.zip
+binderhub @ git+https://github.com/jupyterhub/binderhub@main
     # via
     #   -r requirements.in
     #   binderhub
