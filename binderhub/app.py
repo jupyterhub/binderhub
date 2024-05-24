@@ -42,7 +42,7 @@ from traitlets import (
 )
 from traitlets.config import Application
 
-from .base import AboutHandler, Custom404, VersionHandler
+from .base import Custom404, VersionHandler
 from .build import BuildExecutor, KubernetesBuildExecutor, KubernetesCleaner
 from .builder import BuildHandler
 from .events import EventLog
@@ -993,8 +993,7 @@ class BinderHub(Application):
             # In API only mode the endpoints in the list below
             # are unregistered as they don't make sense in a API only scenario
             handlers += [
-                (r"/about", AboutHandler),
-                (r"/(?:v2/.*)?", MainHandler),
+                (r"/(?:v2/.*|about)?", MainHandler),
                 (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
                 (r"/api/repoproviders", RepoProvidersHandlers),
                 # for backward-compatible mybinder.org badge URLs

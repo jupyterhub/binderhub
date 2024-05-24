@@ -5,6 +5,7 @@ Main handler classes for requests
 from tornado.httputil import url_concat
 from tornado.web import authenticated
 
+from . import __version__ as binder_version
 from .base import BaseHandler
 
 
@@ -23,6 +24,8 @@ class MainHandler(BaseHandler):
             "logoUrl": self.static_url("logo.svg"),
             "logoWidth": "320px",
             "repoProviders": repoproviders_display_config,
+            "aboutMessage": self.settings["about_message"],
+            "binderVersion": binder_version,
         }
         self.render_template(
             "page.html",

@@ -10,6 +10,7 @@ import "@fontsource/clear-sans/300.css";
 import "@fontsource/clear-sans/400.css";
 import { HomePage } from "./pages/HomePage.jsx";
 import { createRoutesFromElements } from "react-router";
+import { AboutPage } from "./pages/AboutPage.jsx";
 
 export const PAGE_CONFIG = window.pageConfig;
 
@@ -64,6 +65,16 @@ const router = createBrowserRouter(
           element={<LoadingPage baseUrl={BASE_URL} />}
         />
       ))}
+      <Route
+        key="about"
+        path={`${PAGE_CONFIG.baseUrl}about`}
+        element={
+          <AboutPage
+            aboutMessage={PAGE_CONFIG.aboutMessage}
+            binderVersion={PAGE_CONFIG.binderVersion}
+          />
+        }
+      />
     </Route>,
   ),
 );
