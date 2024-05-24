@@ -6,13 +6,15 @@
 #
 alembic==1.13.1
     # via jupyterhub
-async-generator==1.10
-    # via jupyterhub
+annotated-types==0.7.0
+    # via pydantic
+arrow==1.3.0
+    # via isoduration
 attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-binderhub @ git+https://github.com/jupyterhub/binderhub@0dde0c044e70b89ee7bceac9eac73928d215290c
+binderhub @ https://github.com/jupyterhub/binderhub/archive/main.zip
     # via
     #   -r requirements.in
     #   binderhub
@@ -28,35 +30,44 @@ cffi==1.16.0
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
-cryptography==42.0.5
+cryptography==42.0.7
     # via pyopenssl
-docker==7.0.0
+docker==7.1.0
     # via binderhub
 escapism==1.0.1
     # via binderhub
+fqdn==1.5.1
+    # via jsonschema
 google-auth==2.29.0
     # via kubernetes
 greenlet==3.0.3
     # via sqlalchemy
 idna==3.7
-    # via requests
-jinja2==3.1.3
+    # via
+    #   jsonschema
+    #   jupyterhub
+    #   requests
+isoduration==20.11.0
+    # via jsonschema
+jinja2==3.1.4
     # via
     #   binderhub
     #   jupyterhub
-jsonschema==4.22.0
+jsonpointer==2.4
+    # via jsonschema
+jsonschema[format-nongpl]==4.22.0
     # via
     #   binderhub
-    #   jupyter-telemetry
+    #   jupyter-events
 jsonschema-specifications==2023.12.1
     # via jsonschema
-jupyter-telemetry==0.1.0
+jupyter-events==0.10.0
     # via jupyterhub
-jupyterhub==4.1.5
+jupyterhub==5.0.0
     # via binderhub
 kubernetes==29.0.0
     # via binderhub
-mako==1.3.3
+mako==1.3.5
     # via alembic
 markupsafe==2.1.5
     # via
@@ -68,9 +79,7 @@ oauthlib==3.2.2
     #   kubernetes
     #   requests-oauthlib
 packaging==24.0
-    # via
-    #   docker
-    #   jupyterhub
+    # via jupyterhub
 pamela==1.1.0
     # via jupyterhub
 prometheus-client==0.20.0
@@ -87,25 +96,33 @@ pycparser==2.22
     # via cffi
 pycurl==7.45.3
     # via binderhub
+pydantic==2.7.1
+    # via jupyterhub
+pydantic-core==2.18.2
+    # via pydantic
 pyjwt==2.8.0
     # via binderhub
 pyopenssl==24.1.0
     # via certipy
 python-dateutil==2.9.0.post0
     # via
+    #   arrow
     #   jupyterhub
     #   kubernetes
 python-json-logger==2.0.7
     # via
     #   binderhub
-    #   jupyter-telemetry
+    #   jupyter-events
 pyyaml==6.0.1
-    # via kubernetes
-referencing==0.35.0
+    # via
+    #   jupyter-events
+    #   kubernetes
+referencing==0.35.1
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+    #   jupyter-events
+requests==2.32.2
     # via
     #   docker
     #   jupyterhub
@@ -113,21 +130,26 @@ requests==2.31.0
     #   requests-oauthlib
 requests-oauthlib==2.0.0
     # via kubernetes
-rpds-py==0.18.0
+rfc3339-validator==0.1.4
+    # via
+    #   jsonschema
+    #   jupyter-events
+rfc3986-validator==0.1.1
+    # via
+    #   jsonschema
+    #   jupyter-events
+rpds-py==0.18.1
     # via
     #   jsonschema
     #   referencing
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.18.6
-    # via jupyter-telemetry
-ruamel-yaml-clib==0.2.8
-    # via ruamel-yaml
 six==1.16.0
     # via
     #   kubernetes
     #   python-dateutil
-sqlalchemy==2.0.29
+    #   rfc3339-validator
+sqlalchemy==2.0.30
     # via
     #   alembic
     #   jupyterhub
@@ -138,16 +160,24 @@ tornado==6.4
 traitlets==5.14.3
     # via
     #   binderhub
-    #   jupyter-telemetry
+    #   jupyter-events
     #   jupyterhub
-typing-extensions==4.11.0
+types-python-dateutil==2.9.0.20240316
+    # via arrow
+typing-extensions==4.12.0
     # via
     #   alembic
+    #   pydantic
+    #   pydantic-core
     #   sqlalchemy
+uri-template==1.3.0
+    # via jsonschema
 urllib3==2.2.1
     # via
     #   docker
     #   kubernetes
     #   requests
+webcolors==1.13
+    # via jsonschema
 websocket-client==1.8.0
     # via kubernetes
