@@ -3,4 +3,4 @@
 # https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
 binderhub @ https://github.com/jupyterhub/binderhub/archive/main.zip
-pycurl --no-binary
+--no-binary pycurl
