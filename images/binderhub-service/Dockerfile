@@ -24,9 +24,11 @@ RUN apt-get update \
 COPY requirements.txt requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
-    pip install build \
- && pip wheel \
+    pip wheel \
         --wheel-dir=/tmp/wheels \
+        # pycurl wheels for 7.45.3 have problems finding CAs
+        # https://github.com/pycurl/pycurl/issues/834
+        --no-binary pycurl \
         -r requirements.txt
 
 
@@ -62,9 +64,12 @@ COPY requirements.txt requirements.txt
 #
 RUN sed -i -E 's/binderhub @ git.+/binderhub/' requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
+# --no-index ensures _only_ wheels from the build stage are installed
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
-    pip install --find-links=/tmp/wheels/ \
+    pip install \
+        --no-index \
+        --find-links=/tmp/wheels/ \
         -r requirements.txt
 
 ENV PYTHONUNBUFFERED=1
