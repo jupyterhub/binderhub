@@ -144,6 +144,10 @@ rpds-py==0.18.1
     #   referencing
 rsa==4.9
     # via google-auth
+ruamel-yaml==0.18.6
+    # via -r requirements.in
+ruamel-yaml-clib==0.2.8
+    # via ruamel-yaml
 six==1.16.0
     # via
     #   kubernetes
