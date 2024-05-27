@@ -2,4 +2,7 @@
 # To update requirements.txt, use the "Run workflow" button at
 # https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
 #
+# needed by binderhub.config.py
+ruamel-yaml
+
 binderhub[pycurl] @ git+https://github.com/jupyterhub/binderhub@main
