@@ -27,6 +27,9 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip install build \
  && pip wheel \
         --wheel-dir=/tmp/wheels \
+        # pycurl wheels for 7.45.3 have problems finding CAs
+        # https://github.com/pycurl/pycurl/issues/834
+        --no-binary pycurl \
         -r requirements.txt
 
 
