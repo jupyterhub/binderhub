@@ -67,7 +67,7 @@ ARG PIP_CACHE_DIR=/tmp/pip-cache
 # --no-index ensures _only_ wheels from the build stage are installed
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     --mount=type=cache,from=build-stage,source=/tmp/wheels,target=/tmp/wheels \
-    pip install
+    pip install \
         --no-index \
         --find-links=/tmp/wheels/ \
         -r requirements.txt
