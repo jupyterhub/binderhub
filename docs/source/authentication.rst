@@ -15,8 +15,8 @@ you need to add the following into ``config.yaml``:
 
     jupyterhub:
       cull:
-        # don't cull authenticated users
-        users: False
+        # don't cull authenticated users (reverts binderhub chart's default)
+        users: false
       hub:
         redirectToServer: false
         config:
@@ -42,7 +42,7 @@ you need to add the following into ``config.yaml``:
               - "access:services"
 
       singleuser:
-        # to make notebook servers aware of hub
+        # make notebook servers aware of hub (reverts binderhub chart's default to z2jh chart's default)
         cmd: jupyterhub-singleuser
 
 If the configuration above was entered correctly, once you upgrade your
