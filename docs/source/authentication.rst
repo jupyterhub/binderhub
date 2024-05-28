@@ -39,7 +39,7 @@ you need to add the following into ``config.yaml``:
           user:
             scopes:
               - self
-              - "access:services"
+              - "access:services!service=binder"
 
       singleuser:
         # make notebook servers aware of hub (reverts binderhub chart's default to z2jh chart's default)
