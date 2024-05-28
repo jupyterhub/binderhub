@@ -18,12 +18,12 @@ you need to add the following into ``config.yaml``:
         # don't cull authenticated users (reverts binderhub chart's default)
         users: false
       hub:
-        redirectToServer: false
         config:
           BinderSpawner:
             auth_enabled: true
-          # specify the desired authenticator
           JupyterHub:
+            redirect_to_server: false
+            # specify the desired authenticator
             authenticator_class: <desired-authenticator>
           # use config of your authenticator here
           # use the docs at https://zero-to-jupyterhub.readthedocs.io/en/stable/authentication.html
