@@ -813,7 +813,6 @@ class BinderHub(Application):
             - /versions
             - /build/([^/]+)/(.+)
             - /health
-            - /_config
             - /* -> shows a 404 page
         """,
         config=True,
