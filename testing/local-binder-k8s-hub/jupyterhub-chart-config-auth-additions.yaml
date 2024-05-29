@@ -17,4 +17,4 @@ hub:
     user:
       scopes:
         - self
-        - "access:services"
+        - "access:services!service=binder"

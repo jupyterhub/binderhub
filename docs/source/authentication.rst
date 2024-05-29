@@ -15,15 +15,15 @@ you need to add the following into ``config.yaml``:
 
     jupyterhub:
       cull:
-        # don't cull authenticated users
-        users: False
+        # don't cull authenticated users (reverts binderhub chart's default)
+        users: false
       hub:
-        redirectToServer: false
         config:
           BinderSpawner:
             auth_enabled: true
-          # specify the desired authenticator
           JupyterHub:
+            redirect_to_server: false
+            # specify the desired authenticator
             authenticator_class: <desired-authenticator>
           # use config of your authenticator here
           # use the docs at https://zero-to-jupyterhub.readthedocs.io/en/stable/authentication.html
@@ -39,10 +39,10 @@ you need to add the following into ``config.yaml``:
           user:
             scopes:
               - self
-              - "access:services"
+              - "access:services!service=binder"
 
       singleuser:
-        # to make notebook servers aware of hub
+        # make notebook servers aware of hub (reverts binderhub chart's default to z2jh chart's default)
         cmd: jupyterhub-singleuser
 
 If the configuration above was entered correctly, once you upgrade your

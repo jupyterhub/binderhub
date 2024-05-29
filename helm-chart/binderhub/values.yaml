@@ -81,8 +81,12 @@ jupyterhub:
           - binder
         scopes:
           - servers
-          # we don't need admin:users if auth is not enabled!
-          - "admin:users"
+          # admin:users is required in order to create a jupyterhub user for an
+          # anonymous binderhub web-server visitor in non-authenticated
+          # deployments, and read:users is required for authenticated
+          # deployments to check the state of a jupyterhub user's running
+          # servers before trying to launch.
+          - admin:users
     extraConfig:
       0-binderspawnermixin: |
         """
