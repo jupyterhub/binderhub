@@ -9,3 +9,4 @@ pyjwt>=2
 python-json-logger
 tornado>=5.1
 traitlets
+validators

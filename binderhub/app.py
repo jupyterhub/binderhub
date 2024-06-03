@@ -63,6 +63,7 @@ from .repoproviders import (
     GitLabRepoProvider,
     GitRepoProvider,
     HydroshareProvider,
+    MecaRepoProvider,
     RepoProvider,
     ZenodoProvider,
 )
@@ -586,6 +587,7 @@ class BinderHub(Application):
             "figshare": FigshareProvider,
             "hydroshare": HydroshareProvider,
             "dataverse": DataverseProvider,
+            "meca": MecaRepoProvider,
         },
         config=True,
         help="""

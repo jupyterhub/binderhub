@@ -65,6 +65,12 @@ Module: :mod:`binderhub.repoproviders`
 .. autoconfigurable:: DataverseProvider
     :members:
 
+:class:`MecaRepoProvider`
+---------------------------
+
+.. autoconfigurable:: MecaRepoProvider
+    :members:
+
 
 :class:`GitRepoProvider`
 ---------------------------
