@@ -266,66 +266,46 @@ def test_banned():
 
 def test_allowed():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^jupyterhub.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4", allowed_specs=["^jupyterhub.*"]
     )
     assert not provider.is_banned()
 
 
 def test_not_allowed():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^yuvipanda.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4", allowed_specs=["^yuvipanda.*"]
     )
     assert provider.is_banned()
 
 
 def test_allowed_but_banned():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^jupyterhub.*'
-        ],
-        banned_specs=[
-            '.*zero-to-.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4",
+        allowed_specs=["^jupyterhub.*"],
+        banned_specs=[".*zero-to-.*"],
     )
     assert provider.is_banned()
 
 
 def test_allowed():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^jupyterhub.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4", allowed_specs=["^jupyterhub.*"]
     )
     assert not provider.is_banned()
 
 
 def test_not_allowed():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^yuvipanda.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4", allowed_specs=["^yuvipanda.*"]
     )
     assert provider.is_banned()
 
 
 def test_allowed_but_banned():
     provider = GitHubRepoProvider(
-        spec='jupyterhub/zero-to-jupyterhub-k8s/v0.4',
-        allowed_specs=[
-            '^jupyterhub.*'
-        ],
-        banned_specs=[
-            '.*zero-to-.*'
-        ]
+        spec="jupyterhub/zero-to-jupyterhub-k8s/v0.4",
+        allowed_specs=["^jupyterhub.*"],
+        banned_specs=[".*zero-to-.*"],
     )
     assert provider.is_banned()
 

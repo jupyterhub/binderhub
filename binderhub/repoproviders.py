@@ -78,7 +78,7 @@ class RepoProvider(LoggingConfigurable):
         1. it matches allowed_specs and does not match banned_specs or
         2. allowed_specs is unspecified and the spec does not match banned_specs.
         """,
-        config=True
+        config=True,
     )
 
     banned_specs = List(
