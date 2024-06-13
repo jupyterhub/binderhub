@@ -20,7 +20,7 @@ binderhub @ git+https://github.com/jupyterhub/binderhub@main
     #   binderhub
 cachetools==5.3.3
     # via google-auth
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   kubernetes
     #   requests
@@ -30,7 +30,7 @@ cffi==1.16.0
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
-cryptography==42.0.7
+cryptography==42.0.8
     # via pyopenssl
 docker==7.1.0
     # via binderhub
@@ -38,7 +38,7 @@ escapism==1.0.1
     # via binderhub
 fqdn==1.5.1
     # via jsonschema
-google-auth==2.29.0
+google-auth==2.30.0
     # via kubernetes
 greenlet==3.0.3
     # via sqlalchemy
@@ -53,7 +53,7 @@ jinja2==3.1.4
     # via
     #   binderhub
     #   jupyterhub
-jsonpointer==2.4
+jsonpointer==3.0.0
     # via jsonschema
 jsonschema[format-nongpl]==4.22.0
     # via
@@ -65,7 +65,7 @@ jupyter-events==0.10.0
     # via jupyterhub
 jupyterhub==5.0.0
     # via binderhub
-kubernetes==29.0.0
+kubernetes==30.1.0
     # via binderhub
 mako==1.3.5
     # via alembic
@@ -78,7 +78,7 @@ oauthlib==3.2.2
     #   jupyterhub
     #   kubernetes
     #   requests-oauthlib
-packaging==24.0
+packaging==24.1
     # via jupyterhub
 pamela==1.1.0
     # via jupyterhub
@@ -96,9 +96,9 @@ pycparser==2.22
     # via cffi
 pycurl==7.45.3
     # via binderhub
-pydantic==2.7.1
+pydantic==2.7.4
     # via jupyterhub
-pydantic-core==2.18.2
+pydantic-core==2.18.4
     # via pydantic
 pyjwt==2.8.0
     # via binderhub
@@ -122,7 +122,7 @@ referencing==0.35.1
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-requests==2.32.2
+requests==2.32.3
     # via
     #   docker
     #   jupyterhub
@@ -157,7 +157,7 @@ sqlalchemy==2.0.30
     # via
     #   alembic
     #   jupyterhub
-tornado==6.4
+tornado==6.4.1
     # via
     #   binderhub
     #   jupyterhub
@@ -168,7 +168,7 @@ traitlets==5.14.3
     #   jupyterhub
 types-python-dateutil==2.9.0.20240316
     # via arrow
-typing-extensions==4.12.0
+typing-extensions==4.12.2
     # via
     #   alembic
     #   pydantic
@@ -181,7 +181,7 @@ urllib3==2.2.1
     #   docker
     #   kubernetes
     #   requests
-webcolors==1.13
+webcolors==24.6.0
     # via jsonschema
 websocket-client==1.8.0
     # via kubernetes
