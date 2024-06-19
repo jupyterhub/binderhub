@@ -7,32 +7,44 @@ The binderhub-service is a Helm chart and guide to run BinderHub (the Python
 software), as a standalone service to build and push images with repo2docker,
 possibly configured for use with a JupyterHub chart installation.
 
-## Background
+## History
 
-The [binderhub chart]'s main use case has been to build images and launch
-servers based on them for anonymous users without persistent home folder
-storage. The binderhub chart does this by installing the [jupyterhub chart]
-opinionatedly configured to not authenticate and provide users with home folder
-storage.
+The BinderHub project provides two major pieces of functionality:
 
-There are use cases for putting binderhub behind authentication though, so
-support for that [was added]. There are also use cases for providing users with
-persistent home folders, and this led to [persistent binderhub chart] being
-developed. The persistent binderhub chart, by depending on the binderhub chart,
-depending on the jupyterhub chart, is even more complex than the binderhub chart
-though. Currently, the project isn't actively maintained.
+1. Building (and pushing) images via an API using content from various
+   providers.
+2. Launch interactive sessions using the built images (via a JupyterHub).
 
-Could a new chart be developed to deploy binderhub next to an existing
-jupyterhub instead, or even entirely on its own without the part where the built
-image is launched in a jupyterhub? Could this enable existing jupyterhub chart
-installations to add on binderhub like functionality? This is what this project
-is exploring!
+The current upstream [binderhub helm chart](https://github.com/jupyterhub/binderhub/tree/main/helm-chart)
+is a very opinionated distribution, focusing purely on public instances of BinderHub
+(such as [mybinder.org](https://mybinder.org)). It has strong opinions on how
+the JupyterHub should be configured, and how it should be connected to the BinderHub.
+While historically this allowed for faster iteration on mybinder.org itself,
+it has major limitations when used elsewhere.
 
-## Project scope
+1. It places restrictions on how the JupyterHub used to launch the interactive sessions
+   can be installed and configured. It required workarounds for several types
+   of configuration, particularly around persistence (see [persistent binderhub](https://github.com/gesiscss/persistent_binderhub)
+   for example).
+2. It can not be deployed without the attached, opinionated JupyterHub it comes with.
+   This makes deployment for use with alternate frontends (such as
+   [jupyterhub-fancy-profiles](https://github.com/yuvipanda/jupyterhub-fancy-profiles)
+   difficult)
 
-This project is currently developed to provide a Helm chart and documentation to
-deploy and configure BinderHub the Python software for use either by itself, or
-next to a JupyterHub Helm chart installation.
+This project is designed to provide a standalone helm chart that does not have these
+restrictions.
+
+## Restrictions
+
+To prevent a recurrance of the issues with the existing binderhub chart, the following
+restrictions are in place for any work on this chart:
+
+> There will not be a *direct* dependency on a JupyterHub. We can provide documentation on
+> how to set this chart up next to a JupyterHub, but we will not provide a JupyterHub
+> directly (via a [helm dependency](https://helm.sh/docs/chart_best_practices/dependencies/))
+> or otherwise.
+
+## Scope
 
 The documentation should help configure the BinderHub service to:
 
@@ -40,11 +52,6 @@ The documentation should help configure the BinderHub service to:
 - in one or more ways be able to launch built images
 - in one or more ways handle the issue repo2docker building an image with data
   put where JupyterHub user home folders typically is mounted
-
-[binderhub chart]: https://github.com/jupyterhub/binderhub
-[jupyterhub chart]: https://github.com/jupyterhub/zero-to-jupyterhub-k8s
-[persistent binderhub chart]: https://github.com/gesiscss/persistent_binderhub
-[was added]: https://github.com/jupyterhub/binderhub/pull/666
 
 ## Installation
 
