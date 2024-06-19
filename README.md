@@ -39,7 +39,7 @@ restrictions.
 To prevent a recurrance of the issues with the existing binderhub chart, the following
 restrictions are in place for any work on this chart:
 
-> There will not be a *direct* dependency on a JupyterHub. We can provide documentation on
+> There will not be a _direct_ dependency on a JupyterHub. We can provide documentation on
 > how to set this chart up next to a JupyterHub, but we will not provide a JupyterHub
 > directly (via a [helm dependency](https://helm.sh/docs/chart_best_practices/dependencies/))
 > or otherwise.
