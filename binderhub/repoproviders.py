@@ -15,7 +15,7 @@ import re
 import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import escapism
 from prometheus_client import Gauge
@@ -490,11 +490,11 @@ class CKANProvider(RepoProvider):
         if len(url_parts_1) == 2:
             activity_id = url_parts_1[-1]
         if activity_id:
-            fetch_url = (
-                f"{api}activity_data_show?" f"id={activity_id}&object_type=package"
+            fetch_url = f"{api}activity_data_show?" + urlencode(
+                {"id": activity_id, "object_type": "package"}
             )
         else:
-            fetch_url = f"{api}package_show?id={self.dataset_id}"
+            fetch_url = f"{api}package_show?" + urlencode({"id": self.dataset_id})
 
         client = AsyncHTTPClient()
         try:
