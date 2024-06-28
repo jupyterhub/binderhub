@@ -14,6 +14,7 @@ dependencies:
   - name: jupyterhub
     version: "3.3.7"
     repository: "https://jupyterhub.github.io/helm-chart"
+    condition: jupyterhub.enabled
 description: |-
   BinderHub is like a JupyterHub that automatically builds environments for the
   users based on repo2docker. A BinderHub is by default not configured to

@@ -63,6 +63,7 @@ extraPodSpec: {}
 # likely want to set both of those to the same value.
 
 jupyterhub:
+  enabled: true
   # Deprecated values, kept here so we can provide useful error messages
   custom:
     cors: {}
