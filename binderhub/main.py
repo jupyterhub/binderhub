@@ -25,6 +25,7 @@ class MainHandler(BaseHandler):
             "logoWidth": "320px",
             "repoProviders": repoproviders_display_config,
             "aboutMessage": self.settings["about_message"],
+            "bannerHtml": self.settings["banner_message"],
             "binderVersion": binder_version,
         }
         self.render_template(

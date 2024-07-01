@@ -80,14 +80,22 @@ const router = createBrowserRouter(
 );
 function App() {
   return (
-    <div className="container-md">
-      <div className="col-8 offset-md-2">
-        <div className="text-center m-4">
-          <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
+    <>
+      {PAGE_CONFIG.bannerHtml && (
+        <div
+          className="p-3 bg-light shadow-sm text-center"
+          dangerouslySetInnerHTML={{ __html: PAGE_CONFIG.bannerHtml }}
+        ></div>
+      )}
+      <div className="container-md">
+        <div className="col-8 offset-md-2">
+          <div className="text-center m-4">
+            <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
+          </div>
+          <RouterProvider router={router} />
         </div>
-        <RouterProvider router={router} />
       </div>
-    </div>
+    </>
   );
 }
 
