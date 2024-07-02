@@ -6,6 +6,7 @@ import pytest
 from tornado.ioloop import IOLoop
 
 from binderhub.repoproviders import (
+    CKANProvider,
     DataverseProvider,
     FigshareProvider,
     GistRepoProvider,
@@ -198,6 +199,53 @@ async def test_dataverse(
     # have to resolve the ref first
     ref = await provider.get_resolved_ref()
     assert re.match(resolved_ref, ref)
+
+    slug = provider.get_build_slug()
+    assert slug == build_slug
+    repo_url = provider.get_repo_url()
+    assert repo_url == spec
+    ref_url = await provider.get_resolved_ref_url()
+    assert ref_url == resolved_ref_url
+    spec = await provider.get_resolved_spec()
+    assert spec == resolved_spec
+
+
+@pytest.mark.parametrize(
+    "spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug",
+    [
+        [
+            "https://demo.ckan.org/dataset/sample-dataset-1",
+            "https://demo.ckan.org/dataset/sample-dataset-1",
+            "sample-dataset-1.v",
+            "https://demo.ckan.org/dataset/sample-dataset-1",
+            "ckan-sample-dataset-1",
+        ],
+        [
+            "https://demo.datashades.com/dataset/chart-test?activity_id=061888e9-e3c2-4769-b097-9c195a841e2f",
+            "https://demo.datashades.com/dataset/chart-test?activity_id=061888e9-e3c2-4769-b097-9c195a841e2f",
+            "chart-test.v1717501747",
+            "https://demo.datashades.com/dataset/chart-test?activity_id=061888e9-e3c2-4769-b097-9c195a841e2f",
+            "ckan-chart-test",
+        ],
+        [
+            "https://demo.datashades.com/dataset/chart-test/history/061888e9-e3c2-4769-b097-9c195a841e2f",
+            "https://demo.datashades.com/dataset/chart-test/history/061888e9-e3c2-4769-b097-9c195a841e2f",
+            "chart-test.v1717501747",
+            "https://demo.datashades.com/dataset/chart-test/history/061888e9-e3c2-4769-b097-9c195a841e2f",
+            "ckan-chart-test",
+        ],
+        ["https://demo.ckan.org/group/roger", None, None, None, None],
+        ["https://demo.ckan.org/dataset/nosuchdataset", None, None, None, None],
+    ],
+)
+async def test_ckan(spec, resolved_spec, resolved_ref, resolved_ref_url, build_slug):
+    provider = CKANProvider(spec=spec)
+
+    ref = await provider.get_resolved_ref()
+    if not resolved_ref:
+        # We are done here if we don't expect to resolve
+        return
+    assert resolved_ref in ref
 
     slug = provider.get_build_slug()
     assert slug == build_slug

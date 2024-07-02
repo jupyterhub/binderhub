@@ -56,6 +56,7 @@ from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
 from .registry import DockerRegistry
 from .repoproviders import (
+    CKANProvider,
     DataverseProvider,
     FigshareProvider,
     GistRepoProvider,
@@ -586,6 +587,7 @@ class BinderHub(Application):
             "figshare": FigshareProvider,
             "hydroshare": HydroshareProvider,
             "dataverse": DataverseProvider,
+            "ckan": CKANProvider,
         },
         config=True,
         help="""
