@@ -50,6 +50,7 @@ extraConfig:
     dummy binderhub python code ...
 
 jupyterhub:
+  enabled: true
   cull:
     enabled: true
     users: true
