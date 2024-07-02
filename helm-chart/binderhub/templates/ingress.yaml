@@ -3,14 +3,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: binderhub
-  {{- if or (and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego")) .Values.ingress.annotations }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
-    kubernetes.io/tls-acme: "true"
-    {{- end }}
-    {{- with .Values.ingress.annotations }}
     {{- . | toYaml | nindent 4 }}
-    {{- end }}
   {{- end }}
 spec:
   {{- with .Values.ingress.ingressClassName }}
@@ -31,21 +26,8 @@ spec:
       host: {{ . | quote }}
       {{- end }}
     {{- end }}
-  {{- if and .Values.ingress.https.enabled (eq .Values.ingress.https.type "kube-lego") }}
+  {{- with .Values.ingress.tls }}
   tls:
-    - secretName: kubelego-tls-binder-{{ .Release.Name }}
-      hosts:
-        {{- range .Values.ingress.hosts }}
-        - {{ . | quote }}
-        {{- end }}
-  {{- else if .Values.ingress.tls }}
-  tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+    {{- . | toYaml | nindent 4 }}
   {{- end }}
 {{- end }}

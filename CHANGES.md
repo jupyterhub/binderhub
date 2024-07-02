@@ -13,6 +13,34 @@ make it easier to track what has changed over time_
 
 ## Breaking changes
 
+### `ingress.https` was removed
+
+Users with `ingress.https.enabled=true` explicitly set will now error during
+template rendering and need to migrate config like examplified below.
+
+```yaml
+# old config to be migrated
+ingress:
+  enabled: true
+  hosts:
+    - example.com
+  https:
+    enabled: true
+    type: kube-lego
+
+# equivalent new config to use instead
+ingress:
+  enabled: true
+  hosts:
+    - example.com
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  tls:
+    - secretName: binderhub-tls-binder-<HELM RELEASE NAME HERE>
+      hosts:
+        - example.com
+```
+
 ### `binderhub_config.py` is mounted at runtime
 
 The `binderhub_config.py` file is now mounted at runtime instead of being built into the BinderHub image
