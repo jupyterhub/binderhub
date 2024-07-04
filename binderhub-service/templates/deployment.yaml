@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "binderhub-service.fullname" . }}
+  name: {{ include "binderhub-service.binderhub.fullname" . }}
   labels:
     {{- include "binderhub-service.labels" . | nindent 4 }}
 spec:
@@ -24,7 +24,7 @@ spec:
       volumes:
         - name: secret
           secret:
-            secretName: {{ include "binderhub-service.fullname" . }}
+            secretName: {{ include "binderhub-service.binderhub.fullname" . }}
       containers:
         - name: binderhub
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -40,7 +40,7 @@ spec:
               readOnly: true
           env:
             - name: PUSH_SECRET_NAME
-              value: {{ include "binderhub-service.fullname" . }}-build-pods-docker-config
+              value: {{ include "binderhub-service.build-pods-docker-config.fullname" . }}
             - name: HELM_RELEASE_NAME
               value: {{ .Release.Name }}
             # Namespace build pods should be placed in
@@ -70,7 +70,7 @@ spec:
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
       {{- end }}
-      {{- with include "binderhub-service.serviceAccountName" . }}
+      {{- with include "binderhub-service.binderhub.serviceaccount.fullname" . }}
       serviceAccountName: {{ . }}
       {{- end }}
       {{- with .Values.podSecurityContext }}
