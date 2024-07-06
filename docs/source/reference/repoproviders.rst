@@ -65,6 +65,11 @@ Module: :mod:`binderhub.repoproviders`
 .. autoconfigurable:: DataverseProvider
     :members:
 
+:class:`CKANProvider`
+---------------------------
+
+.. autoconfigurable:: CKANProvider
+    :members:
 
 :class:`GitRepoProvider`
 ---------------------------
