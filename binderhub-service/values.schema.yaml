@@ -41,9 +41,9 @@ properties:
   # ---------------------------------------------------------------------------
   #
   nameOverride:
-    type: string
+    type: [string, "null"]
   fullnameOverride:
-    type: string
+    type: [string, "null"]
   global:
     type: object
     additionalProperties: true

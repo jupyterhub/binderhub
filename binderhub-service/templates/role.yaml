@@ -2,7 +2,7 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ include "binderhub-service.fullname" . }}
+  name: {{ include "binderhub-service.binderhub.fullname" . }}
   labels:
     {{- include "binderhub-service.labels" . | nindent 4 }}
 rules:
