@@ -300,7 +300,7 @@ class BuildHandler(BaseHandler):
             await self.emit(
                 {
                     "phase": "failed",
-                    "message": f"Sorry, {spec} has been temporarily disabled from launching. Please contact admins for more info!",
+                    "message": f"Sorry, {spec} is not allowed to launch. Please contact admins for more info!",
                 }
             )
             return
