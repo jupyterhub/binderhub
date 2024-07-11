@@ -20,7 +20,7 @@ binderhub @ git+https://github.com/jupyterhub/binderhub@main
     #   binderhub
 cachetools==5.3.3
     # via google-auth
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   kubernetes
     #   requests
@@ -38,7 +38,7 @@ escapism==1.0.1
     # via binderhub
 fqdn==1.5.1
     # via jsonschema
-google-auth==2.30.0
+google-auth==2.32.0
     # via kubernetes
 greenlet==3.0.3
     # via sqlalchemy
@@ -55,7 +55,7 @@ jinja2==3.1.4
     #   jupyterhub
 jsonpointer==3.0.0
     # via jsonschema
-jsonschema[format-nongpl]==4.22.0
+jsonschema[format-nongpl]==4.23.0
     # via
     #   binderhub
     #   jupyter-events
@@ -96,9 +96,9 @@ pycparser==2.22
     # via cffi
 pycurl==7.45.3
     # via binderhub
-pydantic==2.7.4
+pydantic==2.8.2
     # via jupyterhub
-pydantic-core==2.18.4
+pydantic-core==2.20.1
     # via pydantic
 pyjwt==2.8.0
     # via binderhub
@@ -138,7 +138,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-rpds-py==0.18.1
+rpds-py==0.19.0
     # via
     #   jsonschema
     #   referencing
