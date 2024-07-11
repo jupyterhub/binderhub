@@ -15,9 +15,7 @@ attrs==23.2.0
     #   jsonschema
     #   referencing
 binderhub @ git+https://github.com/jupyterhub/binderhub@main
-    # via
-    #   -r requirements.in
-    #   binderhub
+    # via -r requirements.in
 cachetools==5.3.3
     # via google-auth
 certifi==2024.7.4
@@ -38,9 +36,8 @@ escapism==1.0.1
     # via binderhub
 fqdn==1.5.1
     # via jsonschema
-google-api-core[grpc]==2.19.1
+google-api-core==2.19.1
     # via
-    #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
@@ -59,7 +56,7 @@ google-cloud-core==2.4.1
     # via google-cloud-logging
 google-cloud-logging==3.10.0
     # via -r requirements.in
-googleapis-common-protos[grpc]==1.63.2
+googleapis-common-protos==1.63.2
     # via
     #   google-api-core
     #   google-cloud-audit-log
@@ -90,7 +87,7 @@ jinja2==3.1.4
     #   jupyterhub
 jsonpointer==3.0.0
     # via jsonschema
-jsonschema[format-nongpl]==4.23.0
+jsonschema==4.23.0
     # via
     #   binderhub
     #   jupyter-events

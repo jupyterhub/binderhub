@@ -13,4 +13,4 @@ docker run \
     --workdir=/io \
     --user=root \
     python:3.11-bullseye \
-    sh -c 'pip install pip-tools==6.* && pip-compile --resolver=backtracking --upgrade'
+    sh -c 'pip install pip-tools==7.* && pip-compile --allow-unsafe --strip-extras --upgrade'
