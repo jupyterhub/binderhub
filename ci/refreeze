@@ -11,4 +11,4 @@ docker run --rm \
     --workdir=/io \
     --user=root \
     python:3.11-bullseye \
-    sh -c 'pip install pip-tools==6.* && pip-compile --upgrade helm-chart/images/binderhub/requirements.in'
+    sh -c 'pip install pip-tools==7.* && pip-compile --allow-unsafe --strip-extras --upgrade helm-chart/images/binderhub/requirements.in'
