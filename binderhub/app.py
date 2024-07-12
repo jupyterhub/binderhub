@@ -56,6 +56,7 @@ from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
 from .registry import DockerRegistry
 from .repoproviders import (
+    CKANProvider,
     DataverseProvider,
     FigshareProvider,
     GistRepoProvider,
@@ -574,7 +575,7 @@ class BinderHub(Application):
         return os.environ.get("BUILD_NAMESPACE", "default")
 
     build_image = Unicode(
-        "quay.io/jupyterhub/repo2docker:2023.06.0",
+        "quay.io/jupyterhub/repo2docker:2024.07.0",
         help="""
         DEPRECATED: Use c.KubernetesBuildExecutor.build_image
 
@@ -603,6 +604,7 @@ class BinderHub(Application):
             "figshare": FigshareProvider,
             "hydroshare": HydroshareProvider,
             "dataverse": DataverseProvider,
+            "ckan": CKANProvider,
         },
         config=True,
         help="""

@@ -288,7 +288,7 @@ class KubernetesBuildExecutor(BuildExecutor):
         return os.getenv("BUILD_NAMESPACE", "default")
 
     build_image = Unicode(
-        "quay.io/jupyterhub/repo2docker:2023.06.0",
+        "quay.io/jupyterhub/repo2docker:2024.07.0",
         help="Docker image containing repo2docker that is used to spawn the build pods.",
         config=True,
     )

@@ -11,7 +11,7 @@
 repos:
   # Autoformat: Python code, syntax patterns are modernized
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+    rev: v3.16.0
     hooks:
       - id: pyupgrade
         args:
@@ -68,10 +68,12 @@ repos:
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       - id: requirements-txt-fixer
+        # exclude ci/refreeze generated requirements.txt
+        exclude: ^.*images\/.*\/requirements\.txt$
 
   # Lint: Python code
   - repo: https://github.com/PyCQA/flake8
-    rev: "7.0.0"
+    rev: "7.1.0"
     hooks:
       - id: flake8
 
