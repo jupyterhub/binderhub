@@ -83,6 +83,12 @@ properties:
     patternProperties:
       ".*":
         type: [string, "null"]
+  extraCredentials:
+    type: object
+    additionalProperties: false
+    properties:
+      googleServiceAccountKey:
+        type: string
   extraEnv:
     type: array
 
