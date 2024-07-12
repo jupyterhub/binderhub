@@ -4,6 +4,7 @@
 nameOverride: ""
 fullnameOverride: ""
 global: {}
+custom: {}
 
 # Resources for the BinderHub created build pods
 # -----------------------------------------------------------------------------
