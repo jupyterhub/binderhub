@@ -16,8 +16,6 @@ type: object
 additionalProperties: false
 required:
   # General configuration
-  - nameOverride
-  - fullnameOverride
   - global
   # Resources for the BinderHub created build pods
   - buildPodsRegistryCredentials
