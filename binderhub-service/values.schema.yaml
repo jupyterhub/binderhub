@@ -21,6 +21,7 @@ required:
   - buildPodsRegistryCredentials
   # Deployment resource
   - image
+  - extraCredentials
   # Other resources
   - rbac
   - serviceAccount
