@@ -11,6 +11,7 @@ import { Spec } from "../spec.js";
  * @param {URL} baseUrl
  * @param {Spec} spec
  * @param {Terminal} term
+ * @param {Array<string>} logBuffer
  * @param {FitAddon} fitAddon
  * @param {(l: boolean) => void} setIsLaunching
  * @param {(p: PROGRESS_STATES) => void} setProgressState
@@ -20,6 +21,7 @@ async function buildImage(
   baseUrl,
   spec,
   term,
+  logBuffer,
   fitAddon,
   setIsLaunching,
   setProgressState,
@@ -29,12 +31,15 @@ async function buildImage(
   const image = new BinderRepository(spec.buildSpec, buildEndPointURL);
   // Clear the last line written, so we start from scratch
   term.write("\x1b[2K\r");
+  logBuffer.length = 0;
   fitAddon.fit();
   for await (const data of image.fetch()) {
     // Write message to the log terminal if there is a message
     if (data.message !== undefined) {
       // Write out all messages to the terminal!
       term.write(data.message);
+      // Keep a copy of the message in the logBuffer
+      logBuffer.push(data.message);
       // Resize our terminal to make sure it fits messages appropriately
       fitAddon.fit();
     } else {
@@ -94,12 +99,19 @@ async function buildImage(
  * @prop {(t: Terminal) => void} setTerm
  * @prop {(f: FitAddon) => void} setFitAddon
  * @prop {boolean} logsVisible
+ * @prop {Ref<Array<string>>} logBufferRef
  * @prop {(l: boolean) => void} setLogsVisible
  *
  * @param {ImageLogsProps} props
  * @returns
  */
-function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
+function ImageLogs({
+  setTerm,
+  setFitAddon,
+  logsVisible,
+  setLogsVisible,
+  logBufferRef,
+}) {
   const toggleLogsButton = useRef();
   useEffect(() => {
     async function setup() {
@@ -132,6 +144,21 @@ function ImageLogs({ setTerm, setFitAddon, logsVisible, setLogsVisible }) {
           }}
         >
           {logsVisible ? "hide" : "show"}
+        </button>
+        <button
+          className="btn btn-link"
+          type="button"
+          onClick={(ev) => {
+            const blob = new Blob([logBufferRef.current.join("")], {
+              type: "text/plain",
+            });
+            // Open raw logs in a new window
+            window.open(window.URL.createObjectURL(blob), "_blank");
+            // Prevent the toggle action from firing
+            ev.stopPropagation();
+          }}
+        >
+          view raw
         </button>
       </div>
       <div
@@ -167,6 +194,7 @@ export function BuilderLauncher({
   const [term, setTerm] = useState(null);
   const [fitAddon, setFitAddon] = useState(null);
   const [logsVisible, setLogsVisible] = useState(false);
+  const logBufferRef = useRef(new Array());
   useEffect(() => {
     async function setup() {
       if (isLaunching) {
@@ -174,6 +202,7 @@ export function BuilderLauncher({
           baseUrl,
           spec,
           term,
+          logBufferRef.current,
           fitAddon,
           setIsLaunching,
           setProgressState,
@@ -191,6 +220,7 @@ export function BuilderLauncher({
         setFitAddon={setFitAddon}
         logsVisible={logsVisible}
         setLogsVisible={setLogsVisible}
+        logBufferRef={logBufferRef}
       />
     </div>
   );
