@@ -121,35 +121,24 @@ export function LinkGenerator({
   setIsLaunching,
 }) {
   // uh, so react doesn't like it when your prop is named 'ref'
-  const [ref, setRef] = [reference, setReference];
-  const [launchUrl, setLaunchUrl] = useState("");
+  let launchUrl = "";
 
-  useEffect(() => {
-    if (selectedProvider.ref.enabled && ref === "") {
-      setRef(selectedProvider.ref.default);
-    } else {
-      setRef("");
+  let url;
+  const ref = reference || selectedProvider.ref.default;
+  if (repo !== "" && (!selectedProvider.ref.enabled || ref !== "")) {
+    const processedRepo = selectedProvider.repo.preProcess
+      ? selectedProvider.repo.preProcess(repo)
+      : repo;
+    url = new URL(
+      `v2/${selectedProvider.id}/${processedRepo}/${ref}`,
+      publicBaseUrl,
+    );
+    if (urlPath) {
+      url.searchParams.set("urlpath", urlPath);
     }
-  }, [selectedProvider]);
+    launchUrl = url.toString();
+  }
 
-  useEffect(() => {
-    let url;
-    if (repo !== "" && (!selectedProvider.ref.enabled || ref !== "")) {
-      const processedRepo = selectedProvider.repo.preProcess
-        ? selectedProvider.repo.preProcess(repo)
-        : repo;
-      url = new URL(
-        `v2/${selectedProvider.id}/${processedRepo}/${ref}`,
-        publicBaseUrl,
-      );
-      if (urlPath) {
-        url.searchParams.set("urlpath", urlPath);
-      }
-      setLaunchUrl(url.toString());
-    } else {
-      setLaunchUrl("");
-    }
-  }, [repo, ref, urlPath, selectedProvider]);
   return (
     <>
       <form className="d-flex flex-column gap-3 p-4 rounded bg-light">
@@ -199,8 +188,14 @@ export function LinkGenerator({
                 type="text"
                 name="ref"
                 disabled={!selectedProvider.ref.enabled || isLaunching}
-                value={ref}
-                onChange={(e) => setRef(e.target.value)}
+                placeholder={
+                  (selectedProvider.ref.enabled &&
+                    selectedProvider.ref.default) ||
+                  ""
+                }
+                onChange={(e) => {
+                  setReference(e.target.value);
+                }}
               />
             </div>
           </fieldset>

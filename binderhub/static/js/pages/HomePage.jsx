@@ -23,9 +23,13 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   useEffect(() => {
+    let actualRef = "";
+    if (selectedProvider.ref.enabled) {
+      actualRef = ref !== "" ? ref : selectedProvider.ref.default;
+    }
     setSpec(
       new Spec(
-        `${selectedProvider.id}/${repo}/${ref}`,
+        `${selectedProvider.id}/${repo}/${actualRef}`,
         new LaunchSpec(urlPath),
       ),
     );
