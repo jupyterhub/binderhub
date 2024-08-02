@@ -26,7 +26,6 @@ class LocalContainerSpawner(BinderSpawnerMixin, DockerSpawner):
 c.JupyterHub.spawner_class = LocalContainerSpawner
 c.DockerSpawner.remove = True
 c.DockerSpawner.allowed_images = "*"
-c.LocalContainerSpawner.cmd = "jupyter-notebook"
 
 c.Application.log_level = "DEBUG"
 c.Spawner.debug = True
@@ -34,6 +33,8 @@ c.JupyterHub.authenticator_class = os.getenv("AUTHENTICATOR", "null")
 
 auth_enabled = c.JupyterHub.authenticator_class != "null"
 if auth_enabled:
+    c.LocalContainerSpawner.auth_enabled = True
+    c.LocalContainerSpawner.cmd = "jupyterhub-singleuser"
     c.JupyterHub.load_roles = [
         {
             "name": "user",
@@ -44,6 +45,8 @@ if auth_enabled:
             ],
         }
     ]
+else:
+    c.LocalContainerSpawner.cmd = "jupyter-notebook"
 
 c.JupyterHub.hub_ip = "0.0.0.0"
 c.JupyterHub.hub_connect_ip = hostip

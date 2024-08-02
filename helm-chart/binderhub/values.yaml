@@ -280,7 +280,7 @@ dind:
   daemonset:
     image:
       name: docker.io/library/docker
-      tag: "27.0.2-dind" # ref: https://hub.docker.com/_/docker/tags
+      tag: "27.1.1-dind" # ref: https://hub.docker.com/_/docker/tags
       pullPolicy: ""
       pullSecrets: []
     # Additional command line arguments to pass to dockerd
@@ -300,7 +300,7 @@ pink:
   daemonset:
     image:
       name: quay.io/podman/stable
-      tag: "v5.1.1" # ref: https://quay.io/repository/podman/stable
+      tag: "v5.1.2" # ref: https://quay.io/repository/podman/stable
       pullPolicy: ""
       pullSecrets: []
     lifecycle: {}
