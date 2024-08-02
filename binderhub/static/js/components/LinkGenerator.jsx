@@ -106,6 +106,14 @@ function UrlSelector({ setUrlPath }) {
   );
 }
 
+function makeShareableUrl(publicBaseUrl, provider, repo, ref, urlPath) {
+  const url = new URL(`v2/${provider.id}/${repo}/${ref}`, publicBaseUrl);
+  if (urlPath) {
+    url.searchParams.set("urlpath", urlPath);
+  }
+  return url;
+}
+
 export function LinkGenerator({
   providers,
   publicBaseUrl,
@@ -120,28 +128,32 @@ export function LinkGenerator({
   isLaunching,
   setIsLaunching,
 }) {
-  // uh, so react doesn't like it when your prop is named 'ref'
-  let launchUrl = "";
+  const [badgeType, setBadgeType] = useState("md"); // Options are md and rst
+  const [badgeVisible, setBadgeVisible] = useState(false);
 
-  let url;
+  let launchUrl = "";
+  let badgeMarkup = "";
+
   const ref = reference || selectedProvider.ref.default;
   if (repo !== "" && (!selectedProvider.ref.enabled || ref !== "")) {
-    const processedRepo = selectedProvider.repo.preProcess
-      ? selectedProvider.repo.preProcess(repo)
-      : repo;
-    url = new URL(
-      `v2/${selectedProvider.id}/${processedRepo}/${ref}`,
+    launchUrl = makeShareableUrl(
       publicBaseUrl,
-    );
-    if (urlPath) {
-      url.searchParams.set("urlpath", urlPath);
+      selectedProvider,
+      repo,
+      ref,
+      urlPath,
+    ).toString();
+    const badgeLogoUrl = new URL("badge_logo.svg", publicBaseUrl);
+    if (badgeType === "md") {
+      badgeMarkup = `[![Binder](${badgeLogoUrl})](${launchUrl})`;
+    } else {
+      badgeMarkup = `.. image:: ${badgeLogoUrl}\n :target: ${launchUrl}`;
     }
-    launchUrl = url.toString();
   }
 
   return (
     <>
-      <form className="d-flex flex-column gap-3 p-4 rounded bg-light">
+      <form className="d-flex flex-column gap-3 p-4 pb-0 rounded bg-light">
         <h4>Build and launch a repository</h4>
         <fieldset>
           <label htmlFor="repository">{selectedProvider.repo.label}</label>
@@ -234,6 +246,85 @@ export function LinkGenerator({
               </button>
             </div>
           </fieldset>
+        </div>
+
+        <div className="card">
+          <div className="card-header d-flex align-items-baseline">
+            <span className="flex-fill">Badges for your README</span>
+            <button
+              className="btn btn-link"
+              type="button"
+              aria-controls="badge-container"
+              onClick={() => {
+                setBadgeVisible(!badgeVisible);
+              }}
+            >
+              {badgeVisible ? "hide" : "show"}
+            </button>
+          </div>
+          <div
+            className={`card-body ${badgeVisible ? "" : "d-none"}`}
+            id="badge-container"
+          >
+            <fieldset>
+              <div className="input-group">
+                <div
+                  className="btn-group"
+                  role="group"
+                  aria-label="Basic radio toggle button group"
+                >
+                  <input
+                    type="radio"
+                    className="btn-check"
+                    name="btn-badge"
+                    id="btn-badge-md"
+                    defaultChecked={true}
+                    autoComplete="off"
+                    onClick={() => setBadgeType("md")}
+                  ></input>
+                  <label
+                    title="markdown"
+                    className="btn btn-outline-secondary"
+                    htmlFor="btn-badge-md"
+                  >
+                    md
+                  </label>
+
+                  <input
+                    type="radio"
+                    className="btn-check"
+                    name="btn-badge"
+                    id="btn-badge-rst"
+                    autoComplete="off"
+                    onClick={() => setBadgeType("rst")}
+                  ></input>
+                  <label
+                    title="reStructuredText"
+                    className="btn btn-outline-secondary"
+                    htmlFor="btn-badge-rst"
+                  >
+                    rST
+                  </label>
+                </div>
+                <input
+                  className="form-control font-monospace"
+                  disabled
+                  type="text"
+                  value={badgeMarkup}
+                  placeholder="Fill in the fields to see a badge markup for your README."
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  id="copy-url"
+                  onClick={() => copy(badgeMarkup)}
+                  disabled={badgeMarkup === ""}
+                >
+                  <i className="ba-copy"></i>
+                </button>
+              </div>
+            </fieldset>
+          </div>
         </div>
       </form>
     </>
