@@ -242,7 +242,7 @@ export function LinkGenerator({
                 onClick={() => copy(launchUrl)}
                 disabled={launchUrl === ""}
               >
-                <i className="ba-copy"></i>
+                <i className="bi bi-copy"></i>
               </button>
             </div>
           </fieldset>
@@ -320,7 +320,7 @@ export function LinkGenerator({
                   onClick={() => copy(badgeMarkup)}
                   disabled={badgeMarkup === ""}
                 >
-                  <i className="ba-copy"></i>
+                  <i className="bi bi-copy"></i>
                 </button>
               </div>
             </fieldset>
