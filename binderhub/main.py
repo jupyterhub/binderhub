@@ -9,8 +9,14 @@ from . import __version__ as binder_version
 from .base import BaseHandler
 
 
-class MainHandler(BaseHandler):
-    """Main handler for requests"""
+class UIHandler(BaseHandler):
+    """
+    Responds to most UI Page Requests
+    """
+
+    def initialize(self):
+        self.opengraph_title = "The Binder Project"
+        return super().initialize()
 
     @authenticated
     def get(self):
@@ -32,7 +38,30 @@ class MainHandler(BaseHandler):
             "page.html",
             page_config=page_config,
             extra_footer_scripts=self.settings["extra_footer_scripts"],
+            opengraph_title=self.opengraph_title,
         )
+
+
+class RepoLaunchUIHandler(UIHandler):
+    """
+    Responds to /v2/ launch URLs only
+
+    Forwards to UIHandler, but puts out an opengraph_title for social previews
+    """
+
+    def initialize(self, repo_provider):
+        self.repo_provider = repo_provider
+        return super().initialize()
+
+    @authenticated
+    def get(self, provider_id, _escaped_spec):
+        prefix = "/v2/" + provider_id
+        spec = self.get_spec_from_request(prefix).rstrip("/")
+
+        self.opengraph_title = (
+            f"{self.repo_provider.display_config['displayName']}: {spec}"
+        )
+        return super().get()
 
 
 class LegacyRedirectHandler(BaseHandler):

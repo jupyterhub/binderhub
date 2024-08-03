@@ -50,7 +50,7 @@ from .handlers.repoproviders import RepoProvidersHandlers
 from .health import HealthHandler, KubernetesHealthHandler
 from .launcher import Launcher
 from .log import log_request
-from .main import LegacyRedirectHandler, MainHandler
+from .main import LegacyRedirectHandler, RepoLaunchUIHandler, UIHandler
 from .metrics import MetricsHandler
 from .quota import KubernetesLaunchQuota, LaunchQuota
 from .ratelimit import RateLimiter
@@ -989,14 +989,24 @@ class BinderHub(Application):
             (r"/versions", VersionHandler),
             (r"/build/([^/]+)/(.+)", BuildHandler),
             (r"/health", self.health_handler_class, {"hub_url": self.hub_url_local}),
+            (r"/api/repoproviders", RepoProvidersHandlers),
         ]
         if not self.enable_api_only_mode:
             # In API only mode the endpoints in the list below
-            # are unregistered as they don't make sense in a API only scenario
+            # are not registered since they are primarily about providing UI
+
+            for provider_id in self.repo_providers:
+                # Register launchable URLs for all our repo providers
+                # These render social previews, but otherwise redirect to UIHandler
+                handlers += [
+                    (
+                        rf"/v2/({provider_id})/(.+)",
+                        RepoLaunchUIHandler,
+                        {"repo_provider": self.repo_providers[provider_id]},
+                    )
+                ]
             handlers += [
-                (r"/(?:v2/.*|about)?", MainHandler),
                 (r"/repo/([^/]+)/([^/]+)(/.*)?", LegacyRedirectHandler),
-                (r"/api/repoproviders", RepoProvidersHandlers),
                 # for backward-compatible mybinder.org badge URLs
                 # /assets/images/badge.svg
                 (
@@ -1062,6 +1072,7 @@ class BinderHub(Application):
                         )
                     },
                 ),
+                (r"/.*", UIHandler),
             ]
         # This needs to be the last handler in the list, because it needs to match "everything else"
         handlers.append((r".*", Custom404))
