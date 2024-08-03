@@ -266,64 +266,59 @@ export function LinkGenerator({
             className={`card-body ${badgeVisible ? "" : "d-none"}`}
             id="badge-container"
           >
-            <fieldset>
-              <div className="input-group">
-                <div
-                  className="btn-group"
-                  role="group"
-                  aria-label="Basic radio toggle button group"
-                >
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="btn-badge"
-                    id="btn-badge-md"
-                    defaultChecked={true}
-                    autoComplete="off"
-                    onClick={() => setBadgeType("md")}
-                  ></input>
-                  <label
-                    title="markdown"
-                    className="btn btn-outline-secondary"
-                    htmlFor="btn-badge-md"
-                  >
-                    md
-                  </label>
-
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="btn-badge"
-                    id="btn-badge-rst"
-                    autoComplete="off"
-                    onClick={() => setBadgeType("rst")}
-                  ></input>
-                  <label
-                    title="reStructuredText"
-                    className="btn btn-outline-secondary"
-                    htmlFor="btn-badge-rst"
-                  >
-                    rST
-                  </label>
-                </div>
+            <div className="d-flex align-items-baseline">
+              <div
+                className="btn-group"
+                role="group"
+                aria-label="Basic radio toggle button group"
+              >
                 <input
-                  className="form-control font-monospace"
-                  disabled
-                  type="text"
-                  value={badgeMarkup}
-                  placeholder="Fill in the fields to see a badge markup for your README."
-                />
-                <button
-                  className="btn btn-outline-secondary"
-                  type="button"
-                  id="copy-url"
-                  onClick={() => copy(badgeMarkup)}
-                  disabled={badgeMarkup === ""}
+                  type="radio"
+                  className="btn-check"
+                  name="btn-badge"
+                  id="btn-badge-md"
+                  defaultChecked={true}
+                  autoComplete="off"
+                  onClick={() => setBadgeType("md")}
+                ></input>
+                <label
+                  title="markdown"
+                  className="btn btn-outline-secondary font-monospace"
+                  htmlFor="btn-badge-md"
                 >
-                  <i className="bi bi-copy"></i>
-                </button>
+                  md
+                </label>
+
+                <input
+                  type="radio"
+                  className="btn-check"
+                  name="btn-badge"
+                  id="btn-badge-rst"
+                  autoComplete="off"
+                  onClick={() => setBadgeType("rst")}
+                ></input>
+                <label
+                  title="reStructuredText"
+                  className="btn btn-outline-secondary font-monospace"
+                  htmlFor="btn-badge-rst"
+                >
+                  rST
+                </label>
               </div>
-            </fieldset>
+              <pre className="flex-fill font-monospace px-1">
+                {badgeMarkup ||
+                  "Fill in the fields to see a badge markup for your README."}
+              </pre>
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                id="copy-url"
+                onClick={() => copy(badgeMarkup)}
+                disabled={badgeMarkup === ""}
+              >
+                <i className="bi bi-copy"></i>
+              </button>
+            </div>
           </div>
         </div>
       </form>
