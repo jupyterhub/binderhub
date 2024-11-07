@@ -139,7 +139,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: setup-node
         with:
-          node-version: "18"
+          node-version: "22"
 
       - name: Cache npm
         uses: actions/cache@v4
@@ -155,7 +155,7 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -397,7 +397,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: setup-node
         with:
-          node-version: "18"
+          node-version: "22"
 
       - name: Cache npm
         uses: actions/cache@v4
@@ -408,7 +408,7 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v4
