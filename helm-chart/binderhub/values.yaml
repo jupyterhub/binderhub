@@ -72,7 +72,7 @@ jupyterhub:
   hub:
     config:
       JupyterHub:
-        authenticator_class: nullauthenticator.NullAuthenticator
+        authenticator_class: "null"
       BinderSpawner:
         auth_enabled: false
     loadRoles:
