@@ -488,6 +488,7 @@ async def test_local_repo2docker_build():
     docker_client = docker.from_env(version="auto")
     assert docker_client.images.get(name)
 
+
 @pytest.mark.timeout(20)
 @pytest.mark.asyncio
 async def test_local_repo2docker_build_stop(io_loop):
