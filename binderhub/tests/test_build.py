@@ -22,7 +22,6 @@ from .utils import async_requests
 # We have optimized this slow test, for more information, see the README of
 # https://github.com/binderhub-ci-repos/minimal-dockerfile.
 @pytest.mark.timeout(900)
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "slug",
     [
@@ -104,7 +103,6 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
 
 
 @pytest.mark.timeout(900)
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "app,build_only_query_param",
     [
@@ -155,7 +153,6 @@ async def test_build_only(app, build_only_query_param, needs_build):
 
 
 @pytest.mark.timeout(120)
-@pytest.mark.asyncio
 @pytest.mark.remote
 async def test_build_fail(app, needs_build, needs_launch, always_build):
     """
@@ -180,7 +177,6 @@ async def test_build_fail(app, needs_build, needs_launch, always_build):
 
 
 @pytest.mark.timeout(120)
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "app,build_only_query_param,expected_error_msg",
     [
@@ -490,7 +486,6 @@ async def test_local_repo2docker_build():
 
 
 @pytest.mark.timeout(20)
-@pytest.mark.asyncio
 async def test_local_repo2docker_build_stop(io_loop):
     q = Queue()
     # We need a slow build here so that we can interrupt it, so pick a large repo that
