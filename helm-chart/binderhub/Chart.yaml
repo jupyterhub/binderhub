@@ -12,7 +12,7 @@ dependencies:
   #            and run "./dependencies freeze --upgrade".
   #
   - name: jupyterhub
-    version: "3.3.7"
+    version: "4.0.0"
     repository: "https://jupyterhub.github.io/helm-chart"
 description: |-
   BinderHub is like a JupyterHub that automatically builds environments for the
@@ -22,7 +22,7 @@ keywords: [jupyter, jupyterhub, binderhub]
 home: https://binderhub.readthedocs.io/en/latest/
 sources: [https://github.com/jupyterhub/binderhub]
 icon: https://jupyterhub.github.io/helm-chart/images/hublogo.svg
-kubeVersion: ">=1.23.0-0"
+kubeVersion: ">=1.28.0-0"
 maintainers:
   # Since it is a requirement of Artifact Hub to have specific maintainers
   # listed, we have added some below, but in practice the entire JupyterHub team
