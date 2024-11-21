@@ -49,7 +49,7 @@
   "scripts": {
     "webpack": "webpack",
     "webpack:watch": "webpack --watch",
-    "lint": "eslint .",
+    "lint": "eslint binderhub/static/js js",
     "test": "jest"
   },
   "jest": {

@@ -4,6 +4,7 @@ module.exports = {
     es2021: true,
   },
   extends: ["eslint:recommended", "plugin:react/recommended"],
+  ignorePatterns: ["dist"],
   overrides: [
     {
       env: {
@@ -14,6 +15,16 @@ module.exports = {
         sourceType: "script",
       },
     },
+    {
+      "files": [
+        "**/*.test.js",
+        "**/*.test.jsx"
+      ],
+      "env": {
+        "jest": true,
+        "node": true
+      }
+    }
   ],
   parserOptions: {
     ecmaVersion: "latest",
