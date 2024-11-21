@@ -58,6 +58,7 @@
     "coverageReporters": [
       "text",
       "cobertura"
-    ]
+    ],
+    "testPathIgnorePatterns": ["spec.js"]
   }
 }
