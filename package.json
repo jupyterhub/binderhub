@@ -59,6 +59,8 @@
       "text",
       "cobertura"
     ],
-    "testPathIgnorePatterns": ["spec.js"]
+    "testPathIgnorePatterns": [
+      "spec.js"
+    ]
   }
 }

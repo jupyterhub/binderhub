@@ -16,15 +16,12 @@ module.exports = {
       },
     },
     {
-      "files": [
-        "**/*.test.js",
-        "**/*.test.jsx"
-      ],
-      "env": {
-        "jest": true,
-        "node": true
-      }
-    }
+      files: ["**/*.test.js", "**/*.test.jsx"],
+      env: {
+        jest: true,
+        node: true,
+      },
+    },
   ],
   parserOptions: {
     ecmaVersion: "latest",
