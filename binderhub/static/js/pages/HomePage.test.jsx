@@ -36,7 +36,9 @@ test("updates launch URL with URL", async () => {
   await user.type(repositoryField, "org/repo");
   expect(screen.getByText("http://local.com/v2/fake/org/repo/undefined")).toBeInTheDocument();
 
-  await(user.click(screen.getByRole("button", {name: "File"})));
+  // TODO: There are two buttons name "File" in the DOM, so we need queryAllByRole here.
+  // Ideally, these buttons have distinct labels
+  await(user.click(screen.queryAllByRole("button", {name: "File"})[0]));
   await(user.click(screen.getByText("URL")));
 
   const fileField = screen.getByRole("textbox", {name: "URL to open"});

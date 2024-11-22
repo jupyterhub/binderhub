@@ -30,13 +30,7 @@ function ProviderSelector({
       <ul id="repository-type-dropdown" className="dropdown-menu dropdown-menu-start">
         {providers.map((p) => (
           <li key={p.id}>
-            <a
-              className="dropdown-item"
-              href="#"
-              onClick={() => setSelectedProvider(p)}
-            >
-              {p.displayName}
-            </a>
+            <button className="dropdown-item" onClick={() => setSelectedProvider(p)} type="button">{p.displayName}</button>
           </li>
         ))}
       </ul>
@@ -97,9 +91,7 @@ function UrlSelector({ setUrlPath }) {
         <ul className="dropdown-menu dropdown-menu-end">
           {KINDS.map((k) => (
             <li key={k.id}>
-              <a className="dropdown-item" href="#" onClick={() => setKind(k)}>
-                {k.displayName}
-              </a>
+              <button className="dropdown-item" onClick={() => setKind(k)} type="button">{k.displayName}</button>
             </li>
           ))}
         </ul>
