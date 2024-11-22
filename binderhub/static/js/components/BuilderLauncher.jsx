@@ -4,7 +4,6 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 import { Progress, PROGRESS_STATES } from "./Progress.jsx";
-import { Spec } from "../spec.js";
 
 /**
  *

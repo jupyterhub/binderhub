@@ -23,10 +23,12 @@ function ProviderSelector({
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
+          aria-controls="repository-type-dropdown"
+          aria-label="Select repository type"
         >
           {selectedProvider.displayName}
         </button>
-        <ul className="dropdown-menu dropdown-menu-start">
+        <ul id="repository-type-dropdown" className="dropdown-menu dropdown-menu-start">
           {providers.map((p) => (
             <li key={p.id}>
               <a
@@ -73,6 +75,7 @@ function UrlSelector({ setUrlPath }) {
       setUrlPath("");
     }
   }, [kind, path]);
+
   return (
     <>
       <label htmlFor="path">{kind.label}</label>
@@ -80,7 +83,8 @@ function UrlSelector({ setUrlPath }) {
         <input
           className="form-control"
           type="text"
-          name="ref"
+          id="path"
+          name="path"
           placeholder={kind.placeholder}
           onChange={(e) => setPath(e.target.value)}
         />
@@ -156,7 +160,7 @@ export function LinkGenerator({
       <form className="d-flex flex-column gap-3 p-4 pb-0 rounded bg-light">
         <h4>Build and launch a repository</h4>
         <fieldset>
-          <label htmlFor="repository">{selectedProvider.repo.label}</label>
+          <legend className="form-label">{selectedProvider.repo.label}</legend>
           <div className="input-group">
             <ProviderSelector
               providers={providers}
@@ -169,7 +173,7 @@ export function LinkGenerator({
               name="repository"
               placeholder={selectedProvider.repo.placeholder}
               disabled={isLaunching}
-              // value={repo}
+              aria-label="Enter repository URL"
               onChange={(e) => {
                 let repo = e.target.value;
                 if (selectedProvider.detect && selectedProvider.detect.regex) {
@@ -211,9 +215,9 @@ export function LinkGenerator({
               />
             </div>
           </fieldset>
-          <fieldset className="col-5">
+          <div className="col-5">
             <UrlSelector setUrlPath={setUrlPath} />
-          </fieldset>
+          </div>
           <div className="col-2 mt-4">
             <button
               className="btn btn-primary col-2 w-100"
@@ -226,26 +230,20 @@ export function LinkGenerator({
         </div>
 
         <div>
-          <fieldset>
-            <div className="input-group">
-              <input
-                className="form-control font-monospace"
-                disabled
-                type="text"
-                value={launchUrl}
-                placeholder="Fill in the fields to see a URL for sharing your Binder."
-              />
-              <button
-                className="btn btn-outline-secondary"
-                type="button"
-                id="copy-url"
-                onClick={() => copy(launchUrl)}
-                disabled={launchUrl === ""}
-              >
-                <i className="bi bi-copy"></i>
-              </button>
+          <div className="input-group">
+            <div className="form-control font-monospace">
+              {launchUrl || "Fill in the fields to see a URL for sharing your Binder."}
             </div>
-          </fieldset>
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              id="copy-url"
+              onClick={() => copy(launchUrl)}
+              disabled={launchUrl === ""}
+            >
+              <i className="bi bi-copy"></i>
+            </button>
+          </div>
         </div>
 
         <div className="card">
@@ -255,6 +253,7 @@ export function LinkGenerator({
               className="btn btn-link"
               type="button"
               aria-controls="badge-container"
+              aria-expanded={badgeVisible}
               onClick={() => {
                 setBadgeVisible(!badgeVisible);
               }}

@@ -49,6 +49,7 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
           <a
             href="https://the-turing-way.netlify.app/communication/binder/zero-to-binder.html"
             target="_blank"
+            rel="noreferrer"
           >
             Zero-to-Binder tutorial
           </a>{" "}
