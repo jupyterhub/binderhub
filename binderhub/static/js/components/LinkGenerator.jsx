@@ -76,7 +76,7 @@ function UrlSelector({ setUrlPath }) {
 
   return (
     <>
-      <label htmlFor="path">{kind.label}</label>
+      <label htmlFor="path" className="form-label">{kind.label}</label>
       <div className="input-group">
         <input
           className="form-control"
@@ -193,9 +193,9 @@ export function LinkGenerator({
           </div>
         </fieldset>
 
-        <div className="row">
+        <div className="row align-items-end">
           <fieldset className="col-5">
-            <label htmlFor="ref">Git ref (branch, tag, or commit)</label>
+            <label htmlFor="ref" className="form-label">Git ref (branch, tag, or commit)</label>
             <div className="input-group">
               <input
                 className="form-control"
@@ -216,7 +216,7 @@ export function LinkGenerator({
           <div className="col-5">
             <UrlSelector setUrlPath={setUrlPath} />
           </div>
-          <div className="col-2 mt-4">
+          <div className="col-2">
             <button
               className="btn btn-primary col-2 w-100"
               disabled={isLaunching}
