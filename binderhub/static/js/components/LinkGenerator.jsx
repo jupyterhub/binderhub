@@ -27,10 +27,19 @@ function ProviderSelector({
       >
         {selectedProvider.displayName}
       </button>
-      <ul id="repository-type-dropdown" className="dropdown-menu dropdown-menu-start">
+      <ul
+        id="repository-type-dropdown"
+        className="dropdown-menu dropdown-menu-start"
+      >
         {providers.map((p) => (
           <li key={p.id}>
-            <button className="dropdown-item" onClick={() => setSelectedProvider(p)} type="button">{p.displayName}</button>
+            <button
+              className="dropdown-item"
+              onClick={() => setSelectedProvider(p)}
+              type="button"
+            >
+              {p.displayName}
+            </button>
           </li>
         ))}
       </ul>
@@ -70,7 +79,9 @@ function UrlSelector({ setUrlPath }) {
 
   return (
     <>
-      <label htmlFor="path" className="form-label">{kind.label}</label>
+      <label htmlFor="path" className="form-label">
+        {kind.label}
+      </label>
       <div className="input-group">
         <input
           className="form-control"
@@ -91,7 +102,13 @@ function UrlSelector({ setUrlPath }) {
         <ul className="dropdown-menu dropdown-menu-end">
           {KINDS.map((k) => (
             <li key={k.id}>
-              <button className="dropdown-item" onClick={() => setKind(k)} type="button">{k.displayName}</button>
+              <button
+                className="dropdown-item"
+                onClick={() => setKind(k)}
+                type="button"
+              >
+                {k.displayName}
+              </button>
             </li>
           ))}
         </ul>
@@ -187,7 +204,9 @@ export function LinkGenerator({
 
         <div className="row align-items-end">
           <div className="col-5">
-            <label htmlFor="ref" className="form-label">Git ref (branch, tag, or commit)</label>
+            <label htmlFor="ref" className="form-label">
+              Git ref (branch, tag, or commit)
+            </label>
             <div className="input-group">
               <input
                 className="form-control"
@@ -223,7 +242,8 @@ export function LinkGenerator({
         <div>
           <div className="input-group">
             <div className="form-control font-monospace">
-              {launchUrl || "Fill in the fields to see a URL for sharing your Binder."}
+              {launchUrl ||
+                "Fill in the fields to see a URL for sharing your Binder."}
             </div>
             <button
               className="btn btn-outline-secondary"
