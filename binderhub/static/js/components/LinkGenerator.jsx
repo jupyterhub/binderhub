@@ -17,31 +17,29 @@ function ProviderSelector({
 }) {
   return (
     <>
-      <div className="dropdown">
-        <button
-          className="btn btn-outline-secondary dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          aria-controls="repository-type-dropdown"
-          aria-label="Select repository type"
-        >
-          {selectedProvider.displayName}
-        </button>
-        <ul id="repository-type-dropdown" className="dropdown-menu dropdown-menu-start">
-          {providers.map((p) => (
-            <li key={p.id}>
-              <a
-                className="dropdown-item"
-                href="#"
-                onClick={() => setSelectedProvider(p)}
-              >
-                {p.displayName}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <button
+        className="btn btn-outline-secondary dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-controls="repository-type-dropdown"
+        aria-label="Select repository type"
+      >
+        {selectedProvider.displayName}
+      </button>
+      <ul id="repository-type-dropdown" className="dropdown-menu dropdown-menu-start">
+        {providers.map((p) => (
+          <li key={p.id}>
+            <a
+              className="dropdown-item"
+              href="#"
+              onClick={() => setSelectedProvider(p)}
+            >
+              {p.displayName}
+            </a>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
