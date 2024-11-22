@@ -186,12 +186,13 @@ export function LinkGenerator({
         </fieldset>
 
         <div className="row align-items-end">
-          <fieldset className="col-5">
+          <div className="col-5">
             <label htmlFor="ref" className="form-label">Git ref (branch, tag, or commit)</label>
             <div className="input-group">
               <input
                 className="form-control"
                 type="text"
+                id="ref"
                 name="ref"
                 disabled={!selectedProvider.ref.enabled || isLaunching}
                 placeholder={
@@ -204,7 +205,7 @@ export function LinkGenerator({
                 }}
               />
             </div>
-          </fieldset>
+          </div>
           <div className="col-5">
             <UrlSelector setUrlPath={setUrlPath} />
           </div>

@@ -19,16 +19,30 @@ Object.defineProperty(window, "matchMedia", {
 window.pageConfig = {
   repoProviders: [
     {
-      "displayName": "Fake",
-      "enabled": false,
-      "id": "fake",
+      "detect": {
+          "regex": "^(https?://github.com/)?(?<repo>.*)"
+      },
+      "displayName": "GitHub",
+      "id": "gh",
+      "ref": {
+          "default": "HEAD",
+          "enabled": true
+      },
+      "repo": {
+          "label": "GitHub repository name or URL",
+          "placeholder": "example: yuvipanda/requirements or https://github.com/yuvipanda/requirements"
+      }
+    },
+    {
+      "displayName": "Zenodo DOI",
+      "id": "zenodo",
       "ref": {
           "enabled": false
       },
       "repo": {
-          "label": "Fake Repo",
-          "placeholder": ""
+          "label": "Zenodo DOI",
+          "placeholder": "example: 10.5281/zenodo.3242074"
       }
-    }
+  }
   ]
 }
