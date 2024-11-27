@@ -1,3 +1,4 @@
+import ipaddress
 from unittest import mock
 
 import pytest
@@ -120,9 +121,9 @@ def test_cache_expiry():
     ],
 )
 def test_ip_in_networks(ip, cidrs, found):
-    match = utils.ip_in_networks(ip, cidrs)
+    match = utils.ip_in_networks(ip, [ipaddress.ip_network(c) for c in cidrs])
     if found:
         assert match
-        assert match in cidrs
+        assert str(match) in cidrs
     else:
         assert match is False

@@ -168,7 +168,9 @@ def url_path_join(*pieces):
     return result
 
 
-def ip_in_networks(ip_addr: str, networks: Iterable[str]):
+def ip_in_networks(
+    ip_addr: str, networks: Iterable[ipaddress.IPv4Network | ipaddress.IPv6Network]
+):
     """
     Checks if `ip_addr` is contained within any of the networks in `networks`
 
@@ -178,10 +180,9 @@ def ip_in_networks(ip_addr: str, networks: Iterable[str]):
     Both ipv6 and ipv4 are supported
     """
     ip = ipaddress.ip_address(ip_addr)
-    for network_spec in networks:
-        network = ipaddress.ip_network(network_spec)
+    for network in networks:
         if ip in network:
-            return network_spec
+            return network
     return False
 
 
