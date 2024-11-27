@@ -17,6 +17,9 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 window.pageConfig = {
+  baseUrl: "/",
+  aboutMessage: "This is the about message",
+  binderVersion: "v123.456",
   repoProviders: [
     {
       detect: {

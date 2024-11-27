@@ -1,7 +1,5 @@
-import { createRoot } from "react-dom/client";
-
 import { LoadingPage } from "./pages/LoadingPage.jsx";
-import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "bootstrap/js/dist/dropdown.js";
 
 import "./index.scss";
@@ -9,7 +7,6 @@ import "@fontsource/clear-sans/100.css";
 import "@fontsource/clear-sans/300.css";
 import "@fontsource/clear-sans/400.css";
 import { HomePage } from "./pages/HomePage.jsx";
-import { createRoutesFromElements } from "react-router";
 import { AboutPage } from "./pages/AboutPage.jsx";
 
 export const PAGE_CONFIG = window.pageConfig;
@@ -45,40 +42,7 @@ export const PUBLIC_BASE_URL = PAGE_CONFIG.publicBaseUrl
   ? new URL(BASE_URL)
   : new URL(PAGE_CONFIG.baseUrl, window.location.href);
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route>
-      <Route
-        path={PAGE_CONFIG.baseUrl}
-        element={
-          <HomePage
-            providers={PROVIDERS}
-            baseUrl={BASE_URL}
-            publicBaseUrl={PUBLIC_BASE_URL}
-          />
-        }
-      />
-      {PROVIDERS.map((p) => (
-        <Route
-          key={p.id}
-          path={`${PAGE_CONFIG.baseUrl}v2/*`}
-          element={<LoadingPage baseUrl={BASE_URL} />}
-        />
-      ))}
-      <Route
-        key="about"
-        path={`${PAGE_CONFIG.baseUrl}about`}
-        element={
-          <AboutPage
-            aboutMessage={PAGE_CONFIG.aboutMessage}
-            binderVersion={PAGE_CONFIG.binderVersion}
-          />
-        }
-      />
-    </Route>,
-  ),
-);
-function App() {
+export function App() {
   return (
     <>
       {PAGE_CONFIG.bannerHtml && (
@@ -92,12 +56,36 @@ function App() {
           <div className="text-center m-4">
             <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
           </div>
-          <RouterProvider router={router} />
+          <Routes>
+            <Route
+              path={PAGE_CONFIG.baseUrl}
+              element={
+                <HomePage
+                  providers={PROVIDERS}
+                  baseUrl={BASE_URL}
+                  publicBaseUrl={PUBLIC_BASE_URL}
+                />
+              }
+            />
+            {PROVIDERS.map((p) => (
+              <Route
+                key={p.id}
+                path={`${PAGE_CONFIG.baseUrl}v2/*`}
+                element={<LoadingPage baseUrl={BASE_URL} />}
+              />
+            ))}
+            <Route
+              path={`${PAGE_CONFIG.baseUrl}about`}
+              element={
+                <AboutPage
+                  aboutMessage={PAGE_CONFIG.aboutMessage}
+                  binderVersion={PAGE_CONFIG.binderVersion}
+                />
+              }
+            />
+          </Routes>
         </div>
       </div>
     </>
   );
 }
-
-const root = createRoot(document.getElementById("root"));
-root.render(<App />);
