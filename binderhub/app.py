@@ -42,7 +42,7 @@ from traitlets import (
 )
 from traitlets.config import Application
 
-from .base import Custom404, VersionHandler
+from .base import VersionHandler
 from .build import BuildExecutor, KubernetesBuildExecutor, KubernetesCleaner
 from .builder import BuildHandler
 from .events import EventLog
@@ -1074,8 +1074,6 @@ class BinderHub(Application):
                 ),
                 (r"/.*", UIHandler),
             ]
-        # This needs to be the last handler in the list, because it needs to match "everything else"
-        handlers.append((r".*", Custom404))
         handlers = self.add_url_prefix(self.base_url, handlers)
         if self.extra_static_path:
             handlers.insert(
