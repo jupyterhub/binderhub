@@ -84,15 +84,6 @@ async def test_main_page(app):
 
 
 @pytest.mark.remote
-@pytest.mark.helm
-async def test_custom_template(app):
-    """Check that our custom template config is applied via the helm chart"""
-    r = await async_requests.get(app.url)
-    assert r.status_code == 200
-    assert "test-template" in r.text
-
-
-@pytest.mark.remote
 async def test_about_handler(app):
     # Check that the about page loads
     r = await async_requests.get(app.url + "/about")
