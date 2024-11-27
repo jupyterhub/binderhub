@@ -106,7 +106,6 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
         app.tornado_app.settings,
         {
             "ban_networks": app.ban_networks,
-            "ban_networks_min_prefix_len": app.ban_networks_min_prefix_len,
         },
     ):
         r = await async_requests.get(url)
