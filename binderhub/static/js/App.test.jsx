@@ -25,3 +25,12 @@ test("render About page", () => {
   expect(screen.queryByText(/This is the about message/)).toBeInTheDocument();
   expect(screen.queryByText(/v123.456/)).toBeInTheDocument();
 });
+
+test("render Not Found page", () => {
+  render(
+    <MemoryRouter initialEntries={["/not-found"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByText(/Not Found/)).toBeInTheDocument();
+});

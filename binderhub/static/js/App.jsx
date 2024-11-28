@@ -8,6 +8,7 @@ import "@fontsource/clear-sans/300.css";
 import "@fontsource/clear-sans/400.css";
 import { HomePage } from "./pages/HomePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
+import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 export const PAGE_CONFIG = window.pageConfig;
 
@@ -83,6 +84,7 @@ export function App() {
                 />
               }
             />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </div>
