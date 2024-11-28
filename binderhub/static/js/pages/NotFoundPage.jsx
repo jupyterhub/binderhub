@@ -2,9 +2,7 @@ export function NotFoundPage() {
   return (
     <>
       <div className="container text-center jumbotron">
-        <h1>
-          404: Not Found
-        </h1>
+        <h1>404: Not Found</h1>
 
         <p className="lead">
           Note: Some errors disappear by refreshing the page.
@@ -12,7 +10,15 @@ export function NotFoundPage() {
       </div>
       <div className="container">
         <div className="row text-center">
-          <h3>questions?<br/>join the <a href="https://discourse.jupyter.org/c/binder">discussion</a>, read the <a href="https://mybinder.readthedocs.io/en/latest/">docs</a>, see the <a href="https://github.com/jupyterhub/binderhub">code</a></h3>
+          <h3>
+            questions?
+            <br />
+            join the{" "}
+            <a href="https://discourse.jupyter.org/c/binder">discussion</a>,
+            read the{" "}
+            <a href="https://mybinder.readthedocs.io/en/latest/">docs</a>, see
+            the <a href="https://github.com/jupyterhub/binderhub">code</a>
+          </h3>
         </div>
       </div>
     </>
