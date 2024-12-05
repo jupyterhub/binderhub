@@ -144,20 +144,18 @@ async def test_versions_handler(app):
         ),
     ],
 )
+@pytest.mark.playwright
 async def test_loading_page(
-    app, provider_prefix, repo, ref, path, path_type, status_code
+    app, provider_prefix, repo, ref, path, path_type, status_code, page
 ):
-    # repo = f'{org}/{repo_name}'
     spec = f"{repo}/{ref}"
     provider_spec = f"{provider_prefix}/{spec}"
     query = f"{path_type}path={path}" if path else ""
     uri = f"/v2/{provider_spec}?{query}"
-    r = await async_requests.get(app.url + uri)
+    r = page.goto(app.url + uri)
     assert r.status_code == status_code, f"{r.status_code} {uri}"
     if status_code == 200:
-        soup = BeautifulSoup(r.text, "html5lib")
-        assert soup.find(id="log-container")
-        nbviewer_url = soup.find(id="nbviewer-preview").find("iframe").attrs["src"]
+        nbviewer_url = page.get_by_test_id("log-container").get_attribute("src")
         r = await async_requests.get(nbviewer_url)
         assert r.status_code == 200, f"{r.status_code} {nbviewer_url}"
 
