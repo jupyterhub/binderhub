@@ -153,7 +153,7 @@ async def test_loading_page(
     query = f"{path_type}path={path}" if path else ""
     uri = f"/v2/{provider_spec}?{query}"
     r = page.goto(app.url + uri)
-    assert r.status_code == status_code, f"{r.status_code} {uri}"
+    assert r.status == status_code, f"{r.status} {uri}"
     if status_code == 200:
         nbviewer_url = page.get_by_test_id("log-container").get_attribute("src")
         r = await async_requests.get(nbviewer_url)
