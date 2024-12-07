@@ -42,8 +42,12 @@ REMOTE_BINDER = bool(BINDER_URL)
 
 
 def pytest_configure(config):
-    """This function has meaning to pytest, for more information, see:
-    https://docs.pytest.org/en/stable/reference.html#pytest.hookspec.pytest_configure
+    """
+    Configure plugins and custom markers
+
+    This function is called by pytest after command line arguments have
+    been parsed. See https://docs.pytest.org/en/stable/reference/reference.html#pytest.hookspec.pytest_configure
+    for more information.
     """
     # register our custom markers
     config.addinivalue_line(

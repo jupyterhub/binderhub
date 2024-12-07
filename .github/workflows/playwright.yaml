@@ -1,0 +1,97 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**.rst"
+      - "docs/**"
+      - "examples/**"
+      - ".github/workflows/**"
+      - "!.github/workflows/playwright.yaml"
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**.rst"
+      - "docs/**"
+      - "examples/**"
+      - ".github/workflows/**"
+      - "!.github/workflows/playwright.yaml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+      - "update-*"
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+    env:
+      GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup OS level dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            build-essential \
+            curl \
+            libcurl4-openssl-dev \
+            libssl-dev
+
+      - uses: actions/setup-node@v4
+        id: setup-node
+        with:
+          node-version: "22"
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
+
+      - name: Run webpack to build static assets
+        run: |
+          npm install
+          npm run webpack
+
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
+
+      - name: Setup test dependencies
+        run: |
+          npm i -g configurable-http-proxy
+
+          pip install --no-binary pycurl -r dev-requirements.txt
+          pip install -e .
+
+      - name: Install playwright browser
+        run: |
+          playwright install firefox
+
+      - name: Run playwright tests
+        run: |
+          py.test --cov=binderhub -s integration-tests/
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-traces
+          path: test-results/
+
+      # Upload test coverage info to codecov
+      - uses: codecov/codecov-action@v5
