@@ -144,7 +144,6 @@ async def test_versions_handler(app):
         ),
     ],
 )
-@pytest.mark.playwright
 async def test_loading_page(
     app, provider_prefix, repo, ref, path, path_type, status_code, page
 ):
