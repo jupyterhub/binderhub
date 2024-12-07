@@ -12,6 +12,16 @@ from dockerspawner import DockerSpawner
 
 from binderhub.binderspawner_mixin import BinderSpawnerMixin
 
+
+def random_port() -> int:
+    """Get a single random port."""
+    sock = socket.socket()
+    sock.bind(("", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("8.8.8.8", 80))
 hostip = s.getsockname()[0]
@@ -60,12 +70,20 @@ for env_var in ["JUPYTERHUB_EXTERNAL_URL", "GITHUB_ACCESS_TOKEN", "DOCKER_HOST"]
         binderhub_environment[env_var] = os.getenv(env_var)
     if auth_enabled:
         binderhub_environment["AUTH_ENABLED"] = "1"
+
+binderhub_port = random_port()
+
 c.JupyterHub.services = [
     {
         "name": binderhub_service_name,
         "admin": True,
-        "command": ["python", "-mbinderhub", f"--config={binderhub_config}"],
-        "url": "http://localhost:8585",
+        "command": [
+            "python",
+            "-mbinderhub",
+            f"--config={binderhub_config}",
+            f"--port={binderhub_port}",
+        ],
+        "url": f"http://localhost:{binderhub_port}",
         "environment": binderhub_environment,
     }
 ]
