@@ -173,8 +173,8 @@ jobs:
           pip install --no-binary pycurl -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
           pip install -e .
 
-      - name: Install Playwright
-        run: playwright install
+      - name: Install Playwright browser
+        run: playwright install firefox
 
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
@@ -437,8 +437,8 @@ jobs:
           pip install ".[pycurl]" --no-binary pycurl
           pip install -e ".[pycurl]" --no-binary pycurl
 
-      - name: Install Playwright
-        run: playwright install
+      - name: Install Playwright browser
+        run: playwright install firefox
 
       - name: Setup JupyterHub NPM dependencies
         run: npm install -g configurable-http-proxy
