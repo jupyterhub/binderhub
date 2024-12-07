@@ -7,12 +7,21 @@ from urllib.parse import urlparse
 
 import requests
 from tornado import gen
-from tornado.curl_httpclient import CurlAsyncHTTPClient
 from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
 from tornado.httputil import HTTPHeaders
 
+try:
+    from tornado.curl_httpclient import CurlAsyncHTTPClient
 
-class MockAsyncHTTPClient(CurlAsyncHTTPClient):
+    BASE_HTTP_CLIENT = CurlAsyncHTTPClient
+except ModuleNotFoundError:
+    # pycurl is not installed, use regular asynchttpclient
+    from tornado.httpclient import AsyncHTTPClient
+
+    BASE_HTTP_CLIENT = AsyncHTTPClient
+
+
+class MockAsyncHTTPClient(BASE_HTTP_CLIENT):
     mocks = {}
     records = {}
 
