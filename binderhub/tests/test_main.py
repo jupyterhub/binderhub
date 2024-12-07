@@ -1,7 +1,7 @@
 """Test main handlers"""
 
 import time
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 import jwt
 import pytest
@@ -33,31 +33,6 @@ async def test_legacy_redirect(app, old_url, new_url):
     r = await async_requests.get(app.url + old_url, allow_redirects=False)
     assert r.status_code == 302
     assert r.headers["location"] == new_url
-
-
-def _resolve_url(page_url, url):
-    """Resolve a URL relative to a page"""
-
-    # full URL, nothing to resolve
-    if "://" in url:
-        return url
-
-    parsed = urlparse(page_url)
-
-    if url.startswith("/"):
-        # absolute path
-        return f"{parsed.scheme}://{parsed.netloc}{url}"
-
-    # relative path URL
-
-    if page_url.endswith("/"):
-        # URL is a directory, resolve relative to dir
-        path = parsed.path
-    else:
-        # URL is not a directory, resolve relative to parent
-        path = parsed.path.rsplit("/", 1)[0] + "/"
-
-    return f"{parsed.scheme}://{parsed.netloc}{path}{url}"
 
 
 @pytest.mark.remote
