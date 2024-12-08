@@ -241,7 +241,10 @@ export function LinkGenerator({
 
         <div>
           <div className="input-group">
-            <div className="form-control font-monospace">
+            <div
+              className="form-control font-monospace"
+              data-testid="launch-url"
+            >
               {launchUrl ||
                 "Fill in the fields to see a URL for sharing your Binder."}
             </div>

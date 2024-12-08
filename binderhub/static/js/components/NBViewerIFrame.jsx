@@ -41,7 +41,11 @@ export function NBViewerIFrame({ spec }) {
         while we start a server for you. <br />
         Your binder will open automatically when it is ready.
       </p>
-      <iframe src={url} className="h-100" data-testid="log-container"></iframe>
+      <iframe
+        src={url}
+        className="h-100"
+        data-testid="nbviewer-iframe"
+      ></iframe>
     </div>
   );
 }
