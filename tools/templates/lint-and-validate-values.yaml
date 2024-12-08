@@ -56,7 +56,7 @@ jupyterhub:
   hub:
     config:
       JupyterHub:
-        authenticator_class: nullauthenticator.NullAuthenticator
+        authenticator_class: "null"
     extraConfig:
       hub-test-config: |
         dummy jupyterhub python code...

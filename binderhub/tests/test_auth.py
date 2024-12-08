@@ -91,9 +91,14 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
         "255.255.255.255/32": "255.x",
         "1.0.0.0/8": "1.x",
     }
-    local_net = str(ipaddress.ip_network("127.0.0.1").supernet(new_prefix=prefixlen))
+    local_net = [
+        str(ipaddress.ip_network("127.0.0.1").supernet(new_prefix=prefixlen)),
+        str(ipaddress.ip_network("::1").supernet(new_prefix=prefixlen)),
+    ]
+
     if banned:
-        ban_networks[local_net] = "local"
+        for net in local_net:
+            ban_networks[net] = "local"
 
     # pass through trait validators on app
     app.ban_networks = ban_networks
@@ -106,7 +111,6 @@ async def test_ban_networks(request, app, use_session, path, banned, prefixlen, 
         app.tornado_app.settings,
         {
             "ban_networks": app.ban_networks,
-            "ban_networks_min_prefix_len": app.ban_networks_min_prefix_len,
         },
     ):
         r = await async_requests.get(url)

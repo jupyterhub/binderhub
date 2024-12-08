@@ -37,12 +37,12 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         match = ip_in_networks(
             request_ip,
             ban_networks,
-            min_prefix_len=self.settings["ban_networks_min_prefix_len"],
         )
         if match:
-            network, message = match
+            network_spec = match
+            message = ban_networks[network_spec]
             app_log.warning(
-                f"Blocking request from {request_ip} matching banned network {network}: {message}"
+                f"Blocking request from {request_ip} matching banned network {network_spec}: {message}"
             )
             raise web.HTTPError(403, f"Requests from {message} are not allowed")
 

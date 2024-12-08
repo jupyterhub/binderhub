@@ -1,10 +1,13 @@
 BinderHub API Documentation
 ===========================
 
-Endpoint
---------
+Endpoints
+---------
 
-There's one API endpoint, which is:
+`/build`
+~~~~~~~~
+
+This is the main API endpoint, which is:
 
 ::
 
@@ -40,6 +43,25 @@ When the request is received, the following happens:
 4. If the build succeeds, we contact the JupyterHub API and start
    launching the server.
 
+`/health`
+~~~~~~~~~
+
+This reports the health of BinderHub and the services it needs to run.
+
+`/metrics`
+~~~~~~~~~~
+
+This reports the metrics for `Prometheus <https://prometheus.io/>`_.
+
+`/versions`
+~~~~~~~~~~~
+
+This reports the version of BinderHub and the services it needs to run.
+
+`/_config`
+~~~~~~~~~~
+
+This reports which :doc:`repository providers </reference/repoproviders>` are enabled.
 
 Events
 ------

@@ -21,7 +21,7 @@ from .utils import async_requests
 
 # We have optimized this slow test, for more information, see the README of
 # https://github.com/binderhub-ci-repos/minimal-dockerfile.
-@pytest.mark.asyncio(timeout=900)
+@pytest.mark.timeout(900)
 @pytest.mark.parametrize(
     "slug",
     [
@@ -102,7 +102,7 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     stop.raise_for_status()
 
 
-@pytest.mark.asyncio(timeout=900)
+@pytest.mark.timeout(900)
 @pytest.mark.parametrize(
     "app,build_only_query_param",
     [
@@ -152,7 +152,7 @@ async def test_build_only(app, build_only_query_param, needs_build):
     assert final["phase"] == "ready"
 
 
-@pytest.mark.asyncio(timeout=120)
+@pytest.mark.timeout(120)
 @pytest.mark.remote
 async def test_build_fail(app, needs_build, needs_launch, always_build):
     """
@@ -176,7 +176,7 @@ async def test_build_fail(app, needs_build, needs_launch, always_build):
     assert failed_events > 0, "Should have seen phase 'failed'"
 
 
-@pytest.mark.asyncio(timeout=120)
+@pytest.mark.timeout(120)
 @pytest.mark.parametrize(
     "app,build_only_query_param,expected_error_msg",
     [
@@ -485,7 +485,7 @@ async def test_local_repo2docker_build():
     assert docker_client.images.get(name)
 
 
-@pytest.mark.asyncio(timeout=20)
+@pytest.mark.timeout(20)
 async def test_local_repo2docker_build_stop(io_loop):
     q = Queue()
     # We need a slow build here so that we can interrupt it, so pick a large repo that

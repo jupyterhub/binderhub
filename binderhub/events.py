@@ -12,14 +12,17 @@ from pythonjsonlogger import jsonlogger
 from traitlets.config import Configurable
 
 
-def _skip_message(record, **kwargs):
+def _skip_fields(record, **kwargs):
     """
-    Remove 'message' from log record.
+    Remove unwanted fields from log record.
 
-    It is always emitted with 'null', and we do not want it,
-    since we are always emitting events only
+    message: always emitted with 'null', and we do not want it,
+      since we are always emitting events only
+    taskName:
     """
     del record["message"]
+    if "taskName" in record:
+        del record["taskName"]
     return json.dumps(record, **kwargs)
 
 
@@ -49,7 +52,7 @@ class EventLog(Configurable):
 
         if self.handlers_maker:
             self.handlers = self.handlers_maker(self)
-            formatter = jsonlogger.JsonFormatter(json_serializer=_skip_message)
+            formatter = jsonlogger.JsonFormatter(json_serializer=_skip_fields)
             for handler in self.handlers:
                 handler.setFormatter(formatter)
                 self.log.addHandler(handler)

@@ -2,17 +2,27 @@
 
 import asyncio
 import io
+import socket
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
 import requests
 from tornado import gen
-from tornado.curl_httpclient import CurlAsyncHTTPClient
 from tornado.httpclient import HTTPError, HTTPRequest, HTTPResponse
 from tornado.httputil import HTTPHeaders
 
+try:
+    from tornado.curl_httpclient import CurlAsyncHTTPClient
 
-class MockAsyncHTTPClient(CurlAsyncHTTPClient):
+    BASE_HTTP_CLIENT = CurlAsyncHTTPClient
+except ModuleNotFoundError:
+    # pycurl is not installed, use regular asynchttpclient
+    from tornado.httpclient import AsyncHTTPClient
+
+    BASE_HTTP_CLIENT = AsyncHTTPClient
+
+
+class MockAsyncHTTPClient(BASE_HTTP_CLIENT):
     mocks = {}
     records = {}
 
@@ -140,3 +150,12 @@ class _AsyncRequests:
 
 # async_requests.get = requests.get returning a Future, etc.
 async_requests = _AsyncRequests()
+
+
+def random_port() -> int:
+    """Get a single random port."""
+    sock = socket.socket()
+    sock.bind(("", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port

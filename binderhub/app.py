@@ -753,19 +753,6 @@ class BinderHub(Application):
 
         return networks
 
-    ban_networks_min_prefix_len = Integer(
-        1,
-        help="The shortest prefix in ban_networks",
-    )
-
-    @observe("ban_networks")
-    def _update_prefix_len(self, change):
-        if not change.new:
-            min_len = 1
-        else:
-            min_len = min(net.prefixlen for net in change.new)
-        self.ban_networks_min_prefix_len = min_len or 1
-
     tornado_settings = Dict(
         config=True,
         help="""
@@ -944,7 +931,6 @@ class BinderHub(Application):
                 "debug": self.debug,
                 "launcher": self.launcher,
                 "ban_networks": self.ban_networks,
-                "ban_networks_min_prefix_len": self.ban_networks_min_prefix_len,
                 "build_pool": self.build_pool,
                 "build_token_check_origin": self.build_token_check_origin,
                 "build_token_secret": self.build_token_secret,

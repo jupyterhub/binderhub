@@ -57,7 +57,7 @@ jobs:
         k3s-channel:
           # Available channels: https://github.com/k3s-io/k3s/blob/HEAD/channel.yaml
           # Don't use "latest", instead bump it using a PR so we know when a new version breaks BinderHub
-          - v1.29
+          - v1.30
         test:
           - main
           - auth
@@ -69,7 +69,7 @@ jobs:
           # which isn't documented anywhere, but is currently at 3.5.0. We also
           # test with the latest k8s and helm versions.
           #
-          - k3s-channel: v1.23
+          - k3s-channel: v1.28
             helm-version: v3.5.0
             test: helm
             test-variation: dind
@@ -139,7 +139,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: setup-node
         with:
-          node-version: "18"
+          node-version: "22"
 
       - name: Cache npm
         uses: actions/cache@v4
@@ -155,7 +155,7 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -338,18 +338,18 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        run: pytest -m "not auth" --cov=binderhub
+        run: pytest -m "not auth" --cov=binderhub binderhub/tests/
 
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" --cov=binderhub
+        run: pytest -m "auth" --cov=binderhub  binderhub/tests/
 
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest --helm -m "remote" --cov=binderhub
+          pytest --helm -m "remote" --cov=binderhub binderhub/tests/
 
       - name: Get BinderHub health and metrics outputs
         if: always()
@@ -374,7 +374,7 @@ jobs:
             daemonset/binderhub-test-pink
 
       # GitHub action reference: https://github.com/codecov/codecov-action
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
 
   test-local:
     runs-on: ubuntu-22.04
@@ -400,7 +400,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: setup-node
         with:
-          node-version: "18"
+          node-version: "22"
 
       - name: Cache npm
         uses: actions/cache@v4
@@ -411,7 +411,7 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -455,11 +455,11 @@ jobs:
       - name: Run remote tests
         run: |
           export BINDER_URL=http://localhost:8000/services/binder/
-          pytest -m remote --cov=binderhub
+          pytest -m remote --cov=binderhub binderhub/tests/
 
       - name: Show hub logs
         if: always()
         run: cat testing/local-binder-local-hub/jupyterhub.log
 
       # GitHub action reference: https://github.com/codecov/codecov-action
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5

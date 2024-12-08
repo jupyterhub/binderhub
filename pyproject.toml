@@ -21,7 +21,9 @@ profile = "black"
 
 # pytest is used for running Python based tests
 [tool.pytest.ini_options]
-addopts = "--verbose --color=yes --durations=10"
+# Run playwright tests only on firefox
+# Retain playwright traces after failing tests, to help with debugging
+addopts = "--verbose --color=yes --durations=10 --browser firefox --tracing retain-on-failure"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = "60"

@@ -4,6 +4,7 @@ import ipaddress
 import time
 from collections import OrderedDict
 from hashlib import blake2b
+from typing import Iterable
 from unittest.mock import Mock
 
 from kubernetes.client import api_client
@@ -167,32 +168,21 @@ def url_path_join(*pieces):
     return result
 
 
-def ip_in_networks(ip, networks, min_prefix_len=1):
-    """Return whether `ip` is in the dict of networks
-
-    This is O(1) regardless of the size of networks
-
-    Implementation based on netaddr.IPSet.__contains__
-
-    Repeatedly checks if ip/32; ip/31; ip/30; etc. is in networks
-    for all netmasks that match the given ip,
-    for a max of 32 dict key lookups for ipv4.
-
-    If all netmasks have a prefix length of e.g. 24 or greater,
-    min_prefix_len prevents checking wider network masks that can't possibly match.
-
-    Returns `(netmask, networks[netmask])` for matching netmask
-    in networks, if found; False, otherwise.
+def ip_in_networks(
+    ip_addr: str, networks: Iterable[ipaddress.IPv4Network | ipaddress.IPv6Network]
+):
     """
-    if min_prefix_len < 1:
-        raise ValueError(f"min_prefix_len must be >= 1, got {min_prefix_len}")
-    if not networks:
-        return False
-    check_net = ipaddress.ip_network(ip)
-    while check_net.prefixlen >= min_prefix_len:
-        if check_net in networks:
-            return check_net, networks[check_net]
-        check_net = check_net.supernet(1)
+    Checks if `ip_addr` is contained within any of the networks in `networks`
+
+    If ip_addr is in any of the provided networks, return the first network that matches.
+    If not, return False
+
+    Both ipv6 and ipv4 are supported
+    """
+    ip = ipaddress.ip_address(ip_addr)
+    for network in networks:
+        if ip in network:
+            return network
     return False
 
 
