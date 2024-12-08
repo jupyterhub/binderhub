@@ -173,6 +173,9 @@ jobs:
           pip install --no-binary pycurl -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
           pip install -e .
 
+      - name: Install Playwright browser
+        run: playwright install firefox
+
       - name: Install JupyterHub chart for main tests
         if: matrix.test == 'main'
         run: |
@@ -335,18 +338,18 @@ jobs:
       - name: Run main tests
         if: matrix.test == 'main'
         # running the "main" tests means "all tests that aren't auth"
-        run: pytest -m "not auth" --cov=binderhub
+        run: pytest -m "not auth" --cov=binderhub binderhub/tests/
 
       - name: Run auth tests
         if: matrix.test == 'auth'
         # running the "auth" tests means "all tests that are marked as auth"
-        run: pytest -m "auth" --cov=binderhub
+        run: pytest -m "auth" --cov=binderhub  binderhub/tests/
 
       - name: Run helm tests
         if: matrix.test == 'helm'
         run: |
           export BINDER_URL=http://localhost:30901
-          pytest --helm -m "remote" --cov=binderhub
+          pytest --helm -m "remote" --cov=binderhub binderhub/tests/
 
       - name: Get BinderHub health and metrics outputs
         if: always()
@@ -434,6 +437,9 @@ jobs:
           pip install ".[pycurl]" --no-binary pycurl
           pip install -e ".[pycurl]" --no-binary pycurl
 
+      - name: Install Playwright browser
+        run: playwright install firefox
+
       - name: Setup JupyterHub NPM dependencies
         run: npm install -g configurable-http-proxy
 
@@ -449,7 +455,7 @@ jobs:
       - name: Run remote tests
         run: |
           export BINDER_URL=http://localhost:8000/services/binder/
-          pytest -m remote --cov=binderhub
+          pytest -m remote --cov=binderhub binderhub/tests/
 
       - name: Show hub logs
         if: always()

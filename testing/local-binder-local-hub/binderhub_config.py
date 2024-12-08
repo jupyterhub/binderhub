@@ -33,14 +33,11 @@ c.BinderHub.banner_message = (
     'See <a href="https://github.com/jupyterhub/binderhub">BinderHub on GitHub</a>'
 )
 
-c.BinderHub.hub_url_local = "http://localhost:8000"
-
 # Assert that we're running as a managed JupyterHub service
 # (otherwise c.BinderHub.hub_api_token is needed)
 assert os.getenv("JUPYTERHUB_API_TOKEN")
 c.BinderHub.base_url = os.getenv("JUPYTERHUB_SERVICE_PREFIX")
-# JUPYTERHUB_BASE_URL may not include the host
-# c.BinderHub.hub_url = os.getenv('JUPYTERHUB_BASE_URL')
+
 c.BinderHub.hub_url = os.getenv("JUPYTERHUB_EXTERNAL_URL") or f"http://{hostip}:8000"
 
 if os.getenv("AUTH_ENABLED") == "1":

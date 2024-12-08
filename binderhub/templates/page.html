@@ -5,76 +5,33 @@
   <title>{% block title %}Binder{% endblock %}</title>
   {% block meta_social %}
   {# Social media previews #}
-  <meta property="og:title" content="The Binder Project">
-  <meta property="og:image" content="https://mybinder.org/static/images/logo_social.png">
+  <meta property="og:title" content="{{opengraph_title}}">
+  <meta property="og:image" content="{{static_url("images/logo_social.png")}}">
   <meta property="og:description" content="Reproducible, sharable, open, interactive computing environments.">
   <meta property="og:image:width" content="1334">
   <meta property="og:image:height" content="700">
   <meta property="og:image:alt" content="The Binder Project Logo" />
   <meta name="twitter:card" content="summary_large_image">
   {% endblock meta_social %}
-  {% block head %}
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
-  {% endblock head %}
+
+  <script>
+    window.pageConfig = {{page_config|tojson}};
+  </script>
 </head>
 <body>
-  {% block body %}
-
-  {% if banner %}
-  <div id="banner-container">
-    {{ banner | safe }}
-  </div>
-  {% endif %}
-
-  {% block logo %}
-  <div class="container">
-    <div class="row">
-      <div id="logo-container">
-        <img id="logo" src={% block logo_image %}"{{static_url("logo.svg")}}"{% endblock logo_image %} width="390px" alt="Binder logo" />
-      </div>
-    </div>
-  </div>
-  {% endblock logo %}
-
-  {% block main %}
-  {% endblock main %}
-
-  {% block footer %}
-  <div class="container">
-    <div class="row text-center">
-      <h3>questions?<br />join the <a href="https://discourse.jupyter.org/c/binder">discussion</a>, read the <a href="https://mybinder.readthedocs.io/en/latest/">docs</a>, see the <a href="https://github.com/jupyterhub/binderhub">code</a></h3>
-    </div>
-  </div>
-  {% endblock footer %}
-
-  {% if google_analytics_code %}
-  <script>
-    // Only load GA if DNT is not set
-    if (navigator.doNotTrack != "1" && // Most Firefox & Chrome
-      window.doNotTrack != "1" && // IE & Safari
-      navigator.msDoNotTrack != "1" // Old IE
-  ) {
-    console.log("Loading Google Analytics, since Do Not Track is off");
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', '{{ google_analytics_code }}', '{{ google_analytics_domain }}',
-      {'storage': 'none'});
-    ga('set', 'anonymizeIp', true);
-    ga('send', 'pageview');
-  }
-  </script>
-  {% endif %}
-  {% if extra_footer_scripts %}
-  {% for script in extra_footer_scripts|dictsort %}
-  <script>
-    {{ script[1]|safe }}
-  </script>
-  {% endfor %}
-  {% endif %}
-  {% endblock body %}
+<div id="root"></div>
 </body>
+
+<script src="{{static_url("dist/bundle.js")}}"></script>
+
+{% if extra_footer_scripts %}
+{% for script in extra_footer_scripts|dictsort %}
+<script>
+  {{ script[1]|safe }}
+</script>
+{% endfor %}
+{% endif %}
+
 </html>
