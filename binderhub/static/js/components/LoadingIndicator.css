@@ -51,21 +51,21 @@ https://ihatetomatoes.net for initial code templates.*/
   }
 }
 
-.error,
-.error:after,
-.error:before {
+#loader.error,
+#loader.error:after,
+#loader.error:before {
   border-top-color: red !important;
 }
 
-.error {
+#loader.error {
   animation: spin 30s linear infinite !important;
 }
 
-.error:after {
+#loader.error:after {
   animation: spin 10s linear infinite !important;
 }
 
-.error:before {
+#loader.error:before {
   animation: spin 20s linear infinite !important;
 }
 
@@ -73,54 +73,4 @@ https://ihatetomatoes.net for initial code templates.*/
 .paused:after,
 .paused:before {
   animation-play-state: paused !important;
-}
-
-#demo-content {
-  padding-top: 100px;
-}
-
-div#loader-text {
-  min-height: 3em;
-}
-
-#loader-text p {
-  z-index: 1002;
-  max-width: 750px;
-  text-align: center;
-  margin: 0px auto 10px auto;
-}
-
-#loader-text p.launching {
-  font-size: 2em;
-}
-
-div#loader-links {
-  min-height: 6em;
-}
-
-#loader-links p {
-  font-size: 1.5em;
-  text-align: center;
-  max-width: 700px;
-  margin: 0px auto 10px auto;
-}
-
-div#log-container {
-  width: 80%;
-  margin: 0% 10%;
-}
-
-.hidden {
-  display: none;
-}
-
-.preview {
-  margin-top: 40px;
-  width: 70%;
-}
-
-#nbviewer-preview > iframe {
-  width: 100%;
-  height: 80vh;
-  border: 1px solid #aaa;
 }
