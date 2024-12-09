@@ -72,7 +72,7 @@ export function App() {
               <Route
                 key={p.id}
                 path={`${PAGE_CONFIG.baseUrl}v2/*`}
-                element={<LoadingPage baseUrl={BASE_URL} provider={p.id} />}
+                element={<LoadingPage baseUrl={BASE_URL} />}
               />
             ))}
             <Route

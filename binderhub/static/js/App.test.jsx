@@ -44,6 +44,15 @@ test("renders loading page", () => {
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
 
+test("renders loading page with trailign slash", () => {
+  render(
+    <MemoryRouter initialEntries={["/v2/gh/user/repo/main/"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
+});
+
 test("renders error for misconfigured repo", () => {
   render(
     <MemoryRouter initialEntries={["/v2/gh/userrepo/main"]}>

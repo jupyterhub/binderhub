@@ -14,7 +14,7 @@ import { ErrorPage } from "../components/ErrorPage.jsx";
  * @param {LoadingPageProps} props
  * @returns
  */
-export function LoadingPage({ baseUrl, provider }) {
+export function LoadingPage({ baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
@@ -24,9 +24,8 @@ export function LoadingPage({ baseUrl, provider }) {
 
   const [isLaunching, setIsLaunching] = useState(false);
 
-  const spec = new Spec(`${provider}/${buildSpec}`, LaunchSpec.fromSearchParams(searchParams));
-
-  const formatError = buildSpec.split("/").length !== 4;
+  const spec = new Spec(buildSpec, LaunchSpec.fromSearchParams(searchParams));
+  const formatError = buildSpec.split("/").filter(x => !!x).length !== 4;
 
   useEffect(() => {
     if (!formatError) {
