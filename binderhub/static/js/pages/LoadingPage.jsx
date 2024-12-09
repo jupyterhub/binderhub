@@ -25,7 +25,7 @@ export function LoadingPage({ baseUrl }) {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const spec = new Spec(buildSpec, LaunchSpec.fromSearchParams(searchParams));
-  const formatError = buildSpec.split("/").filter(x => !!x).length !== 4;
+  const formatError = buildSpec.split("/").filter((x) => !!x).length !== 4;
 
   useEffect(() => {
     if (!formatError) {
@@ -40,7 +40,7 @@ export function LoadingPage({ baseUrl }) {
         title="400: Bad Request"
         errorMessage={`Spec is not of the form "user/repo/ref", provided: "${buildSpec.substring(buildSpec.indexOf("/") + 1)}".`}
       />
-    )
+    );
   }
 
   return (

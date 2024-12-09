@@ -2,7 +2,7 @@ export function ErrorPage({ title, errorMessage }) {
   return (
     <>
       <div className="container text-center jumbotron">
-        <h1>{ title }</h1>
+        <h1>{title}</h1>
 
         <p className="lead">
           {errorMessage} Note: Some errors disappear by refreshing the page.

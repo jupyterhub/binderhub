@@ -59,5 +59,9 @@ test("renders error for misconfigured repo", () => {
       <App />
     </MemoryRouter>,
   );
-  expect(screen.queryByText(/Spec is not of the form "user\/repo\/ref", provided: "userrepo\/main"/)).toBeInTheDocument();
+  expect(
+    screen.queryByText(
+      /Spec is not of the form "user\/repo\/ref", provided: "userrepo\/main"/,
+    ),
+  ).toBeInTheDocument();
 });
