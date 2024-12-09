@@ -25,6 +25,7 @@ export function NBViewerIFrame({ spec }) {
   }
 
   let url;
+  // TODO: The nbviewer url should be configurable
   if (filePath) {
     url = `https://nbviewer.jupyter.org/github/${org}/${repo}/blob/${ref}/${filePath}`;
   } else {
