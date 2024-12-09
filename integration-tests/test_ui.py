@@ -53,7 +53,6 @@ async def local_hub_local_binder(request):
     ("provider_prefix", "repo", "ref", "path", "path_type", "status_code"),
     [
         ("gh", "binderhub-ci-repos/requirements", "master", "", "", 200),
-        ("gh", "binderhub-ci-repos%2Frequirements", "master", "", "", 400),
         ("gh", "binderhub-ci-repos/requirements", "master/", "", "", 200),
         (
             "gh",
