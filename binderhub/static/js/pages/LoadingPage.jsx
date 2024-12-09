@@ -6,6 +6,7 @@ import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
 import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
 import { LaunchSpec, Spec } from "../spec.js";
+import { ErrorPage } from "../components/ErrorPage.jsx";
 
 /**
  * @typedef {object} LoadingPageProps
@@ -13,7 +14,7 @@ import { LaunchSpec, Spec } from "../spec.js";
  * @param {LoadingPageProps} props
  * @returns
  */
-export function LoadingPage({ baseUrl }) {
+export function LoadingPage({ baseUrl, provider }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
@@ -23,12 +24,25 @@ export function LoadingPage({ baseUrl }) {
 
   const [isLaunching, setIsLaunching] = useState(false);
 
-  const spec = new Spec(buildSpec, LaunchSpec.fromSearchParams(searchParams));
+  const spec = new Spec(`${provider}/${buildSpec}`, LaunchSpec.fromSearchParams(searchParams));
+
+  const formatError = buildSpec.split("/").length !== 4;
 
   useEffect(() => {
-    // Start launching after the DOM has fully loaded
-    setTimeout(() => setIsLaunching(true), 1);
+    if (!formatError) {
+      // Start launching after the DOM has fully loaded
+      setTimeout(() => setIsLaunching(true), 1);
+    }
   }, []);
+
+  if (formatError) {
+    return (
+      <ErrorPage
+        title="400: Bad Request"
+        errorMessage={`Spec is not of the form "user/repo/ref", provided: "${buildSpec.substring(buildSpec.indexOf("/") + 1)}".`}
+      />
+    )
+  }
 
   return (
     <>
