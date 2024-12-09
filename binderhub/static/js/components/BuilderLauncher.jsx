@@ -8,6 +8,7 @@ import { Progress, PROGRESS_STATES } from "./Progress.jsx";
 /**
  *
  * @param {URL} baseUrl
+ * @param {string?} buildToken
  * @param {Spec} spec
  * @param {Terminal} term
  * @param {Array<string>} logBuffer
@@ -18,6 +19,7 @@ import { Progress, PROGRESS_STATES } from "./Progress.jsx";
  */
 async function buildImage(
   baseUrl,
+  buildToken,
   spec,
   term,
   logBuffer,
@@ -27,7 +29,11 @@ async function buildImage(
   setEnsureLogsVisible,
 ) {
   const buildEndPointURL = new URL("build/", baseUrl);
-  const image = new BinderRepository(spec.buildSpec, buildEndPointURL);
+  let options = {};
+  if (buildToken) {
+    options.buildToken = buildToken;
+  }
+  const image = new BinderRepository(spec.buildSpec, buildEndPointURL, options);
   // Clear the last line written, so we start from scratch
   term.write("\x1b[2K\r");
   logBuffer.length = 0;
@@ -173,6 +179,7 @@ function ImageLogs({
 /**
  * @typedef {object} BuildLauncherProps
  * @prop {URL} baseUrl
+ * @prop {string?} buildToken
  * @prop {Spec} spec
  * @prop {boolean} isLaunching
  * @prop {(l: boolean) => void} setIsLaunching
@@ -184,6 +191,7 @@ function ImageLogs({
  */
 export function BuilderLauncher({
   baseUrl,
+  buildToken,
   spec,
   isLaunching,
   setIsLaunching,
@@ -199,6 +207,7 @@ export function BuilderLauncher({
       if (isLaunching) {
         await buildImage(
           baseUrl,
+          buildToken,
           spec,
           term,
           logBufferRef.current,

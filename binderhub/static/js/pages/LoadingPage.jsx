@@ -11,10 +11,11 @@ import { ErrorPage } from "../components/ErrorPage.jsx";
 /**
  * @typedef {object} LoadingPageProps
  * @prop {URL} baseUrl
+ * @prop {string?} buildToken
  * @param {LoadingPageProps} props
  * @returns
  */
-export function LoadingPage({ baseUrl }) {
+export function LoadingPage({ baseUrl, buildToken }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
@@ -38,7 +39,9 @@ export function LoadingPage({ baseUrl }) {
     return (
       <ErrorPage
         title="400: Bad Request"
-        errorMessage={`Spec is not of the form "user/repo/ref", provided: "${buildSpec.substring(buildSpec.indexOf("/") + 1)}".`}
+        errorMessage={`Spec is not of the form "user/repo/ref", provided: "${buildSpec.substring(
+          buildSpec.indexOf("/") + 1,
+        )}".`}
       />
     );
   }
@@ -49,6 +52,7 @@ export function LoadingPage({ baseUrl }) {
       <BuilderLauncher
         baseUrl={baseUrl}
         spec={spec}
+        buildToken={buildToken}
         isLaunching={isLaunching}
         setIsLaunching={setIsLaunching}
         progressState={progressState}

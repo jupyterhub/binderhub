@@ -2,6 +2,9 @@
 Main handler classes for requests
 """
 
+import time
+
+import jwt
 from tornado.httputil import url_concat
 from tornado.web import authenticated
 
@@ -16,6 +19,7 @@ class UIHandler(BaseHandler):
 
     def initialize(self):
         self.opengraph_title = "The Binder Project"
+        self.page_config = {}
         return super().initialize()
 
     @authenticated
@@ -24,7 +28,7 @@ class UIHandler(BaseHandler):
             repo_provider_class.display_config
             for repo_provider_class in self.settings["repo_providers"].values()
         ]
-        page_config = {
+        self.page_config |= {
             "baseUrl": self.settings["base_url"],
             "badgeBaseUrl": self.get_badge_base_url(),
             "logoUrl": self.static_url("logo.svg"),
@@ -36,7 +40,7 @@ class UIHandler(BaseHandler):
         }
         self.render_template(
             "page.html",
-            page_config=page_config,
+            page_config=self.page_config,
             extra_footer_scripts=self.settings["extra_footer_scripts"],
             opengraph_title=self.opengraph_title,
         )
@@ -54,10 +58,20 @@ class RepoLaunchUIHandler(UIHandler):
         return super().initialize()
 
     @authenticated
-    def get(self, provider_id, _escaped_spec):
+    def get(self, provider_id, escaped_spec):
         prefix = "/v2/" + provider_id
         spec = self.get_spec_from_request(prefix).rstrip("/")
 
+        build_token = jwt.encode(
+            {
+                "exp": int(time.time()) + self.settings["build_token_expires_seconds"],
+                "aud": f"{provider_id}/{escaped_spec}",
+                "origin": self.token_origin(),
+            },
+            key=self.settings["build_token_secret"],
+            algorithm="HS256",
+        )
+        self.page_config["buildToken"] = build_token
         self.opengraph_title = (
             f"{self.repo_provider.display_config['displayName']}: {spec}"
         )

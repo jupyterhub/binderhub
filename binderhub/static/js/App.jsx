@@ -43,6 +43,8 @@ export const PUBLIC_BASE_URL = PAGE_CONFIG.publicBaseUrl
   ? new URL(BASE_URL)
   : new URL(PAGE_CONFIG.baseUrl, window.location.href);
 
+const BUILD_TOKEN = PAGE_CONFIG.buildToken;
+
 export function App() {
   return (
     <>
@@ -72,7 +74,9 @@ export function App() {
               <Route
                 key={p.id}
                 path={`${PAGE_CONFIG.baseUrl}v2/*`}
-                element={<LoadingPage baseUrl={BASE_URL} />}
+                element={
+                  <LoadingPage baseUrl={BASE_URL} buildToken={BUILD_TOKEN} />
+                }
               />
             ))}
             <Route
