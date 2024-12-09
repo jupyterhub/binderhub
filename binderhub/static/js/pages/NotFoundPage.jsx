@@ -3,10 +3,6 @@ export function NotFoundPage() {
     <>
       <div className="container text-center jumbotron">
         <h1>404: Not Found</h1>
-
-        <p className="lead">
-          Note: Some errors disappear by refreshing the page.
-        </p>
       </div>
       <div className="container">
         <div className="row text-center">

@@ -4,9 +4,7 @@ export function ErrorPage({ title, errorMessage }) {
       <div className="container text-center jumbotron">
         <h1>{title}</h1>
 
-        <p className="lead">
-          {errorMessage} Note: Some errors disappear by refreshing the page.
-        </p>
+        <p className="lead">{errorMessage}</p>
       </div>
       <div className="container">
         <div className="row text-center">
