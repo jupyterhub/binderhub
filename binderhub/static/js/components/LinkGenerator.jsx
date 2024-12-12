@@ -145,7 +145,9 @@ export function LinkGenerator({
   let launchUrl = "";
   let badgeMarkup = "";
 
-  const ref = reference || selectedProvider.ref.default;
+  const ref =
+    reference ||
+    (selectedProvider.ref.enabled ? selectedProvider.ref.default : "");
   if (repo !== "" && (!selectedProvider.ref.enabled || ref !== "")) {
     launchUrl = makeShareableUrl(
       publicBaseUrl,
