@@ -16,6 +16,7 @@ export const PAGE_CONFIG = window.pageConfig;
  * @typedef {object} RepoConfig
  * @prop {string} label
  * @prop {string} placeholder
+ * @prop {boolean} urlEncode
  *
  * @typedef {object} DetectConfig
  * @prop {string} regex

@@ -23,13 +23,16 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
   const [progressState, setProgressState] = useState(null);
 
   useEffect(() => {
+    const encodedRepo = selectedProvider.repo.urlEncode
+      ? encodeURIComponent(repo)
+      : repo;
     let actualRef = "";
     if (selectedProvider.ref.enabled) {
       actualRef = ref !== "" ? ref : selectedProvider.ref.default;
     }
     setSpec(
       new Spec(
-        `${selectedProvider.id}/${repo}/${actualRef}`,
+        `${selectedProvider.id}/${encodedRepo}/${actualRef}`,
         new LaunchSpec(urlPath),
       ),
     );

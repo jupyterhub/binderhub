@@ -227,10 +227,7 @@ class FakeProvider(RepoProvider):
         "id": "fake",
         "enabled": False,
         "spec": {"validateRegex": ".*"},
-        "repo": {
-            "label": "Fake Repo",
-            "placeholder": "",
-        },
+        "repo": {"label": "Fake Repo", "placeholder": "", "urlEncode": False},
         "ref": {
             "enabled": False,
         },
@@ -267,6 +264,7 @@ class ZenodoProvider(RepoProvider):
         "repo": {
             "label": "Zenodo DOI",
             "placeholder": "example: 10.5281/zenodo.3242074",
+            "urlEncode": False,
         },
         "ref": {"enabled": False},
     }
@@ -320,6 +318,7 @@ class FigshareProvider(RepoProvider):
         "repo": {
             "label": "FigShare DOI",
             "placeholder": "example: 10.6084/m9.figshare.9782777.v1",
+            "urlEncode": False,
         },
         "ref": {"enabled": False},
     }
@@ -375,6 +374,7 @@ class DataverseProvider(RepoProvider):
         "repo": {
             "label": "Dataverse DOI",
             "placeholder": "example: 10.7910/DVN/TJCLKP",
+            "urlEncode": False,
         },
         "ref": {"enabled": False},
     }
@@ -443,7 +443,11 @@ class HydroshareProvider(RepoProvider):
         "displayName": "Hydroshare resource",
         "id": "hydroshare",
         "spec": {"validateRegex": r"[^/]+"},
-        "repo": {"label": "Hydroshare resource id or URL", "placeholder": ""},
+        "repo": {
+            "label": "Hydroshare resource id or URL",
+            "placeholder": "",
+            "urlEncode": True,
+        },
         "ref": {"enabled": False},
     }
 
@@ -513,6 +517,7 @@ class CKANProvider(RepoProvider):
         "repo": {
             "label": "CKAN dataset URL",
             "placeholder": "https://demo.ckan.org/dataset/sample-dataset-1",
+            "urlEncode": True,
         },
         "ref": {"enabled": False},
     }
@@ -614,6 +619,7 @@ class GitRepoProvider(RepoProvider):
         "repo": {
             "label": "Arbitrary git repository URL",
             "placeholder": "example: http://git.example.com/repo",
+            "urlEncode": True,
         },
         "ref": {"enabled": True, "default": "HEAD"},
     }
@@ -723,6 +729,7 @@ class GitLabRepoProvider(RepoProvider):
         "repo": {
             "label": "GitLab repository name or URL",
             "placeholder": "example: https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder or mosaik/examples/mosaik-tutorials-on-binder",
+            "urlEncode": True,
         },
         "ref": {"enabled": True, "default": "HEAD"},
     }
@@ -851,6 +858,7 @@ class GitHubRepoProvider(RepoProvider):
         "repo": {
             "label": "GitHub repository name or URL",
             "placeholder": "example: yuvipanda/requirements or https://github.com/yuvipanda/requirements",
+            "urlEncode": False,
         },
         "ref": {"enabled": True, "default": "HEAD"},
     }
@@ -1124,7 +1132,11 @@ class GistRepoProvider(GitHubRepoProvider):
         "id": "gist",
         "spec": {"validateRegex": r".+/.+(/.+)"},
         "detect": {"regex": "^(https?://gist.github.com/)?(?<repo>.*)"},
-        "repo": {"label": "Gist ID (username/gistId) or URL", "placeholder": ""},
+        "repo": {
+            "label": "Gist ID (username/gistId) or URL",
+            "placeholder": "",
+            "urlEncode": False,
+        },
         "ref": {"enabled": True, "default": "HEAD"},
     }
 

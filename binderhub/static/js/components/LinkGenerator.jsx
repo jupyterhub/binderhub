@@ -117,8 +117,18 @@ function UrlSelector({ setUrlPath }) {
   );
 }
 
+/**
+ *
+ * @param {URL} publicBaseUrl
+ * @param {import("../App").Provider} provider
+ * @param {string} repo
+ * @param {string} ref
+ * @param {string} urlPath
+ * @returns
+ */
 function makeShareableUrl(publicBaseUrl, provider, repo, ref, urlPath) {
-  const url = new URL(`v2/${provider.id}/${repo}/${ref}`, publicBaseUrl);
+  const encodedRepo = provider.repo.urlEncode ? encodeURIComponent(repo) : repo;
+  const url = new URL(`v2/${provider.id}/${encodedRepo}/${ref}`, publicBaseUrl);
   if (urlPath) {
     url.searchParams.set("urlpath", urlPath);
   }
