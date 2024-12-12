@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
-import { useParams } from "react-router";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearch } from "wouter";
 import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
 import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
 import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
@@ -20,10 +19,10 @@ export function LoadingPage({ baseUrl, buildToken, provider }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
-  const partialSpec = params["*"];
+  const partialSpec = params["0"];
   const buildSpec = `${provider.id}/${partialSpec}`;
 
-  const [searchParams, _] = useSearchParams();
+  const searchParams = new URLSearchParams(useSearch());
 
   const [isLaunching, setIsLaunching] = useState(false);
 

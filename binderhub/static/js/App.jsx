@@ -1,5 +1,5 @@
 import { LoadingPage } from "./pages/LoadingPage.jsx";
-import { Route, Routes } from "react-router-dom";
+import { Route, Router, Switch } from "wouter";
 import "bootstrap/js/dist/dropdown.js";
 
 import "./index.scss";
@@ -34,6 +34,7 @@ export const PAGE_CONFIG = window.pageConfig;
  * @prop {DetectConfig} [detect]
  * @prop {RepoConfig} repo
  * @prop {RefConfig} ref
+ * @prop {SpecConfig} spec
  *
  */
 /**
@@ -50,6 +51,12 @@ export const PUBLIC_BASE_URL = PAGE_CONFIG.publicBaseUrl
 const BUILD_TOKEN = PAGE_CONFIG.buildToken;
 
 export function App() {
+  // Wouter's <Router> component requires *not* having trailing slash to function
+  // the way we ant
+  const baseRouteUrl =
+    PAGE_CONFIG.baseUrl.slice(-1) == "/"
+      ? PAGE_CONFIG.baseUrl.slice(0, -1)
+      : PAGE_CONFIG.BASE_URL;
   return (
     <>
       {PAGE_CONFIG.bannerHtml && (
@@ -63,41 +70,40 @@ export function App() {
           <div className="text-center m-4">
             <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
           </div>
-          <Routes>
-            <Route
-              path={PAGE_CONFIG.baseUrl}
-              element={
+          <Router base={baseRouteUrl}>
+            <Switch>
+              <Route path="/">
                 <HomePage
                   providers={PROVIDERS}
                   baseUrl={BASE_URL}
                   publicBaseUrl={PUBLIC_BASE_URL}
                 />
-              }
-            />
-            {PROVIDERS.map((p) => (
-              <Route
-                key={p.id}
-                path={`${PAGE_CONFIG.baseUrl}v2/${p.id}/*`}
-                element={
+              </Route>
+
+              {PROVIDERS.map((p) => (
+                <Route
+                  key={p.id}
+                  path={`/v2/${p.id}/(?<buildSpec>${p.spec.validateRegex})`}
+                >
                   <LoadingPage
                     baseUrl={BASE_URL}
                     buildToken={BUILD_TOKEN}
                     provider={p}
                   />
-                }
-              />
-            ))}
-            <Route
-              path={`${PAGE_CONFIG.baseUrl}about`}
-              element={
+                </Route>
+              ))}
+
+              <Route path="/about">
                 <AboutPage
                   aboutMessage={PAGE_CONFIG.aboutMessage}
                   binderVersion={PAGE_CONFIG.binderVersion}
                 />
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+              </Route>
+              <Route>
+                <NotFoundPage />
+              </Route>
+            </Switch>
+          </Router>
         </div>
       </div>
     </>
