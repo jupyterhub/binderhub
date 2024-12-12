@@ -12,21 +12,23 @@ import { ErrorPage } from "../components/ErrorPage.jsx";
  * @typedef {object} LoadingPageProps
  * @prop {URL} baseUrl
  * @prop {string?} buildToken
+ * @prop {import("../App.jsx").Provider} provider
  * @param {LoadingPageProps} props
  * @returns
  */
-export function LoadingPage({ baseUrl, buildToken }) {
+export function LoadingPage({ baseUrl, buildToken, provider }) {
   const [progressState, setProgressState] = useState(null);
 
   const params = useParams();
-  const buildSpec = params["*"];
+  const partialSpec = params["*"];
+  const buildSpec = `${provider.id}/${partialSpec}`;
 
   const [searchParams, _] = useSearchParams();
 
   const [isLaunching, setIsLaunching] = useState(false);
 
   const spec = new Spec(buildSpec, LaunchSpec.fromSearchParams(searchParams));
-  const formatError = buildSpec.split("/").filter((x) => !!x).length !== 4;
+  const formatError = partialSpec.match(provider.spec.validateRegex) === null;
 
   useEffect(() => {
     if (!formatError) {
@@ -39,9 +41,9 @@ export function LoadingPage({ baseUrl, buildToken }) {
     return (
       <ErrorPage
         title="400: Bad Request"
-        errorMessage={`Spec is not of the form "user/repo/ref", provided: "${buildSpec.substring(
-          buildSpec.indexOf("/") + 1,
-        )}".`}
+        errorMessage={`Spec for this provider should match ${
+          provider.spec.validateRegex
+        }, provided: "${buildSpec.substring(buildSpec.indexOf("/") + 1)}".`}
       />
     );
   }

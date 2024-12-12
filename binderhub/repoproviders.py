@@ -226,6 +226,7 @@ class FakeProvider(RepoProvider):
         "displayName": "Fake",
         "id": "fake",
         "enabled": False,
+        "spec": {"validateRegex": ".*"},
         "repo": {
             "label": "Fake Repo",
             "placeholder": "",
@@ -262,6 +263,7 @@ class ZenodoProvider(RepoProvider):
     display_config = {
         "displayName": "Zenodo DOI",
         "id": "zenodo",
+        "spec": {"validateRegex": r"10\.\d+\/(.)+"},
         "repo": {
             "label": "Zenodo DOI",
             "placeholder": "example: 10.5281/zenodo.3242074",
@@ -314,6 +316,7 @@ class FigshareProvider(RepoProvider):
     display_config = {
         "displayName": "FigShare DOI",
         "id": "figshare",
+        "spec": {"validateRegex": r"10\.\d+\/(.)+"},
         "repo": {
             "label": "FigShare DOI",
             "placeholder": "example: 10.6084/m9.figshare.9782777.v1",
@@ -368,7 +371,11 @@ class DataverseProvider(RepoProvider):
     display_config = {
         "displayName": "Dataverse DOI",
         "id": "dataverse",
-        "repo": {"label": "FigShare DOI", "placeholder": "example: 10.7910/DVN/TJCLKP"},
+        "spec": {"validateRegex": r"10\.\d+\/(.)+"},
+        "repo": {
+            "label": "Dataverse DOI",
+            "placeholder": "example: 10.7910/DVN/TJCLKP",
+        },
         "ref": {"enabled": False},
     }
 
@@ -435,6 +442,7 @@ class HydroshareProvider(RepoProvider):
     display_config = {
         "displayName": "Hydroshare resource",
         "id": "hydroshare",
+        "spec": {"validateRegex": r"[^/]+"},
         "repo": {"label": "Hydroshare resource id or URL", "placeholder": ""},
         "ref": {"enabled": False},
     }
@@ -501,6 +509,7 @@ class CKANProvider(RepoProvider):
     display_config = {
         "displayName": "CKAN dataset",
         "id": "ckan",
+        "spec": {"validateRegex": r"[^/]+"},
         "repo": {
             "label": "CKAN dataset URL",
             "placeholder": "https://demo.ckan.org/dataset/sample-dataset-1",
@@ -601,6 +610,7 @@ class GitRepoProvider(RepoProvider):
     display_config = {
         "displayName": "Git repository",
         "id": "git",
+        "spec": {"validateRegex": r"[^/]+/.+"},
         "repo": {
             "label": "Arbitrary git repository URL",
             "placeholder": "example: http://git.example.com/repo",
@@ -708,6 +718,7 @@ class GitLabRepoProvider(RepoProvider):
     display_config = {
         "displayName": "GitLab",
         "id": "gl",
+        "spec": {"validateRegex": r"[^/]+/.+"},
         "detect": {"regex": "^(https?://gitlab.com/)?(?<repo>.*)"},
         "repo": {
             "label": "GitLab repository name or URL",
@@ -835,6 +846,7 @@ class GitHubRepoProvider(RepoProvider):
     display_config = {
         "displayName": "GitHub",
         "id": "gh",
+        "spec": {"validateRegex": r".+/.+/.+"},
         "detect": {"regex": "^(https?://github.com/)?(?<repo>.*)"},
         "repo": {
             "label": "GitHub repository name or URL",
@@ -1110,6 +1122,7 @@ class GistRepoProvider(GitHubRepoProvider):
     display_config = {
         "displayName": "Gist",
         "id": "gist",
+        "spec": {"validateRegex": r".+/.+(/.+)"},
         "detect": {"regex": "^(https?://gist.github.com/)?(?<repo>.*)"},
         "repo": {"label": "Gist ID (username/gistId) or URL", "placeholder": ""},
         "ref": {"enabled": True, "default": "HEAD"},

@@ -24,6 +24,9 @@ export const PAGE_CONFIG = window.pageConfig;
  * @prop {boolean} enabled
  * @prop {string} [default]
  *
+ * @typedef {object} SpecConfig
+ * @prop {string} validateRegex
+ *
  * @typedef {object} Provider
  * @prop {string} displayName
  * @prop {string} id
@@ -73,9 +76,13 @@ export function App() {
             {PROVIDERS.map((p) => (
               <Route
                 key={p.id}
-                path={`${PAGE_CONFIG.baseUrl}v2/*`}
+                path={`${PAGE_CONFIG.baseUrl}v2/${p.id}/*`}
                 element={
-                  <LoadingPage baseUrl={BASE_URL} buildToken={BUILD_TOKEN} />
+                  <LoadingPage
+                    baseUrl={BASE_URL}
+                    buildToken={BUILD_TOKEN}
+                    provider={p}
+                  />
                 }
               />
             ))}
