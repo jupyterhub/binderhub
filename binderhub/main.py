@@ -58,14 +58,14 @@ class RepoLaunchUIHandler(UIHandler):
         return super().initialize()
 
     @authenticated
-    def get(self, provider_id, escaped_spec):
+    def get(self, provider_id, _escaped_spec):
         prefix = "/v2/" + provider_id
-        spec = self.get_spec_from_request(prefix).rstrip("/")
+        spec = self.get_spec_from_request(prefix)
 
         build_token = jwt.encode(
             {
                 "exp": int(time.time()) + self.settings["build_token_expires_seconds"],
-                "aud": f"{provider_id}/{escaped_spec}",
+                "aud": f"{provider_id}/{spec}",
                 "origin": self.token_origin(),
             },
             key=self.settings["build_token_secret"],
