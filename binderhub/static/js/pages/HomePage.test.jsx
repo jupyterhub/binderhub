@@ -166,8 +166,6 @@ test("change source type", async () => {
   });
   await user.type(repositoryField, "10.5282/zenodo.3242075");
   expect(
-    screen.getByText(
-      "http://local.com/v2/zenodo/10.5282/zenodo.3242075/undefined",
-    ),
+    screen.getByText("http://local.com/v2/zenodo/10.5282/zenodo.3242075/"),
   ).toBeInTheDocument();
 });

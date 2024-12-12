@@ -27,6 +27,7 @@ window.pageConfig = {
       },
       displayName: "GitHub",
       id: "gh",
+      spec: { validateRegex: /.+\/.+\/.+/ },
       ref: {
         default: "HEAD",
         enabled: true,
@@ -40,6 +41,7 @@ window.pageConfig = {
     {
       displayName: "Zenodo DOI",
       id: "zenodo",
+      spec: { validateRegex: /10\.\d+\/(.)+/ },
       ref: {
         enabled: false,
       },

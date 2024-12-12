@@ -61,7 +61,7 @@ test("renders error for misconfigured repo", () => {
   );
   expect(
     screen.queryByText(
-      /Spec is not of the form "user\/repo\/ref", provided: "userrepo\/main"/,
+      /Spec for this provider should match .+\/.+\/.+, provided: "userrepo\/main"/,
     ),
   ).toBeInTheDocument();
 });
