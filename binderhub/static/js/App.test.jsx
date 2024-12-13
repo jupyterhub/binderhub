@@ -44,7 +44,9 @@ test("renders error for misconfigured repo", () => {
 });
 
 test("renders loading page with trailing slash", () => {
-  const { hook } = memoryLocation({ path: "/v2/zenodo/10.5281/zenodo.3242074/" });
+  const { hook } = memoryLocation({
+    path: "/v2/zenodo/10.5281/zenodo.3242074/",
+  });
   render(<App routerHook={hook} />);
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
