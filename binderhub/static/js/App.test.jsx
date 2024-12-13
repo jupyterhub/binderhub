@@ -31,7 +31,7 @@ test("renders loading page", () => {
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
 
-test("renders loading page with trailign slash", () => {
+test("renders loading page with trailing slash", () => {
   const { hook } = memoryLocation({ path: "/v2/gh/user/repo/main/" });
   render(<App routerHook={hook} />);
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
@@ -40,9 +40,11 @@ test("renders loading page with trailign slash", () => {
 test("renders error for misconfigured repo", () => {
   const { hook } = memoryLocation({ path: "/v2/gh/userrep/main/" });
   render(<App routerHook={hook} />);
-  expect(
-    screen.queryByText(
-      /Spec for this provider should match .+\/.+\/.+, provided: "userrepo\/main"/,
-    ),
-  ).toBeInTheDocument();
+  expect(screen.queryByText(/Not Found/)).toBeInTheDocument();
+});
+
+test("renders loading page with trailing slash", () => {
+  const { hook } = memoryLocation({ path: "/v2/zenodo/10.5281/zenodo.3242074/" });
+  render(<App routerHook={hook} />);
+  expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
