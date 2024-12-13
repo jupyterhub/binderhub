@@ -9,7 +9,6 @@
     "clipboard": "^2.0.11",
     "configurable-http-proxy": "^4.6.2",
     "copy-to-clipboard": "^3.3.3",
-    "jquery": "^3.6.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "wouter": "^3.3.5",

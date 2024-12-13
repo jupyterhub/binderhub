@@ -14,10 +14,6 @@ module.exports = {
     publicPath: "auto",
   },
   plugins: [
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-    }),
     new MiniCssExtractPlugin({
       filename: "styles.css",
     }),
