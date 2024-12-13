@@ -73,6 +73,12 @@
     },
     "setupFilesAfterEnv": [
       "<rootDir>/setupTests.js"
-    ]
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!wouter)"
+    ],
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest"
+    }
   }
 }

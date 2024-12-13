@@ -50,13 +50,13 @@ export const PUBLIC_BASE_URL = PAGE_CONFIG.publicBaseUrl
 
 const BUILD_TOKEN = PAGE_CONFIG.buildToken;
 
-export function App() {
+export function App({ routerHook }) {
   // Wouter's <Router> component requires *not* having trailing slash to function
   // the way we ant
   const baseRouteUrl =
-    PAGE_CONFIG.baseUrl.slice(-1) == "/"
-      ? PAGE_CONFIG.baseUrl.slice(0, -1)
-      : PAGE_CONFIG.BASE_URL;
+    BASE_URL.pathname.slice(-1) == "/"
+      ? BASE_URL.pathname.slice(0, -1)
+      : BASE_URL.pathname;
   return (
     <>
       {PAGE_CONFIG.bannerHtml && (
@@ -70,7 +70,7 @@ export function App() {
           <div className="text-center m-4">
             <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
           </div>
-          <Router base={baseRouteUrl}>
+          <Router base={baseRouteUrl} hook={routerHook}>
             <Switch>
               <Route path="/">
                 <HomePage

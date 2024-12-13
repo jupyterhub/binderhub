@@ -67,7 +67,6 @@ export class Spec {
    */
   constructor(buildSpec, launchSpec) {
     this.buildSpec = buildSpec;
-    console.log(`spec is ${this.buildSpec}`);
     this.launchSpec = launchSpec;
   }
 }

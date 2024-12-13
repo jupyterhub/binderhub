@@ -1,14 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
 import { App } from "./App";
-import { MemoryRouter } from "react-router";
+import { memoryLocation } from "wouter/memory-location";
 
 test("render Homepage", () => {
-  render(
-    <MemoryRouter>
-      <App />
-    </MemoryRouter>,
-  );
+  render(<App />);
   expect(
     screen.queryByText(
       /Turn a Git repo into a collection of interactive notebooks/,
@@ -17,48 +13,33 @@ test("render Homepage", () => {
 });
 
 test("render About page", () => {
-  render(
-    <MemoryRouter initialEntries={["/about"]}>
-      <App />
-    </MemoryRouter>,
-  );
+  const { hook } = memoryLocation({ path: "/about" });
+  render(<App routerHook={hook} />);
   expect(screen.queryByText(/This is the about message/)).toBeInTheDocument();
   expect(screen.queryByText(/v123.456/)).toBeInTheDocument();
 });
 
 test("render Not Found page", () => {
-  render(
-    <MemoryRouter initialEntries={["/not-found"]}>
-      <App />
-    </MemoryRouter>,
-  );
+  const { hook } = memoryLocation({ path: "/not-found" });
+  render(<App routerHook={hook} />);
   expect(screen.queryByText(/Not Found/)).toBeInTheDocument();
 });
 
 test("renders loading page", () => {
-  render(
-    <MemoryRouter initialEntries={["/v2/gh/user/repo/main"]}>
-      <App />
-    </MemoryRouter>,
-  );
+  const { hook } = memoryLocation({ path: "/v2/gh/user/repo/main" });
+  render(<App routerHook={hook} />);
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
 
 test("renders loading page with trailign slash", () => {
-  render(
-    <MemoryRouter initialEntries={["/v2/gh/user/repo/main/"]}>
-      <App />
-    </MemoryRouter>,
-  );
+  const { hook } = memoryLocation({ path: "/v2/gh/user/repo/main/" });
+  render(<App routerHook={hook} />);
   expect(screen.queryByText(/Launching your Binder/)).toBeInTheDocument();
 });
 
 test("renders error for misconfigured repo", () => {
-  render(
-    <MemoryRouter initialEntries={["/v2/gh/userrepo/main"]}>
-      <App />
-    </MemoryRouter>,
-  );
+  const { hook } = memoryLocation({ path: "/v2/gh/userrep/main/" });
+  render(<App routerHook={hook} />);
   expect(
     screen.queryByText(
       /Spec for this provider should match .+\/.+\/.+, provided: "userrepo\/main"/,
