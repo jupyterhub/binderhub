@@ -63,8 +63,8 @@ export function HowItWorks() {
           </span>
         </div>
         <div className="col-md-8">
-          <h4>Interact with your notebooks in a live environment!</h4>{" "}
-          A <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a>{" "}
+          <h4>Interact with your notebooks in a live environment!</h4> A{" "}
+          <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a>{" "}
           server will host your repository's contents. We offer you a reusable
           link and badge to your live repository that you can easily share with
           others.
