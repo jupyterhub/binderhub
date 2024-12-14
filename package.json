@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@fontsource/clear-sans": "^5.0.11",
-    "@types/react": "^18.3.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "copy-to-clipboard": "^3.3.3",
@@ -20,6 +19,7 @@
     "@babel/eslint-parser": "^7.22.15",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-react": "^7.24.1",
+    "@types/react": "^18.3.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
