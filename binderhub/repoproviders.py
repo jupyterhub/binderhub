@@ -269,8 +269,6 @@ class ZenodoProvider(RepoProvider):
         "ref": {"enabled": False},
     }
 
-    display_name = "Zenodo DOI"
-
     async def get_resolved_ref(self):
         client = AsyncHTTPClient()
         req = HTTPRequest(f"https://doi.org/{self.spec}", user_agent="BinderHub")
@@ -308,8 +306,6 @@ class FigshareProvider(RepoProvider):
     """
 
     name = Unicode("Figshare")
-
-    display_name = "Figshare DOI"
 
     display_config = {
         "displayName": "FigShare DOI",
@@ -364,8 +360,6 @@ class FigshareProvider(RepoProvider):
 
 class DataverseProvider(RepoProvider):
     name = Unicode("Dataverse")
-
-    display_name = "Dataverse DOI"
 
     display_config = {
         "displayName": "Dataverse DOI",
@@ -437,8 +431,6 @@ class HydroshareProvider(RepoProvider):
 
     name = Unicode("Hydroshare")
 
-    display_name = "Hydroshare resource"
-
     display_config = {
         "displayName": "Hydroshare resource",
         "id": "hydroshare",
@@ -507,8 +499,6 @@ class CKANProvider(RepoProvider):
     """
 
     name = Unicode("CKAN")
-
-    display_name = "CKAN dataset"
 
     display_config = {
         "displayName": "CKAN dataset",
@@ -609,8 +599,6 @@ class GitRepoProvider(RepoProvider):
     """
 
     name = Unicode("Git")
-
-    display_name = "Git repository"
 
     display_config = {
         "displayName": "Git repository",
@@ -718,8 +706,6 @@ class GitLabRepoProvider(RepoProvider):
     """
 
     name = Unicode("GitLab")
-
-    display_name = "GitLab.com"
 
     display_config = {
         "displayName": "GitLab",
@@ -862,8 +848,6 @@ class GitHubRepoProvider(RepoProvider):
         },
         "ref": {"enabled": True, "default": "HEAD"},
     }
-
-    display_name = "GitHub"
 
     # shared cache for resolved refs
     cache = Cache(1024)
@@ -1124,8 +1108,6 @@ class GistRepoProvider(GitHubRepoProvider):
     """
 
     name = Unicode("Gist")
-
-    display_name = "Gist"
 
     display_config = {
         "displayName": "GitHub Gist",
