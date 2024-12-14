@@ -52,7 +52,7 @@ const BUILD_TOKEN = PAGE_CONFIG.buildToken;
 
 export function App({ routerHook }) {
   // Wouter's <Router> component requires *not* having trailing slash to function
-  // the way we ant
+  // the way we want
   const baseRouteUrl =
     BASE_URL.pathname.slice(-1) == "/"
       ? BASE_URL.pathname.slice(0, -1)
