@@ -1,6 +1,7 @@
 {
   "name": "binderhub",
   "description": "Frontend Interface for BinderHub",
+  "private": true,
   "dependencies": {
     "@fontsource/clear-sans": "^5.0.11",
     "@types/react": "^18.3.2",
