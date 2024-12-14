@@ -31,7 +31,7 @@ export function LoadingIndicator({ progressState }) {
   useEffect(() => {
     const intervalId = setInterval(() => {
       const newMessage =
-        HELP_MESSAGES[parseInt(Math.random() * (HELP_MESSAGES.length - 1))];
+        HELP_MESSAGES[Math.floor(Math.random() * HELP_MESSAGES.length)];
       console.log(newMessage);
       setCurrentMessage(newMessage);
     }, 6 * 1000);
