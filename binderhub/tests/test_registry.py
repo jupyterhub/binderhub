@@ -2,7 +2,7 @@
 
 import base64
 import json
-import os
+import secrets
 from random import randint
 
 import pytest
@@ -129,9 +129,7 @@ class MockTokenHandler(RequestHandler):
             raise HTTPError(403, "Bad username %r" % username)
         if password != self.test_handle["password"]:
             raise HTTPError(403, "Bad password %r" % password)
-        self.test_handle["token"] = token = (
-            base64.encodebytes(os.urandom(5)).decode("ascii").rstrip()
-        )
+        self.test_handle["token"] = token = secrets.token_hex(8)
         self.set_header("Content-Type", "application/json")
         self.write(json.dumps({"token": token}))
 
