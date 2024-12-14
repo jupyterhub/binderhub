@@ -1128,7 +1128,7 @@ class GistRepoProvider(GitHubRepoProvider):
     display_name = "Gist"
 
     display_config = {
-        "displayName": "Gist",
+        "displayName": "GitHub Gist",
         "id": "gist",
         "spec": {"validateRegex": r".+/.+(/.+)"},
         "detect": {"regex": "^(https?://gist.github.com/)?(?<repo>.*)"},
