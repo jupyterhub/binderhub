@@ -18,7 +18,7 @@ function ProviderSelector({
   return (
     <>
       <button
-        className="btn btn-outline-secondary dropdown-toggle"
+        className="btn border border-2 border-end-0 dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
@@ -84,7 +84,7 @@ function UrlSelector({ setUrlPath }) {
       </label>
       <div className="input-group">
         <input
-          className="form-control"
+          className="form-control border border-2 border-end-0"
           type="text"
           id="path"
           name="path"
@@ -92,7 +92,7 @@ function UrlSelector({ setUrlPath }) {
           onChange={(e) => setPath(e.target.value)}
         />
         <button
-          className="btn btn-outline-secondary dropdown-toggle"
+          className="btn border border-2 border-start-0 dropdown-toggle"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
@@ -187,7 +187,7 @@ export function LinkGenerator({
               setSelectedProvider={setSelectedProvider}
             />
             <input
-              className="form-control"
+              className="form-control border border-2 border-start-0"
               type="text"
               name="repository"
               placeholder={selectedProvider.repo.placeholder}
@@ -221,7 +221,7 @@ export function LinkGenerator({
             </label>
             <div className="input-group">
               <input
-                className="form-control"
+                className="form-control border border-2"
                 type="text"
                 id="ref"
                 name="ref"
@@ -254,14 +254,14 @@ export function LinkGenerator({
         <div>
           <div className="input-group">
             <div
-              className="form-control font-monospace"
+              className="form-control font-monospace border border-2 border-end-0"
               data-testid="launch-url"
             >
               {launchUrl ||
                 "Fill in the fields to see a URL for sharing your Binder."}
             </div>
             <button
-              className="btn btn-outline-secondary"
+              className="btn border border-2 border-start-0"
               type="button"
               id="copy-url"
               onClick={() => copy(launchUrl)}
