@@ -185,6 +185,7 @@ function ImageLogs({
  * @prop {(l: boolean) => void} setIsLaunching
  * @prop {PROGRESS_STATES} progressState
  * @prop {(p: PROGRESS_STATES) => void} setProgressState
+ * @prop {string?} className
  *
  * @param {BuildLauncherProps} props
  * @returns
@@ -197,6 +198,7 @@ export function BuilderLauncher({
   setIsLaunching,
   progressState,
   setProgressState,
+  className,
 }) {
   const [term, setTerm] = useState(null);
   const [fitAddon, setFitAddon] = useState(null);
@@ -221,7 +223,7 @@ export function BuilderLauncher({
     setup();
   }, [isLaunching]);
   return (
-    <div className="bg-custom-dark p-4 pt-2">
+    <div className={className}>
       <Progress progressState={progressState} />
       <ImageLogs
         setTerm={setTerm}

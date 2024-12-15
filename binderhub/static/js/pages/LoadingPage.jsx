@@ -51,6 +51,7 @@ export function LoadingPage({ baseUrl, buildToken, provider }) {
     <>
       <LoadingIndicator progressState={progressState} />
       <BuilderLauncher
+        className="bg-custom-dark p-4 rounded"
         baseUrl={baseUrl}
         spec={spec}
         buildToken={buildToken}

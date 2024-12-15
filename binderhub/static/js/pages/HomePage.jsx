@@ -60,6 +60,7 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
         </p>
       </div>
       <LinkGenerator
+        className="bg-custom-dark p-4 pb-0 rounded-top"
         publicBaseUrl={publicBaseUrl}
         providers={providers}
         selectedProvider={selectedProvider}
@@ -74,6 +75,7 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
         setIsLaunching={setIsLaunching}
       />
       <BuilderLauncher
+        className="bg-custom-dark p-4 pt-2 rounded-bottom"
         baseUrl={baseUrl}
         spec={spec}
         isLaunching={isLaunching}
