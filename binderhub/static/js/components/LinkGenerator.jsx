@@ -176,7 +176,7 @@ export function LinkGenerator({
 
   return (
     <>
-      <form className="d-flex flex-column gap-3 p-4 pb-0 rounded bg-light">
+      <form className="d-flex flex-column gap-3 p-4 pb-0 rounded bg-custom-dark">
         <h4>Build and launch a repository</h4>
         <fieldset>
           <legend className="form-label">{selectedProvider.repo.label}</legend>

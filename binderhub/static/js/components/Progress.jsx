@@ -60,9 +60,9 @@ progressDisplay[PROGRESS_STATES.FAILED] = {
 export function Progress({ progressState }) {
   return (
     <div
-      className="progress-stacked mb-2"
+      className="progress-stacked mb-2 border border-1"
       role="progressbar"
-      style={{ height: "24px" }}
+      style={{ height: "32px" }}
     >
       {progressState === null
         ? ""

@@ -221,7 +221,7 @@ export function BuilderLauncher({
     setup();
   }, [isLaunching]);
   return (
-    <div className="bg-light p-4">
+    <div className="bg-custom-dark p-4 pt-2">
       <Progress progressState={progressState} />
       <ImageLogs
         setTerm={setTerm}
