@@ -66,7 +66,7 @@ export function App({ routerHook }) {
         ></div>
       )}
       <div className="container-md">
-        <div className="col-8 offset-md-2">
+        <div className="col-10 mx-auto">
           <div className="text-center m-4">
             <img src={PAGE_CONFIG.logoUrl} width={PAGE_CONFIG.logoWidth} />
           </div>

@@ -40,7 +40,7 @@ export function HomePage({ providers, publicBaseUrl, baseUrl }) {
 
   return (
     <>
-      <div className="text-center">
+      <div className="text-center col-10 mx-auto">
         <h5>Turn a Git repo into a collection of interactive notebooks</h5>
         <p>
           Have a repository full of Jupyter notebooks? With Binder, open those
