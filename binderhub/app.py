@@ -107,7 +107,7 @@ class BinderHub(Application):
         None,
         allow_none=True,
         help="""
-        ..deprecated::
+        ..removed::
 
         No longer supported. If you want to use Google Analytics, use :attr:`extra_footer_scripts`
         to load JS from Google Analytics.
