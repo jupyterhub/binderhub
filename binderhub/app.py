@@ -123,7 +123,7 @@ class BinderHub(Application):
     google_analytics_domain = Unicode(
         "auto",
         help="""
-        ..deprecated::
+        ..removed::
 
         No longer supported. If you want to use Google Analytics, use :attr:`extra_footer_scripts`
         to load JS from Google Analytics.
