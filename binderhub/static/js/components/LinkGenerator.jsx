@@ -257,7 +257,7 @@ export function LinkGenerator({
               "Fill in the fields to see a URL for sharing your Binder."}
           </div>
           <button
-            className="btn border border-2 border-start-0"
+            className="btn btn-outline-secondary border border-2 border-start-0"
             type="button"
             id="copy-url"
             onClick={() => copy(launchUrl)}
