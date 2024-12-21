@@ -9,7 +9,7 @@ import pytest
 from tornado import httpclient
 from tornado.web import Application, HTTPError, RequestHandler
 
-from binderhub.registry import DockerRegistry
+from binderhub.registry import DockerRegistry, ExternalRegistryHelper
 
 
 def test_registry_defaults(tmpdir):
@@ -242,3 +242,149 @@ async def test_get_image_manifest(tmpdir, token_url_known):
     assert registry.password == password
     manifest = await registry.get_image_manifest("myimage", "abc123")
     assert manifest == {"image": "myimage", "tag": "abc123"}
+
+
+class FakeExternalRegistryHandler(RequestHandler):
+    def initialize(self, store):
+        self.store = store
+
+
+class FakeRegistryRepoHandler(FakeExternalRegistryHandler):
+    def get(self, repo):
+        print(f"GET {repo} request received\n")
+        self.store.append(self.request)
+        if self.request.headers.get("Authorization") != "Bearer registry-token":
+            self.set_status(403)
+        if repo == "owner/my-repo":
+            self.write(json.dumps({"RepositoryName": "owner/my-repo"}))
+        else:
+            self.set_status(404)
+
+    def post(self, repo):
+        print(f"POST {repo} request received\n")
+        self.store.append(self.request)
+        if self.request.headers.get("Authorization") != "Bearer registry-token":
+            self.set_status(403)
+        if repo == "owner/new-repo":
+            self.write(json.dumps({"RepositoryName": "owner/my-repo"}))
+        else:
+            self.set_status(
+                499, f"Unexpected test request {self.request.method} {self.request.uri}"
+            )
+
+
+class FakeRegistryImageHandler(FakeExternalRegistryHandler):
+    def get(self, image):
+        print(f"GET {image} request received\n")
+        self.store.append(self.request)
+        if self.request.headers.get("Authorization") != "Bearer registry-token":
+            self.set_status(403)
+        if image in ("owner/my-repo", "owner/my-repo:latest", "owner/my-repo:tag"):
+            self.write(json.dumps({"ImageTags": ["latest", "tag"]}))
+        else:
+            self.set_status(404)
+
+
+class FakeRegistryTokenHandler(FakeExternalRegistryHandler):
+    def post(self, repo):
+        print(f"POST {repo} request received\n")
+        self.store.append(self.request)
+        if self.request.headers.get("Authorization") != "Bearer registry-token":
+            self.set_status(403)
+        if repo == "owner/my-repo:tag":
+            self.write(
+                json.dumps(
+                    {
+                        "username": "user",
+                        "password": "token",
+                        "registry": "registry.example.org",
+                    }
+                )
+            )
+        else:
+            self.set_status(
+                499, f"Unexpected test request {self.request.method} {self.request.uri}"
+            )
+
+
+@pytest.fixture
+async def fake_external_registry():
+    request_store = []
+    app = Application(
+        [
+            (r"/repo/(.+)", FakeRegistryRepoHandler, {"store": request_store}),
+            (r"/image/(.+)", FakeRegistryImageHandler, {"store": request_store}),
+            (r"/token/(.+)", FakeRegistryTokenHandler, {"store": request_store}),
+        ]
+    )
+    ip = "127.0.0.1"
+    port = None
+    for _ in range(100):
+        port = randint(10000, 65535)
+        try:
+            server = app.listen(port, ip)
+            break
+        except OSError:
+            port = None
+    if port is None:
+        raise Exception("Failed to find a free port")
+
+    yield f"http://{ip}:{port}", request_store
+
+    server.stop()
+
+
+async def test_external_registry_helper_exists(fake_external_registry):
+    service, request_store = fake_external_registry
+
+    registry = ExternalRegistryHelper(
+        service_url=service,
+        auth_token="registry-token",
+    )
+
+    r = await registry.get_image_manifest("owner/my-repo", "tag")
+    assert r == {"ImageTags": ["latest", "tag"]}
+
+    assert len(request_store) == 2
+    assert request_store[0].method == "GET"
+    assert request_store[0].uri == "/repo/owner/my-repo"
+    assert request_store[1].method == "GET"
+    assert request_store[1].uri == "/image/owner/my-repo:tag"
+
+
+async def test_external_registry_helper_not_exists(fake_external_registry):
+    service, request_store = fake_external_registry
+
+    registry = ExternalRegistryHelper(
+        service_url=service,
+        auth_token="registry-token",
+    )
+
+    r = await registry.get_image_manifest("owner/new-repo", "tag")
+    assert r is None
+
+    assert len(request_store) == 2
+    assert request_store[0].method == "GET"
+    assert request_store[0].uri == "/repo/owner/new-repo"
+    assert request_store[1].method == "POST"
+    assert request_store[1].uri == "/repo/owner/new-repo"
+
+
+async def test_external_registry_helper_token(fake_external_registry):
+    service, request_store = fake_external_registry
+
+    registry = ExternalRegistryHelper(
+        service_url=service,
+        auth_token="registry-token",
+    )
+
+    r = await registry.get_credentials("owner/my-repo", "tag")
+    assert r == {
+        "username": "user",
+        "password": "token",
+        "registry": "registry.example.org",
+    }
+
+    assert len(request_store) == 1
+    assert request_store[0].method == "POST"
+    assert request_store[0].uri == "/token/owner/my-repo:tag"
