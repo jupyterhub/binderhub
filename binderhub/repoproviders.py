@@ -436,8 +436,8 @@ class HydroshareProvider(RepoProvider):
         "id": "hydroshare",
         "spec": {"validateRegex": r"[^/]+"},
         "repo": {
-            "label": "Hydroshare resource id or URL",
-            "placeholder": "",
+            "label": "Hydroshare resource id",
+            "placeholder": "example: 8f7c2f0341ef4180b0dbe97f59130756",
             "urlEncode": True,
         },
         "ref": {"enabled": False},
