@@ -53,7 +53,6 @@ async def local_hub_local_binder(request):
     ("provider_prefix", "repo", "ref", "path", "path_type", "status_code"),
     [
         ("gh", "binderhub-ci-repos/requirements", "master", "", "", 200),
-        ("gh", "binderhub-ci-repos%2Frequirements", "master", "", "", 400),
         ("gh", "binderhub-ci-repos/requirements", "master/", "", "", 200),
         (
             "gh",
@@ -103,18 +102,15 @@ async def test_loading_page(
     spec = f"{repo}/{ref}"
     provider_spec = f"{provider_prefix}/{spec}"
     query = f"{path_type}path={path}" if path else ""
-    uri = f"/v2/{provider_spec}?{query}"
-    r = page.goto(local_hub_local_binder + uri)
-
-    assert r.status == status_code
-
+    uri = f"{local_hub_local_binder}v2/{provider_spec}?{query}"
+    r = page.goto(uri)
+    assert r.status == status_code, f"{r.status} {uri}"
     if status_code == 200:
-        assert page.query_selector("#log-container")
-        iframe = page.query_selector("#nbviewer-preview iframe")
-        assert iframe is not None
-        nbviewer_url = iframe.get_attribute("src")
-        r = await async_requests.get(nbviewer_url)
-        assert r.status_code == 200, f"{r.status_code} {nbviewer_url}"
+        nbviewer_url = page.get_by_test_id("nbviewer-iframe").get_attribute("src")
+        expected_url = (
+            f"https://nbviewer.jupyter.org/github/{repo}/tree/{ref.replace("/", "")}"
+        )
+        assert nbviewer_url == expected_url
 
 
 @pytest.mark.parametrize(
@@ -139,7 +135,7 @@ async def test_loading_page(
             "master",
             "some file with spaces.ipynb",
             "file",
-            "v2/gh/binder-examples/requirements/master?labpath=some+file+with+spaces.ipynb",
+            "v2/gh/binder-examples/requirements/master?urlpath=%2Fdoc%2Ftree%2Fsome+file+with+spaces.ipynb",
         ),
         (
             "binder-examples/requirements",
@@ -156,24 +152,24 @@ async def test_main_page(
     resp = page.goto(local_hub_local_binder)
     assert resp.status == 200
 
-    page.get_by_placeholder("GitHub repository name or URL").type(repo)
+    page.locator("[name='repository']").type(repo)
 
     if ref:
-        page.locator("#ref").type(ref)
+        page.locator("[name='ref']").type(ref)
 
     if path_type:
-        page.query_selector("#url-or-file-btn").click()
+        page.get_by_role("button", name="File").click()
         if path_type == "file":
-            page.locator("a:text-is('File')").click()
+            pass
         elif path_type == "url":
-            page.locator("a:text-is('URL')").click()
+            page.get_by_role("button", name="URL").click()
         else:
             raise ValueError(f"Unknown path_type {path_type}")
     if path:
-        page.locator("#filepath").type(path)
+        page.locator("[name='path']").type(path)
 
     assert (
-        page.query_selector("#basic-url-snippet").inner_text()
+        page.get_by_test_id("launch-url").inner_text()
         == f"{local_hub_local_binder}{shared_url}"
     )
 

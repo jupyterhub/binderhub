@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
+import "./LoadingIndicator.css";
+import { PROGRESS_STATES } from "./Progress.jsx";
 /**
  * List of help messages we will cycle through randomly in the loading page
  */
-const helpMessages = [
+const HELP_MESSAGES = [
   'New to Binder? Check out the <a target="_blank" href="https://mybinder.readthedocs.io/en/latest/">Binder Documentation</a> for more information.',
   'You can learn more about building your own Binder repositories in <a target="_blank" href="https://docs.mybinder.org">the Binder community documentation</a>.',
   'We use the <a target="_blank" href="https://repo2docker.readthedocs.io/">repo2docker</a> tool to automatically build the environment in which to run your code.',
@@ -18,19 +21,41 @@ const helpMessages = [
 ];
 
 /**
- * Display a randomly picked help message in the loading page
+ * @typedef {object} LoadingIndicatorProps
+ * @prop {PROGRESS_STATES} progressState
+ * @param {LoadingIndicatorProps} props
  */
-export function nextHelpText() {
-  const text = $("div#loader-links p.text-center");
-  let msg;
-  if (text !== null) {
-    if (!text.hasClass("longLaunch")) {
-      // Pick a random help message and update
-      msg = helpMessages[Math.floor(Math.random() * helpMessages.length)];
-    } else {
-      msg =
-        "Your session is taking longer than usual to start!<br />Check the log messages below to see what is happening.";
-    }
-    text.html(msg);
-  }
+export function LoadingIndicator({ progressState }) {
+  const [currentMessage, setCurrentMessage] = useState(HELP_MESSAGES[0]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const newMessage =
+        HELP_MESSAGES[Math.floor(Math.random() * HELP_MESSAGES.length)];
+      setCurrentMessage(newMessage);
+    }, 6 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return (
+    <div className="text-center p-4 m-4">
+      <div
+        id="loader"
+        className={progressState === PROGRESS_STATES.FAILED ? "error" : ""}
+      ></div>
+      {progressState === PROGRESS_STATES.FAILED ? (
+        <h4>
+          Launching your Binder failed! See the logs below for more information.
+        </h4>
+      ) : (
+        <>
+          <h4>Launching your Binder...</h4>
+          <div>
+            <p dangerouslySetInnerHTML={{ __html: currentMessage }}></p>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

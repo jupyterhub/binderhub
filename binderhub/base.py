@@ -2,7 +2,6 @@
 
 import json
 import urllib.parse
-from http.client import responses
 
 import jwt
 from jupyterhub.services.auth import HubOAuth, HubOAuthenticated
@@ -204,45 +203,8 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
         except Exception:
             return ""
 
-    def write_error(self, status_code, **kwargs):
-        exc_info = kwargs.get("exc_info")
-        message = ""
-        status_message = responses.get(status_code, "Unknown HTTP Error")
-        if exc_info:
-            message = self.extract_message(exc_info)
-
-        self.render_template(
-            "error.html",
-            status_code=status_code,
-            status_message=status_message,
-            message=message,
-        )
-
     def options(self, *args, **kwargs):
         pass
-
-
-class Custom404(BaseHandler):
-    """Raise a 404 error, rendering the error.html template"""
-
-    def prepare(self):
-        raise web.HTTPError(404)
-
-
-class AboutHandler(BaseHandler):
-    """Serve the about page"""
-
-    async def get(self):
-        self.render_template(
-            "about.html",
-            base_url=self.settings["base_url"],
-            submit=False,
-            binder_version=binder_version,
-            message=self.settings["about_message"],
-            google_analytics_code=self.settings["google_analytics_code"],
-            google_analytics_domain=self.settings["google_analytics_domain"],
-            extra_footer_scripts=self.settings["extra_footer_scripts"],
-        )
 
 
 class VersionHandler(BaseHandler):
