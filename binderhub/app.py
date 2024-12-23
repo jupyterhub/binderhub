@@ -166,6 +166,14 @@ class BinderHub(Application):
         config=True,
     )
 
+    default_opengraph_title = Unicode(
+        "The Binder Project",
+        help="""
+        The default opengraph title for pages that don't have a generated opengraph title.
+        """,
+        config=True,
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -929,6 +937,7 @@ class BinderHub(Application):
                 "log_function": log_request,
                 "image_prefix": self.image_prefix,
                 "debug": self.debug,
+                "default_opengraph_title": self.default_opengraph_title,
                 "launcher": self.launcher,
                 "ban_networks": self.ban_networks,
                 "build_pool": self.build_pool,

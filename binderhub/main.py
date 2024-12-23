@@ -18,7 +18,7 @@ class UIHandler(BaseHandler):
     """
 
     def initialize(self):
-        self.opengraph_title = "The Binder Project"
+        self.opengraph_title = self.settings["default_opengraph_title"]
         self.page_config = {}
         return super().initialize()
 
