@@ -70,7 +70,7 @@ grpcio-status==1.62.2
     # via google-api-core
 idna==3.7
     # via requests
-jinja2==3.1.4
+jinja2==3.1.5
     # via
     #   -r ../../../requirements.txt
     #   jupyterhub
