@@ -14,7 +14,10 @@ build-backend = "setuptools.build_meta"
 target-version = ["py38", "py39", "py310", "py311"]
 
 
-# isort is used for autoformatting Python code
+# The default isort output conflicts with black autoformatting.
+# Tell isort to behave nicely with black
+# See https://pycqa.github.io/isort/docs/configuration/black_compatibility.html
+# for more information.
 [tool.isort]
 profile = "black"
 
