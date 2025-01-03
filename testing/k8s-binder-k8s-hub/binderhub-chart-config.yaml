@@ -18,16 +18,6 @@ config:
     log_level: 10
     cors_allow_origin: "*"
 
-extraFiles:
-  page.html:
-    mountPath: /etc/binderhub/templates/page.html
-    stringData: |
-      {% extends "templates/page.html" %}
-      {% block footer %}
-      {{ super() }}
-      <span>test-template</span>
-      {% endblock %}
-
 ingress:
   # Enabled to test the creation/update of the k8s Ingress resource, but not
   # used actively in our CI system.

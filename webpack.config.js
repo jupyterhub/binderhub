@@ -1,36 +1,33 @@
 const webpack = require("webpack");
 const path = require("path");
+const autoprefixer = require("autoprefixer");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  mode: "production",
+  mode: "development",
   context: path.resolve(__dirname, "binderhub/static"),
-  entry: "./js/index.js",
+  entry: "./js/index.jsx",
   output: {
     path: path.resolve(__dirname, "binderhub/static/dist/"),
     filename: "bundle.js",
-    publicPath: "/static/dist/",
+    publicPath: "auto",
   },
   plugins: [
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-    }),
     new MiniCssExtractPlugin({
       filename: "styles.css",
     }),
   ],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", ".jsx"],
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(t|j)sx?$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env"],
-          },
+          loader: "ts-loader",
         },
       },
       {
@@ -49,7 +46,33 @@ module.exports = {
         ],
       },
       {
-        test: /\.(eot|woff|ttf|woff2|svg)$/,
+        test: /\.(scss)$/,
+        use: [
+          {
+            // Adds CSS to the DOM by injecting a `<style>` tag
+            loader: "style-loader",
+          },
+          {
+            // Interprets `@import` and `url()` like `import/require()` and will resolve them
+            loader: "css-loader",
+          },
+          {
+            // Loader for webpack to process CSS with PostCSS
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [autoprefixer],
+              },
+            },
+          },
+          {
+            // Loads a SASS/SCSS file and compiles it to CSS
+            loader: "sass-loader",
+          },
+        ],
+      },
+      {
+        test: /\.(eot|woff|ttf|woff2|svg|ico)$/,
         type: "asset/resource",
       },
     ],

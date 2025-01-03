@@ -1,0 +1,63 @@
+@import "bootstrap/scss/functions";
+
+// Theming overrides
+$primary: rgb(223, 132, 41);
+$custom-colors: (
+  "primary": $primary,
+);
+
+// Import these after theming overrides so they pick up these variables
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+
+// Merge the maps
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+@import "bootstrap/scss/bootstrap";
+
+// Font choices
+
+body {
+  font-family: "Clear Sans";
+  font-weight: 300;
+}
+
+form {
+  font-weight: 400;
+}
+
+.btn-primary,
+.btn-primary:hover {
+  color: $white;
+}
+
+a {
+  text-decoration: none;
+}
+
+// Could not replicate this style with just utility classes unfortunately
+.circle-point {
+  border: 5px solid;
+  padding: 2px 9px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.form-label {
+  font-size: 1rem;
+}
+
+.jumbotron {
+  margin-bottom: 100px;
+}
+
+.bg-custom-dark {
+  background-color: rgb(235, 236, 237);
+}
+
+@import "bootstrap-icons/font/bootstrap-icons.css";
