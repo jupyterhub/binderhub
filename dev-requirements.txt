@@ -9,7 +9,7 @@ jupyter_packaging>=0.10.4,<2
 jupyterhub
 nest-asyncio
 pytest
-pytest-asyncio
+pytest-asyncio<=0.25.0
 pytest-cov
 pytest-timeout
 pytest_playwright
