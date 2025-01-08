@@ -21,8 +21,10 @@ spec:
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
     spec:
+      {{- if .Values.jupyterhub.enabled }}
       {{- with include "jupyterhub.imagePullSecrets" (dict "root" . "image" .Values.imageCleaner.image) }}
       imagePullSecrets: {{ . }}
+      {{- end }}
       {{- end }}
       tolerations:
       - effect: NoSchedule
