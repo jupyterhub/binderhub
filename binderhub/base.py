@@ -217,9 +217,9 @@ class VersionHandler(BaseHandler):
     skip_check_request_ip = True
 
     def set_default_headers():
-        if 'Access-Control-Allow-Origin' not in self.settings.get("headers", {}):
+        if "Access-Control-Allow-Origin" not in self.settings.get("headers", {}):
             # allow CORS requests to this endpoint by default
-            self.set_header('Access-Control-Allow-Origin', '*')
+            self.set_header("Access-Control-Allow-Origin", "*")
 
         super().set_default_headers()
 
