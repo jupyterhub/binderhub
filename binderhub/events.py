@@ -2,9 +2,9 @@
 Emit structured, discrete events when various actions happen.
 """
 
+import datetime
 import json
 import logging
-import datetime
 
 import jsonschema
 from jupyterhub.traitlets import Callable
