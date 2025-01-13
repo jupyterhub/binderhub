@@ -444,7 +444,6 @@ class BinderHub(Application):
     )
 
     image_prefix_push = Unicode(
-        "",
         help="""
         Prefix for built docker images push to container registry.
 
@@ -458,8 +457,11 @@ class BinderHub(Application):
         config=True,
     )
 
+    @default("image_prefix_push")
+    def _image_prefix_push_default(self):
+        return self.image_prefix
+
     image_prefix_pull = Unicode(
-        "",
         help="""
         Prefix for built docker images pull from container registry.
 
@@ -472,6 +474,11 @@ class BinderHub(Application):
         """,
         config=True,
     )
+
+    @default("image_prefix_pull")
+    def _image_prefix_pull_default(self):
+        return self.image_prefix
+
 
     build_memory_request = ByteSpecification(
         0,
