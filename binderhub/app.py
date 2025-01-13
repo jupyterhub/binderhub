@@ -972,7 +972,8 @@ class BinderHub(Application):
         self.tornado_settings.update(
             {
                 "log_function": log_request,
-                "image_prefix": self.image_prefix,
+                "image_prefix_pull": self.image_prefix_pull,
+                "image_prefix_push": self.image_prefix_push,
                 "debug": self.debug,
                 "default_opengraph_title": self.default_opengraph_title,
                 "launcher": self.launcher,
