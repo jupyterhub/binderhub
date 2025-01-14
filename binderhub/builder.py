@@ -385,10 +385,7 @@ class BuildHandler(BaseHandler):
 
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
-        if "image_prefix_push" in self.settings:
-            image_prefix = self.settings["image_prefix_push"]
-        else:
-            image_prefix = self.settings["image_prefix"]
+        image_prefix = self.settings["image_prefix_push"]
 
         # Enforces max 255 characters before image
         safe_build_slug = _safe_build_slug(
