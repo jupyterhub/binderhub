@@ -385,38 +385,48 @@ class BuildHandler(BaseHandler):
 
         # generate a complete build name (for GitHub: `build-{user}-{repo}-{ref}`)
 
-        image_prefix = self.settings["image_prefix_push"]
+        image_prefix_push = self.settings["image_prefix_push"]
+        image_prefix_pull = self.settings["image_prefix_pull"]
 
         # Enforces max 255 characters before image
         safe_build_slug = _safe_build_slug(
-            provider.get_build_slug(), limit=255 - len(image_prefix)
+            provider.get_build_slug(),
+            limit=255 - max(len(image_prefix_push), len(image_prefix_pull))
         )
 
         build_name = _generate_build_name(
             provider.get_build_slug(), ref, prefix="build-"
         )
 
-        image_name = self.image_name = (
+        image_name_push = self.image_name_push = (
             "{prefix}{build_slug}:{ref}".format(
-                prefix=image_prefix, build_slug=safe_build_slug, ref=ref
+                prefix=image_prefix_push, build_slug=safe_build_slug, ref=ref
+            )
+            .replace("_", "-")
+            .lower()
+        )
+        image_name_pull = self.image_name_pull = (
+            "{prefix}{build_slug}:{ref}".format(
+                prefix=image_prefix_pull, build_slug=safe_build_slug, ref=ref
             )
             .replace("_", "-")
             .lower()
         )
 
-        image_without_tag, image_tag = _get_image_basename_and_tag(image_name)
+        image_push_without_tag, image_push_tag = _get_image_basename_and_tag(image_name_push)
+        image_pull_without_tag, image_pull_tag = _get_image_basename_and_tag(image_name_pull)
         if self.settings["use_registry"]:
             for _ in range(3):
                 try:
                     image_manifest = await self.registry.get_image_manifest(
-                        image_without_tag, image_tag
+                        image_pull_without_tag, image_pull_tag
                     )
                     image_found = bool(image_manifest)
                     break
                 except HTTPClientError:
                     app_log.exception(
                         "Failed to get image manifest for %s",
-                        image_name,
+                        image_name_pull,
                     )
                     image_found = False
         else:
@@ -424,7 +434,7 @@ class BuildHandler(BaseHandler):
             # Assume we're running in single-node mode or all binder pods are assigned to the same node!
             docker_client = docker.from_env(version="auto")
             try:
-                docker_client.images.get(image_name)
+                docker_client.images.get(image_name_pull)
             except docker.errors.ImageNotFound:
                 # image doesn't exist, so do a build!
                 image_found = False
@@ -437,7 +447,7 @@ class BuildHandler(BaseHandler):
                 await self.emit(
                     {
                         "phase": "ready",
-                        "imageName": image_name,
+                        "imageName": image_name_push,
                         "message": "Done! Found built image\n",
                     }
                 )
@@ -445,7 +455,7 @@ class BuildHandler(BaseHandler):
                 await self.emit(
                     {
                         "phase": "built",
-                        "imageName": image_name,
+                        "imageName": image_name_push,
                         "message": "Found built image, launching...\n",
                     }
                 )
@@ -490,12 +500,12 @@ class BuildHandler(BaseHandler):
             name=build_name,
             repo_url=repo_url,
             ref=ref,
-            image_name=image_name,
+            image_name=image_name_push,
             git_credentials=provider.git_credentials,
         )
         if self.settings["use_registry"]:
             push_token = await self.registry.get_credentials(
-                image_without_tag, image_tag
+                image_push_without_tag, image_push_tag
             )
             if push_token:
                 build.registry_credentials = push_token
@@ -555,7 +565,7 @@ class BuildHandler(BaseHandler):
                         event = {
                             "phase": phase,
                             "message": message,
-                            "imageName": image_name,
+                            "imageName": image_name_push,
                         }
                         BUILD_TIME.labels(status="success").observe(
                             time.perf_counter() - build_starttime
@@ -647,7 +657,7 @@ class BuildHandler(BaseHandler):
         launch_quota = self.settings["launch_quota"]
         try:
             return await launch_quota.check_repo_quota(
-                self.image_name, repo_config, self.repo_url
+                self.image_name_pull, repo_config, self.repo_url
             )
         except LaunchQuotaExceeded as e:
             LAUNCH_COUNT.labels(
@@ -715,7 +725,7 @@ class BuildHandler(BaseHandler):
                     "binder_persistent_request": self.binder_persistent_request,
                 }
                 server_info = await launcher.launch(
-                    image=self.image_name,
+                    image=self.image_name_pull,
                     username=username,
                     server_name=server_name,
                     repo_url=self.repo_url,
