@@ -137,11 +137,17 @@ continue.
    ```
 
 1. Configure `docker` using environment variables to use the same Docker daemon
-   as your `minikube` cluster. This means images you build are directly
-   available to the cluster.
+   as your local Kubernetes cluster. This means images you build are directly
+   available to the cluster. If using `minikube`,
 
    ```bash
    eval $(minikube docker-env)
+   ```
+
+   If using Docker Desktop,
+
+   ```bash
+   docker context use desktop-linux
    ```
 
 1. Start BinderHub with the testing config file.
@@ -189,18 +195,24 @@ continue.
    ```
 
 2. Configure `docker` using environment variables to use the same Docker daemon
-   as your `minikube` cluster. This means images you build are directly
-   available to the cluster.
+   as your local Kubernetes cluster. This means images you build are directly
+   available to the cluster. If using `minikube`,
 
    ```bash
    eval $(minikube docker-env)
+   ```
+
+   If using Docker Desktop,
+
+   ```bash
+   docker context use desktop-linux
    ```
 
 3. Build the docker images referenced by the Helm chart and update its default
    values to reference these images.
 
    ```bash
-   (cd helm-chart && chartpress)
+   (python3 -m build . && cd helm-chart && chartpress)
    ```
 
 4. Get the chart dependencies (for example JupyterHub)
