@@ -200,7 +200,7 @@ continue.
    values to reference these images.
 
    ```bash
-   (cd helm-chart && chartpress)
+   (python3 -m build . && cd helm-chart && chartpress)
    ```
 
 4. Get the chart dependencies (for example JupyterHub)
