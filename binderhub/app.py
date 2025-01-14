@@ -479,7 +479,6 @@ class BinderHub(Application):
     def _image_prefix_pull_default(self):
         return self.image_prefix
 
-
     build_memory_request = ByteSpecification(
         0,
         help="""
