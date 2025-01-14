@@ -391,7 +391,7 @@ class BuildHandler(BaseHandler):
         # Enforces max 255 characters before image
         safe_build_slug = _safe_build_slug(
             provider.get_build_slug(),
-            limit=255 - max(len(image_prefix_push), len(image_prefix_pull))
+            limit=255 - max(len(image_prefix_push), len(image_prefix_pull)),
         )
 
         build_name = _generate_build_name(
@@ -413,8 +413,12 @@ class BuildHandler(BaseHandler):
             .lower()
         )
 
-        image_push_without_tag, image_push_tag = _get_image_basename_and_tag(image_name_push)
-        image_pull_without_tag, image_pull_tag = _get_image_basename_and_tag(image_name_pull)
+        image_push_without_tag, image_push_tag = _get_image_basename_and_tag(
+            image_name_push
+        )
+        image_pull_without_tag, image_pull_tag = _get_image_basename_and_tag(
+            image_name_pull
+        )
         if self.settings["use_registry"]:
             for _ in range(3):
                 try:
