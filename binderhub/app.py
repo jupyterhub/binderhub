@@ -445,7 +445,7 @@ class BinderHub(Application):
 
     image_prefix_push = Unicode(
         help="""
-        Prefix for built docker images push to container registry.
+        Prefix for built docker images being pushed to the to container registry.
 
         If you are pushing to gcr.io, this would start with:
             gcr.io/<your-project-name>/
@@ -463,7 +463,7 @@ class BinderHub(Application):
 
     image_prefix_pull = Unicode(
         help="""
-        Prefix for built docker images pull from container registry.
+        Prefix for built docker images being pulled from container registry.
 
         If you are pushing to gcr.io, this would start with:
             gcr.io/<your-project-name>/
