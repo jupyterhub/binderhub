@@ -431,7 +431,7 @@ class BinderHub(Application):
     image_prefix = Unicode(
         "",
         help="""
-        Prefix for all built docker images.
+        Fallback prefix for all built docker images.
 
         If you are pushing to gcr.io, this would start with:
             gcr.io/<your-project-name>/
@@ -442,6 +442,42 @@ class BinderHub(Application):
         """,
         config=True,
     )
+
+    image_prefix_push = Unicode(
+        help="""
+        Prefix for built docker images being pushed to the to container registry.
+
+        If you are pushing to gcr.io, this would start with:
+            gcr.io/<your-project-name>/
+
+        Set according to whatever registry you are pushing to.
+
+        Defaults to "", which is probably not what you want :)
+        """,
+        config=True,
+    )
+
+    @default("image_prefix_push")
+    def _image_prefix_push_default(self):
+        return self.image_prefix
+
+    image_prefix_pull = Unicode(
+        help="""
+        Prefix for built docker images being pulled from container registry.
+
+        If you are pushing to gcr.io, this would start with:
+            gcr.io/<your-project-name>/
+
+        Set according to whatever registry you are pushing to.
+
+        Defaults to "", which is probably not what you want :)
+        """,
+        config=True,
+    )
+
+    @default("image_prefix_pull")
+    def _image_prefix_pull_default(self):
+        return self.image_prefix
 
     build_memory_request = ByteSpecification(
         0,
@@ -935,7 +971,8 @@ class BinderHub(Application):
         self.tornado_settings.update(
             {
                 "log_function": log_request,
-                "image_prefix": self.image_prefix,
+                "image_prefix_pull": self.image_prefix_pull,
+                "image_prefix_push": self.image_prefix_push,
                 "debug": self.debug,
                 "default_opengraph_title": self.default_opengraph_title,
                 "launcher": self.launcher,
