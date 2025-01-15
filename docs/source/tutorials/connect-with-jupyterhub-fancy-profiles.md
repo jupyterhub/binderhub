@@ -44,7 +44,7 @@ The following steps describe how to connect your `binderhub-service` [](installa
            image:
              display_name: Image
              dynamic_image_building:
-              enabled: True
+               enabled: True
              unlisted_choice:
                enabled: True
                display_name: "Custom image"
