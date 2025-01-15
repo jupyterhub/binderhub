@@ -216,7 +216,7 @@ class VersionHandler(BaseHandler):
     # (e.g. mybinder.org federation when blocking cloud datacenters)
     skip_check_request_ip = True
 
-    def set_default_headers():
+    def set_default_headers(self):
         if "Access-Control-Allow-Origin" not in self.settings.get("headers", {}):
             # allow CORS requests to this endpoint by default
             self.set_header("Access-Control-Allow-Origin", "*")
