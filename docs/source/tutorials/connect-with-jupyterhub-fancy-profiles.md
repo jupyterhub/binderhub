@@ -39,11 +39,12 @@ The following steps describe how to connect your `binderhub-service` [](installa
    ```yaml
    singleuser:
      profileList:
-       - display_name: "Only Profile Available, this info is not shown in the UI"
-         slug: only-choice
+       - display_name: "Choose Your Environment"
          profile_options:
            image:
              display_name: Image
+             dynamic_image_building:
+               enabled: True
              unlisted_choice:
                enabled: True
                display_name: "Custom image"
