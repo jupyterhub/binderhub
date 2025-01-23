@@ -457,13 +457,19 @@ properties:
   imageCleaner:
     type: object
     additionalProperties: false
-    required: [enabled]
+    required:
+      - enabled
     properties:
       enabled:
         type: boolean
         description: |
           TODO
       image: *image-spec
+      cordon:
+        type: boolean
+        description: |
+          Whether to cordon the node while cleaning its images.
+          Disable, e.g. for single-node clusters.
       delay:
         type: integer
         description: |
@@ -480,6 +486,12 @@ properties:
         type: integer
         description: |
           TODO
+      extraEnv:
+        type: [object, array]
+        additionalProperties: true
+        description: |
+          see binderhub.deployment.extraEnv
+
       host:
         type: object
         additionalProperties: false

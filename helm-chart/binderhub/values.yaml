@@ -313,11 +313,14 @@ pink:
 
 imageCleaner:
   enabled: true
+  extraEnv: {}
   image:
     name: quay.io/jupyterhub/docker-image-cleaner
     tag: "1.0.0-beta.3"
     pullPolicy: ""
     pullSecrets: []
+  # whether to cordon nodes while cleaning
+  cordon: true
   # delete an image at most every 5 seconds
   delay: 5
   # Interpret threshold values as percentage or bytes
