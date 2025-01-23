@@ -100,7 +100,7 @@ class EventLog(Configurable):
 
         now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
         capsule = {
-            "timestamp": now_utc.isoformat() + "Z",
+            "timestamp": now_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             "schema": schema_name,
             "version": version,
         }
