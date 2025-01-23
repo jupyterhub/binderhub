@@ -2,9 +2,9 @@
 Emit structured, discrete events when various actions happen.
 """
 
+import datetime
 import json
 import logging
-from datetime import datetime
 
 import jsonschema
 from jupyterhub.traitlets import Callable
@@ -98,8 +98,9 @@ class EventLog(Configurable):
         schema = self.schemas[(schema_name, version)]
         jsonschema.validate(event, schema)
 
+        now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
         capsule = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": now_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             "schema": schema_name,
             "version": version,
         }
