@@ -18,7 +18,7 @@ function ProviderSelector({
   return (
     <>
       <button
-        className="btn border border-2 border-end-0 dropdown-toggle"
+        className="btn btn-secondary border border-2 border-end-0 dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
@@ -92,7 +92,7 @@ function UrlSelector({ setUrlPath }) {
           onChange={(e) => setPath(e.target.value)}
         />
         <button
-          className="btn border border-2 border-start-0 dropdown-toggle"
+          className="btn btn-secondary border border-2 border-start-0 dropdown-toggle"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
