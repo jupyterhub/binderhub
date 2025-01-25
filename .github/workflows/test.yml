@@ -412,7 +412,7 @@ jobs:
         id: setup-python
         with:
           # Set this to the oldest Python version supported by BinderHub
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Cache pip
         uses: actions/cache@v4
