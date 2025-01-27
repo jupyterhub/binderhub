@@ -110,8 +110,60 @@ where:
 Create ``config.yaml``
 ----------------------
 
-Create a file called ``config.yaml`` and choose the following directions based
-on the registry you are using.
+Create a file called ``config.yaml``.
+
+Exposing JupyterHub
+~~~~~~~~~~~~~~~~~~~
+
+By default, JupyterHub is exposed as ``LoadBalancer``.
+If you want to expose JupyterHub using a ingress controller,
+you need to add::
+
+    jupyterhub:
+      proxy:
+        service:
+        type: ClusterIP
+      ingress:
+        enabled: true
+        annotations:
+          # use the shared ingress-nginx
+          kubernetes.io/ingress.class: "nginx"
+        hosts:
+          - jupyterhub.XXX.XXX.XXX.XXX.nip.io
+
+The above snippet assumes that you are using `Ingress NGINX Controller <https://kubernetes.github.io/ingress-nginx/>`_
+and uses `nip.io <https://nip.io/>`_ to provide you with a temporary domain
+to the IPv6 ``XXX.XXX.XXX.XXX``.
+
+Exposing BinderHub
+~~~~~~~~~~~~~~~~~~
+
+By default, BinderHub is exposed as ``LoadBalancer``.
+If you want to expose BinderHub using a ingress controller,
+you need to add::
+
+    service:
+      type: ClusterIP
+
+    ingress:
+      enabled: true
+      annotations:
+        # use the shared ingress-nginx
+        kubernetes.io/ingress.class: "nginx"
+      https:
+          # This is unsafe! Only se for local development
+          enabled: false
+      hosts:
+        - binderhub.XXX.XXX.XXX.XXX.nip.io
+
+The above snippet assumes that you are using `Ingress NGINX Controller <https://kubernetes.github.io/ingress-nginx/>`_
+and uses `nip.io <https://nip.io/>`_ to provide you with a temporary domain
+to the IPv6 ``XXX.XXX.XXX.XXX``.
+
+Expand ``config.yaml``
+----------------------
+
+Choose the following directions based on the registry you are using.
 
 If you are using ``gcr.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
