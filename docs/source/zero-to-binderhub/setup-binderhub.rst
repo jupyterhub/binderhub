@@ -372,7 +372,7 @@ few minutes to be set up.
 Connect BinderHub and JupyterHub
 --------------------------------
 
-In the google console, run the following command to print the IP address
+Run the following command to print the IP address
 of the JupyterHub we just deployed.::
 
   kubectl --namespace=<namespace-from-above> get svc proxy-public
