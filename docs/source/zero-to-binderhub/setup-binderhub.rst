@@ -372,8 +372,11 @@ few minutes to be set up.
 Connect BinderHub and JupyterHub
 --------------------------------
 
+When using ``LoadBalancer``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Run the following command to print the IP address
-of the JupyterHub we just deployed.::
+of the JupyterHub we just deployed. ::
 
   kubectl --namespace=<namespace-from-above> get svc proxy-public
 
@@ -384,9 +387,31 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
     BinderHub:
       hub_url: http://<IP in EXTERNAL-IP>
 
+When using ``Ingress``
+~~~~~~~~~~~~~~~~~~~~~~
+
+If JupyterHub is exposed using ``Ingress``,
+you can use any of the domains that JupyterHub is answering.
+For example, ::
+
+    config:
+      BinderHub:
+        hub_url: http://jupyterhub.XXX.XXX.XXX.XXX.nip.io
+
+The above snippet `nip.io <https://nip.io/>`_
+to provide you with a temporary domain to the IPv6 ``XXX.XXX.XXX.XXX``.
+
+Updating the deployment
+~~~~~~~~~~~~~~~~~~~~~~~
+
 Next, upgrade the helm chart to deploy this change::
 
-  helm upgrade <name-from-above> jupyterhub/binderhub --version=0.2.0-3b53fce  -f secret.yaml -f config.yaml
+  helm upgrade \
+  <name-from-above> \
+  jupyterhub/binderhub \
+  --version=1.0.0-0.dev.git.3673.h040c9bbe \
+  -f secret.yaml \
+  -f config.yaml
 
 For the first deployment of your BinderHub, the commit hash parsed to the
 `--version` argument should be the same as in step 3.4. However, when it comes
