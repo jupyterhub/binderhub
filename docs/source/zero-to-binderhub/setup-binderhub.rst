@@ -336,9 +336,10 @@ First, get the latest helm chart for BinderHub.::
 Next, **install the Helm Chart** using the configuration files
 that you've just created. Do this by running the following command::
 
-    helm install \
+    helm upgrade \
     <choose-name> \
     jupyterhub/binderhub \
+    --install \
     --version=1.0.0-0.dev.git.3673.h040c9bbe \
     --create-namespace \
     --namespace=<choose-namespace> \
@@ -409,14 +410,10 @@ Next, upgrade the helm chart to deploy this change::
   helm upgrade \
   <name-from-above> \
   jupyterhub/binderhub \
+  --install \
   --version=1.0.0-0.dev.git.3673.h040c9bbe \
   -f secret.yaml \
   -f config.yaml
-
-For the first deployment of your BinderHub, the commit hash parsed to the
-`--version` argument should be the same as in step 3.4. However, when it comes
-to updating your BinderHub, you can parse the commit hash of a newer chart
-version.
 
 Try out your BinderHub Deployment
 ---------------------------------
