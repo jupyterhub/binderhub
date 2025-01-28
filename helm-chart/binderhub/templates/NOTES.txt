@@ -66,6 +66,17 @@ config:
     private_token: {{ .Values.gitlab.privateToken }}
 {{- end }}
 
+{{- if ne (kindOf .Values.registry) "slice" }}
+registry is now a slide (list). Use:
+
+registry:
+  - url:
+    username:
+    password:
+  - url:
+    username:
+    password:
+
 {{- if ne (typeOf .Values.registry.enabled) "<nil>" }}
 
 registry.enabled is removed. Use:
@@ -120,6 +131,7 @@ config:
     image_prefix: {{.Values.registry.prefix }}
 
 {{- end }}
+{{- end }}
 
 {{- if or .Values.build .Values.perRepoQuota }}
 
@@ -141,7 +153,7 @@ config:
 {{- end }}
 
 
-{{- if (or .Values.hub .Values.build .Values.github .Values.gitlab .Values.perRepoQuota  .Values.registry.host .Values.registry.authHost .Values.registry.tokenUrl .Values.registry.prefix (ne (typeOf .Values.registry.enabled) "<nil>")) }}
+{{- if (or .Values.hub .Values.build .Values.github .Values.gitlab .Values.perRepoQuota (eq (typeOf .Values.registry) "slice")) }}
 {{- fail (include "removedConfig" .) }}
 {{- end }}
 

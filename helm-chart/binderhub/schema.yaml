@@ -146,23 +146,25 @@ properties:
           to pull the image.
 
   registry:
-    type: object
-    additionalProperties: false
-    description: |
-      TODO
-    properties:
-      url:
-        type: [string, "null"]
-        description: |
-          TODO
-      username:
-        type: [string, "null"]
-        description: |
-          TODO
-      password:
-        type: [string, "null"]
-        description: |
-          TODO
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      description: |
+        TODO
+      properties:
+        url:
+          type: [string, "null"]
+          description: |
+            TODO
+        username:
+          type: [string, "null"]
+          description: |
+            TODO
+        password:
+          type: [string, "null"]
+          description: |
+            TODO
 
   service:
     type: object
