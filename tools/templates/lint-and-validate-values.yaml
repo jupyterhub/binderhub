@@ -26,9 +26,9 @@ image: &image
   pullSecrets: [c]
 
 registry:
-  url: mock-url
-  username: mock-username
-  password: mock-password
+  - url: mock-url
+    username: mock-username
+    password: mock-password
 
 service:
   type: ClusterIP
