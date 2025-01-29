@@ -610,3 +610,83 @@ def test_gist_secret():
 
     provider = GistRepoProvider(spec=spec, allow_secret_gist=True)
     assert IOLoop().run_sync(provider.get_resolved_ref) is not None
+
+
+def _js_regex(pat):
+    """compile a javascript regular expression
+
+    converts js '?<name>' to Python '?P<name>' syntax
+    """
+    return re.compile(pat.replace("?<", "?P<"))
+
+
+@pytest.mark.parametrize(
+    "provider, repo, expected_spec",
+    [
+        (
+            GitHubRepoProvider,
+            "https://github.com/org/repo",
+            "org/repo",
+        ),
+        (
+            GitHubRepoProvider,
+            "http://github.com/org/repo/",
+            "org/repo",
+        ),
+        (
+            GitHubRepoProvider,
+            "http://github.com/org/",
+            "org",
+        ),
+        (
+            GitHubRepoProvider,
+            "org/repo",
+            "org/repo",
+        ),
+        (
+            GitHubRepoProvider,
+            "org/repo/",
+            "org/repo",
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/org/repo",
+            "org/repo",
+        ),
+        (
+            GitLabRepoProvider,
+            "https://gitlab.com/org/repo/",
+            "org/repo",
+        ),
+        (
+            GitLabRepoProvider,
+            "org/repo/",
+            "org/repo",
+        ),
+        (
+            GitLabRepoProvider,
+            "org/repo",
+            "org/repo",
+        ),
+        (
+            GistRepoProvider,
+            "user/12345",
+            "user/12345",
+        ),
+        (
+            GistRepoProvider,
+            "user/12345/",
+            "user/12345",
+        ),
+    ],
+)
+def test_detect_regex(provider, repo, expected_spec):
+    config = provider.display_config
+    detect_regex = _js_regex(config["detect"]["regex"])
+
+    match = detect_regex.match(repo)
+    if expected_spec is None and match is None:
+        # ok, no match expected
+        return
+    repo = match.group("repo")
+    assert repo == expected_spec

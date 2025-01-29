@@ -711,7 +711,7 @@ class GitLabRepoProvider(RepoProvider):
         "displayName": "GitLab",
         "id": "gl",
         "spec": {"validateRegex": r"[^/]+/.+"},
-        "detect": {"regex": "^(https?://gitlab.com/)?(?<repo>.*)"},
+        "detect": {"regex": "^(https?://gitlab.com/)?(?<repo>.*[^/])/?"},
         "repo": {
             "label": "GitLab repository name or URL",
             "placeholder": "example: https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder or mosaik/examples/mosaik-tutorials-on-binder",
@@ -839,8 +839,8 @@ class GitHubRepoProvider(RepoProvider):
     display_config = {
         "displayName": "GitHub",
         "id": "gh",
-        "spec": {"validateRegex": r".+/.+/.+"},
-        "detect": {"regex": "^(https?://github.com/)?(?<repo>.*)"},
+        "spec": {"validateRegex": r"[^/]+/[^/]+/.+"},
+        "detect": {"regex": "^(https?://github.com/)?(?<repo>.*[^/])/?"},
         "repo": {
             "label": "GitHub repository name or URL",
             "placeholder": "example: yuvipanda/requirements or https://github.com/yuvipanda/requirements",
@@ -1112,8 +1112,8 @@ class GistRepoProvider(GitHubRepoProvider):
     display_config = {
         "displayName": "GitHub Gist",
         "id": "gist",
-        "spec": {"validateRegex": r".+/.+(/.+)"},
-        "detect": {"regex": "^(https?://gist.github.com/)?(?<repo>.*)"},
+        "spec": {"validateRegex": r"[^/]+/[^/]+(/[^/]+)?"},
+        "detect": {"regex": "^(https?://gist.github.com/)?(?<repo>.*[^/])/?"},
         "repo": {
             "label": "Gist ID (username/gistId) or URL",
             "placeholder": "",
