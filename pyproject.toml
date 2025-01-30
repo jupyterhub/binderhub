@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 # target-version should be all supported versions, see
 # https://github.com/psf/black/issues/751#issuecomment-473066811
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py310", "py311", "py312"]
 
 
 # The default isort output conflicts with black autoformatting.

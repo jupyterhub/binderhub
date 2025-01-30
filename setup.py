@@ -42,7 +42,7 @@ setup(
     name="binderhub",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(cmdclass),
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     author="Project Jupyter Contributors",
     author_email="jupyter@googlegroups.com",
     license="BSD",
