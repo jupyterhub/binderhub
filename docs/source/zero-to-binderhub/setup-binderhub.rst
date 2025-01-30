@@ -115,8 +115,8 @@ Create a file called ``config.yaml``.
 Exposing JupyterHub
 ~~~~~~~~~~~~~~~~~~~
 
-By default, JupyterHub is exposed as ``LoadBalancer``.
-If you want to expose JupyterHub using a ingress controller,
+By default, JupyterHub is exposed as a ``LoadBalancer``.
+If you want to expose JupyterHub using an ingress controller,
 you need to add::
 
     jupyterhub:
@@ -126,14 +126,14 @@ you need to add::
       ingress:
         enabled: true
         annotations:
-          # use the shared ingress-nginx
+          # replace with your ingress class
           kubernetes.io/ingress.class: "nginx"
         hosts:
           - jupyterhub.XXX.XXX.XXX.XXX.nip.io
 
 The above snippet assumes that you are using `Ingress NGINX Controller <https://kubernetes.github.io/ingress-nginx/>`_
 and uses `nip.io <https://nip.io/>`_ to provide you with a temporary domain
-to the IPv6 ``XXX.XXX.XXX.XXX``.
+to the IP ``XXX.XXX.XXX.XXX``.
 
 Exposing BinderHub
 ~~~~~~~~~~~~~~~~~~
@@ -391,16 +391,18 @@ JupyterHub. Now, add the following lines to ``config.yaml`` file::
 When using ``Ingress``
 ~~~~~~~~~~~~~~~~~~~~~~
 
-If JupyterHub is exposed using ``Ingress``,
-you can use any of the domains that JupyterHub is answering.
-For example, ::
+If JupyterHub is exposed using an ``Ingress``,
+copy the domains that JupyterHub is answering
+(for example, ``http://jupyterhub.XXX.XXX.XXX.XXX.nip.io``)
+and add to ``config.yaml``::
 
     config:
       BinderHub:
         hub_url: http://jupyterhub.XXX.XXX.XXX.XXX.nip.io
 
-The above snippet `nip.io <https://nip.io/>`_
-to provide you with a temporary domain to the IPv6 ``XXX.XXX.XXX.XXX``.
+In the above snippet,
+`nip.io <https://nip.io/>`_ provides you
+with a temporary domain to the IP ``XXX.XXX.XXX.XXX``.
 
 Updating the deployment
 ~~~~~~~~~~~~~~~~~~~~~~~
