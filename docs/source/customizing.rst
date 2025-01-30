@@ -1,6 +1,63 @@
 Customizing your BinderHub deployment
 =====================================
 
+Frontend
+--------
+
+Header and Footer customization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BinderHub uses `Jinja <https://jinja.palletsprojects.com/en/stable/>`_ as template engine
+to process the page template `binderhub/templates/page.html <https://github.com/jupyterhub/binderhub/blob/main/binderhub/templates/page.html>`.
+To add a custom header and footer,
+
+1. copy ``binderhub/templates/page.html`` into ``files/custom-page.html``
+2. edit ``files/custom-page.html`` to include the desired header and footer.
+   For example::
+
+      <body>
+      <header>
+        My Own BinderHub
+      </header>
+      <div id="root"></div>
+      <footer>
+        Powered by BinderHub
+      </footer>
+      </body>
+3. add a `ConfigMap <https://kubernetes.io/docs/concepts/configuration/configmap/>`_ to your Helm configuration.
+   For example::
+
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: binderhub-template-custom
+      labels:
+        app: binder
+        component: etc-binderhub
+        heritage: {{ .Release.Service }}
+        release: {{ .Release.Name }}
+    data:
+      {{- (.Files.Glob "files/*").AsConfig | nindent 2 }}
+
+Banner customization
+~~~~~~~~~~~~~~~~~~~~
+
+By default BinderHub shows a banner at the top of all pages.
+You can define the content of the banner by setting
+the ``c.BinderHub.banner_message`` configuration option
+to the raw HTML you would like to add.
+
+About page customization
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+BinderHub serves a simple about page at ``https://BINDERHOST/about``.
+By default this shows the version of BinderHub you are running.
+You can add additional HTML to the page by setting
+the ``c.BinderHub.about_message`` configuration option
+to the raw HTML you would like to add.
+You can use this to display contact information
+or other details about your deployment.
+
 JupyterHub customization
 ------------------------
 
@@ -41,15 +98,6 @@ to customise JupyterHub.
 For example, ``BinderSpawner`` is defined under the ``00-binder`` key.
 Keys are evaluated in alphanumeric order, so later keys such as
 ``10-binder-customisations`` can use objects defined in earlier keys.
-
-About page customization
-------------------------
-
-BinderHub serves a simple about page at ``https://BINDERHOST/about``. By default
-this shows the version of BinderHub you are running. You can add additional
-HTML to the page by setting the ``c.BinderHub.about_message`` configuration
-option to the raw HTML you would like to add. You can use this to display
-contact information or other details about your deployment.
 
 .. _repo-specific-config:
 
