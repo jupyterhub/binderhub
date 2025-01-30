@@ -325,11 +325,11 @@ class BuildHandler(BaseHandler):
             ]
 
             if provider.name == "GitHub":
-                error_message.append(
-                    'GitHub recently changed default branches from "master" to "main".'
-                )
-
                 if provider.unresolved_ref in {"master", "main"}:
+                    if provider.unresolved_ref == "master":
+                        error_message.append(
+                            'GitHub has changed default branches from "master" to "main".'
+                        )
                     error_message.append(
                         "Tip: HEAD will always resolve to a repository's default branch."
                     )
