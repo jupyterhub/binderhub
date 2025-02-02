@@ -18,6 +18,15 @@ JupyterHub guide
 <https://zero-to-jupyterhub.readthedocs.io/en/latest/kubernetes/setup-kubernetes.html>`_.
 When you're done, move on to the next section.
 
+Local Kubernetes cluster
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using a local Kubernetes cluster on a single computer
+for learning and development, you might need to setup a ingress controller
+such as `Ingress NGINX Controller <https://kubernetes.github.io/ingress-nginx/>`_
+and run JupyterHub and BinderHub services as ``ClusterIP`` instead of ``LoadBalancer``.
+This is due some limitations with local Kubernetes cluster. 
+
 Installing Helm
 ---------------
 
