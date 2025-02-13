@@ -448,7 +448,11 @@ class KubernetesBuildExecutor(BuildExecutor):
 
         if not self.registry_credentials and self.push_secret:
             volume_mounts.append(
-                client.V1VolumeMount(mount_path="/root/.docker", name="docker-config")
+                client.V1VolumeMount(
+                    mount_path="/root/.docker/config.json",
+                    name="docker-config",
+                    sub_path="config.json",
+                )
             )
             volumes.append(
                 client.V1Volume(
