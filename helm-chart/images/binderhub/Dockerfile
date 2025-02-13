@@ -8,7 +8,7 @@
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
-FROM python:3.11-bullseye as build-stage
+FROM python:3.13-bookworm as build-stage
 
 # Build wheels
 #
@@ -34,7 +34,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 # ---------------
 # This stage is built and published as quay.io/jupyterhub/k8s-binderhub.
 #
-FROM python:3.11-slim-bullseye
+FROM python:3.13-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
