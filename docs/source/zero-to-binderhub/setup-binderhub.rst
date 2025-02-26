@@ -137,7 +137,7 @@ you need to add::
     jupyterhub:
       proxy:
         service:
-        type: ClusterIP
+          type: ClusterIP
       ingress:
         enabled: true
         annotations:
