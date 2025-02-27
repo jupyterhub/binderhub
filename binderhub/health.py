@@ -153,7 +153,7 @@ class HealthHandler(BaseHandler):
         registry = self.settings["registry"]
         # we are only interested in getting a response from the registry, we
         # don't care if the image actually exists or not
-        image_fullname = self.settings["image_prefix"] + "some-image-name:12345"
+        image_fullname = self.settings["image_prefix_pull"] + "some-image-name:12345"
         name, tag = _get_image_basename_and_tag(image_fullname)
         await registry.get_image_manifest(name, tag)
         return True
