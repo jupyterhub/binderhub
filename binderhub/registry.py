@@ -229,8 +229,7 @@ class DockerRegistry(LoggingConfigurable):
     async def _get_token(self, client, token_url, service, scope):
         if self.url.endswith("docker.pkg.dev"):
             auth_req = httpclient.HTTPRequest(
-                token_url,
-                headers={"Metadata-Flavor":"Google"}
+                token_url, headers={"Metadata-Flavor": "Google"}
             )
         else:
             auth_req = httpclient.HTTPRequest(
