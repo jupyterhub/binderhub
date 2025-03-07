@@ -1,0 +1,14 @@
+# This file is the input to requirements.txt, which is a frozen version of this.
+# To update requirements.txt, use the "Run workflow" button at
+# https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
+#
+binderhub[pycurl] @ git+https://github.com/jupyterhub/binderhub@main
+
+# ruamel-yaml is required by this chart's binderhub_config.py
+ruamel-yaml
+
+# google-cloud-logging is an optional dependency to help log BinderHub launch
+# events to a Google Cloud Logging as done by mybinder.org deployments here:
+# https://github.com/jupyterhub/mybinder.org-deploy/blob/e47021fe/mybinder/values.yaml#L193-L216.
+#
+google-cloud-logging==3.*

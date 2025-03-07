@@ -1,0 +1,137 @@
+# General configuration
+# -----------------------------------------------------------------------------
+#
+nameOverride: ""
+fullnameOverride: ""
+global: {}
+custom: {}
+
+# Resources for the BinderHub created build pods
+# -----------------------------------------------------------------------------
+#
+buildPodsDockerConfig: {}
+buildPodsRegistryCredentials:
+  server: ""
+  username: ""
+  password: ""
+
+# Deployment resource
+# -----------------------------------------------------------------------------
+#
+
+# The "config" section below is rendered by a k8s Secret and mounted as a .yaml
+# file together with binderhub_config.py for the binderhub Python software to
+# parse.
+#
+# Together they make the configured values below translate so that
+# config.BinderHub.base_url sets c.BinderHub.base_url, or more generally that
+# config.X.y sets c.X.y where X is a class and y is a configurable traitlet on
+# the class.
+#
+# Some config must be set here, and not via extraConfig, as its referenced by
+# the chart's template directly.
+#
+# - BinderHub.base_url (readinessProbe)
+# - BinderHub.port (containerPort)
+#
+config:
+  BinderHub:
+    base_url: /
+    port: 8585
+    enable_api_only_mode: true
+extraConfig:
+  # binderhub-service creates a k8s Secret with a docker config.json file
+  # including registry credentials.
+  binderhub-service-01-build-pods-docker-config: |
+    import os
+    c.KubernetesBuildExecutor.push_secret = os.environ["PUSH_SECRET_NAME"]
+
+  binderhub-service-02-set-docker-api: |
+    import os
+    helm_release_name = os.environ["HELM_RELEASE_NAME"]
+    namespace = os.environ["NAMESPACE"]
+    c.KubernetesBuildExecutor.docker_host = f"/var/run/{ namespace }-{ helm_release_name }/docker-api/docker-api.sock"
+
+extraCredentials:
+  googleServiceAccountKey: ""
+extraEnv: []
+replicas: 1
+image:
+  repository: quay.io/2i2c/binderhub-service
+  tag: "set-by-chartpress"
+  pullPolicy: ""
+  pullSecrets: []
+resources: {}
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+podSecurityContext: {}
+podAnnotations: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+# RBAC resources
+# -----------------------------------------------------------------------------
+#
+rbac:
+  create: true
+
+# ServiceAccount resource
+# -----------------------------------------------------------------------------
+#
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Service resource
+# -----------------------------------------------------------------------------
+#
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress resource
+# -----------------------------------------------------------------------------
+#
+ingress:
+  enabled: false
+  annotations: {}
+  ingressClassName:
+  hosts: []
+  pathSuffix:
+  pathType: Prefix
+  tls: []
+
+# DaemonSet resource - docker-api
+# -----------------------------------------------------------------------------
+#
+# This DaemonSet starts a pod on each node to setup a Docker API that
+# binderhub's spawned build pods can make use of, via a hostPath volume that
+# exposes a unix socket.
+#
+dockerApi:
+  image:
+    repository: docker.io/library/docker
+    tag: "27.5.1-dind" # source: https://hub.docker.com/_/docker/tags
+    pullPolicy: ""
+    pullSecrets: []
+  resources: {}
+  securityContext:
+    privileged: true
+    runAsUser: 0
+
+  podSecurityContext: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  extraArgs: []
+  extraFiles: {}

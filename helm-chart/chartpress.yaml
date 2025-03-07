@@ -1,0 +1,23 @@
+# This is the configuration for chartpress, a CLI for Helm chart management.
+#
+# chartpress is used to:
+# - Build images
+# - Update Chart.yaml (version) and values.yaml (image tags)
+# - Package and publish Helm charts to a GitHub based Helm chart repository
+#
+# For more information, see the projects README.md file:
+# https://github.com/jupyterhub/chartpress
+#
+charts:
+  - name: binderhub-service
+    imagePrefix: quay.io/2i2c/
+    baseVersion: "0.1.0-0.dev"
+    repo:
+      git: 2i2c-org/binderhub-service
+      published: https://2i2c.org/binderhub-service
+
+    images:
+      # binderhub-service, the container where the binderhub the Python
+      # application is running.
+      binderhub-service:
+        valuesPath: image

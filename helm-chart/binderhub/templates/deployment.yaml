@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "binderhub-service.binderhub.fullname" . }}
+  labels:
+    {{- include "binderhub-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: binderhub
+  template:
+    metadata:
+      annotations:
+        checksum/mounted-secret: {{ include (print .Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- . | toYaml | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: binderhub
+    spec:
+      volumes:
+        - name: secret
+          secret:
+            secretName: {{ include "binderhub-service.binderhub.fullname" . }}
+        {{- with .Values.extraVolumes }}
+        {{- tpl (. | toYaml) $ | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: binderhub
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- with .Values.image.pullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.BinderHub.port }}
+          volumeMounts:
+            - name: secret
+              mountPath: /etc/binderhub/mounted-secret/
+              readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- tpl (. | toYaml) $ | nindent 12 }}
+            {{- end }}
+          env:
+            - name: PUSH_SECRET_NAME
+              value: {{ include "binderhub-service.build-pods-docker-config.fullname" . }}
+            - name: HELM_RELEASE_NAME
+              value: {{ .Release.Name }}
+            # Namespace build pods should be placed in
+            - name: BUILD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Namespace the binderhub pod is running in
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if .Values.extraCredentials.googleServiceAccountKey }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /etc/binderhub/mounted-secret/gcp-sa-key.json
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- tpl (. | toYaml) $ | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          startupProbe:
+            periodSeconds: 1
+            failureThreshold: 60
+            httpGet:
+              path: {{ .Values.config.BinderHub.base_url | trimSuffix "/" }}/versions
+              port: http
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with include "binderhub-service.binderhub.serviceaccount.fullname" . }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}

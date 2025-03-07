@@ -1,0 +1,247 @@
+# This schema (a JSONSchema in YAML format) is used to generate
+# values.schema.json to be packaged with the Helm chart.
+#
+# This schema is also planned to be used by our documentation system to build
+# the configuration reference section based on the description fields. See
+# docs/source/conf.py for that logic in the future!
+#
+# We look to document everything we have default values for in values.yaml, but
+# we don't look to enforce the perfect validation logic within this file.
+#
+# ref: https://helm.sh/docs/topics/charts/#schema-files
+# ref: https://json-schema.org/learn/getting-started-step-by-step.html
+#
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+additionalProperties: false
+required:
+  # General configuration
+  - global
+  - custom
+  # Resources for the BinderHub created build pods
+  - buildPodsRegistryCredentials
+  # Deployment resource
+  - image
+  - extraCredentials
+  # Other resources
+  - rbac
+  - serviceAccount
+  - service
+  - ingress
+properties:
+  # Flag to conditionally install the chart
+  # ---------------------------------------------------------------------------
+  #
+  enabled:
+    type: boolean
+    description: |
+      Configuration flag for charts depending on binderhub-service to toggle installing it.
+
+  # General configuration
+  # ---------------------------------------------------------------------------
+  #
+  nameOverride:
+    type: [string, "null"]
+  fullnameOverride:
+    type: [string, "null"]
+  global:
+    type: object
+    additionalProperties: true
+  custom:
+    type: object
+    additionalProperties: true
+
+  # Resources for the BinderHub created build pods
+  # ---------------------------------------------------------------------------
+  #
+  buildPodsDockerConfig:
+    type: object
+    additionalProperties: true
+  buildPodsRegistryCredentials:
+    type: object
+    additionalProperties: false
+    required:
+      - server
+      - username
+      - password
+    properties:
+      server:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+
+  # Deployment resource
+  # ---------------------------------------------------------------------------
+  #
+  config:
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: [object, "null"]
+        additionalProperties: true
+  extraConfig:
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: [string, "null"]
+  extraCredentials:
+    type: object
+    additionalProperties: false
+    properties:
+      googleServiceAccountKey:
+        type: string
+  extraEnv:
+    type: array
+  extraVolumes:
+    type: array
+  extraVolumeMounts:
+    type: array
+
+  replicas:
+    type: integer
+  image: &image
+    type: object
+    additionalProperties: false
+    required: [repository, tag]
+    properties:
+      repository:
+        type: string
+      tag:
+        type: string
+      pullPolicy:
+        enum: [null, "", IfNotPresent, Always, Never]
+      pullSecrets:
+        type: array
+  resources: &resources
+    type: object
+    additionalProperties: true
+  securityContext: &securityContext
+    type: object
+    additionalProperties: true
+  podSecurityContext: &podSecurityContext
+    type: object
+    additionalProperties: true
+  podAnnotations: &labels-and-annotations
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: string
+  nodeSelector: &nodeSelector
+    type: object
+    additionalProperties: true
+  affinity: &affinity
+    type: object
+    additionalProperties: true
+  tolerations: &tolerations
+    type: array
+
+  # RBAC resources
+  # ---------------------------------------------------------------------------
+  #
+  rbac:
+    type: object
+    additionalProperties: false
+    required: [create]
+    properties:
+      create:
+        type: boolean
+
+  # ServiceAccount resource
+  # ---------------------------------------------------------------------------
+  #
+  serviceAccount:
+    type: object
+    additionalProperties: false
+    required: [create, name]
+    properties:
+      create:
+        type: boolean
+      name:
+        type: string
+      annotations: *labels-and-annotations
+
+  # Service resource
+  # ---------------------------------------------------------------------------
+  #
+  service:
+    type: object
+    additionalProperties: false
+    required: [type, port]
+    properties:
+      type:
+        type: string
+      port:
+        type: integer
+      nodePort:
+        type: integer
+      annotations: *labels-and-annotations
+
+  # Ingress resource
+  # ---------------------------------------------------------------------------
+  #
+  ingress:
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        type: boolean
+      annotations: *labels-and-annotations
+      ingressClassName:
+        type: [string, "null"]
+      hosts:
+        type: array
+      pathSuffix:
+        type: [string, "null"]
+      pathType:
+        enum: [Prefix, Exact, ImplementationSpecific]
+      tls:
+        type: array
+
+  # DaemonSet resource - docker-api
+  # ---------------------------------------------------------------------------
+  #
+  dockerApi:
+    type: object
+    additionalProperties: false
+    required: [image]
+    properties:
+      image: *image
+      resources: *resources
+      securityContext: *securityContext
+      podSecurityContext: *podSecurityContext
+      podAnnotations: *labels-and-annotations
+      nodeSelector: *nodeSelector
+      affinity: *affinity
+      tolerations: *tolerations
+      extraArgs:
+        type: array
+      extraFiles:
+        type: object
+        additionalProperties: false
+        patternProperties:
+          ".*":
+            type: object
+            additionalProperties: false
+            required: [mountPath]
+            oneOf:
+              - required: [data]
+              - required: [stringData]
+              - required: [binaryData]
+            properties:
+              mountPath:
+                type: string
+              data:
+                type: object
+                additionalProperties: true
+              stringData:
+                type: string
+              binaryData:
+                type: string
+              mode:
+                type: number
