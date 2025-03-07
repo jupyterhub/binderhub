@@ -96,6 +96,10 @@ properties:
         type: string
   extraEnv:
     type: array
+  extraVolumes:
+    type: array
+  extraVolumeMounts:
+    type: array
 
   replicas:
     type: integer
