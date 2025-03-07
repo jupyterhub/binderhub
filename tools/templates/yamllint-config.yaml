@@ -1,8 +1,0 @@
-rules:
-  indentation:
-    spaces: 2 # Default: consistent
-    indent-sequences: whatever # Default true (*)
-  line-length: disable # Default: { max: 80, ... }
-
-# (*) toYaml's emitted sequences/lists will have no indentation and we have no
-# control over it, so we compromise by setting "whatever".
