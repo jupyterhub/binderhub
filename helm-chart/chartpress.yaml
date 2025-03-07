@@ -1,23 +1,40 @@
-# This is the configuration for chartpress, a CLI for Helm chart management.
+# For a reference on this configuration, see the chartpress README file.
+# ref: https://github.com/jupyterhub/chartpress
 #
-# chartpress is used to:
-# - Build images
-# - Update Chart.yaml (version) and values.yaml (image tags)
-# - Package and publish Helm charts to a GitHub based Helm chart repository
-#
-# For more information, see the projects README.md file:
-# https://github.com/jupyterhub/chartpress
-#
+# NOTE: All paths will be set relative to this file's location, which is in the
+#       helm-chart folder.
 charts:
   - name: binderhub
-    imagePrefix: quay.io/2i2c/
-    baseVersion: "0.3.0-0.dev"
+    baseVersion: 1.0.0-0.dev
+    imagePrefix: quay.io/jupyterhub/k8s-
     repo:
       git: jupyterhub/helm-chart
       published: https://jupyterhub.github.io/helm-chart
-
     images:
-      # binderhub, the container where the binderhub the Python
-      # application is running.
       binderhub:
+        # We will not use the default build contextPath, and must therefore
+        # specify the dockerfilePath explicitly.
+        dockerfilePath: images/binderhub/Dockerfile
+        # Context to send to docker build for use by the Dockerfile. We pass the
+        # root folder in order to allow the image to access and build the python
+        # package.
+        contextPath: ..
+        # To avoid chartpress to react to changes in documentation and other
+        # things, we ask it to not trigger on changes to the contextPath, which
+        # means we manually should add paths rebuild should be triggered on
+        rebuildOnContextPathChanges: false
+        # We manually specify the paths which chartpress should monitor for
+        # changes that should trigger a rebuild of this image.
+        paths:
+          - images/binderhub
+          - ../binderhub
+          - ../js
+          - ../babel.config.json
+          - ../MANIFEST.in
+          - ../package.json
+          - ../pyproject.toml
+          - ../requirements.txt
+          - ../setup.cfg
+          - ../setup.py
+          - ../webpack.config.js
         valuesPath: image

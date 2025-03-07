@@ -5,7 +5,8 @@
 # which is a problem as its an absolute path.
 #
 pycurl
-../../..
+# This *must* be regenerated with `./ci/refreeze` so it handles paths correctly
+.
 
 
 # ruamel-yaml is required by this chart's binderhub_config.py

@@ -21,7 +21,7 @@ RUN apt-get update \
 # ephemeral docker cache (--mount=type=cache,target=${PIP_CACHE_DIR}). We use
 # the same technique for the directory /tmp/wheels.
 #
-COPY requirements.txt requirements.txt
+COPY . /src
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
     pip wheel \
@@ -29,8 +29,7 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
         # pycurl wheels for 7.45.3 have problems finding CAs
         # https://github.com/pycurl/pycurl/issues/834
         --no-binary pycurl \
-        -r requirements.txt
-
+        -r /src/helm-chart/images/binderhub/requirements.txt
 
 # The final stage
 # ---------------
@@ -53,16 +52,14 @@ RUN apt-get update \
               # terminate very quickly.
  && rm -rf /var/lib/apt/lists/*
 
+COPY helm-chart/images/binderhub/requirements.txt requirements.txt
+# Even though a binderhub wheel is built by the build stage, the requirements.txt
+# file produced by pip-compile will still refer to `file:///src` as the source for it.
+# We run this sed to tell it to just look for a package named `binderhub` instead, which
+# will show up as a wheel in `/tmp/wheels`
+RUN sed -i -E 's/binderhub @ file.+/binderhub/' requirements.txt
+
 # install wheels built in the build stage
-COPY requirements.txt requirements.txt
-# FIXME: As long as we reference git in requirements.txt (via requirements.in),
-#        we need to make sure we don't end up re-installing from git here but
-#        using the built wheel.
-#
-#        This sed replace operation removes the " @ git+..." stuff, remove it
-#        when we reference version controlled releases of binderhub.
-#
-RUN sed -i -E 's/binderhub @ git.+/binderhub/' requirements.txt
 ARG PIP_CACHE_DIR=/tmp/pip-cache
 # --no-index ensures _only_ wheels from the build stage are installed
 RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
