@@ -16,7 +16,7 @@ attrs==25.1.0
     #   referencing
 binderhub @ git+https://github.com/jupyterhub/binderhub@main
     # via -r requirements.in
-cachetools==5.5.1
+cachetools==5.5.2
     # via google-auth
 certifi==2025.1.31
     # via
@@ -56,11 +56,11 @@ google-cloud-appengine-logging==1.6.0
     # via google-cloud-logging
 google-cloud-audit-log==0.3.0
     # via google-cloud-logging
-google-cloud-core==2.4.1
+google-cloud-core==2.4.2
     # via google-cloud-logging
 google-cloud-logging==3.11.4
     # via -r requirements.in
-googleapis-common-protos==1.67.0
+googleapis-common-protos==1.68.0
     # via
     #   google-api-core
     #   google-cloud-audit-log
@@ -103,7 +103,7 @@ jupyter-events==0.12.0
     # via jupyterhub
 jupyterhub==5.2.1
     # via binderhub
-kubernetes==32.0.0
+kubernetes==32.0.1
     # via binderhub
 mako==1.3.9
     # via alembic
@@ -194,7 +194,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-rpds-py==0.22.3
+rpds-py==0.23.1
     # via
     #   jsonschema
     #   referencing
