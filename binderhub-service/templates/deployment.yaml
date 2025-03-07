@@ -25,6 +25,9 @@ spec:
         - name: secret
           secret:
             secretName: {{ include "binderhub-service.binderhub.fullname" . }}
+        {{- with .Values.extraVolumes }}
+        {{- tpl (. | toYaml) $ | nindent 8 }}
+        {{- end }}
       containers:
         - name: binderhub
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -38,6 +41,9 @@ spec:
             - name: secret
               mountPath: /etc/binderhub/mounted-secret/
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- tpl (. | toYaml) $ | nindent 12 }}
+            {{- end }}
           env:
             - name: PUSH_SECRET_NAME
               value: {{ include "binderhub-service.build-pods-docker-config.fullname" . }}
