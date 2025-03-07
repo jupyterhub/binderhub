@@ -7,8 +7,8 @@ set -xeuo pipefail
 
 docker run --rm \
     --env=CUSTOM_COMPILE_COMMAND='Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml' \
-    --volume="$PWD:/io" \
-    --workdir=/io \
+    --volume="$PWD:/src" \
+    --workdir=/src/helm-chart/images/binderhub/ \
     --user=root \
     python:3.13-bookworm \
-    sh -c 'pip install pip-tools==7.* && pip-compile --allow-unsafe --strip-extras --upgrade helm-chart/images/binderhub/requirements.in'
+    sh -c 'pip install pip-tools==7.* && pip-compile --allow-unsafe --strip-extras --upgrade requirements.in'

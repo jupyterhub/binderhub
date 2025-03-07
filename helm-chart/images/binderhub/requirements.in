@@ -5,7 +5,8 @@
 # which is a problem as its an absolute path.
 #
 pycurl
--r ../../../requirements.txt
+../../..
+
 
 # ruamel-yaml is required by this chart's binderhub_config.py
 ruamel-yaml
