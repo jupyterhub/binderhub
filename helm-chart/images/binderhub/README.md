@@ -8,4 +8,4 @@ requirements.in file using [`pip-compile`](https://pip-tools.readthedocs.io).
 ## How to update requirements.txt
 
 Use the "Run workflow" button at
-https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml.
+https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml.

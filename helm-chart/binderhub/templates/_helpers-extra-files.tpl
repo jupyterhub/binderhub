@@ -1,28 +1,28 @@
 {{- /*
-  binderhub-service.extraFiles.data:
+  binderhub.extraFiles.data:
     Renders content for a k8s Secret's data field, coming from extraFiles with
     binaryData entries.
 */}}
-{{- define "binderhub-service.extraFiles.data.withNewLineSuffix" -}}
+{{- define "binderhub.extraFiles.data.withNewLineSuffix" -}}
     {{- range $file_key, $file_details := . }}
-        {{- include "binderhub-service.extraFiles.validate-file" (list $file_key $file_details) }}
+        {{- include "binderhub.extraFiles.validate-file" (list $file_key $file_details) }}
         {{- if $file_details.binaryData }}
             {{- $file_key | quote }}: {{ $file_details.binaryData | nospace | quote }}{{ println }}
         {{- end }}
     {{- end }}
 {{- end }}
-{{- define "binderhub-service.extraFiles.data" -}}
-    {{- include "binderhub-service.extraFiles.data.withNewLineSuffix" . | trimSuffix "\n" }}
+{{- define "binderhub.extraFiles.data" -}}
+    {{- include "binderhub.extraFiles.data.withNewLineSuffix" . | trimSuffix "\n" }}
 {{- end }}
 
 {{- /*
-  binderhub-service.extraFiles.stringData:
+  binderhub.extraFiles.stringData:
     Renders content for a k8s Secret's stringData field, coming from extraFiles
     with either data or stringData entries.
 */}}
-{{- define "binderhub-service.extraFiles.stringData.withNewLineSuffix" -}}
+{{- define "binderhub.extraFiles.stringData.withNewLineSuffix" -}}
     {{- range $file_key, $file_details := . }}
-        {{- include "binderhub-service.extraFiles.validate-file" (list $file_key $file_details) }}
+        {{- include "binderhub.extraFiles.validate-file" (list $file_key $file_details) }}
         {{- $file_name := $file_details.mountPath | base }}
         {{- if $file_details.stringData }}
             {{- $file_key | quote }}: |
@@ -42,11 +42,11 @@
         {{- end }}
     {{- end }}
 {{- end }}
-{{- define "binderhub-service.extraFiles.stringData" -}}
-    {{- include "binderhub-service.extraFiles.stringData.withNewLineSuffix" . | trimSuffix "\n" }}
+{{- define "binderhub.extraFiles.stringData" -}}
+    {{- include "binderhub.extraFiles.stringData.withNewLineSuffix" . | trimSuffix "\n" }}
 {{- end }}
 
-{{- define "binderhub-service.extraFiles.validate-file" -}}
+{{- define "binderhub.extraFiles.validate-file" -}}
     {{- $file_key := index . 0 }}
     {{- $file_details := index . 1 }}
 

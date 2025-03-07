@@ -1,5 +1,5 @@
 {{- /*
-  binderhub-service.chart-version-to-git-ref:
+  binderhub.chart-version-to-git-ref:
     Renders a valid git reference from a chartpress generated version string.
     In practice, either a git tag or a git commit hash will be returned.
 
@@ -13,6 +13,6 @@
     - The regular expression is in golang syntax, but \d had to become \\d for
       example.
 */}}
-{{- define "binderhub-service.chart-version-to-git-ref" -}}
+{{- define "binderhub.chart-version-to-git-ref" -}}
 {{- regexReplaceAll ".*\\.git\\.\\d+\\.h(.*)" . "${1}" }}
 {{- end }}

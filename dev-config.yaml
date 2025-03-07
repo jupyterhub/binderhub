@@ -18,7 +18,7 @@ config:
     # log_level isn't enabled to avoid overwhelming the reader with info
     # log_level: DEBUG
     use_registry: true
-    image_prefix: localhost:5000/binderhub-service/
+    image_prefix: localhost:5000/binderhub/
 buildPodsRegistryCredentials:
   server: http://localhost:5000
   username: ""

@@ -1,8 +1,11 @@
-# This file is the input to requirements.txt, which is a frozen version of this.
-# To update requirements.txt, use the "Run workflow" button at
-# https://github.com/2i2c-org/binderhub-service/actions/workflows/watch-dependencies.yaml
+# binderhub's dependencies
 #
-binderhub[pycurl] @ git+https://github.com/jupyterhub/binderhub@main
+# We can't put ".[pycurl]" here directly as when we freeze this into
+# requirements.txt using ci/refreeze, its declaring "binderhub @ file:///io"
+# which is a problem as its an absolute path.
+#
+pycurl
+-r ../../../requirements.txt
 
 # ruamel-yaml is required by this chart's binderhub_config.py
 ruamel-yaml

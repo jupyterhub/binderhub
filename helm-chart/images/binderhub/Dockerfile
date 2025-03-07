@@ -8,7 +8,7 @@
 #
 # NOTE: If the image version is updated, also update it in ci/refreeze!
 #
-FROM python:3.11-bookworm as build-stage
+FROM python:3.13-bookworm as build-stage
 
 RUN apt-get update \
  && apt-get install --yes \
@@ -34,9 +34,9 @@ RUN --mount=type=cache,target=${PIP_CACHE_DIR} \
 
 # The final stage
 # ---------------
-# This stage is built and published as quay.io/2i2c/binderhub-service.
+# This stage is built and published as quay.io/2i2c/binderhub.
 #
-FROM python:3.11-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \

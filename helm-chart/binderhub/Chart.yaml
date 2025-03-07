@@ -1,14 +1,14 @@
 # Chart.yaml v2 reference: https://helm.sh/docs/topics/charts/#the-chartyaml-file
 apiVersion: v2
-name: binderhub-service
-version: 0.0.1-set.by.chartpress
+name: binderhub
+version: 0.2.0
 # FIXME: appVersion should represent the version of binderhub in
-#        images/binderhub-service/requirements.txt
+#        images/binderhub/requirements.txt
 #
 appVersion: "1.0.0"
 description: A BinderHub installation separate from JupyterHub
-keywords: [binderhub, binderhub-service, repo2docker, jupyterhub, jupyter]
-home: https://2i2c.org/binderhub-service
-sources: [https://github.com/2i2c-org/binderhub-service]
+keywords: [binderhub, repo2docker, jupyterhub, jupyter]
+home: https://github.com/jupyterhub/binderhub
+sources: [https://github.com/jupyterhub/binderhub]
 icon: https://binderhub.readthedocs.io/en/latest/_static/logo.png
 kubeVersion: ">=1.27.0-0"

@@ -17,7 +17,7 @@
     Renders to a prefix for the chart's resource names. This prefix is assumed to
     make the resource name cluster unique.
 */}}
-{{- define "binderhub-service.fullname" -}}
+{{- define "binderhub.fullname" -}}
     {{- /*
         We have implemented a trick to allow a parent chart depending on this
         chart to call these named templates.
@@ -34,7 +34,7 @@
     */}}
     {{- $fullname_override := .Values.fullnameOverride }}
     {{- $name_override := .Values.nameOverride }}
-    {{- if ne .Chart.Name "binderhub-service" }}
+    {{- if ne .Chart.Name "binderhub" }}
         {{- if .Values.jupyterhub }}
             {{- $fullname_override = .Values.jupyterhub.fullnameOverride }}
             {{- $name_override = .Values.jupyterhub.nameOverride }}
@@ -57,9 +57,9 @@
     Renders to a blank string or if the fullname template is truthy renders to it
     with an appended dash.
 */}}
-{{- define "binderhub-service.fullname.dash" -}}
-    {{- if (include "binderhub-service.fullname" .) }}
-        {{- include "binderhub-service.fullname" . }}-
+{{- define "binderhub.fullname.dash" -}}
+    {{- if (include "binderhub.fullname" .) }}
+        {{- include "binderhub.fullname" . }}-
     {{- end }}
 {{- end }}
 
@@ -70,36 +70,36 @@
 */}}
 
 {{- /* binderhub resources' default name */}}
-{{- define "binderhub-service.binderhub.fullname" -}}
-    {{- include "binderhub-service.fullname.dash" . }}binderhub
+{{- define "binderhub.binderhub.fullname" -}}
+    {{- include "binderhub.fullname.dash" . }}binderhub
 {{- end }}
 
 {{- /* binderhub's ServiceAccount name */}}
-{{- define "binderhub-service.binderhub.serviceaccount.fullname" -}}
+{{- define "binderhub.binderhub.serviceaccount.fullname" -}}
     {{- if .Values.serviceAccount.create }}
-        {{- .Values.serviceAccount.name | default (include "binderhub-service.binderhub.fullname" .) }}
+        {{- .Values.serviceAccount.name | default (include "binderhub.binderhub.fullname" .) }}
     {{- else }}
         {{- .Values.serviceAccount.name }}
     {{- end }}
 {{- end }}
 
 {{- /* binderhub's Ingress name */}}
-{{- define "binderhub-service.binderhub.ingress.fullname" -}}
-    {{- if (include "binderhub-service.fullname" .) }}
-        {{- include "binderhub-service.fullname" . }}
+{{- define "binderhub.binderhub.ingress.fullname" -}}
+    {{- if (include "binderhub.fullname" .) }}
+        {{- include "binderhub.fullname" . }}
     {{- else -}}
         binderhub
     {{- end }}
 {{- end }}
 
 {{- /* docker-api resources' default name */}}
-{{- define "binderhub-service.docker-api.fullname" -}}
-    {{- include "binderhub-service.fullname.dash" . }}docker-api
+{{- define "binderhub.docker-api.fullname" -}}
+    {{- include "binderhub.fullname.dash" . }}docker-api
 {{- end }}
 
 {{- /* build-pods-docker-config name */}}
-{{- define "binderhub-service.build-pods-docker-config.fullname" -}}
-    {{- include "binderhub-service.fullname.dash" . }}build-pods-docker-config
+{{- define "binderhub.build-pods-docker-config.fullname" -}}
+    {{- include "binderhub.fullname.dash" . }}build-pods-docker-config
 {{- end }}
 
 

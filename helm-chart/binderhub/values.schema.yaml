@@ -35,7 +35,7 @@ properties:
   enabled:
     type: boolean
     description: |
-      Configuration flag for charts depending on binderhub-service to toggle installing it.
+      Configuration flag for charts depending on binderhub to toggle installing it.
 
   # General configuration
   # ---------------------------------------------------------------------------

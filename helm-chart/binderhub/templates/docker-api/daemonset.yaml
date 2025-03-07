@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ include "binderhub-service.docker-api.fullname" . }}
+  name: {{ include "binderhub.docker-api.fullname" . }}
   labels:
-    {{- include "binderhub-service.labels" . | nindent 4 }}
+    {{- include "binderhub.labels" . | nindent 4 }}
     app.kubernetes.io/component: docker-api
 spec:
   selector:
     matchLabels:
-      {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
+      {{- include "binderhub.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: docker-api
   template:
     metadata:
       labels:
-        {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
+        {{- include "binderhub.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: docker-api
       {{- with .Values.podAnnotations }}
       annotations:
@@ -57,7 +57,7 @@ spec:
         {{- if .Values.dockerApi.extraFiles }}
         - name: files
           secret:
-            secretName: {{ include "binderhub-service.docker-api.fullname" . }}
+            secretName: {{ include "binderhub.docker-api.fullname" . }}
             items:
               {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
               - key: {{ $file_key | quote }}

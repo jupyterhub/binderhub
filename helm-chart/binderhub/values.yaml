@@ -40,13 +40,13 @@ config:
     port: 8585
     enable_api_only_mode: true
 extraConfig:
-  # binderhub-service creates a k8s Secret with a docker config.json file
+  # binderhub creates a k8s Secret with a docker config.json file
   # including registry credentials.
-  binderhub-service-01-build-pods-docker-config: |
+  binderhub-01-build-pods-docker-config: |
     import os
     c.KubernetesBuildExecutor.push_secret = os.environ["PUSH_SECRET_NAME"]
 
-  binderhub-service-02-set-docker-api: |
+  binderhub-02-set-docker-api: |
     import os
     helm_release_name = os.environ["HELM_RELEASE_NAME"]
     namespace = os.environ["NAMESPACE"]

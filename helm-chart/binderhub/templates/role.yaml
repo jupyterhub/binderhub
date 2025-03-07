@@ -2,9 +2,9 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ include "binderhub-service.binderhub.fullname" . }}
+  name: {{ include "binderhub.binderhub.fullname" . }}
   labels:
-    {{- include "binderhub-service.labels" . | nindent 4 }}
+    {{- include "binderhub.labels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
     resources: ["pods"]

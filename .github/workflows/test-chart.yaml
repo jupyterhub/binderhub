@@ -70,10 +70,10 @@ jobs:
         run: tools/generate-json-schema.py
 
       - name: Helm lint (values.yaml)
-        run: helm lint ./binderhub-service
+        run: helm lint helm-chart/binderhub
 
       - name: Helm lint (lint-and-validate-values.yaml)
-        run: helm lint ./binderhub-service --values tools/templates/lint-and-validate-values.yaml
+        run: helm lint helm-chart/binderhub --values tools/templates/lint-and-validate-values.yaml
 
       # FIXME: We can probably emit a GitHub workflow warning if these fail
       #        instead having them show as green without a warning or similar
@@ -82,11 +82,11 @@ jobs:
       #       are several warnings that we should ignore.
       #
       - name: Helm lint --strict (values.yaml)
-        run: helm lint --strict ./binderhub-service
+        run: helm lint --strict helm-chart/binderhub
         continue-on-error: true
 
       - name: Helm lint --strict (lint-and-validate-values.yaml)
-        run: helm lint --strict ./binderhub-service
+        run: helm lint --strict helm-chart/binderhub
         continue-on-error: true
 
   test:
@@ -173,14 +173,14 @@ jobs:
       # dedicated lint-and-validate-values.yaml config.
       - name: "Helm template --validate (with lint and validate config)"
         run: |
-          helm template --validate binderhub-service ./binderhub-service \
+          helm template --validate binderhub helm-chart/binderhub \
               --values tools/templates/lint-and-validate-values.yaml
 
       - name: Install local chart
         run: |
-          helm upgrade --install binderhub-service ./binderhub-service \
+          helm upgrade --install binderhub helm-chart/binderhub \
               --values dev-config.yaml \
-              --set config.BinderHub.image_prefix=$LOCAL_REGISTRY_HOST/binderhub-service/ \
+              --set config.BinderHub.image_prefix=$LOCAL_REGISTRY_HOST/binderhub/ \
               --set config.DockerRegistry.url=http://$LOCAL_REGISTRY_HOST \
               --set buildPodsRegistryCredentials.server=http://$LOCAL_REGISTRY_HOST \
               --set dockerApi.extraFiles.daemon-json.data.insecure-registries[0]=$LOCAL_REGISTRY_HOST
@@ -199,4 +199,4 @@ jobs:
       - uses: jupyterhub/action-k8s-namespace-report@v1
         if: always()
         with:
-          important-workloads: deploy/binderhub-service daemonset/binderhub-service-docker-api
+          important-workloads: deploy/binderhub daemonset/binderhub-docker-api

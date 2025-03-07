@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "binderhub-service.binderhub.fullname" . }}
+  name: {{ include "binderhub.binderhub.fullname" . }}
   labels:
-    {{- include "binderhub-service.labels" . | nindent 4 }}
+    {{- include "binderhub.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      {{- include "binderhub-service.selectorLabels" . | nindent 6 }}
+      {{- include "binderhub.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: binderhub
   template:
     metadata:
@@ -18,13 +18,13 @@ spec:
         {{- . | toYaml | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "binderhub-service.selectorLabels" . | nindent 8 }}
+        {{- include "binderhub.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: binderhub
     spec:
       volumes:
         - name: secret
           secret:
-            secretName: {{ include "binderhub-service.binderhub.fullname" . }}
+            secretName: {{ include "binderhub.binderhub.fullname" . }}
         {{- with .Values.extraVolumes }}
         {{- tpl (. | toYaml) $ | nindent 8 }}
         {{- end }}
@@ -46,7 +46,7 @@ spec:
             {{- end }}
           env:
             - name: PUSH_SECRET_NAME
-              value: {{ include "binderhub-service.build-pods-docker-config.fullname" . }}
+              value: {{ include "binderhub.build-pods-docker-config.fullname" . }}
             - name: HELM_RELEASE_NAME
               value: {{ .Release.Name }}
             # Namespace build pods should be placed in
@@ -80,7 +80,7 @@ spec:
       imagePullSecrets:
         {{- . | toYaml | nindent 8 }}
       {{- end }}
-      {{- with include "binderhub-service.binderhub.serviceaccount.fullname" . }}
+      {{- with include "binderhub.binderhub.serviceaccount.fullname" . }}
       serviceAccountName: {{ . }}
       {{- end }}
       {{- with .Values.podSecurityContext }}
