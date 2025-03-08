@@ -1,11 +1,6 @@
 """
 Helpers for creating BinderSpawners
 
-FIXME:
-This file is defined in binderhub/binderspawner_mixin.py
-and is copied to helm-chart/binderhub/values.yaml
-by ci/check_embedded_chart_code.py
-
 The BinderHub repo is just used as the distribution mechanism for this spawner,
 BinderHub itself doesn't require this code.
 

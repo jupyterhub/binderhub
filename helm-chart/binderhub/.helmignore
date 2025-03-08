@@ -6,7 +6,7 @@
 #
 # Here are files that we intentionally ignore to avoid them being packaged,
 # because we don't want to reference them from our templates anyhow.
-schema.yaml
+values.schema.yaml
 
 # Patterns to ignore when building packages.
 # This supports shell glob matching, relative path matching, and
@@ -24,8 +24,10 @@ schema.yaml
 *.swp
 *.bak
 *.tmp
+*.orig
 *~
 # Various IDEs
 .project
 .idea/
 *.tmproj
+.vscode/

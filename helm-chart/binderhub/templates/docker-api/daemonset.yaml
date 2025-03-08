@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "binderhub.docker-api.fullname" . }}
+  labels:
+    {{- include "binderhub.labels" . | nindent 4 }}
+    app.kubernetes.io/component: docker-api
+spec:
+  selector:
+    matchLabels:
+      {{- include "binderhub.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: docker-api
+  template:
+    metadata:
+      labels:
+        {{- include "binderhub.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: docker-api
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: docker-api
+          image: {{ .Values.dockerApi.image.repository }}:{{ .Values.dockerApi.image.tag }}
+          args:
+            - dockerd
+            - --data-root=/var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            - --exec-root=/var/run/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            - --host=unix:///var/run/{{ .Release.Namespace}}-{{ .Release.Name }}/docker-api/docker-api.sock
+            {{- with .Values.dockerApi.extraArgs }}
+            {{- . | toYaml | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            - name: exec
+              mountPath: /var/run/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
+            - name: files
+              mountPath: {{ $file_details.mountPath }}
+              subPath: {{ $file_key | quote }}
+            {{- end }}
+          resources:
+            {{- .Values.dockerApi.resources | toYaml | nindent 12 }}
+          securityContext:
+            {{- .Values.dockerApi.securityContext | toYaml | nindent 12 }}
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/lib/{{ .Release.Namespace }}-{{ .Release.Name }}/docker-api
+            type: DirectoryOrCreate
+        - name: exec
+          hostPath:
+            path: /var/run/{{ .Release.Namespace}}-{{ .Release.Name }}/docker-api
+            type: DirectoryOrCreate
+        {{- if .Values.dockerApi.extraFiles }}
+        - name: files
+          secret:
+            secretName: {{ include "binderhub.docker-api.fullname" . }}
+            items:
+              {{- range $file_key, $file_details := .Values.dockerApi.extraFiles }}
+              - key: {{ $file_key | quote }}
+                path: {{ $file_key | quote }}
+                {{- with $file_details.mode }}
+                mode: {{ . }}
+                {{- end }}
+              {{- end }}
+        {{- end }}
+      {{- with .Values.dockerApi.image.pullSecrets }}
+      imagePullSecrets:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.podSecurityContext }}
+      securityContext:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dockerApi.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}

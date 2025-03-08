@@ -1,6 +1,3 @@
-# This is a GitHub workflow defining a set of jobs with a set of steps.
-# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
-#
 name: Tests
 
 on:
@@ -27,17 +24,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: install requirements
-        run: pip install ruamel.yaml
-
-      - name: check embedded chart code
-        run: ./ci/check_embedded_chart_code.py
-
   # Most of the "main", "auth" and "helm" jobs are the same and only differ
   # in small things. Unfortunately there is no easy way to share steps between
   # jobs or have "template" jobs, so we use `if` conditions on steps
@@ -170,7 +156,7 @@ jobs:
 
       - name: Setup Python package dependencies
         run: |
-          pip install --no-binary pycurl -r dev-requirements.txt -r helm-chart/images/binderhub/requirements.txt
+          pip install --no-binary pycurl -r dev-requirements.txt
           pip install -e .
 
       - name: Install Playwright browser

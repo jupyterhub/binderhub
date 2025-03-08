@@ -1,0 +1,45 @@
+# NOTE: localhost:5000 will be replaced from the test job!
+#
+#       When running tests, we use a local container registry to test pushing
+#       images to that can be reached from the build pods. This local registry
+#       is run outside of k8s, so use of localhost won't work well. Due to that,
+#       all values with localhost:5000 below are set explicitly from the test
+#       job to an IP that is reachable instead.
+#
+config:
+  # DockerRegistry is a jupyterhub/binderhub class that is used to call
+  # get_image_manifest, which determines if an image needs to be built or is
+  # already available in a registry. It will not need credentials to the
+  # registry.
+  #
+  DockerRegistry:
+    url: http://localhost:5000
+  BinderHub:
+    # log_level isn't enabled to avoid overwhelming the reader with info
+    # log_level: DEBUG
+    use_registry: true
+    image_prefix: localhost:5000/binderhub/
+buildPodsRegistryCredentials:
+  server: http://localhost:5000
+  username: ""
+  password: ""
+
+service:
+  type: NodePort
+  nodePort: 30080
+
+dockerApi:
+  # The docker-api daemonset running the docker daemon needs to be configured in
+  # a way allowing it to work against insecure HTTP (not HTTPS) registries.
+  #
+  # ref: https://docs.docker.com/registry/insecure/
+  #
+  extraArgs:
+    - --config-file=/etc/docker-api/daemon.json
+  extraFiles:
+    daemon-json:
+      mountPath: /etc/docker-api/daemon.json
+      data:
+        # debug isn't enabled to avoid overwhelming the reader with info
+        # debug: true
+        insecure-registries: [localhost:5000]

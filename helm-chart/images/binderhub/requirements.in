@@ -1,20 +1,3 @@
-# google-cloud-logging is an optional dependency used by mybinder.org-deploy at
-# https://github.com/jupyterhub/mybinder.org-deploy/blob/e47021fe/mybinder/values.yaml#L193-L216.
-#
-# We pin it to avoid introducing a potentially breaking change as major versions
-# are released. See:
-# https://github.com/googleapis/python-logging/blob/master/UPGRADING.md
-#
-google-cloud-logging==3.*
-
-# jupyterhub's major version should be matched with the JupyterHub Helm chart's
-# used version of JupyterHub.
-#
-jupyterhub==4.*
-
-# https://github.com/kubernetes-client/python
-kubernetes==9.*
-
 # binderhub's dependencies
 #
 # We can't put ".[pycurl]" here directly as when we freeze this into
@@ -22,4 +5,15 @@ kubernetes==9.*
 # which is a problem as its an absolute path.
 #
 pycurl
--r ../../../requirements.txt
+# This *must* be regenerated with `./ci/refreeze` so it handles paths correctly
+.
+
+
+# ruamel-yaml is required by this chart's binderhub_config.py
+ruamel-yaml
+
+# google-cloud-logging is an optional dependency to help log BinderHub launch
+# events to a Google Cloud Logging as done by mybinder.org deployments here:
+# https://github.com/jupyterhub/mybinder.org-deploy/blob/e47021fe/mybinder/values.yaml#L193-L216.
+#
+google-cloud-logging==3.*

@@ -1,11 +1,11 @@
-# binderhub image
+# About this folder
 
-The image for running binderhub itself.
-Built with [chartpress][].
+The Dockerfile in this folder is built by
+[chartpress](https://github.com/jupyterhub/chartpress#readme), using the
+requirements.txt file. The requirements.txt file is updated based on the
+requirements.in file using [`pip-compile`](https://pip-tools.readthedocs.io).
 
-[chartpress]: https://github.com/jupyterhub/chartpress
-
-## Updating requirements.txt
+## How to update requirements.txt
 
 Use the "Run workflow" button at
 https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml.
