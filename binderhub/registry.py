@@ -130,8 +130,6 @@ class DockerRegistry(LoggingConfigurable):
         url = urlparse(self.url)
         if ("." + url.hostname).endswith(".gcr.io"):
             return "https://{0}/v2/token?service={0}".format(url.hostname)
-        elif self.url.endswith("docker.pkg.dev"):
-            return "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
         elif self.url.endswith(".docker.io"):
             return "https://auth.docker.io/token?service=registry.docker.io"
         else:
@@ -227,7 +225,7 @@ class DockerRegistry(LoggingConfigurable):
             ) from None
 
     async def _get_token(self, client, token_url, service, scope):
-        if self.url.endswith("docker.pkg.dev"):
+        if token_url == "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token":
             auth_req = httpclient.HTTPRequest(
                 token_url, headers={"Metadata-Flavor": "Google"}
             )
