@@ -15,7 +15,7 @@ from binderhub.registry import DockerRegistry, ExternalRegistryHelper
 def test_registry_defaults(tmpdir):
     registry = DockerRegistry(docker_config_path=str(tmpdir.join("doesntexist.json")))
     assert registry.url == "https://registry-1.docker.io"
-    assert registry.auth_config_url == "https://index.docker.io/v1"
+    assert registry.auth_config_url == "https://index.docker.io/v1/"
     assert (
         registry.token_url == "https://auth.docker.io/token?service=registry.docker.io"
     )
@@ -29,7 +29,7 @@ def test_registry_username_password(tmpdir):
         json.dump(
             {
                 "auths": {
-                    "https://index.docker.io/v1": {
+                    "https://index.docker.io/v1/": {
                         "auth": base64.encodebytes(b"user:pass").decode("ascii")
                     }
                 }

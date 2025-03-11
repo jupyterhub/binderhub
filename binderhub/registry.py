@@ -14,7 +14,7 @@ from traitlets import Bool, Dict, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 DEFAULT_DOCKER_REGISTRY_URL = "https://registry-1.docker.io"
-DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1"
+DEFAULT_DOCKER_AUTH_URL = "https://index.docker.io/v1/"
 
 
 class DockerRegistry(LoggingConfigurable):
