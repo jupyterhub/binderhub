@@ -125,3 +125,13 @@ repository and the ml-training repository from launching.
        banned_specs:
          - ^ines/spacy-binder.*
          - ^aschen/ml-training.*
+
+You can also use a negative lookahead. For example, the following configuration will
+prevent all notebooks except those in repositories in the myorg organization from launching.
+
+.. code-block:: yaml
+
+   config:
+     GitHubRepoProvider:
+       banned_specs:
+         - ^(?!myorg\/.*).*$
