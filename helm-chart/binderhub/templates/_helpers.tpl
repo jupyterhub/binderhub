@@ -21,7 +21,7 @@ Render docker config.json for the registry-publishing secret and other docker co
 {{- define "buildDockerConfig" -}}
 
 {{- /* default auth url */ -}}
-{{- $url := (default "https://index.docker.io/v1" .Values.registry.url) }}
+{{- $url := (default "https://index.docker.io/v1/" .Values.registry.url) }}
 
 {{- /* default username if unspecified
   (_json_key for gcr.io, <token> otherwise)
