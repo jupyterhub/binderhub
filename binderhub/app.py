@@ -188,6 +188,16 @@ class BinderHub(Application):
         config=True,
     )
 
+    extra_css = Unicode(
+        "",
+        help="""
+        Extra bits of CSS that should be loaded in each page.
+
+        Omit the <style> tag.
+        """,
+        config=True,
+    )
+
     base_url = Unicode("/", help="The base URL of the entire application", config=True)
 
     @validate("base_url")
@@ -959,6 +969,7 @@ class BinderHub(Application):
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
+                "extra_css": self.extra_css,
                 "jinja2_env": jinja_env,
                 "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
