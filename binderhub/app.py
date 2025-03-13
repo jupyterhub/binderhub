@@ -189,7 +189,7 @@ class BinderHub(Application):
     )
 
     extra_css = Unicode(
-        {},
+        "",
         help="""
         Extra bits of CSS that should be loaded in each page.
 
