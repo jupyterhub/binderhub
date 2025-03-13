@@ -46,7 +46,7 @@ class DockerRegistry(LoggingConfigurable):
             # which assumes https
             auth_config_url = "https://" + auth_config_url
 
-        if auth_config_url.rstrip("/") == DEFAULT_DOCKER_AUTH_URL:
+        if auth_config_url == DEFAULT_DOCKER_AUTH_URL:
             # default docker config key is the v1 registry,
             # but we will talk to the v2 api
             return DEFAULT_DOCKER_REGISTRY_URL
