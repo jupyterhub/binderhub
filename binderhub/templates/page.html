@@ -16,9 +16,11 @@
   <link id="favicon" rel="shortcut icon" type="image/png" href="{{static_url("favicon.ico")}}" />
   <link href="{{static_url("dist/styles.css")}}" rel="stylesheet"></link>
 
+  {% if extra_css %}
   <style>
-    {{extra_css}};
+    {{ extra_css }}
   </style>
+  {% endif %}
   <script>
     window.pageConfig = {{page_config|tojson}};
   </script>
