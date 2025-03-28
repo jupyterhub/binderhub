@@ -977,6 +977,7 @@ class BinderHub(Application):
                 "registry": registry,
                 "traitlets_config": self.config,
                 "traitlets_parent": self,
+                "template_file": self.template_file,
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
