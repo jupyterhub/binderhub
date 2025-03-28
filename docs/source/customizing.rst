@@ -26,21 +26,30 @@ To add a custom header and footer,
       </body>
 
    It is important to include ``<div id="root"></div>`` because this is the HTML node that React will use to build the launch form.
-3. add a `ConfigMap <https://kubernetes.io/docs/concepts/configuration/configmap/>`_ to your Helm configuration.
+3. copy ``files/custom-page.html`` into ``extraFiles`` in the Helm configuration file.
    For example::
 
-    kind: ConfigMap
-    apiVersion: v1
-    metadata:
-      name: binderhub-template-custom
-      labels:
-        app: binder
-        component: etc-binderhub
-        heritage: {{ .Release.Service }}
-        release: {{ .Release.Name }}
-    data:
-      {{- (.Files.Glob "files/*").AsConfig | nindent 2 }}
-4. add 
+    extraFiles:
+      custom-page:
+        mountPath: files/custom-page.html
+        stringData: |
+          ...
+          <body>
+          <header>
+            My Own BinderHub
+          </header>
+          <div id="root"></div>
+          <footer>
+            Powered by BinderHub
+          </footer>
+          </body>
+          ...
+4. change ``template_file`` in the Helm configuration file.
+   For example::
+
+    config:
+      BinderHub:
+        template_file: files/custom-page.html
 
 Banner customization
 ~~~~~~~~~~~~~~~~~~~~
