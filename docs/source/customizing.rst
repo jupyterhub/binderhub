@@ -40,6 +40,7 @@ To add a custom header and footer,
         release: {{ .Release.Name }}
     data:
       {{- (.Files.Glob "files/*").AsConfig | nindent 2 }}
+4. add 
 
 Banner customization
 ~~~~~~~~~~~~~~~~~~~~
