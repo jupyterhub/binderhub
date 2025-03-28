@@ -8,7 +8,7 @@ Header and Footer customization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 BinderHub uses `Jinja <https://jinja.palletsprojects.com/en/stable/>`_ as template engine
-to process the page template `binderhub/templates/page.html <https://github.com/jupyterhub/binderhub/blob/main/binderhub/templates/page.html>`.
+to process the page template `binderhub/templates/page.html <https://github.com/jupyterhub/binderhub/blob/main/binderhub/templates/page.html>`_.
 To add a custom header and footer,
 
 1. copy ``binderhub/templates/page.html`` into ``files/custom-page.html``
