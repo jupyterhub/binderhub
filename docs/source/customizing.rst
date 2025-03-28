@@ -24,6 +24,8 @@ To add a custom header and footer,
         Powered by BinderHub
       </footer>
       </body>
+
+   It is important to include ``<div id="root"></div>`` because this is the HTML node that React will use to build the launch form.
 3. add a `ConfigMap <https://kubernetes.io/docs/concepts/configuration/configmap/>`_ to your Helm configuration.
    For example::
 
