@@ -273,7 +273,7 @@ export function LinkGenerator({
         <div className="card-header d-flex align-items-baseline">
           <span className="flex-fill">Badges for your README</span>
           <button
-            id='show-badge'
+            id="show-badge"
             className="btn btn-link"
             type="button"
             aria-controls="badge-container"
