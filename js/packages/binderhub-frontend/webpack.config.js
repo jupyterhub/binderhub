@@ -6,10 +6,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   mode: "development",
-  context: path.resolve(__dirname, "binderhub/static"),
-  entry: "./js/index.jsx",
+  context: path.resolve(__dirname, "lib"),
+  entry: "./index.jsx",
   output: {
-    path: path.resolve(__dirname, "binderhub/static/dist/"),
+    path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
     publicPath: "auto",
   },
