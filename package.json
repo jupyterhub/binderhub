@@ -7,7 +7,7 @@
     "js/packages/binderhub-frontend"
   ],
   "scripts": {
-    "webpack": "webpack",
-    "webpack:watch": "webpack --watch"
+    "webpack": "npm run webpack --workspace=js/packages/binderhub-frontend",
+    "webpack:watch": "npm run webpack --watch  --workspace=js/packages/binderhub-frontend"
   }
 }
