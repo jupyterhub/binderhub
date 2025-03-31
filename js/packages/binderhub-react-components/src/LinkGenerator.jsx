@@ -238,6 +238,7 @@ export function LinkGenerator({
         </div>
         <div className="col-2">
           <button
+            id="btn-launch"
             className="btn btn-primary col-2 w-100"
             disabled={isLaunching}
             onClick={() => setIsLaunching(true)}
@@ -259,7 +260,7 @@ export function LinkGenerator({
           <button
             className="btn btn-outline-secondary border border-2 border-start-0"
             type="button"
-            id="copy-url"
+            id="btn-copy-url"
             onClick={() => copy(launchUrl)}
             disabled={launchUrl === ""}
           >
@@ -272,6 +273,7 @@ export function LinkGenerator({
         <div className="card-header d-flex align-items-baseline">
           <span className="flex-fill">Badges for your README</span>
           <button
+            id="btn-show-badge"
             className="btn btn-link"
             type="button"
             aria-controls="badge-container"
@@ -333,7 +335,7 @@ export function LinkGenerator({
             <button
               className="btn btn-outline-secondary"
               type="button"
-              id="copy-url"
+              id="btn-copy-badge"
               onClick={() => copy(badgeMarkup)}
               disabled={badgeMarkup === ""}
             >
