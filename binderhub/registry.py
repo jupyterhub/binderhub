@@ -225,17 +225,25 @@ class DockerRegistry(LoggingConfigurable):
             ) from None
 
     async def _get_token(self, client, token_url, service, scope):
-        auth_req = httpclient.HTTPRequest(
-            url_concat(
-                token_url,
-                {
-                    "scope": scope,
-                    "service": service,
-                },
-            ),
-            auth_username=self.username,
-            auth_password=self.password,
-        )
+        if (
+            token_url
+            == "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+        ):
+            auth_req = httpclient.HTTPRequest(
+                token_url, headers={"Metadata-Flavor": "Google"}
+            )
+        else:
+            auth_req = httpclient.HTTPRequest(
+                url_concat(
+                    token_url,
+                    {
+                        "scope": scope,
+                        "service": service,
+                    },
+                ),
+                auth_username=self.username,
+                auth_password=self.password,
+            )
         self.log.debug(
             f"Getting registry token from {token_url} service={service} scope={scope}"
         )
