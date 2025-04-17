@@ -3,10 +3,10 @@
 import inspect
 import json
 import os
+import random
 import secrets
 import subprocess
 import time
-import random
 from collections import defaultdict
 from unittest import mock
 from urllib.parse import urlparse
