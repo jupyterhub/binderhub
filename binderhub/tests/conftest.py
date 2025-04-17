@@ -6,6 +6,7 @@ import os
 import secrets
 import subprocess
 import time
+import random
 from collections import defaultdict
 from unittest import mock
 from urllib.parse import urlparse
@@ -63,6 +64,9 @@ def pytest_configure(config):
         "markers",
         "helm: mark test to only run when BinderHub is launched with our k8s-binderhub test config.",
     )
+
+    # add the random seed for reproducibility of tests that uses random
+    random.seed(42)
 
 
 def pytest_runtest_setup(item):
