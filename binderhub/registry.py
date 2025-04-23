@@ -357,15 +357,11 @@ class GoogleArtifactRegistry(DockerRegistry):
         auth_req = httpclient.HTTPRequest(
             token_url, headers={"Metadata-Flavor": "Google"}
         )
-        self.log.debug(
-            f"Getting registry token from {token_url} service={service} scope={scope}"
-        )
+        self.log.debug(f"Getting registry token from {token_url}")
         auth_resp = await client.fetch(auth_req)
         response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
 
-        if "token" in response_body.keys():
-            token = response_body["token"]
-        elif "access_token" in response_body.keys():
+        if "access_token" in response_body.keys():
             token = response_body["access_token"]
         else:
             raise ValueError(f"No token in response from registry: {response_body}")
