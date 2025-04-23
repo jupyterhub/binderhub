@@ -225,25 +225,17 @@ class DockerRegistry(LoggingConfigurable):
             ) from None
 
     async def _get_token(self, client, token_url, service, scope):
-        if (
-            token_url
-            == "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
-        ):
-            auth_req = httpclient.HTTPRequest(
-                token_url, headers={"Metadata-Flavor": "Google"}
-            )
-        else:
-            auth_req = httpclient.HTTPRequest(
-                url_concat(
-                    token_url,
-                    {
-                        "scope": scope,
-                        "service": service,
-                    },
-                ),
-                auth_username=self.username,
-                auth_password=self.password,
-            )
+        auth_req = httpclient.HTTPRequest(
+            url_concat(
+                token_url,
+                {
+                    "scope": scope,
+                    "service": service,
+                },
+            ),
+            auth_username=self.username,
+            auth_password=self.password,
+        )
         self.log.debug(
             f"Getting registry token from {token_url} service={service} scope={scope}"
         )
@@ -345,6 +337,39 @@ class DockerRegistry(LoggingConfigurable):
         (caller should get credentials from some other source)
         """
         return None
+
+
+class GoogleArtifactRegistry(DockerRegistry):
+    """
+    A registry for Google Artifact Registry.
+
+    At present, the only way to generate credentials without having to use the gcloud cli
+    is the metadata server. The metadata server uses the Compute Engine default service account.
+
+    For more information, see https://cloud.google.com/docs/authentication/rest#metadata-server.
+    """
+
+    @default("token_url")
+    def _default_token_url(self):
+        return "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+
+    async def _get_token(self, client, token_url, service, scope):
+        auth_req = httpclient.HTTPRequest(
+            token_url, headers={"Metadata-Flavor": "Google"}
+        )
+        self.log.debug(
+            f"Getting registry token from {token_url} service={service} scope={scope}"
+        )
+        auth_resp = await client.fetch(auth_req)
+        response_body = json.loads(auth_resp.body.decode("utf-8", "replace"))
+
+        if "token" in response_body.keys():
+            token = response_body["token"]
+        elif "access_token" in response_body.keys():
+            token = response_body["access_token"]
+        else:
+            raise ValueError(f"No token in response from registry: {response_body}")
+        return token
 
 
 class FakeRegistry(DockerRegistry):
