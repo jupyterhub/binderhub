@@ -40,6 +40,10 @@ jobs:
           # chartpress requires the full history
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -63,6 +67,10 @@ jobs:
       - name: Install chart publishing dependencies (chartpress, etc)
         run: |
           pip install --no-cache-dir chartpress>=2.1 pyyaml build
+
+      - run: npm ci
+
+      - run: npm run webpack
 
       - name: Build binderhub wheel
         run: python3 -m build --wheel .
