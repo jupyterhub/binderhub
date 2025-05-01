@@ -49,13 +49,15 @@ module.exports = {
         test: /\.(scss)$/,
         use: [
           {
-            // Adds CSS to the DOM by injecting a `<style>` tag
-            loader: "style-loader",
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // Set publicPath as relative path ("./").
+              // By default it uses the `output.publicPath` ("/static/dist/"), when it rewrites the URLs in styles.css.
+              // And it causes these files unavailabe if BinderHub has a different base_url than "/".
+              publicPath: "./",
+            },
           },
-          {
-            // Interprets `@import` and `url()` like `import/require()` and will resolve them
-            loader: "css-loader",
-          },
+          "css-loader",
           {
             // Loader for webpack to process CSS with PostCSS
             loader: "postcss-loader",
