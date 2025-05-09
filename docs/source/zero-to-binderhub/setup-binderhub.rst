@@ -60,6 +60,11 @@ need to insert. Note that the first line is not indented at all::
         "client_x509_cert_url": "<REPLACE>"
       }
 
+If you are using Artifact Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You do not need to do anything.
+
 If you are using Docker Hub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -177,6 +182,31 @@ your ``config.yaml`` file::
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
    * Note that in both cases, you should remove the ``<`` and ``>`` symbols,
+     they are simply placeholders in the code above.
+
+If you are using Artifact Registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To configure BinderHub to use Artifact Registry, add the following to your `config.yaml` file::
+
+  config:
+    BinderHub:
+      use_registry: true
+      image_prefix: <region>-docker.pkg.dev/<google-project-id>/<prefix>-
+      registry_class: "binderhub.registry.GoogleArtifactRegistry"
+      DockerRegistry:
+        url: "https://<region>-docker.pkg.dev"
+
+.. note::
+
+   * ``<region>`` This is the region of the Artifact Registry repository, such
+     as ``us-central1``.
+   * ``<google-project-id>`` This is the project *ID*, which may be different
+     from the project *name*.
+   * ``<prefix>`` can be any string, and will be prepended to image names. We
+     recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
+     (ending with a `-` is useful).
+   * Note that in all cases, you should remove the ``<`` and ``>`` symbols,
      they are simply placeholders in the code above.
 
 If you are using Docker Hub
