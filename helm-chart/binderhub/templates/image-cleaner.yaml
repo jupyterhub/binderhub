@@ -38,7 +38,9 @@ spec:
         key: {{ .key }}
         operator: {{ .operator }}
         value: {{ .value }}
-        {{- if .timeLimit }}timeLimit: {{ .timeLimit }}{{ end }}
+        {{- if .tolerationSeconds }}
+        tolerationSeconds: {{ .tolerationSeconds }}
+        {{- end }}
       {{- end }}
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
       {{- if .Values.rbac.enabled }}
