@@ -35,6 +35,9 @@ spec:
         key: hub.jupyter.org_dedicated
         operator: Equal
         value: user
+      {{- with .Values.tolerations }}
+      {{- . | toYaml | nindent 6 }}
+      {{- end }}
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
 
       initContainers:
