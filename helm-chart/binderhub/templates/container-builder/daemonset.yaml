@@ -35,6 +35,15 @@ spec:
         key: hub.jupyter.org_dedicated
         operator: Equal
         value: user
+      {{- range .Values.tolerations }}
+      - effect: {{ .effect }}
+        key: {{ .key }}
+        operator: {{ .operator }}
+        value: {{ .value }}
+        {{- if .tolerationSeconds }}
+        tolerationSeconds: {{ .tolerationSeconds }}
+        {{- end }}
+      {{- end }}
       nodeSelector: {{ .Values.config.BinderHub.build_node_selector | toJson }}
 
       initContainers:
