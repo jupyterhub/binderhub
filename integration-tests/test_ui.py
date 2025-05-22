@@ -108,7 +108,7 @@ async def test_loading_page(
     if status_code == 200:
         nbviewer_url = page.get_by_test_id("nbviewer-iframe").get_attribute("src")
         expected_url = (
-            f"https://nbviewer.jupyter.org/github/{repo}/tree/{ref.replace("/", "")}"
+            f"https://nbviewer.jupyter.org/github/{repo}/tree/{ref.replace('/', '')}"
         )
         assert nbviewer_url == expected_url
 
