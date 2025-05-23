@@ -60,7 +60,7 @@ need to insert. Note that the first line is not indented at all::
         "client_x509_cert_url": "<REPLACE>"
       }
 
-If you are using Artifact Registry
+If you are using Google Artifact Registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You do not need to do anything.
@@ -184,10 +184,10 @@ your ``config.yaml`` file::
    * Note that in both cases, you should remove the ``<`` and ``>`` symbols,
      they are simply placeholders in the code above.
 
-If you are using Artifact Registry
+If you are using Google Artifact Registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To configure BinderHub to use Artifact Registry, add the following to your `config.yaml` file::
+To configure BinderHub to use Google Artifact Registry, add the following to your `config.yaml` file::
 
   config:
     BinderHub:
