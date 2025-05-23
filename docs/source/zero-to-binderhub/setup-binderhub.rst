@@ -196,6 +196,7 @@ To configure BinderHub to use Google Artifact Registry, add the following to you
       registry_class: "binderhub.registry.GoogleArtifactRegistry"
       DockerRegistry:
         url: "https://<region>-docker.pkg.dev"
+        token_url: "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/<service-account-name>/token"
 
 .. note::
 
@@ -206,6 +207,8 @@ To configure BinderHub to use Google Artifact Registry, add the following to you
    * ``<prefix>`` can be any string, and will be prepended to image names. We
      recommend something descriptive such as ``binder-dev-`` or ``binder-prod-``
      (ending with a `-` is useful).
+   * ``<service-account-name>`` This is the name of the service account the 
+     node pool is configured to use.
    * Note that in all cases, you should remove the ``<`` and ``>`` symbols,
      they are simply placeholders in the code above.
 
