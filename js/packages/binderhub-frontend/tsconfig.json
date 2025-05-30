@@ -12,5 +12,5 @@
     "moduleResolution": "node",
     "sourceMap": true
   },
-  "include": ["binderhub/static/js/"]
+  "include": ["lib/"]
 }

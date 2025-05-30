@@ -1,6 +1,6 @@
-import ProgressIcon from "../../images/favicon/progress.ico";
-import FailIcon from "../../images/favicon/fail.ico";
-import SuccessIcon from "../../images/favicon/success.ico";
+import ProgressIcon from "../images/favicon/progress.ico";
+import FailIcon from "../images/favicon/fail.ico";
+import SuccessIcon from "../images/favicon/success.ico";
 
 import { PROGRESS_STATES } from "./Progress.jsx";
 
