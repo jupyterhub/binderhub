@@ -180,7 +180,7 @@ sqlalchemy==2.0.38
     # via
     #   alembic
     #   jupyterhub
-tornado==6.4.2
+tornado==6.5
     # via
     #   -r ../../../requirements.txt
     #   jupyterhub
