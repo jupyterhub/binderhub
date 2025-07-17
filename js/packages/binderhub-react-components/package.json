@@ -2,6 +2,16 @@
   "name": "@jupyterhub/binderhub-react-components",
   "version": "0.0.1",
   "description": "Collection of React components for BinderHub",
+  "exports": {
+    "BuilderLauncher": "./src/BuilderLauncher.jsx",
+    "ErrorPage": "./src/ErrorPage.jsx",
+    "FaviconUpdater": "./src/FaviconUpdater.jsx",
+    "HowItWorks": "./src/HowItWorks.jsx",
+    "LinkGenerator": "./src/LinkGenerator.jsx",
+    "LoadingIndicator": "./src/LoadingIndicator.jsx",
+    "NBViewerIFrame": "./src/NBViewerIFrame.jsx",
+    "Progress": "./src/Progress.jsx"
+  },
   "scripts": {
     "build": "esbuild src/* --bundle --external:react --outfile=dist/binderhub-react-components.js",
     "test": "echo \"Error: no test specified\" && exit 1"
