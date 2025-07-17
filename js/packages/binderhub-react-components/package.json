@@ -22,5 +22,9 @@
   "devDependencies": {
     "esbuild": "^0.25.6",
     "react": "^19.1.0"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0"
   }
 }
