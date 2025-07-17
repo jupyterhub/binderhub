@@ -1,0 +1,21 @@
+{
+  "name": "binderhub-react-components",
+  "version": "0.0.1",
+  "description": "Collection of React components for BinderHub",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jupyterhub/binderhub.git"
+  },
+  "keywords": [
+    "binderhub"
+  ],
+  "author": "Project Jupyter Contributors",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jupyterhub/binderhub/issues"
+  },
+  "homepage": "https://github.com/jupyterhub/binderhub#readme"
+}

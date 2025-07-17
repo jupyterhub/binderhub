@@ -47,7 +47,8 @@
     "webpack-cli": "^5.0.1"
   },
   "workspaces": [
-    "js/packages/binderhub-client"
+    "js/packages/binderhub-client",
+    "js/packages/binderhub-react-components"
   ],
   "scripts": {
     "webpack": "webpack",
