@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "devDependencies": {
-    "esbuild": "^0.25.6"
+    "esbuild": "^0.25.6",
+    "react": "^19.1.0"
   }
 }
