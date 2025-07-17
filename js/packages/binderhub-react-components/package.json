@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/jupyterhub/binderhub/issues"
   },
-  "homepage": "https://github.com/jupyterhub/binderhub#readme"
+  "homepage": "https://github.com/jupyterhub/binderhub#readme",
+  "devDependencies": {
+    "esbuild": "^0.25.6"
+  }
 }
