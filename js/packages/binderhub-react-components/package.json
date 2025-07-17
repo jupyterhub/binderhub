@@ -1,5 +1,5 @@
 {
-  "name": "binderhub-react-components",
+  "name": "@jupyterhub/binderhub-react-components",
   "version": "0.0.1",
   "description": "Collection of React components for BinderHub",
   "scripts": {
