@@ -5,8 +5,11 @@
   "exports": {
     ".": "./lib/spec.js"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^9.31.0"
+  },
   "scripts": {
+    "lint": "eslint binderhub/static/js js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

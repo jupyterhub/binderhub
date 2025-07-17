@@ -14,6 +14,7 @@
   },
   "scripts": {
     "build": "esbuild src/* --bundle --external:react --outfile=dist/binderhub-react-components.js",
+    "lint": "eslint binderhub/static/js js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,7 @@
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "devDependencies": {
     "esbuild": "^0.25.6",
+    "eslint": "^9.31.0",
     "react": "^19.1.0"
   },
   "dependencies": {
