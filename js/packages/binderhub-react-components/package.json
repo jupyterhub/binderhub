@@ -36,6 +36,7 @@
     "react": "^19.1.0"
   },
   "dependencies": {
+    "@jupyterhub/binderhub-client": "^0.4.0",
     "@jupyterhub/binderhub-spec": "^0.0.1",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
