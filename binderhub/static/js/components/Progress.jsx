@@ -11,7 +11,7 @@ export const PROGRESS_STATES = {
 };
 
 const progressDisplay = {};
-(progressDisplay[PROGRESS_STATES.WAITING] = {
+((progressDisplay[PROGRESS_STATES.WAITING] = {
   precursors: [],
   widthPercent: "10",
   label: "Waiting",
@@ -22,7 +22,7 @@ const progressDisplay = {};
     widthPercent: "50",
     label: "Building",
     className: "text-bg-warning",
-  });
+  }));
 
 progressDisplay[PROGRESS_STATES.PUSHING] = {
   precursors: [PROGRESS_STATES.WAITING, PROGRESS_STATES.BUILDING],
