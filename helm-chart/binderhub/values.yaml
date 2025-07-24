@@ -342,16 +342,14 @@ ingress:
     type: kube-lego
   hosts: []
   ingressClassName:
-  annotations:
-    {}
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   pathSuffix:
     # Suffix added to Ingress's routing path pattern.
     # Specify `*` if your ingress matches path by glob pattern.
   pathType: Prefix
-  tls:
-    []
+  tls: []
     # Secrets must be manually created in the namespace.
     # - secretName: chart-example-tls
     #   hosts:
