@@ -314,6 +314,16 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
+    cpu_request = Unicode(
+        "",
+        help=(
+            "CPU request for the build pod (e.g. '100m', '0.5', '1'). "
+            "This reserves CPU resources for the build pod in the kubernetes cluster. "
+            "Can be specified as millicores (e.g. '100m') or as decimal cores (e.g. '0.5')."
+        ),
+        config=True,
+    )
+
     memory_request = ByteSpecification(
         0,
         help=(
@@ -521,7 +531,10 @@ class KubernetesBuildExecutor(BuildExecutor):
                         volume_mounts=volume_mounts,
                         resources=client.V1ResourceRequirements(
                             limits={"memory": self.memory_limit},
-                            requests={"memory": self.memory_request},
+                            requests={
+                                "memory": self.memory_request,
+                                **({} if not self.cpu_request else {"cpu": self.cpu_request}),
+                            },
                         ),
                         env=env,
                     )
