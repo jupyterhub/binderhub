@@ -533,7 +533,11 @@ class KubernetesBuildExecutor(BuildExecutor):
                             limits={"memory": self.memory_limit},
                             requests={
                                 "memory": self.memory_request,
-                                **({} if not self.cpu_request else {"cpu": self.cpu_request}),
+                                **(
+                                    {}
+                                    if not self.cpu_request
+                                    else {"cpu": self.cpu_request}
+                                ),
                             },
                         ),
                         env=env,
