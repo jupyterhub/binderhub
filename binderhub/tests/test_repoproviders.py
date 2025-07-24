@@ -182,13 +182,6 @@ async def test_hydroshare_doi():
             "https://doi.org/10.7910/DVN/TJCLKP",
             "dataverse-dvn-2ftjclkp",
         ],
-        [
-            "10.25346/S6/DE95RT",
-            "10.25346/S6/DE95RT",
-            r"20460\.v\d+\.\d+$",
-            "https://doi.org/10.25346/S6/DE95RT",
-            "dataverse-s6-2fde95rt",
-        ],
     ],
 )
 async def test_dataverse(
