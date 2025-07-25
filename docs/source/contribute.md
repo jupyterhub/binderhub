@@ -21,8 +21,6 @@ This document also contains information on [how to run tests](running-tests) and
 ## Develop documentation
 
 You are assumed to have a modern version of [Python](https://www.python.org/).
-The documentation uses the [reStructuredText markup
-language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
 1. Clone the BinderHub repository to your local computer and `cd` into it.
 
@@ -35,23 +33,18 @@ language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
    ```bash
    python3 -m pip install -r docs/requirements.txt
-   ```
-
-1. The documentation is located in the `docs/` sub-directory, `cd` into it:
-
-   ```bash
-   cd ./docs
+   python3 -m pip install sphinx-autobuild
    ```
 
 1. To build the documentation run:
 
    ```bash
-   make html
+   sphinx-autobuild docs/source docs/_build/html
    ```
 
-1. Open the main documentation page in your browser, it is located at
-   `_build/html/index.html`. On a Mac you can open it directly from the
-   terminal with `open _build/html/index.html`.
+   Changes to the source code will automatically trigger a re-build of the documentation.
+
+1. Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
 (develop-user-interface)=
 
