@@ -118,8 +118,11 @@ This requires `helm` and a functional Kubernetes cluster. Please do
 before continuing here.
 ```
 
-With a Kubernetes cluster running, as you verify with `kubectl version`, you can
-continue.
+1. Verify that you have access to a Kubernetes cluster running.
+
+   ```bash
+   kubectl version
+   ```
 
 1. Locally install BinderHub as a Python package and its development
    requirements locally.
