@@ -105,12 +105,17 @@ chart](develop-helm-chart).
 
 ## Develop Kubernetes integration
 
+```{important}
 This requires `helm` and a functional Kubernetes cluster. Please do
 [preliminary Kubernetes setup](kubernetes-setup) if you haven't already
 before continuing here.
+```
 
-With a Kubernetes cluster running, as you verify with `kubectl version`, you can
-continue.
+1. Verify that you have access to a Kubernetes cluster running.
+
+   ```bash
+   kubectl version
+   ```
 
 1. Locally install BinderHub as a Python package and its development
    requirements locally.
@@ -131,7 +136,9 @@ continue.
 
 1. Configure `docker` using environment variables to use the same Docker daemon
    as your local Kubernetes cluster. This means images you build are directly
-   available to the cluster. If using `minikube`,
+   available to the cluster.
+
+   If using `minikube`,
 
    ```bash
    eval $(minikube docker-env)
@@ -151,10 +158,10 @@ continue.
 
 1. Visit [http://localhost:8585](http://localhost:8585)
 
-1. Congratulations, you can now make changes and see how they influence the
-   deployment. You may be required to restart the BinderHub depending on what
-   you change. You can also start running `pytest` tests to verify the
-   Deployment functions as it should.
+Congratulations, you can now make changes and see how they influence the
+deployment. You may be required to restart the BinderHub depending on what
+you change. You can also start running `pytest` tests to verify the
+Deployment functions as it should.
 
 ### Cleanup resources
 
