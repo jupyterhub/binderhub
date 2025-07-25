@@ -21,8 +21,6 @@ This document also contains information on [how to run tests](running-tests) and
 ## Develop documentation
 
 You are assumed to have a modern version of [Python](https://www.python.org/).
-The documentation uses the [reStructuredText markup
-language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
 1. Clone the BinderHub repository to your local computer and `cd` into it.
 
