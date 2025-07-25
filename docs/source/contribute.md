@@ -112,9 +112,11 @@ chart](develop-helm-chart).
 
 ## Develop Kubernetes integration
 
+```{important}
 This requires `helm` and a functional Kubernetes cluster. Please do
 [preliminary Kubernetes setup](kubernetes-setup) if you haven't already
 before continuing here.
+```
 
 With a Kubernetes cluster running, as you verify with `kubectl version`, you can
 continue.
