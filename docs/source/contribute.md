@@ -143,7 +143,9 @@ before continuing here.
 
 1. Configure `docker` using environment variables to use the same Docker daemon
    as your local Kubernetes cluster. This means images you build are directly
-   available to the cluster. If using `minikube`,
+   available to the cluster.
+   
+   If using `minikube`,
 
    ```bash
    eval $(minikube docker-env)
