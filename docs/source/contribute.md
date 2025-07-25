@@ -165,10 +165,10 @@ before continuing here.
 
 1. Visit [http://localhost:8585](http://localhost:8585)
 
-1. Congratulations, you can now make changes and see how they influence the
-   deployment. You may be required to restart the BinderHub depending on what
-   you change. You can also start running `pytest` tests to verify the
-   Deployment functions as it should.
+Congratulations, you can now make changes and see how they influence the
+deployment. You may be required to restart the BinderHub depending on what
+you change. You can also start running `pytest` tests to verify the
+Deployment functions as it should.
 
 ### Cleanup resources
 
