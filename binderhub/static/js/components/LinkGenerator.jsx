@@ -238,6 +238,7 @@ export function LinkGenerator({
         </div>
         <div className="col-2">
           <button
+            id="launch"
             className="btn btn-primary col-2 w-100"
             disabled={isLaunching}
             onClick={() => setIsLaunching(true)}
@@ -272,6 +273,7 @@ export function LinkGenerator({
         <div className="card-header d-flex align-items-baseline">
           <span className="flex-fill">Badges for your README</span>
           <button
+            id="show-badge"
             className="btn btn-link"
             type="button"
             aria-controls="badge-container"
