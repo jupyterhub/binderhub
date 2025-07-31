@@ -51,7 +51,9 @@ guide](https://github.com/jupyterhub/binderhub/blob/HEAD/CONTRIBUTING.md).
 **BinderHub** is based on Python 3, it's currently only kept updated on GitHub.
 However, it can be installed using `pip`:
 
-    pip install git+https://github.com/jupyterhub/binderhub
+```
+pip install git+https://github.com/jupyterhub/binderhub
+```
 
 See [the BinderHub documentation](https://binderhub.readthedocs.io) for
 a detailed guide on setting up your own BinderHub server.

@@ -14,9 +14,9 @@ In this example `appendix` is used to customize the Notebook UI:
    This is very useful when people share
    pod urls instead of binder launch urls.
 
-2. Remove logout button
+1. Remove logout button
 
-3. Add binder buttons next to `Quit button`:
+1. Add binder buttons next to `Quit button`:
 
 - `Go to repo`: opens the source repo url in new tab
 - `Copy binder link`: copies the binder launch link into clipboard
@@ -41,5 +41,5 @@ there is a new build and it does:
    and update notebook app configuration to append this path into `extra_template_paths`.
    So when notebook app starts, it uses customized templates.
 
-2. Inject Javascript code into `~/.jupyter/custom/custom.js`. This is
+1. Inject Javascript code into `~/.jupyter/custom/custom.js`. This is
    executed when the notebook app starts and it adds the buttons.

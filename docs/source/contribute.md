@@ -194,7 +194,7 @@ continue.
    python3 -m pip install -r dev-requirements.txt
    ```
 
-2. Configure `docker` using environment variables to use the same Docker daemon
+1. Configure `docker` using environment variables to use the same Docker daemon
    as your local Kubernetes cluster. This means images you build are directly
    available to the cluster. If using `minikube`,
 
@@ -208,21 +208,21 @@ continue.
    docker context use desktop-linux
    ```
 
-3. Build the docker images referenced by the Helm chart and update its default
+1. Build the docker images referenced by the Helm chart and update its default
    values to reference these images.
 
    ```bash
    (python3 -m build . && cd helm-chart && chartpress)
    ```
 
-4. Get the chart dependencies (for example JupyterHub)
+1. Get the chart dependencies (for example JupyterHub)
 
    ```bash
    cd helm-chart/binderhub
    helm dependency update
    ```
 
-5. Validate, and then install the Helm chart defined in helm-chart/binderhub.
+1. Validate, and then install the Helm chart defined in helm-chart/binderhub.
 
    This validation step is not making any modification to your Kubernetes
    cluster, but will use it to validate if the Helm chart's rendered resources
@@ -248,7 +248,7 @@ continue.
    echo "BinderHub inside the Minikube based Kubernetes cluster is starting up at http://$(minikube ip):30901"
    ```
 
-6. Congratulations, you can now make changes and run the step above again to see
+1. Congratulations, you can now make changes and run the step above again to see
    how they influence the deployment. You can also start running `pytest` tests
    to verify the Deployment functions as it should.
 

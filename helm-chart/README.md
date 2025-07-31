@@ -1,6 +1,6 @@
 # BinderHub Helm Chart
 
-A [helm][] [chart][] for deploying [BinderHub] instances on [Kubernetes].
+A [helm] [chart] for deploying [BinderHub] instances on [Kubernetes].
 
 **[Zero to JupyterHub with Kubernetes]** provides detailed instructions for using this project within a JupyerHub deployment.
 
@@ -43,15 +43,16 @@ Useful for compiling custom charts.
 
 In the helm-chart directory:
 
-    chartpress
+```
+chartpress
+```
 
 to build the docker images and rerender the helm chart.
 
 [binderhub]: https://binderhub.readthedocs.io/en/latest/
-[jupyterhub]: https://jupyterhub.readthedocs.io/en/latest/
-[kubernetes]: https://kubernetes.io
+[chart]: https://helm.sh/docs/topics/charts/
 [helm]: https://helm.sh/
 [helm repo]: https://github.com/kubernetes/helm
-[chart]: https://helm.sh/docs/topics/charts/
+[kubernetes]: https://kubernetes.io
 [kubernetes introduction to charts]: https://helm.sh/docs/topics/charts/
 [zero to jupyterhub with kubernetes]: https://zero-to-jupyterhub.readthedocs.io/en/latest/
