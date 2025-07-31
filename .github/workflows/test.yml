@@ -455,7 +455,7 @@ jobs:
 
       - name: Run remote tests
         run: |
-          export BINDER_URL=http://localhost:8000/services/binder/
+          export BINDER_URL=http://localhost:8000/services/binder
           pytest -m remote --cov=binderhub binderhub/tests/
 
       - name: Show hub logs
