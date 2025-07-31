@@ -106,6 +106,22 @@ chart](develop-helm-chart).
 ## Develop Kubernetes integration
 
 ```{important}
+This requires you create the JS and CSS bundles BinderHub serves to visitors.
+
+1. Install the NodeJS dependencies from `package.json`.
+
+   ~~~bash
+   npm install
+   ~~~
+
+1. Create the JS and CSS bundles.
+
+   ~~~bash
+   npm run webpack
+   ~~~
+```
+
+```{important}
 This requires `helm` and a functional Kubernetes cluster. Please do
 [preliminary Kubernetes setup](kubernetes-setup) if you haven't already
 before continuing here.
