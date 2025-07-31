@@ -110,15 +110,15 @@ This requires you create the JS and CSS bundles BinderHub serves to visitors.
 
 1. Install the NodeJS dependencies from `package.json`.
 
-   ```bash
+   ~~~bash
    npm install
-   ```
+   ~~~
 
 1. Create the JS and CSS bundles.
 
-   ```bash
+   ~~~bash
    npm run webpack
-   ```
+   ~~~
 ```
 
 ```{important}
