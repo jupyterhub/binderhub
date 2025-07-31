@@ -47,7 +47,7 @@ repos:
         files: binderhub/binderspawner_mixin.py|helm-chart/binderhub/values.yaml
         pass_filenames: false
 
-  # Autoformat: js, html, markdown, yaml, json
+  # Autoformat: js, html, yaml, json
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.6.2
     hooks:
@@ -58,6 +58,15 @@ repos:
           # separate run of pre-commit where we configure a line spacing of 4
           # for these file formats.
           - html
+          - markdown
+
+  # Autoformat: md
+  - repo: https://github.com/hukkin/mdformat
+    rev: 0.7.22
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-myst
 
   # Misc autoformatting and linting
   - repo: https://github.com/pre-commit/pre-commit-hooks
