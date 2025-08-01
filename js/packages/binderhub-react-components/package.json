@@ -1,6 +1,6 @@
 {
   "name": "@jupyterhub/binderhub-react-components",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Collection of React components for BinderHub",
   "exports": {
     "./*.jsx": "./src/*.jsx"
