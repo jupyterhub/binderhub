@@ -1,8 +1,8 @@
-import { LinkGenerator } from "@jupyterhub/binderhub-react-components/LinkGenerator";
-import { BuilderLauncher } from "@jupyterhub/binderhub-react-components/BuilderLauncher";
-import { HowItWorks } from "@jupyterhub/binderhub-react-components/HowItWorks";
+import { LinkGenerator } from "@jupyterhub/binderhub-react-components/LinkGenerator.jsx";
+import { BuilderLauncher } from "@jupyterhub/binderhub-react-components/BuilderLauncher.jsx";
+import { HowItWorks } from "@jupyterhub/binderhub-react-components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
-import { FaviconUpdater } from "@jupyterhub/binderhub-react-components/FaviconUpdater";
+import { FaviconUpdater } from "@jupyterhub/binderhub-react-components/FaviconUpdater.jsx";
 import { Spec, LaunchSpec } from "@jupyterhub/binderhub-spec";
 
 /**
