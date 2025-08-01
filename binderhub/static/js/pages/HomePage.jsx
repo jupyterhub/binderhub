@@ -3,7 +3,7 @@ import { BuilderLauncher } from "@jupyterhub/binderhub-react-components/BuilderL
 import { HowItWorks } from "@jupyterhub/binderhub-react-components/HowItWorks.jsx";
 import { useEffect, useState } from "react";
 import { FaviconUpdater } from "@jupyterhub/binderhub-react-components/FaviconUpdater.jsx";
-import { Spec, LaunchSpec } from "@jupyterhub/binderhub-spec";
+import { Spec, LaunchSpec } from "@jupyterhub/binderhub-client/spec.js";
 
 /**
  * @typedef {object} HomePageProps
