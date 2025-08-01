@@ -150,6 +150,20 @@ before continuing here.
    ./testing/local-binder-k8s-hub/install-jupyterhub-chart
    ```
 
+1. Export the location of your JupyterHub to the environment variable `LOCAL_BINDER_JUPYTERHUB_IP`.
+
+   If using `minikube`,
+
+   ```bash
+   export LOCAL_BINDER_JUPYTERHUB_IP=$(minikube ip)
+   ```
+
+   If using Docker Desktop,
+
+   ```bash
+   export LOCAL_BINDER_JUPYTERHUB_IP='kubernetes.docker.internal'
+   ```
+
 1. Configure `docker` using environment variables to use the same Docker daemon
    as your local Kubernetes cluster. This means images you build are directly
    available to the cluster.
