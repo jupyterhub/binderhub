@@ -1,4 +1,4 @@
-import { BinderRepository } from "@jupyterhub/binderhub-client";
+import { BinderRepository } from "@jupyterhub/binderhub-client/client.js";
 import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";

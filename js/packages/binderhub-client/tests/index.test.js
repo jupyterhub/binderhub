@@ -1,7 +1,7 @@
 // fetch polyfill (only needed for node tests)
 import { fetch, TextDecoder } from "@whatwg-node/fetch";
 
-import { BinderRepository } from "@jupyterhub/binderhub-client";
+import { BinderRepository } from "@jupyterhub/binderhub-client/client.js";
 import { parseEventSource, simpleEventSourceServer } from "./utils";
 import { readFileSync } from "node:fs";
 
