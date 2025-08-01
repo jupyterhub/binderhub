@@ -181,13 +181,21 @@ Deployment functions as it should.
 
 ### Cleanup resources
 
-1. To cleanup the JupyterHub Helm chart you have installed in Kubernetes...
+1. Cleanup the JupyterHub Helm chart you have installed in Kubernetes.
 
    ```bash
    helm delete binderhub-test
    ```
 
-1. To stop running the Kubernetes cluster...
+1. Restore the context used by `docker`.
+
+   ```bash
+   docker context use default
+   ```
+
+1. Stop running the Kubernetes cluster.
+
+   If using `minikube`,
 
    ```bash
    minikube stop
