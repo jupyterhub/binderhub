@@ -79,6 +79,9 @@ jobs:
           pip install --no-binary pycurl -r dev-requirements.txt
           pip install -e .
 
+      - name: Show all dependencies
+        run: pip freeze
+
       - name: Install playwright browser
         run: |
           playwright install firefox
