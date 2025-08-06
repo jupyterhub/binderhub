@@ -6,7 +6,7 @@
     "./*.jsx": "./src/*.jsx"
   },
   "scripts": {
-    "build": "esbuild src/* --bundle --external:react --outfile=dist/binderhub-react-components.js",
+    "build": "esbuild src/*.jsx --loader:.ico=dataurl --bundle --external:react --outdir=dist",
     "lint": "eslint binderhub/static/js js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
