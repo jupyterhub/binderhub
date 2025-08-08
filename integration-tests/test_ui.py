@@ -35,14 +35,16 @@ async def local_hub_local_binder(request):
     )
 
     url = f"http://127.0.0.1:{port}/services/binder/"
-    for i in range(10):
+    for i in range(60):
+        await asyncio.sleep(1)
         try:
             resp = await async_requests.get(url)
             if resp.status_code == 200:
                 break
         except requests.exceptions.ConnectionError:
             pass
-        await asyncio.sleep(1)
+    else:
+        raise RuntimeError("BinderHub server did NOT start in 60 seconds!")
     yield url
 
     proc.terminate()
