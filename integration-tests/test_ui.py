@@ -2,9 +2,9 @@
 Integration tests using playwright
 """
 
+import asyncio
 import subprocess
 import sys
-import time
 
 import pytest
 import requests
@@ -42,7 +42,7 @@ async def local_hub_local_binder(request):
                 break
         except requests.exceptions.ConnectionError:
             pass
-        time.sleep(1)
+        await asyncio.sleep(1)
     yield url
 
     proc.terminate()
