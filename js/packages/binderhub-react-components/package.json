@@ -25,13 +25,15 @@
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "devDependencies": {
     "esbuild": "^0.25.6",
-    "eslint": "^9.31.0",
-    "react": "^19.1.0"
+    "eslint": "^9.31.0"
   },
   "dependencies": {
     "@jupyterhub/binderhub-client": "^0.5.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "copy-to-clipboard": "^3.3.3"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0"
   }
 }
