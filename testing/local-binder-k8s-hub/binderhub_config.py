@@ -5,8 +5,10 @@
 # - BinderHub:  standalone local installation
 # - JupyterHub: standalone k8s installation
 
+import logging
 import os
-import subprocess
+
+logger = logging.getLogger(__name__)
 
 # We need to find out the IP at which BinderHub can reach the JupyterHub API
 # For local development we recommend the use of minikube, but on GitHub
@@ -19,10 +21,13 @@ if in_github_actions:
     jupyterhub_ip = "localhost"
 
 else:
-    try:
-        jupyterhub_ip = subprocess.check_output(["minikube", "ip"], text=True).strip()
-    except (subprocess.SubprocessError, FileNotFoundError):
-        jupyterhub_ip = "192.168.1.100"
+    jupyterhub_ip = os.getenv("LOCAL_BINDER_JUPYTERHUB_IP", None)
+
+    if jupyterhub_ip is None:
+        logger.warning(
+            "LOCAL_BINDER_JUPYTERHUB_IP environment variable is missing. Using 'localhost' as JupyterHub's domain."
+        )
+        jupyterhub_ip = "localhost"
 
 c.BinderHub.debug = True
 c.BinderHub.hub_url = f"http://{jupyterhub_ip}:30902"
