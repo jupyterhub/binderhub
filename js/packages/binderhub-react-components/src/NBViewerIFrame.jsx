@@ -1,4 +1,4 @@
-import { Spec } from "../spec";
+import { Spec } from "@jupyterhub/binderhub-client/spec.js";
 
 /**
  * @typedef {object} NBViewerIFrameProps

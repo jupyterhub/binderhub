@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { BuilderLauncher } from "../components/BuilderLauncher.jsx";
+import { BuilderLauncher } from "@jupyterhub/binderhub-react-components/BuilderLauncher.jsx";
 import { useParams, useSearch } from "wouter";
-import { NBViewerIFrame } from "../components/NBViewerIFrame.jsx";
-import { LoadingIndicator } from "../components/LoadingIndicator.jsx";
-import { FaviconUpdater } from "../components/FaviconUpdater.jsx";
-import { LaunchSpec, Spec } from "../spec.js";
-import { ErrorPage } from "../components/ErrorPage.jsx";
+import { NBViewerIFrame } from "@jupyterhub/binderhub-react-components/NBViewerIFrame.jsx";
+import { LoadingIndicator } from "@jupyterhub/binderhub-react-components/LoadingIndicator.jsx";
+import { FaviconUpdater } from "@jupyterhub/binderhub-react-components/FaviconUpdater.jsx";
+import { LaunchSpec, Spec } from "@jupyterhub/binderhub-client/spec.js";
+import { ErrorPage } from "@jupyterhub/binderhub-react-components/ErrorPage.jsx";
 
 /**
  * @typedef {object} LoadingPageProps
