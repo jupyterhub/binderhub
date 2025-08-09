@@ -7,5 +7,6 @@ kubernetes
 prometheus_client
 pyjwt>=2
 python-json-logger
+ruamel.yaml
 tornado>=5.1
 traitlets
