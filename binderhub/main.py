@@ -41,6 +41,7 @@ class UIHandler(BaseHandler):
         self.render_template(
             "page.html",
             page_config=self.page_config,
+            extra_css=self.settings["extra_css"],
             extra_footer_scripts=self.settings["extra_footer_scripts"],
             opengraph_title=self.opengraph_title,
         )
