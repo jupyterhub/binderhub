@@ -1,0 +1,39 @@
+{
+  "name": "@jupyterhub/binderhub-react-components",
+  "version": "0.1.0",
+  "description": "Collection of React components for BinderHub",
+  "exports": {
+    "./*.jsx": "./src/*.jsx"
+  },
+  "scripts": {
+    "build": "esbuild src/*.jsx --loader:.ico=dataurl --bundle --external:react --outdir=dist",
+    "lint": "eslint binderhub/static/js js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jupyterhub/binderhub.git"
+  },
+  "keywords": [
+    "binderhub"
+  ],
+  "author": "Project Jupyter Contributors",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jupyterhub/binderhub/issues"
+  },
+  "homepage": "https://github.com/jupyterhub/binderhub#readme",
+  "devDependencies": {
+    "esbuild": "^0.25.6",
+    "eslint": "^9.31.0"
+  },
+  "dependencies": {
+    "@jupyterhub/binderhub-client": "^0.5.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "copy-to-clipboard": "^3.3.3"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0"
+  }
+}
