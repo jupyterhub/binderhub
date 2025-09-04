@@ -19,6 +19,13 @@
   <script>
     window.pageConfig = {{page_config|tojson}};
   </script>
+  {%- block extra_header %}
+  {%- if extra_header_html %}
+  {%- for _, snippet in extra_header_html | dictsort %}
+  {{ snippet | trim | safe }}
+  {%- endfor %}
+  {%- endif %}
+  {%- endblock extra_header %}
 </head>
 <body>
 <div id="root"></div>
