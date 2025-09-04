@@ -42,6 +42,7 @@ class UIHandler(BaseHandler):
             "page.html",
             page_config=self.page_config,
             extra_footer_scripts=self.settings["extra_footer_scripts"],
+            extra_header_html=self.settings["extra_header_html"],
             opengraph_title=self.opengraph_title,
         )
 

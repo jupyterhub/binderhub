@@ -174,6 +174,19 @@ class BinderHub(Application):
         config=True,
     )
 
+    extra_header_html = Dict(
+        help="""
+        Extra bits of HTML that should be loaded in the HTML <head> tag of each page.
+
+        Values are included exactly as-is at the end of the `<head>` element.
+        Only the values are set up as snippets.
+        Keys are used only for sorting.
+
+        This should be primarily used for analytics code.
+        """,
+        config=True,
+    )
+
     extra_footer_scripts = Dict(
         {},
         help="""
@@ -959,6 +972,7 @@ class BinderHub(Application):
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
+                "extra_header_html": self.extra_header_html,
                 "jinja2_env": jinja_env,
                 "build_docker_config": self.build_docker_config,
                 "base_url": self.base_url,
