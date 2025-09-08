@@ -452,6 +452,31 @@ to prepare for breaking changes associated with the version bump.
 For more details, see this [guide on uploading package to
 PyPI](https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi).
 
+#### BinderHub NPM package release checklist
+
+- update the version number in `js/packages/binderhub-client/package.json` and `js/packages/binderhub-react-components/package.json`
+- update/close the `CHANGES.md` for this release (see below)
+- create a git tag for the release
+- login into NPM
+- run
+
+  ```bash
+  npm publish -w js/packages/binderhub-client/ --access public
+  ```
+
+  and follow the instructions for authentication.
+
+- run
+
+  ```bash
+  npm publish -w js/packages/binderhub-react-components/ --access public
+  ```
+
+  and follow the instructions for authentication.
+
+- create a new release on https://github.com/jupyterhub/binderhub/releases
+- add a new section at the top of the change log for future releases
+
 #### Updating the changelog
 
 As BinderHub does not have a typical semver release schedule, we try to
