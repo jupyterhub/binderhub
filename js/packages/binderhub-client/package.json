@@ -3,6 +3,7 @@
   "version": "0.5.0",
   "description": "Simple API client for the BinderHub EventSource API",
   "exports": {
+    ".": "./lib/client.js",
     "./*.js": "./lib/*.js"
   },
   "repository": {
