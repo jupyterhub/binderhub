@@ -55,6 +55,12 @@ extraConfig: {}
 extraFiles: {}
 
 extraPodSpec: {}
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 1000
+#   fsGroup: 1000
+#   seccompProfile:
+#     type : RuntimeDefault
 
 # Two bits of config need to be set to fully enable cors.
 # config.BinderHub.cors_allow_origin controls the allowed origins for the
