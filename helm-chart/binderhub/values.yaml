@@ -55,6 +55,12 @@ extraConfig: {}
 extraFiles: {}
 
 extraPodSpec: {}
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 1000
+#   fsGroup: 1000
+#   seccompProfile:
+#     type : RuntimeDefault
 
 # Two bits of config need to be set to fully enable cors.
 # config.BinderHub.cors_allow_origin controls the allowed origins for the
@@ -280,7 +286,7 @@ dind:
   daemonset:
     image:
       name: docker.io/library/docker
-      tag: "27.5.1-dind" # ref: https://hub.docker.com/_/docker/tags
+      tag: "28.3.3-dind" # ref: https://hub.docker.com/_/docker/tags
       pullPolicy: ""
       pullSecrets: []
     # Additional command line arguments to pass to dockerd
@@ -300,7 +306,7 @@ pink:
   daemonset:
     image:
       name: quay.io/podman/stable
-      tag: "v5.5.2" # ref: https://quay.io/repository/podman/stable
+      tag: "v5.6.0" # ref: https://quay.io/repository/podman/stable
       pullPolicy: ""
       pullSecrets: []
     lifecycle: {}

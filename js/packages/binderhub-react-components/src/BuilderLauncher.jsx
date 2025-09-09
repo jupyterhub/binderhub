@@ -1,4 +1,4 @@
-import { BinderRepository } from "@jupyterhub/binderhub-client";
+import { BinderRepository } from "@jupyterhub/binderhub-client/client.js";
 import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -140,6 +140,7 @@ function ImageLogs({
       <div className="card-header d-flex align-items-baseline">
         <span className="flex-fill">Build Logs</span>
         <button
+          id="btn-show-log"
           ref={toggleLogsButton}
           className="btn btn-link"
           type="button"
@@ -151,6 +152,7 @@ function ImageLogs({
           {logsVisible ? "hide" : "show"}
         </button>
         <button
+          id="btn-view-raw-log"
           className="btn btn-link"
           type="button"
           onClick={(ev) => {

@@ -48,8 +48,8 @@ repos:
         pass_filenames: false
 
   # Autoformat: js, html, markdown, yaml, json
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.6.2
     hooks:
       - id: prettier
         exclude_types:
@@ -61,7 +61,7 @@ repos:
 
   # Misc autoformatting and linting
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
         exclude_types: [svg]
@@ -73,7 +73,7 @@ repos:
 
   # Lint: Python code
   - repo: https://github.com/PyCQA/flake8
-    rev: "7.2.0"
+    rev: "7.3.0"
     hooks:
       - id: flake8
 

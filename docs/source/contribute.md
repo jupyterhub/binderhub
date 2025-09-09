@@ -21,8 +21,6 @@ This document also contains information on [how to run tests](running-tests) and
 ## Develop documentation
 
 You are assumed to have a modern version of [Python](https://www.python.org/).
-The documentation uses the [reStructuredText markup
-language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html).
 
 1. Clone the BinderHub repository to your local computer and `cd` into it.
 
@@ -35,23 +33,18 @@ language](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
    ```bash
    python3 -m pip install -r docs/requirements.txt
-   ```
-
-1. The documentation is located in the `docs/` sub-directory, `cd` into it:
-
-   ```bash
-   cd ./docs
+   python3 -m pip install sphinx-autobuild
    ```
 
 1. To build the documentation run:
 
    ```bash
-   make html
+   sphinx-autobuild docs/source docs/_build/html
    ```
 
-1. Open the main documentation page in your browser, it is located at
-   `_build/html/index.html`. On a Mac you can open it directly from the
-   terminal with `open _build/html/index.html`.
+   Changes to the source code will automatically trigger a re-build of the documentation.
+
+1. Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
 (develop-user-interface)=
 
@@ -112,12 +105,33 @@ chart](develop-helm-chart).
 
 ## Develop Kubernetes integration
 
+```{important}
+This requires you create the JS and CSS bundles BinderHub serves to visitors.
+
+1. Install the NodeJS dependencies from `package.json`.
+
+   ~~~bash
+   npm install
+   ~~~
+
+1. Create the JS and CSS bundles.
+
+   ~~~bash
+   npm run webpack
+   ~~~
+```
+
+```{important}
 This requires `helm` and a functional Kubernetes cluster. Please do
 [preliminary Kubernetes setup](kubernetes-setup) if you haven't already
 before continuing here.
+```
 
-With a Kubernetes cluster running, as you verify with `kubectl version`, you can
-continue.
+1. Verify that you have access to a Kubernetes cluster running.
+
+   ```bash
+   kubectl version
+   ```
 
 1. Locally install BinderHub as a Python package and its development
    requirements locally.
@@ -136,9 +150,25 @@ continue.
    ./testing/local-binder-k8s-hub/install-jupyterhub-chart
    ```
 
+1. Export the location of your JupyterHub to the environment variable `LOCAL_BINDER_JUPYTERHUB_IP`.
+
+   If using `minikube`,
+
+   ```bash
+   export LOCAL_BINDER_JUPYTERHUB_IP=$(minikube ip)
+   ```
+
+   If using Docker Desktop,
+
+   ```bash
+   export LOCAL_BINDER_JUPYTERHUB_IP='kubernetes.docker.internal'
+   ```
+
 1. Configure `docker` using environment variables to use the same Docker daemon
    as your local Kubernetes cluster. This means images you build are directly
-   available to the cluster. If using `minikube`,
+   available to the cluster.
+
+   If using `minikube`,
 
    ```bash
    eval $(minikube docker-env)
@@ -158,20 +188,28 @@ continue.
 
 1. Visit [http://localhost:8585](http://localhost:8585)
 
-1. Congratulations, you can now make changes and see how they influence the
-   deployment. You may be required to restart the BinderHub depending on what
-   you change. You can also start running `pytest` tests to verify the
-   Deployment functions as it should.
+Congratulations, you can now make changes and see how they influence the
+deployment. You may be required to restart the BinderHub depending on what
+you change. You can also start running `pytest` tests to verify the
+Deployment functions as it should.
 
 ### Cleanup resources
 
-1. To cleanup the JupyterHub Helm chart you have installed in Kubernetes...
+1. Cleanup the JupyterHub Helm chart you have installed in Kubernetes.
 
    ```bash
    helm delete binderhub-test
    ```
 
-1. To stop running the Kubernetes cluster...
+1. Restore the context used by `docker`.
+
+   ```bash
+   docker context use default
+   ```
+
+1. Stop running the Kubernetes cluster.
+
+   If using `minikube`,
 
    ```bash
    minikube stop
@@ -413,6 +451,31 @@ to prepare for breaking changes associated with the version bump.
 
 For more details, see this [guide on uploading package to
 PyPI](https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi).
+
+#### BinderHub NPM package release checklist
+
+- update the version number in `js/packages/binderhub-client/package.json` and `js/packages/binderhub-react-components/package.json`
+- update/close the `CHANGES.md` for this release (see below)
+- create a git tag for the release
+- login into NPM
+- run
+
+  ```bash
+  npm publish -w js/packages/binderhub-client/ --access public
+  ```
+
+  and follow the instructions for authentication.
+
+- run
+
+  ```bash
+  npm publish -w js/packages/binderhub-react-components/ --access public
+  ```
+
+  and follow the instructions for authentication.
+
+- create a new release on https://github.com/jupyterhub/binderhub/releases
+- add a new section at the top of the change log for future releases
 
 #### Updating the changelog
 

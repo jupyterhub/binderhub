@@ -1,8 +1,11 @@
 {
   "name": "@jupyterhub/binderhub-client",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "description": "Simple API client for the BinderHub EventSource API",
-  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/client.js",
+    "./*.js": "./lib/*.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jupyterhub/binderhub.git"
