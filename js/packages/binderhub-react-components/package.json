@@ -7,7 +7,6 @@
   },
   "scripts": {
     "build": "esbuild src/*.jsx --loader:.ico=dataurl --bundle --external:react --outdir=dist",
-    "lint": "eslint binderhub/static/js js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
