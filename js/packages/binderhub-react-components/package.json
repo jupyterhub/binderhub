@@ -7,7 +7,13 @@
   },
   "scripts": {
     "build": "esbuild src/*.jsx --loader:.ico=dataurl --bundle --external:react --outdir=dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/../../../setupTests.js"
+    ]
   },
   "repository": {
     "type": "git",
