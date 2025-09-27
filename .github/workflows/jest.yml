@@ -5,12 +5,12 @@ on:
   pull_request:
     paths:
       - "binderhub/static/js/**"
-      - "js/packages/binderhub-client/**"
+      - "js/**"
       - ".github/workflows/jest.yml"
   push:
     paths:
       - "binderhub/static/js/**"
-      - "js/packages/binderhub-client/**"
+      - "js/**"
       - ".github/workflows/jest.yml"
     branches-ignore:
       - "dependabot/**"
