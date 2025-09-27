@@ -35,7 +35,7 @@ window.pageConfig = {
       repo: {
         label: "GitHub repository name or URL",
         placeholder:
-          "example: yuvipanda/requirements or https://github.com/yuvipanda/requirements",
+          "example: binder-examples/requirements or https://github.com/binder-examples/requirements",
       },
     },
     {

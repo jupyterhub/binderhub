@@ -843,7 +843,7 @@ class GitHubRepoProvider(RepoProvider):
         "detect": {"regex": "^(https?://github.com/)?(?<repo>.*[^/])/?"},
         "repo": {
             "label": "GitHub repository name or URL",
-            "placeholder": "example: yuvipanda/requirements or https://github.com/yuvipanda/requirements",
+            "placeholder": "example: binder-examples/requirements or https://github.com/binder-examples/requirements",
             "urlEncode": False,
         },
         "ref": {"enabled": True, "default": "HEAD"},
