@@ -7,8 +7,13 @@
   },
   "scripts": {
     "build": "esbuild src/*.jsx --loader:.ico=dataurl --bundle --external:react --outdir=dist",
-    "lint": "eslint binderhub/static/js js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/../../../setupTests.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -24,6 +29,8 @@
   },
   "homepage": "https://github.com/jupyterhub/binderhub#readme",
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
     "esbuild": "^0.25.6",
     "eslint": "^9.31.0"
   },

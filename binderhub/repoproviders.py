@@ -226,8 +226,13 @@ class FakeProvider(RepoProvider):
         "displayName": "Fake",
         "id": "fake",
         "enabled": False,
-        "spec": {"validateRegex": ".*"},
-        "repo": {"label": "Fake Repo", "placeholder": "", "urlEncode": False},
+        "spec": {"validateRegex": ".+"},
+        "detect": {"regex": "(?<repo>.+)"},
+        "repo": {
+            "label": "Fake Repo",
+            "placeholder": "example: fake",
+            "urlEncode": False,
+        },
         "ref": {
             "enabled": False,
         },
