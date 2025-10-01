@@ -55,7 +55,7 @@ jobs:
           #   values_path: imageCleaner.image.tag
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get values.yaml pinned tag of ${{ matrix.registry }}/${{ matrix.repository }}
         id: local
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Refreeze helm-chart/images/binderhub/requirements.txt based on requirements.in
         run: ci/refreeze
