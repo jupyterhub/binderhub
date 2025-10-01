@@ -152,7 +152,7 @@ jobs:
           npm install
           npm run webpack
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         id: setup-python
         with:
           python-version: "3.12"
@@ -408,7 +408,7 @@ jobs:
           path: ~/.npm
           key: node-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('**/package.json') }}-${{ github.job }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         id: setup-python
         with:
           # Set this to the oldest Python version supported by BinderHub
