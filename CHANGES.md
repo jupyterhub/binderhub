@@ -13,6 +13,11 @@ make it easier to track what has changed over time_
 
 ## Breaking changes
 
+### `imageCleaner.host.dockerSocket` is replaced by `dockerSocketDir` and `dockerSocketName`
+
+`imageCleaner.host.dockerSocket` is replaced by `imageCleaner.host.dockerSocketDir` and `imageCleaner.host.dockerSocketHost` [#2030](https://github.com/jupyterhub/binderhub/pull/2030).
+This gives us more control over how the socket is mounted to work around some bugs.
+
 ### `binderhub_config.py` is mounted at runtime
 
 The `binderhub_config.py` file is now mounted at runtime instead of being built into the BinderHub image
