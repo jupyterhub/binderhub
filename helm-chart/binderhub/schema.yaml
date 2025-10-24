@@ -495,16 +495,20 @@ properties:
       host:
         type: object
         additionalProperties: false
-        required: [dockerSocket, dockerLibDir]
+        required: [dockerSocketDir, dockerSocketName, dockerLibDir]
         properties:
           enabled:
             type: boolean
             description: |
               DEPRECATED: use imageCleaner.enabled if the cleaner shall not used.
-          dockerSocket:
+          dockerSocketDir:
             type: string
             description: |
-              TODO
+              Host directory containing the docker socket.
+          dockerSocketName:
+            type: string
+            description: |
+              Filename of the docker socket.
           dockerLibDir:
             type: string
             description: |
