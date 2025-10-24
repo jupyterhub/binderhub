@@ -128,7 +128,8 @@ imageCleaner:
   imageGCThresholdHigh: 2
   imageGCThresholdLow: 1
   host:
-    dockerSocket: /var/run/docker.sock
+    dockerSocketDir: /var/run
+    dockerSocketName: docker.sock
     dockerLibDir: /var/lib/docker
 
 ingress:

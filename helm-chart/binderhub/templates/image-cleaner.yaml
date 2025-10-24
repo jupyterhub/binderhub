@@ -49,8 +49,8 @@ spec:
         volumeMounts:
         - name: storage-{{ $builderName }}
           mountPath: /var/lib/{{ $builderName }}
-        - name: socket-{{ $builderName }}
-          mountPath: /var/run/docker.sock
+        - name: socketdir-{{ $builderName }}
+          mountPath: /var/run
         env:
         {{- if .Values.imageCleaner.cordon }}
         - name: DOCKER_IMAGE_CLEANER_NODE_NAME
@@ -68,6 +68,8 @@ spec:
           value: {{ .Values.imageCleaner.imageGCThresholdHigh | quote }}
         - name: DOCKER_IMAGE_CLEANER_THRESHOLD_LOW
           value: {{ .Values.imageCleaner.imageGCThresholdLow | quote }}
+        - name: DOCKER_HOST
+          value: unix:///var/run/{{ eq $builderName "host" | ternary .Values.imageCleaner.host.dockerSocketName $builder.hostSocketName }}
         {{- with .Values.imageCleaner.extraEnv }}
         {{- include "jupyterhub.extraEnv" . | nindent 8 }}
         {{- end }}
@@ -77,19 +79,19 @@ spec:
       - name: storage-host
         hostPath:
           path: {{ .Values.imageCleaner.host.dockerLibDir }}
-      - name: socket-host
+      - name: socketdir-host
         hostPath:
-          path: {{ .Values.imageCleaner.host.dockerSocket }}
-          type: Socket
+          path: {{ .Values.imageCleaner.host.dockerSocketDir }}
+          type: Directory
       {{- end }}
       {{- if or (eq $builderName "dind") (eq $builderName "pink") }}
       - name: storage-{{ $builderName }}
         hostPath:
           path: {{ eq $builderName "dind" | ternary $builder.hostLibDir $builder.hostStorageDir }}
-          type: DirectoryOrCreate
-      - name: socket-{{ $builderName }}
+          type: Directory
+      - name: socketdir-{{ $builderName }}
         hostPath:
-          path: {{ $builder.hostSocketDir }}/{{ $builder.hostSocketName }}
-          type: Socket
+          path: {{ $builder.hostSocketDir }}
+          type: Directory
       {{- end }}
 {{- end }}
