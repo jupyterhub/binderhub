@@ -87,7 +87,7 @@ jobs:
         run: |
           py.test --cov=binderhub -s integration-tests/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-traces
