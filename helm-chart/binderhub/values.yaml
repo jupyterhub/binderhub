@@ -306,7 +306,7 @@ pink:
   daemonset:
     image:
       name: quay.io/podman/stable
-      tag: "v5.6.1" # ref: https://quay.io/repository/podman/stable
+      tag: "v5.6.2" # ref: https://quay.io/repository/podman/stable
       pullPolicy: ""
       pullSecrets: []
     lifecycle: {}
