@@ -207,11 +207,11 @@ async def test_dataverse(
     "spec,resolved_spec,resolved_ref,resolved_ref_url,build_slug",
     [
         [
-            "https://demo.ckan.org/dataset/sample-dataset-1",
-            "https://demo.ckan.org/dataset/sample-dataset-1",
-            "sample-dataset-1.v",
-            "https://demo.ckan.org/dataset/sample-dataset-1",
-            "ckan-sample-dataset-1",
+            "https://demo.ckan.org/dataset/my-sample-dataset-001",
+            "https://demo.ckan.org/dataset/my-sample-dataset-001",
+            "my-sample-dataset-001.v",
+            "https://demo.ckan.org/dataset/my-sample-dataset-001",
+            "ckan-my-sample-dataset-001",
         ],
         [
             "https://data.depositar.io/dataset/binder-example-sea-turtle-sightings-in-taiwan/?activity_id=93df7fd0-0edc-4ebf-bac7-fbf5f78de90b",

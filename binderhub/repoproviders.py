@@ -506,7 +506,7 @@ class CKANProvider(RepoProvider):
         "spec": {"validateRegex": r"[^/]+"},
         "repo": {
             "label": "CKAN dataset URL",
-            "placeholder": "https://demo.ckan.org/dataset/sample-dataset-1",
+            "placeholder": "https://demo.ckan.org/dataset/my-sample-dataset-001",
             "urlEncode": True,
         },
         "ref": {"enabled": False},
