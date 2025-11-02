@@ -90,6 +90,10 @@ jobs:
             # upgrade-from represents a release channel, see: https://jupyterhub.github.io/helm-chart/info.json
             upgrade-from: dev
             upgrade-from-extra-args: ""
+            local-chart-extra-args: >-
+              --values testing/k8s-binder-k8s-hub/binderhub-chart+dind.yaml
+              --set config.BinderHub.image_prefix=$REGISTRY_HOST/test/
+              --set registry.url=http://$REGISTRY_HOST
 
     services:
       registry:
@@ -103,8 +107,13 @@ jobs:
           # chartpress requires the full history
           fetch-depth: 0
 
+      - name: Do we need a local registry
+        if: matrix.test-variation == 'dind' || matrix.test-variation == 'pink' || matrix.test-variation == 'upgrade'
+        run: |
+          echo USE_LOCAL_REGISTRY=yes >> $GITHUB_ENV
+
       - name: Set registry host
-        if: matrix.test-variation == 'dind' || matrix.test-variation == 'pink'
+        if: env.USE_LOCAL_REGISTRY == 'yes'
         run: |
           REGISTRY_HOST=$(hostname -I | awk '{print $1}'):5000
           echo REGISTRY_HOST="$REGISTRY_HOST" >> $GITHUB_ENV
@@ -125,7 +134,7 @@ jobs:
           helm-version: ${{ matrix.helm-version }}
           metrics-enabled: false
           traefik-enabled: false
-          docker-enabled: ${{ matrix.test-variation != 'dind' && matrix.test-variation != 'pink' }}
+          docker-enabled: ${{ env.USE_LOCAL_REGISTRY != 'yes' }}
 
       - name: Setup OS level dependencies
         run: |
@@ -193,7 +202,7 @@ jobs:
           export DOCKER_BUILDKIT=1
 
           CHARTPRESS_ARGS=
-          if [ "${{ matrix.test-variation }}" = "dind" -o "${{ matrix.test-variation }}" = "pink" ]; then
+          if [ "${{ env.USE_LOCAL_REGISTRY }}" = "yes" ]; then
             CHARTPRESS_ARGS="--image-prefix localhost:5000/binderhub- --push"
 
             # Allow the pods to push to the non-https GitHub workflow registry
