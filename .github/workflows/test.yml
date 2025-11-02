@@ -136,7 +136,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         id: setup-node
         with:
           node-version: "22"
@@ -397,7 +397,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         id: setup-node
         with:
           node-version: "22"
