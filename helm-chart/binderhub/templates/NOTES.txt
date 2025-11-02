@@ -200,6 +200,10 @@ config:
 {{- $breaking = print $breaking "\n\nThe image cleaner is either disabled or adapted to the value of imageBuilderType." }}
 {{- end }}
 
+{{- if hasKey .Values.imageCleaner.host "dockerSocket" }}
+{{- $breaking = print $breaking "\n\nCHANGED: imageCleaner.host.dockerSocket has been removed, use imageCleaner.host.dockerSocketDir and imageCleaner.host.dockerSocketHost instead" }}
+{{- end }}
+
 {{- if $breaking }}
 {{- fail (print $breaking_title $breaking) }}
 {{- end }}

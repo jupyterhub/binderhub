@@ -501,6 +501,10 @@ properties:
             type: boolean
             description: |
               DEPRECATED: use imageCleaner.enabled if the cleaner shall not used.
+          dockerSocket:
+            type: string
+            description: |
+              REMOVED: use imageCleaner.host.dockerSocketDir and imageCleaner.host.dockerSocketHost instead.
           dockerSocketDir:
             type: string
             description: |
