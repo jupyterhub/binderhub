@@ -28,7 +28,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 
@@ -42,7 +42,7 @@ jobs:
   # in small things. Unfortunately there is no easy way to share steps between
   # jobs or have "template" jobs, so we use `if` conditions on steps
   tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     permissions:
@@ -136,7 +136,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         id: setup-node
         with:
           node-version: "22"
@@ -156,12 +156,8 @@ jobs:
         id: setup-python
         with:
           python-version: "3.12"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
+          cache: pip
+          cache-dependency-path: '**/*requirements.txt'
 
       - name: Update pip
         run: |
@@ -377,7 +373,7 @@ jobs:
       - uses: codecov/codecov-action@v5
 
   test-local:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
 
     permissions:
@@ -397,7 +393,7 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         id: setup-node
         with:
           node-version: "22"
@@ -413,12 +409,8 @@ jobs:
         with:
           # Set this to the oldest Python version supported by BinderHub
           python-version: "3.10"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/*requirements.txt') }}-${{ github.job }}
+          cache: pip
+          cache-dependency-path: '**/*requirements.txt'
 
       - name: Update pip
         run: |
