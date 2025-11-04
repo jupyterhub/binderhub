@@ -495,7 +495,7 @@ properties:
       host:
         type: object
         additionalProperties: false
-        required: [dockerSocket, dockerLibDir]
+        required: [dockerSocketDir, dockerSocketName, dockerLibDir]
         properties:
           enabled:
             type: boolean
@@ -504,7 +504,15 @@ properties:
           dockerSocket:
             type: string
             description: |
-              TODO
+              REMOVED: use imageCleaner.host.dockerSocketDir and imageCleaner.host.dockerSocketHost instead.
+          dockerSocketDir:
+            type: string
+            description: |
+              Host directory containing the docker socket.
+          dockerSocketName:
+            type: string
+            description: |
+              Filename of the docker socket.
           dockerLibDir:
             type: string
             description: |
