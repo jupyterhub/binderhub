@@ -34,7 +34,7 @@ jobs:
       GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup OS level dependencies
         run: |
