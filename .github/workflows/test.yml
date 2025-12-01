@@ -30,7 +30,7 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: install requirements
         run: pip install ruamel.yaml
@@ -102,7 +102,7 @@ jobs:
           - 5000:5000
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # chartpress requires the full history
           fetch-depth: 0
@@ -391,7 +391,7 @@ jobs:
       GITHUB_ACCESS_TOKEN: "${{ secrets.github_token }}"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup OS level dependencies
         run: |
