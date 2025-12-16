@@ -1,4 +1,4 @@
-import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { EventSource } from "eventsource";
 import { EventIterator } from "event-iterator";
 
 function _getXSRFToken() {
@@ -21,8 +21,6 @@ function _getXSRFToken() {
   return null;
 }
 
-/* throw this to close the event stream */
-class EventStreamClose extends Error {}
 /* throw this to close the event stream */
 class EventStreamRetry extends Error {}
 
@@ -68,8 +66,7 @@ export class BinderRepository {
     }
     this.apiToken = apiToken;
 
-    this.eventIteratorQueue = null;
-    this.abortSignal = null;
+    this.stopQueue = null;
   }
 
   /**
@@ -96,7 +93,6 @@ export class BinderRepository {
    */
   fetch() {
     const headers = {};
-    this.abortController = new AbortController();
 
     if (this.apiToken && this.apiToken.length > 0) {
       headers["Authorization"] = `Bearer ${this.apiToken}`;
@@ -106,90 +102,62 @@ export class BinderRepository {
         headers["X-Xsrftoken"] = xsrf;
       }
     }
-    // setTimeout(() => this.close(), 1000);
+
+    const es = new EventSource(this.buildUrl, {
+      fetch: async (input, init) => {
+        const response = await fetch(input, {
+          ...init,
+          headers: { ...init.headers, ...headers },
+        });
+        // Known failures are passed on and handled in onError
+        if (response.ok) {
+          return response;
+        } else if (
+          response.status >= 400 &&
+          response.status < 500 &&
+          response.status !== 429
+        ) {
+          return response;
+        }
+        // Otherwise, throw, triggering a retry
+        throw new EventStreamRetry();
+      },
+    });
+
     return new EventIterator((queue) => {
-      this.eventIteratorQueue = queue;
-      fetchEventSource(this.buildUrl, {
-        headers,
-        // signal used for closing
-        signal: this.abortController.signal,
-        // openWhenHidden leaves connection open (matches default)
-        // otherwise fetch-event closes connections,
-        // which would be nice if our javascript handled restarting messages better
-        openWhenHidden: true,
-        onopen: (response) => {
-          if (response.ok) {
-            return; // everything's good
-          } else if (
-            response.status >= 400 &&
-            response.status < 500 &&
-            response.status !== 429
-          ) {
-            queue.push({
-              phase: "failed",
-              message: `Failed to connect to event stream: ${response.status} - ${response.text}\n`,
-            });
-            throw new EventStreamClose();
-          } else {
-            queue.push({
-              phase: "unknown",
-              message: `Error connecting to event stream, retrying: ${response.status} - ${response.text}\n`,
-            });
-            throw new EventStreamRetry();
-          }
-        },
+      this.stopQueue = () => queue.stop();
 
-        onclose: () => {
-          if (!queue.isStopped) {
-            // close called before queue finished
-            queue.push({
-              phase: "failed",
-              message: `Event stream closed unexpectedly\n`,
-            });
-            queue.stop();
-            // throw new EventStreamClose();
-          }
-        },
-        onerror: (error) => {
-          console.log("Event stream error", error);
-          if (error.name === "EventStreamRetry") {
-            // if we don't re-raise, connection will be retried;
-            queue.push({
-              phase: "unknown",
-              message: `Error in event stream: ${error}\n`,
-            });
-            return;
-          }
-          if (
-            !(error.name === "EventStreamClose" || error.name === "AbortError")
-          ) {
-            // errors _other_ than EventStreamClose get displayed
-            queue.push({
-              phase: "failed",
-              message: `Error in event stream: ${error}\n`,
-            });
-          }
+      const onMessage = (event) => {
+        if (!event.data || event.data === "") {
+          // onmessage is called for the empty lines
+          return;
+        }
+        const data = JSON.parse(event.data);
+        // FIXME: fix case of phase/state upstream
+        if (data.phase) {
+          data.phase = data.phase.toLowerCase();
+        }
+        queue.push(data);
+        if (data.phase === "failed") {
           queue.stop();
-          // need to rethrow to prevent reconnection
-          throw error;
-        },
+        }
+      };
 
-        onmessage: (event) => {
-          if (!event.data || event.data === "") {
-            // onmessage is called for the empty lines
-            return;
-          }
-          const data = JSON.parse(event.data);
-          // FIXME: fix case of phase/state upstream
-          if (data.phase) {
-            data.phase = data.phase.toLowerCase();
-          }
-          queue.push(data);
-          if (data.phase === "failed") {
-            throw new EventStreamClose();
-          }
-        },
-      });
+      const onError = (error) => {
+        queue.push({
+          phase: "unknown",
+          message: `Error in event stream: ${error}\n`,
+        });
+        queue.stop();
+      };
+
+      es.addEventListener("message", onMessage);
+      es.addEventListener("error", onError);
+      return () => {
+        es.removeEventListener("message", onMessage);
+        es.removeEventListener("error", onError);
+        es.close();
+      };
     });
   }
 
@@ -197,15 +165,10 @@ export class BinderRepository {
    * Close the EventSource connection to the BinderHub API if it is open
    */
   close() {
-    if (this.eventIteratorQueue) {
-      // Stop any currently running fetch() iterations
-      this.eventIteratorQueue.stop();
-      this.eventIteratorQueue = null;
-    }
-    if (this.abortController) {
+    if (this.stopQueue) {
       // close event source
-      this.abortController.abort();
-      this.abortController = null;
+      this.stopQueue();
+      this.stopQueue = null;
     }
   }
 }
