@@ -454,22 +454,7 @@ class BuildHandler(BaseHandler):
                         await self.launch(provider)
                     except LaunchQuotaExceeded:
                         return
-                self.event_log.emit(
-                    "binderhub.jupyter.org/launch",
-                    5,
-                    {
-                        "provider": provider.name,
-                        "spec": spec,
-                        "ref": ref,
-                        "status": "success",
-                        "build_token": self._have_build_token,
-                        "origin": (
-                            self.settings["normalized_origin"]
-                            if self.settings["normalized_origin"]
-                            else self.request.host
-                        ),
-                    },
-                )
+                self.emit_launch_event(provider, spec, ref)
             return
 
         # Don't allow builds when quota is exceeded
@@ -603,22 +588,7 @@ class BuildHandler(BaseHandler):
             # Launch after building an image
             with LAUNCHES_INPROGRESS.track_inprogress():
                 await self.launch(provider)
-            self.event_log.emit(
-                "binderhub.jupyter.org/launch",
-                5,
-                {
-                    "provider": provider.name,
-                    "spec": spec,
-                    "ref": ref,
-                    "status": "success",
-                    "build_token": self._have_build_token,
-                    "origin": (
-                        self.settings["normalized_origin"]
-                        if self.settings["normalized_origin"]
-                        else self.request.host
-                    ),
-                },
-            )
+            self.emit_launch_event(provider, spec, ref)
 
         # Don't close the eventstream immediately.
         # (javascript) eventstream clients reconnect automatically on dropped connections,
@@ -629,6 +599,35 @@ class BuildHandler(BaseHandler):
         # The duration of this shouldn't matter because
         # well-behaved clients will close connections after they receive the launch event.
         await gen.sleep(60)
+
+    def emit_launch_event(self, provider, spec, ref):
+        """Emit a single launch event to the activity log"""
+        host = (
+            self.settings["normalized_origin"]
+            if self.settings["normalized_origin"]
+            else self.request.host
+        )
+        request_origin = self.request.headers.get("Origin")
+        if request_origin is None:
+            # we still want to distinguish _likely_ scripts from regular browser visits,
+            # which should always have sec-fetch-site: same-origin
+            # (scripts will generally not set this header unless they are explicitly trying to spoof browsers)
+            # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site
+            request_origin = self.request.headers.get("Sec-Fetch-Site")
+        self.event_log.emit(
+            "binderhub.jupyter.org/launch",
+            6,
+            {
+                "provider": provider.name,
+                "spec": spec,
+                "ref": ref,
+                "status": "success",
+                "build_token": self._have_build_token,
+                # 'origin' should have been called host, but can't break things
+                "origin": host,
+                "request_origin": request_origin,
+            },
+        )
 
     async def check_quota(self, provider):
         """Check quota before proceeding with build/launch

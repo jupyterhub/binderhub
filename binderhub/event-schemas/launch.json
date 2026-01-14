@@ -1,6 +1,6 @@
 {
   "$id": "binderhub.jupyter.org/launch",
-  "version": 5,
+  "version": 6,
   "title": "BinderHub Launch Events",
   "description": "BinderHub emits this event whenever a new repo is launched",
   "type": "object",
@@ -38,6 +38,10 @@
     "origin": {
       "type": "string",
       "description": "BinderHub host where the event originated"
+    },
+    "request_origin": {
+      "type": "string",
+      "description": "Origin header of the request (e.g. for cross-origin API launches). Contains Sec-Fetch-Site header when Origin is not present."
     }
   }
 }
