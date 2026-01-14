@@ -13,7 +13,6 @@ from http.client import responses
 import docker
 import escapism
 from prometheus_client import Counter, Gauge, Histogram
-from tornado import gen
 from tornado.httpclient import HTTPClientError
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
@@ -176,7 +175,7 @@ class BuildHandler(BaseHandler):
         """
         self._keepalive = True
         while True:
-            await gen.sleep(self.KEEPALIVE_INTERVAL)
+            await asyncio.sleep(self.KEEPALIVE_INTERVAL)
             if not self._keepalive:
                 return
             try:
@@ -184,7 +183,7 @@ class BuildHandler(BaseHandler):
                 # and should be ignored by event consumers
                 self.write(":keepalive\n\n")
                 await self.flush()
-            except StreamClosedError:
+            except (StreamClosedError, RuntimeError):
                 return
 
     def send_error(self, status_code, **kwargs):
@@ -283,8 +282,7 @@ class BuildHandler(BaseHandler):
             return
 
         # create a heartbeat
-        IOLoop.current().spawn_callback(self.keep_alive)
-
+        asyncio.create_task(self.keep_alive())
         spec = spec.rstrip("/")
         key = f"{provider_prefix}:{spec}"
 
@@ -513,12 +511,21 @@ class BuildHandler(BaseHandler):
                 nonlocal failed
                 try:
                     r = future.result()
-                    app_log.debug("task completed: %s", r)
+                    app_log.debug("Build task completed: %s", r)
                 except Exception:
-                    app_log.error("task failed", exc_info=True)
+                    app_log.error("Build task failed", exc_info=True)
                     done = True
                     failed = True
-                    # TODO: Propagate error to front-end
+                    # make sure to wake the `await q.get()` below with a message
+                    build.progress(
+                        ProgressEvent.Kind.LOG_MESSAGE,
+                        json.dumps(
+                            {
+                                "phase": ProgressEvent.BuildStatus.FAILED.value,
+                                "message": "Unhandled error watching for build events. Please try again.\n",
+                            }
+                        ),
+                    )
 
             build_starttime = time.perf_counter()
             pool = self.settings["build_pool"]
@@ -628,7 +635,7 @@ class BuildHandler(BaseHandler):
         # client will close its connection first.
         # The duration of this shouldn't matter because
         # well-behaved clients will close connections after they receive the launch event.
-        await gen.sleep(60)
+        await asyncio.sleep(60)
 
     async def check_quota(self, provider):
         """Check quota before proceeding with build/launch
@@ -759,7 +766,7 @@ class BuildHandler(BaseHandler):
                         "message": f"Launch attempt {i + 1} failed, retrying...\n",
                     }
                 )
-                await gen.sleep(retry_delay)
+                await asyncio.sleep(retry_delay)
                 # exponential backoff for consecutive failures
                 retry_delay *= 2
                 continue
