@@ -342,6 +342,17 @@ imageCleaner:
     dockerSocketName: docker.sock
     dockerLibDir: /var/lib/docker
 
+httpRoute:
+  enabled: false
+  annotations: {}
+  hostnames: []
+  parentRefs: []
+  filters: []
+  matches:
+    - path:
+        type: PathPrefix
+        value: /
+
 ingress:
   enabled: false
   https:
