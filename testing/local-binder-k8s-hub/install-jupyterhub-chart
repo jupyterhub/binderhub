@@ -5,6 +5,7 @@ specified in the BinderHub Helm chart's Chart.yaml file, and use the
 configuration for the JupyterHub Helm chart nested in the BinderHub helm chart's
 configuration.
 """
+
 import os
 import sys
 from subprocess import check_call
