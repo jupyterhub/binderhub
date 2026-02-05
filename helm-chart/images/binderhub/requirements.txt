@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.18.1
+alembic==1.18.3
     # via jupyterhub
 annotated-types==0.7.0
     # via pydantic
@@ -24,8 +24,10 @@ cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.4
     # via requests
-cryptography==46.0.3
-    # via certipy
+cryptography==46.0.4
+    # via
+    #   certipy
+    #   google-auth
 docker==7.1.0
     # via -r requirements.txt
 escapism==1.1.0
@@ -37,7 +39,7 @@ google-api-core==2.29.0
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.47.0
+google-auth==2.48.0
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -58,7 +60,7 @@ googleapis-common-protos==1.72.0
     #   google-cloud-audit-log
     #   grpc-google-iam-v1
     #   grpcio-status
-greenlet==3.3.0
+greenlet==3.3.1
     # via sqlalchemy
 grpc-google-iam-v1==0.14.3
     # via google-cloud-logging
@@ -116,7 +118,7 @@ oauthlib==3.3.1
     #   requests-oauthlib
 opentelemetry-api==1.39.1
     # via google-cloud-logging
-packaging==25.0
+packaging==26.0
     # via
     #   jupyter-events
     #   jupyterhub
@@ -126,12 +128,12 @@ prometheus-client==0.24.1
     # via
     #   -r requirements.txt
     #   jupyterhub
-proto-plus==1.27.0
+proto-plus==1.27.1
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==6.33.4
+protobuf==6.33.5
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -147,7 +149,7 @@ pyasn1==0.6.2
     #   rsa
 pyasn1-modules==0.4.2
     # via google-auth
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pycurl==7.45.7
     # via -r helm-chart/images/binderhub/requirements.in
@@ -155,7 +157,7 @@ pydantic==2.12.5
     # via jupyterhub
 pydantic-core==2.41.5
     # via pydantic
-pyjwt==2.10.1
+pyjwt==2.11.0
     # via -r requirements.txt
 python-dateutil==2.9.0.post0
     # via
@@ -207,7 +209,7 @@ six==1.17.0
     #   kubernetes
     #   python-dateutil
     #   rfc3339-validator
-sqlalchemy==2.0.45
+sqlalchemy==2.0.46
     # via
     #   alembic
     #   jupyterhub
@@ -248,5 +250,5 @@ zipp==3.23.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.9.0
+setuptools==80.10.2
     # via kubernetes
