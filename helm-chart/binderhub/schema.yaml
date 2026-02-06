@@ -518,6 +518,51 @@ properties:
             description: |
               TODO
 
+  httpRoute:
+    type: object
+    required:
+      - enabled
+    properties:
+      enabled:
+        type: boolean
+        description: |
+          Enable the creation of a Gateway API HTTPRoute referencing incoming
+          network network traffic to the binder k8s Service.
+      annotations:
+        type: object
+        additionalProperties: false
+        patternProperties: *labels-and-annotations-patternProperties
+        description: |
+          Annotations to apply to the HTTPRoute resource.
+
+          See [the Kubernetes
+          documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)
+          for more details about annotations.
+      hostnames:
+        type: array
+        description: |
+          List of hostnames to route requests to the proxy.
+      filters:
+        type: array
+        description: |
+          List of HTTPRoute filters.
+
+          See [the Gateway API](https://gateway-api.sigs.k8s.io/reference/spec/#httproutefilter)
+      matches:
+        type: array
+        description: |
+          List of HTTPRoute matches to apply.
+
+          Default:
+
+          ```yaml
+          - path:
+              type: PathPrefix
+              value: /
+          ```
+
+          See [the Gateway API](https://gateway-api.sigs.k8s.io/reference/spec/#httproutematch)
+
   ingress:
     type: object
     additionalProperties: false
