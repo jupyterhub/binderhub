@@ -143,6 +143,14 @@ class BinderHub(Application):
                 f"Setting {change.owner.__class__.__name__}.{change.name} is no longer supported. Use {change.owner.__class__.__name__}.extra_footer_scripts to load Google Analytics JS directly"
             )
 
+    template_file = Unicode(
+        "page.html",
+        help="""
+        The template file to be used when rendering the web page.
+        """,
+        config=True,
+    )
+
     about_message = Unicode(
         "",
         help="""
@@ -969,6 +977,7 @@ class BinderHub(Application):
                 "registry": registry,
                 "traitlets_config": self.config,
                 "traitlets_parent": self,
+                "template_file": self.template_file,
                 "about_message": self.about_message,
                 "banner_message": self.banner_message,
                 "extra_footer_scripts": self.extra_footer_scripts,
