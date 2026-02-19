@@ -55,17 +55,13 @@ def strip_suffix(text, suffix):
 class RepoProvider(LoggingConfigurable):
     """Base class for a repo provider"""
 
-    name = Unicode(
-        help="""
+    name = Unicode(help="""
         Descriptive human readable name of this repo provider.
-        """
-    )
+        """)
 
-    spec = Unicode(
-        help="""
+    spec = Unicode(help="""
         The spec for this builder to parse
-        """
-    )
+        """)
 
     allowed_specs = List(
         help="""
@@ -759,12 +755,10 @@ class GitLabRepoProvider(RepoProvider):
     def _private_token_default(self):
         return os.getenv("GITLAB_PRIVATE_TOKEN", "")
 
-    auth = Dict(
-        help="""Auth parameters for the GitLab API access
+    auth = Dict(help="""Auth parameters for the GitLab API access
 
         Populated from access_token, private_token
-    """
-    )
+    """)
 
     @default("auth")
     def _default_auth(self):
