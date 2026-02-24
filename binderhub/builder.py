@@ -250,6 +250,19 @@ class BuildHandler(BaseHandler):
         # disable redirect to login, which won't work for EventSource
         raise HTTPError(403)
 
+    async def prepare(self):
+        super().prepare()
+
+        # check Accept header to make sure it's a real EventSource request
+        accept_header = self.request.headers.get("Accept", "")
+        accept = {s.strip().lower() for s in accept_header.split(";")}
+
+        if "text/event-stream" not in accept:
+            app_log.warning(
+                "Bad accept header: %s, missing text/event-stream", accept_header
+            )
+            raise HTTPError(400, "Missing Accept header: text/event-stream")
+
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):
         """Get a built image for a given spec and repo provider.
