@@ -125,7 +125,7 @@ jobs:
       - name: Build a sdist, and a binary wheel from the sdist
         run: python -mbuild .
       # ref: https://github.com/actions/upload-artifact#readme
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: pypi-dist
           path: "dist/*"
