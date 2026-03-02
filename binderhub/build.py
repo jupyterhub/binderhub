@@ -18,6 +18,7 @@ from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from traitlets import Any, Bool, Dict, Integer, List, Unicode, default
 from traitlets.config import LoggingConfigurable
+from urllib3.exceptions import ReadTimeoutError
 
 from .utils import KUBE_REQUEST_TIMEOUT, ByteSpecification, rendezvous_rank
 
@@ -635,6 +636,10 @@ class KubernetesBuildExecutor(BuildExecutor):
                         self.cleanup()
                     elif self.pod.status.phase == "Failed":
                         self.cleanup()
+            except ReadTimeoutError:
+                # just retry after timeout, don't fail
+                app_log.warning("Timeout in watch stream for %s", self.name)
+                pass
             except Exception:
                 app_log.exception("Error in watch stream for %s", self.name)
                 raise
