@@ -562,6 +562,20 @@ properties:
           ```
 
           See [the Gateway API](https://gateway-api.sigs.k8s.io/reference/spec/#httproutematch)
+      parentRefs:
+        type: array
+        description: |
+          List of HTTPRoute parentRefs, identifying the Gateway to use.
+
+          Typically:
+
+          ```yaml
+          - kind: Gateway
+            name: your-gateway
+            namespace: other-namespace # if gateway is in a separate namespace
+          ```
+
+          See [the Gateway API](https://gateway-api.sigs.k8s.io/reference/spec/#parentreference)
 
   ingress:
     type: object
