@@ -157,7 +157,14 @@ class BuildHandler(BaseHandler):
             self.write(f"data: {serialized_data}\n\n")
             await self.flush()
         except StreamClosedError:
-            app_log.warning("Stream closed while handling %s", self.request.uri)
+            # Log extra when builds drop, as this may correlate with bot traffic
+            # (also lots of impatient humans and slow builds)
+            app_log.warning(
+                "Stream closed while handling %s, ip=%s, user_agent=%r",
+                self.request.uri,
+                ip=self.request.remote_ip,
+                user_agent=self.request.headers.get("User-Agent", None),
+            )
             # raise Finish to halt the handler
             raise Finish()
 
