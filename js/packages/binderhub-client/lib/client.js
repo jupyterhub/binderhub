@@ -145,8 +145,8 @@ export class BinderRepository {
 
       const onError = (error) => {
         queue.push({
-          phase: "unknown",
-          message: `Error in event stream: ${error}\n`,
+          phase: "failed",
+          message: `Error in event stream: ${error.message}\n`,
         });
         queue.stop();
       };
