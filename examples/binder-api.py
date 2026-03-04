@@ -26,7 +26,9 @@ def build_binder(repo, ref, *, binder_url="https://mybinder.org", build_only):
     if build_only:
         params = {"build_only": "true"}
 
-    r = requests.get(url, stream=True, params=params)
+    r = requests.get(
+        url, stream=True, params=params, headers={"Accept": "text/event-stream"}
+    )
     r.raise_for_status()
     for line in r.iter_lines():
         line = line.decode("utf8", "replace")

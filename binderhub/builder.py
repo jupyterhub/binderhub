@@ -157,7 +157,14 @@ class BuildHandler(BaseHandler):
             self.write(f"data: {serialized_data}\n\n")
             await self.flush()
         except StreamClosedError:
-            app_log.warning("Stream closed while handling %s", self.request.uri)
+            # Log extra when builds drop, as this may correlate with bot traffic
+            # (also lots of impatient humans and slow builds)
+            app_log.warning(
+                "Stream closed while handling %s, ip=%s, user_agent=%r",
+                self.request.uri,
+                ip=self.request.remote_ip,
+                user_agent=self.request.headers.get("User-Agent", None),
+            )
             # raise Finish to halt the handler
             raise Finish()
 
@@ -249,6 +256,19 @@ class BuildHandler(BaseHandler):
     def redirect(self, *args, **kwargs):
         # disable redirect to login, which won't work for EventSource
         raise HTTPError(403)
+
+    async def prepare(self):
+        super().prepare()
+
+        # check Accept header to make sure it's a real EventSource request
+        accept_header = self.request.headers.get("Accept", "")
+        accept = {s.strip().lower() for s in accept_header.split(";")}
+
+        if "text/event-stream" not in accept:
+            app_log.warning(
+                "Bad accept header: %s, missing text/event-stream", accept_header
+            )
+            raise HTTPError(400, "Missing Accept header: text/event-stream")
 
     @authenticated
     async def get(self, provider_prefix, _unescaped_spec):

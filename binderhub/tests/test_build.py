@@ -59,7 +59,9 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     ):
         pytest.skip("Skipping GitHub API test")
     build_url = f"{app.url}/build/{slug}"
-    r = await async_requests.get(build_url, stream=True)
+    r = await async_requests.get(
+        build_url, headers={"Accept": "text/event-stream"}, stream=True
+    )
     r.raise_for_status()
     events = []
     launch_events = 0
@@ -102,6 +104,31 @@ async def test_build(app, needs_build, needs_launch, always_build, slug, pytestc
     stop.raise_for_status()
 
 
+async def test_build_check_accept(app):
+    """
+    Test build a repo that is very quick and easy to build.
+    """
+    slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
+    build_url = f"{app.url}/build/{slug}"
+    r = await async_requests.get(
+        build_url,
+        stream=True,
+    )
+    # even though we raised 400, the EventStream actually gets 200
+    assert r.status_code == 200
+    events = []
+    async for line in async_requests.iter_lines(r):
+        line = line.decode("utf8", "replace")
+        if line.startswith("data:"):
+            event = json.loads(line.split(":", 1)[1])
+            events.append(event)
+
+    assert len(events) == 1
+    event = events[0]
+    assert event["status_code"] == 400
+    assert "Missing Accept header" in event["message"]
+
+
 @pytest.mark.timeout(900)
 @pytest.mark.parametrize(
     "app,build_only_query_param",
@@ -119,7 +146,10 @@ async def test_build_only(app, build_only_query_param, needs_build):
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
     r = await async_requests.get(
-        build_url, stream=True, params={"build_only": build_only_query_param}
+        build_url,
+        stream=True,
+        params={"build_only": build_only_query_param},
+        headers={"Accept": "text/event-stream"},
     )
     r.raise_for_status()
     events = []
@@ -160,7 +190,11 @@ async def test_build_fail(app, needs_build, needs_launch, always_build):
     """
     slug = "gh/binderhub-ci-repos/minimal-dockerfile/failed"
     build_url = f"{app.url}/build/{slug}"
-    r = await async_requests.get(build_url, stream=True)
+    r = await async_requests.get(
+        build_url,
+        stream=True,
+        headers={"Accept": "text/event-stream"},
+    )
     r.raise_for_status()
     failed_events = 0
     async for line in async_requests.iter_lines(r):
@@ -212,7 +246,10 @@ async def test_build_only_fail(
     slug = "gh/binderhub-ci-repos/cached-minimal-dockerfile/HEAD"
     build_url = f"{app.url}/build/{slug}"
     r = await async_requests.get(
-        build_url, stream=True, params={"build_only": build_only_query_param}
+        build_url,
+        stream=True,
+        params={"build_only": build_only_query_param},
+        headers={"Accept": "text/event-stream"},
     )
     r.raise_for_status()
     failed_events = 0
