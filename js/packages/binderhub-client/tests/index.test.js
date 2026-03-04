@@ -65,7 +65,6 @@ describe("Iterate over full output from calling the binderhub API", () => {
     [serverUrl, closeServer] = await simpleEventSourceServer({
       "/build/gh/test/test": responseContents,
     });
-    console.log(serverUrl);
   });
 
   afterEach(() => closeServer());
@@ -104,7 +103,7 @@ describe("Invalid eventsource response causes failure", () => {
     expect(messages).toStrictEqual([
       {
         phase: "failed",
-        message: "Event stream closed unexpectedly\n",
+        message: "Error in event stream\n",
       },
     ]);
   });
