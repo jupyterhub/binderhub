@@ -41,7 +41,7 @@
     },
     "request_origin": {
       "type": "string",
-      "description": "Origin header of the request (e.g. for cross-origin API launches). Contains Sec-Fetch-Site header when Origin is not present."
+      "description": "Origin header of the request (e.g. for cross-origin API launches). Contains Sec-Fetch-Site header when Origin is not present. Empty string when neither is available."
     }
   }
 }

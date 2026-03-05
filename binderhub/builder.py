@@ -640,7 +640,7 @@ class BuildHandler(BaseHandler):
             # which should always have sec-fetch-site: same-origin
             # (scripts will generally not set this header unless they are explicitly trying to spoof browsers)
             # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site
-            request_origin = self.request.headers.get("Sec-Fetch-Site")
+            request_origin = self.request.headers.get("Sec-Fetch-Site", "")
         self.event_log.emit(
             "binderhub.jupyter.org/launch",
             6,
