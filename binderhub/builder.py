@@ -162,8 +162,8 @@ class BuildHandler(BaseHandler):
             app_log.warning(
                 "Stream closed while handling %s, ip=%s, user_agent=%r",
                 self.request.uri,
-                ip=self.request.remote_ip,
-                user_agent=self.request.headers.get("User-Agent", None),
+                self.request.remote_ip,
+                self.request.headers.get("User-Agent", None),
             )
             # raise Finish to halt the handler
             raise Finish()
