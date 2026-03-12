@@ -14,7 +14,7 @@ attrs==25.4.0
     # via
     #   jsonschema
     #   referencing
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   kubernetes
     #   requests
@@ -22,7 +22,7 @@ certipy==0.2.2
     # via jupyterhub
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
     # via requests
 cryptography==46.0.5
     # via
@@ -34,12 +34,12 @@ escapism==1.1.0
     # via -r requirements.txt
 fqdn==1.5.1
     # via jsonschema
-google-api-core==2.29.0
+google-api-core==2.30.0
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.48.0
+google-auth==2.49.0
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -52,15 +52,15 @@ google-cloud-audit-log==0.4.0
     # via google-cloud-logging
 google-cloud-core==2.5.0
     # via google-cloud-logging
-google-cloud-logging==3.13.0
+google-cloud-logging==3.14.0
     # via -r helm-chart/images/binderhub/requirements.in
-googleapis-common-protos==1.72.0
+googleapis-common-protos==1.73.0
     # via
     #   google-api-core
     #   google-cloud-audit-log
     #   grpc-google-iam-v1
     #   grpcio-status
-greenlet==3.3.1
+greenlet==3.3.2
     # via sqlalchemy
 grpc-google-iam-v1==0.14.3
     # via google-cloud-logging
@@ -68,6 +68,7 @@ grpcio==1.78.0
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
+    #   google-cloud-logging
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
@@ -116,7 +117,7 @@ oauthlib==3.3.1
     # via
     #   jupyterhub
     #   requests-oauthlib
-opentelemetry-api==1.39.1
+opentelemetry-api==1.40.0
     # via google-cloud-logging
 packaging==26.0
     # via
@@ -209,11 +210,11 @@ six==1.17.0
     #   kubernetes
     #   python-dateutil
     #   rfc3339-validator
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
     # via
     #   alembic
     #   jupyterhub
-tornado==6.5.4
+tornado==6.5.5
     # via
     #   -r requirements.txt
     #   jupyterhub
@@ -250,5 +251,5 @@ zipp==3.23.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==82.0.0
+setuptools==82.0.1
     # via kubernetes
