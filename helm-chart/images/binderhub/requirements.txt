@@ -10,7 +10,7 @@ annotated-types==0.7.0
     # via pydantic
 arrow==1.4.0
     # via isoduration
-attrs==25.4.0
+attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
@@ -24,7 +24,7 @@ cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.6
     # via requests
-cryptography==46.0.5
+cryptography==46.0.6
     # via
     #   certipy
     #   google-auth
@@ -87,7 +87,7 @@ jinja2==3.1.6
     # via
     #   -r requirements.txt
     #   jupyterhub
-jsonpointer==3.0.0
+jsonpointer==3.1.1
     # via jsonschema
 jsonschema==4.26.0
     # via
@@ -134,7 +134,7 @@ proto-plus==1.27.1
     #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==6.33.5
+protobuf==6.33.6
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -176,7 +176,7 @@ referencing==0.37.0
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-requests==2.32.5
+requests==2.33.0
     # via
     #   docker
     #   google-api-core
