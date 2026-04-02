@@ -290,7 +290,7 @@ class DockerRegistry(LoggingConfigurable):
             )
             req = httpclient.HTTPRequest(
                 url,
-                headers=headers|{"Authorization": f"Bearer {token}"},
+                headers=headers | {"Authorization": f"Bearer {token}"},
             )
         else:
             # Use basic HTTP auth (htpasswd)
