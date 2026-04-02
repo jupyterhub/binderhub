@@ -279,6 +279,7 @@ class DockerRegistry(LoggingConfigurable):
         client = httpclient.AsyncHTTPClient()
         url = f"{self.url}/v2/{image}/manifests/{tag}"
         token = None
+        headers = {"Accept": "application/vnd.oci.image.manifest.v1+json"}
         # first, get a token to perform the manifest request
         if self.token_url:
             token = await self._get_token(
@@ -289,12 +290,13 @@ class DockerRegistry(LoggingConfigurable):
             )
             req = httpclient.HTTPRequest(
                 url,
-                headers={"Authorization": f"Bearer {token}"},
+                headers=headers|{"Authorization": f"Bearer {token}"},
             )
         else:
             # Use basic HTTP auth (htpasswd)
             req = httpclient.HTTPRequest(
                 url,
+                headers=headers,
                 auth_username=self.username,
                 auth_password=self.password,
             )
