@@ -706,6 +706,8 @@ class BuildHandler(BaseHandler):
             }
         )
 
+        client_ip = self.request.remote_ip
+
         launcher = self.settings["launcher"]
         retry_delay = launcher.retry_delay
         for i in range(launcher.retries):
@@ -739,6 +741,7 @@ class BuildHandler(BaseHandler):
                     "binder_launch_host": self.binder_launch_host,
                     "binder_request": self.binder_request,
                     "binder_persistent_request": self.binder_persistent_request,
+                    "binder_client_ip": client_ip,
                 }
                 server_info = await launcher.launch(
                     image=self.image_name,
