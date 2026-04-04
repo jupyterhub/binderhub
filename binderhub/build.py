@@ -16,7 +16,7 @@ import kubernetes.config
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from traitlets import Any, Bool, Dict, Integer, List, Unicode, default
+from traitlets import Any, Bool, Dict, Integer, List, Unicode, default, observe
 from traitlets.config import LoggingConfigurable
 from urllib3.exceptions import ReadTimeoutError
 
@@ -315,9 +315,37 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
+    resources = Dict(help="""
+        Kubernetes resources for the build pod.
+        Note: This does not apply to the build itself, only the invocation of repo2docker.
+        """)
+
+    @default("resources")
+    def _default_resources(self):
+        resources = {
+            "limits": {},
+            "requests": {},
+        }
+        if self.memory_limit:
+            resources["limits"]["memory"] = self.memory_limit
+        if self.memory_request:
+            self.log.warning(
+                "Using deprecated KubernetesBuildExecutor.memory_request. Use KubernetesBuildExecutor.resources."
+            )
+            resources["requests"]["memory"] = self.memory_request
+        return resources
+
+    @observe("resources")
+    def _set_memory_limit(self, change):
+        # keep resources in sync with memory_limit in base class
+        memory_limit = change.get("limits", {}).get("memory")
+        if memory_limit:
+            self.memory_limit = memory_limit
+
     memory_request = ByteSpecification(
         0,
         help=(
+            "DEPRECATED: use KubernetesBuildExecutor.resources."
             "Memory request of the build pod in bytes (optional suffixes K M G T). "
             "The actual building happens in the docker daemon, "
             "but setting request in the build pod makes sure that memory is reserved for the docker build "
@@ -520,10 +548,7 @@ class KubernetesBuildExecutor(BuildExecutor):
                         name="builder",
                         args=self.get_cmd(),
                         volume_mounts=volume_mounts,
-                        resources=client.V1ResourceRequirements(
-                            limits={"memory": self.memory_limit},
-                            requests={"memory": self.memory_request},
-                        ),
+                        resources=self.resources,
                         env=env,
                     )
                 ],
