@@ -99,13 +99,13 @@ async def test_zenodo(spec, resolved_spec, resolved_ref, resolved_ref_url, build
             "https://doi.org/10.6084/m9.figshare.9782777.v1",
             "figshare-9782777.v1",
         ],
-        # spec without version is accepted as version 1 - check FigshareProvider.get_resolved_ref()
+        # spec without version is accepted as latest version - check FigshareProvider.get_resolved_ref()
         [
             "10.6084/m9.figshare.9782777",
-            "10.6084/m9.figshare.9782777.v1",
-            "9782777.v1",
-            "https://doi.org/10.6084/m9.figshare.9782777.v1",
-            "figshare-9782777.v1",
+            "10.6084/m9.figshare.9782777.v3",
+            "9782777.v3",
+            "https://doi.org/10.6084/m9.figshare.9782777.v3",
+            "figshare-9782777.v3",
         ],
     ],
 )
