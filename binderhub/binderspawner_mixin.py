@@ -110,6 +110,7 @@ class BinderSpawnerMixin(Configurable):
             "binder_launch_host",
             "binder_persistent_request",
             "binder_request",
+            "binder_client_ip",
         ):
             if key in self.user_options:
                 env[key.upper()] = self.user_options[key]
