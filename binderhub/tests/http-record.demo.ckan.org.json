@@ -1,0 +1,26 @@
+{
+  "https://demo.ckan.org/api/3/action/package_show": {
+    "body": "{\"help\": \"https://demo.ckan.org/api/3/action/help_show?name=package_show\", \"error\": {\"__type\": \"Not Found Error\", \"message\": \"Not found\"}, \"success\": false}",
+    "code": 404,
+    "headers": {
+      "Alt-Svc": "h3=\":443\"; ma=86400",
+      "Cache-Control": "public, max-age=0, must-revalidate",
+      "Cf-Cache-Status": "DYNAMIC",
+      "Cf-Ray": "9ea4d33ff9e0ed3b-SJC",
+      "Content-Encoding": "gzip",
+      "Content-Type": "application/json;charset=utf-8",
+      "Date": "Fri, 10 Apr 2026 21:25:38 GMT",
+      "Expect-Ct": "max-age=86400, enforce, report-uri='[reportURL]'",
+      "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "Referrer-Policy": "origin",
+      "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Kgzw%2BkSwFjKjhwgxb32LjQnhKc5JRyy3pOMgc6S9uAiy8XM34V6AcMVxmlMuqZGYiE%2FlTaFZLixXCG0%2FCAjoS%2FM2lEBDcWw5RLrvDY8WIT3rR2%2Fyaf7dETmbY70Twf1BUKzZIY5jBiNUdhOF\"}]}",
+      "Server": "cloudflare",
+      "Strict-Transport-Security": "max-age=15724800; includeSubDomains",
+      "Vary": "Cookie",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "SAMEORIGIN",
+      "X-Permitted-Cross-Domain-Policies": "none",
+      "X-Xss-Protection": "1"
+    }
+  }
+}

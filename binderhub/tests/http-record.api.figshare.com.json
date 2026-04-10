@@ -1,0 +1,17 @@
+{
+  "https://api.figshare.com/v2/articles/9782777/versions": {
+    "body": "[{\"version\": 1, \"url\": \"https://api.figshare.com/v2/articles/9782777/versions/1\"}, {\"version\": 2, \"url\": \"https://api.figshare.com/v2/articles/9782777/versions/2\"}, {\"version\": 3, \"url\": \"https://api.figshare.com/v2/articles/9782777/versions/3\"}]",
+    "code": 200,
+    "headers": {
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Headers": "Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-API-Revision",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT",
+      "Access-Control-Expose-Headers": "Location",
+      "Content-Encoding": "gzip",
+      "Content-Type": "application/json",
+      "Date": "Fri, 10 Apr 2026 22:03:18 GMT",
+      "Server": "nginx",
+      "Vary": "Accept-Encoding"
+    }
+  }
+}
