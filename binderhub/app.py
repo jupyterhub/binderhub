@@ -459,7 +459,7 @@ class BinderHub(Application):
     build_memory_request = ByteSpecification(
         0,
         help="""
-        DEPRECATED: Use c.KubernetesBuildExecutor.memory_request
+        DEPRECATED: Use c.KubernetesBuildExecutor.resources
 
         Amount of memory to request when scheduling a build
 
