@@ -16,7 +16,7 @@ import kubernetes.config
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from traitlets import Any, Bool, Dict, Integer, List, Unicode, default, observe
+from traitlets import Any, Bool, Dict, Integer, List, Unicode, default
 from traitlets.config import LoggingConfigurable
 from urllib3.exceptions import ReadTimeoutError
 
@@ -108,7 +108,13 @@ class BuildExecutor(LoggingConfigurable):
 
     memory_limit = ByteSpecification(
         0,
-        help="Memory limit for the build process in bytes (optional suffixes K M G T).",
+        help="""Memory limit for the build process in bytes (optional suffixes K M G T).
+
+            DEPRECATED: repo2docker does not support setting per-build resource limits,
+            this is typically done via `docker buildx create`.
+            or on a docker-in-docker pod.
+            Resources cannot generally be limited per-build.
+            """,
         config=True,
     )
 
@@ -161,10 +167,6 @@ class BuildExecutor(LoggingConfigurable):
 
         if self.push_secret:
             r2d_options.append("--push")
-
-        if self.memory_limit:
-            r2d_options.append("--build-memory-limit")
-            r2d_options.append(str(self.memory_limit))
 
         r2d_options += self.repo2docker_extra_args
 
@@ -315,10 +317,13 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
-    resources = Dict(help="""
+    resources = Dict(
+        help="""
         Kubernetes resources for the build pod.
         Note: This does not apply to the build itself, only the invocation of repo2docker.
-        """)
+        """,
+        config=True,
+    )
 
     @default("resources")
     def _default_resources(self):
@@ -327,6 +332,10 @@ class KubernetesBuildExecutor(BuildExecutor):
             "requests": {},
         }
         if self.memory_limit:
+            self.log.warning(
+                "Using deprecated KubernetesBuildExecutor.memory_limit. Use KubernetesBuildExecutor.resources."
+            )
+            resources["requests"]["memory"] = self.memory_request
             resources["limits"]["memory"] = self.memory_limit
         if self.memory_request:
             self.log.warning(
@@ -334,13 +343,6 @@ class KubernetesBuildExecutor(BuildExecutor):
             )
             resources["requests"]["memory"] = self.memory_request
         return resources
-
-    @observe("resources")
-    def _set_memory_limit(self, change):
-        # keep resources in sync with memory_limit in base class
-        memory_limit = change.get("limits", {}).get("memory")
-        if memory_limit:
-            self.memory_limit = memory_limit
 
     memory_request = ByteSpecification(
         0,
