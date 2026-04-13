@@ -317,10 +317,13 @@ class KubernetesBuildExecutor(BuildExecutor):
         config=True,
     )
 
-    resources = Dict(help="""
+    resources = Dict(
+        help="""
         Kubernetes resources for the build pod.
         Note: This does not apply to the build itself, only the invocation of repo2docker.
-        """)
+        """,
+        config=True,
+    )
 
     @default("resources")
     def _default_resources(self):
