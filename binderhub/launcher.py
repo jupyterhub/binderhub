@@ -352,6 +352,8 @@ class Launcher(LoggingConfigurable):
                 500, f"Image {image} for user {username} failed to launch"
             )
 
-        data["url"] = self.hub_url + f"user/{escaped_username}/{server_name}"
-        self.log.debug(data["url"])
+        data["url"] = self.hub_url + f"user/{escaped_username}/"
+        if server_name:
+            data["url"] += f"{server_name}/"
+        self.log.debug(f"redirect to server url: {data['url']}")
         return data
