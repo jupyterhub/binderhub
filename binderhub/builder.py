@@ -287,7 +287,7 @@ class BuildHandler(BaseHandler):
 
         """
         prefix = "/build/" + provider_prefix
-        spec = self.get_spec_from_request(prefix)
+        spec = self.get_spec_from_request(prefix).rstrip("/")
 
         # verify the build token and rate limit
         build_token = self.get_argument("build_token", None)
