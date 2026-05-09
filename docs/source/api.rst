@@ -147,10 +147,10 @@ event or failing and emitting a 'failed' event.
 Ready
 ~~~~~
 
-When your notebook is ready! You get a endpoint URL and a token used to
-access it. You can access the notebook / API by using the token in one
-of the ways the `notebook accepts security
-tokens <https://jupyter-notebook.readthedocs.io/en/stable/security.html>`__.
+When your notebook is ready! You get an endpoint URL and a token used to
+access it. You can access the Jupyter server / API by using the token
+in one of the ways that `Jupyter Server accepts security
+tokens <https://jupyter-server.readthedocs.io/en/stable/operators/security.html>`__.
 
 ::
 
