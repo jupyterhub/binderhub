@@ -115,7 +115,7 @@ async def test_build_check_accept(app):
         stream=True,
     )
     # even though we raised 400, the EventStream actually gets 200
-    assert r.status_code == 200
+    assert r.status_code == 400
     events = []
     async for line in async_requests.iter_lines(r):
         line = line.decode("utf8", "replace")
