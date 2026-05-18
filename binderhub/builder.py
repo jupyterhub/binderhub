@@ -195,6 +195,8 @@ class BuildHandler(BaseHandler):
 
     def send_error(self, status_code, **kwargs):
         """event stream cannot set an error code, so send an error event"""
+        # make sure status is set (not usually on event-stream requests)
+        self.set_status(status_code)
         exc_info = kwargs.get("exc_info")
         message = ""
         if exc_info:
