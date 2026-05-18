@@ -262,7 +262,7 @@ class BuildHandler(BaseHandler):
 
         # check Accept header to make sure it's a real EventSource request
         accept_header = self.request.headers.get("Accept", "")
-        accept = {s.strip().lower() for s in accept_header.split(";")}
+        accept = {s.strip().lower() for s in accept_header.split(",")}
 
         user_agent = self.request.headers.get("User-Agent", "")
         block_build_user_agents = self.settings.get("block_build_user_agents", [])
