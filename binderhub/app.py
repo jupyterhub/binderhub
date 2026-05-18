@@ -32,6 +32,7 @@ from traitlets import (
     Bytes,
     Dict,
     Integer,
+    List,
     TraitError,
     Type,
     Unicode,
@@ -310,6 +311,26 @@ class BinderHub(Application):
 
         Set to false to use only local docker images. Useful when running
         in a single node.
+        """,
+        config=True,
+    )
+
+    block_build_user_agents = List(
+        Unicode(),
+        default_value=[
+            ".*bot.*",
+            ".*gpt.*",
+            ".*crawler.*",
+            ".*spider.*",
+        ],
+        help="""
+        Prevent self-identified bots and crawlers from triggering builds.
+
+        List of user-agent regular expressions which will not be allowed to build.
+
+        Expressions will be case-insensitive.
+
+        Default: broad block of any user agent containing bot/gpt/crawler/spider
         """,
         config=True,
     )
@@ -945,6 +966,11 @@ class BinderHub(Application):
         # Construct a Builder so that we can extract parameters such as the
         # configuration or the version string to pass to /version and /health handlers
         example_builder = self.build_class(parent=self)
+
+        block_build_user_agent_patterns = [
+            re.compile(pattern, re.IGNORECASE)
+            for pattern in self.block_build_user_agents
+        ]
         self.tornado_settings.update(
             {
                 "log_function": log_request,
@@ -953,6 +979,7 @@ class BinderHub(Application):
                 "default_opengraph_title": self.default_opengraph_title,
                 "launcher": self.launcher,
                 "ban_networks": self.ban_networks,
+                "block_build_user_agents": block_build_user_agent_patterns,
                 "build_pool": self.build_pool,
                 "build_token_check_origin": self.build_token_check_origin,
                 "build_token_secret": self.build_token_secret,

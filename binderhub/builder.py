@@ -264,9 +264,23 @@ class BuildHandler(BaseHandler):
         accept_header = self.request.headers.get("Accept", "")
         accept = {s.strip().lower() for s in accept_header.split(";")}
 
+        user_agent = self.request.headers.get("User-Agent", "")
+        block_build_user_agents = self.settings.get("block_build_user_agents", [])
+        for pattern in block_build_user_agents:
+            if pattern.match(user_agent):
+                app_log.warning(
+                    "Not allowing user agent %s matching %s to build %s",
+                    user_agent,
+                    pattern,
+                    self.request.uri,
+                )
+                raise HTTPError(403, "Bots not allowed")
+
         if "text/event-stream" not in accept:
             app_log.warning(
-                "Bad accept header: %s, missing text/event-stream", accept_header
+                "Bad accept header: %s, missing text/event-stream, User-Agent=%s",
+                accept_header,
+                user_agent,
             )
             raise HTTPError(400, "Missing Accept header: text/event-stream")
 
