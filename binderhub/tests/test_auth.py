@@ -78,7 +78,7 @@ async def test_auth(app, path, authenticated, use_session):
             "/build/gh/binderhub-ci-repos/requirements/d687a7f9e6946ab01ef2baa7bd6d5b73c6e904fd",
             True,
             24,
-            200,  # due to event-stream, status is always 200 even when rejected
+            403,
         ),
         # ban_networks shouldn't affect health endpoint
         ("/health", True, 32, (200, 503)),

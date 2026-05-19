@@ -157,14 +157,17 @@ class BaseHandler(HubOAuthenticated, web.RequestHandler):
             self.set_header(header, value)
         self.set_header("access-control-allow-headers", "cache-control")
 
-    def get_spec_from_request(self, prefix):
+    def get_spec_from_request(self):
         """Re-extract spec from request.path.
         Get the original, raw spec, without tornado's unquoting.
         This is needed because tornado converts 'foo%2Fbar/ref' to 'foo/bar/ref'.
         """
+        # Handler.spec_prefix must be defined
+        prefix = self.spec_prefix
         idx = self.request.path.index(prefix)
-        spec = self.request.path[idx + len(prefix) + 1 :]
-        return spec
+        provider_spec = self.request.path[idx + len(prefix) :]
+        provider_id, _, spec = provider_spec.partition("/")
+        return provider_id, spec
 
     def get_provider(self, provider_prefix, spec):
         """Construct a provider object"""

@@ -58,10 +58,11 @@ class RepoLaunchUIHandler(UIHandler):
         self.repo_provider = repo_provider
         return super().initialize()
 
+    spec_prefix = "/v2/"
+
     @authenticated
     def get(self, provider_id, _escaped_spec):
-        prefix = "/v2/" + provider_id
-        spec = self.get_spec_from_request(prefix)
+        _, spec = self.get_spec_from_request()
 
         build_token = jwt.encode(
             {

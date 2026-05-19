@@ -55,6 +55,12 @@ BUILDS_INPROGRESS = Gauge("binderhub_inprogress_builds", "Builds currently in pr
 LAUNCHES_INPROGRESS = Gauge(
     "binderhub_inprogress_launches", "Launches currently in progress"
 )
+BUILDS_REJECTED = Counter(
+    "binderhub_builds_rejected",
+    "Counter of rejected build requests",
+    # often rejected before spec is resolved to repo, so use spec
+    ["reason", "spec", "user_agent"],
+)
 
 
 def _get_image_basename_and_tag(full_name):
@@ -146,6 +152,7 @@ class BuildHandler(BaseHandler):
     # emit keepalives every 25 seconds to avoid idle connections being closed
     KEEPALIVE_INTERVAL = 25
     build = None
+    spec_prefix = "/build/"
 
     async def emit(self, data):
         """Emit an eventstream event"""
@@ -195,6 +202,8 @@ class BuildHandler(BaseHandler):
 
     def send_error(self, status_code, **kwargs):
         """event stream cannot set an error code, so send an error event"""
+        # make sure status is set (not usually on event-stream requests)
+        self.set_status(status_code)
         exc_info = kwargs.get("exc_info")
         message = ""
         if exc_info:
@@ -257,16 +266,55 @@ class BuildHandler(BaseHandler):
         # disable redirect to login, which won't work for EventSource
         raise HTTPError(403)
 
+    def check_request_ip(self):
+        try:
+            super().check_request_ip()
+        except HTTPError:
+            self._record_rejected_build(reason="banned_ip")
+            raise
+
+    def check_rate_limit(self):
+        try:
+            super().check_rate_limit()
+        except HTTPError:
+            self._record_rejected_build(reason="rate_limit")
+            raise
+
+    def _record_rejected_build(self, reason, msg=""):
+        provider_id, spec = self.get_spec_from_request()
+        spec = f"{provider_id}/{spec}"
+
+        user_agent = self.request.headers.get("User-Agent", "")
+        ip = self.request.remote_ip
+        app_log.warning(
+            "Rejecting build: %s reason=%s spec=%s ip=%s user_agent=%r",
+            msg,
+            reason,
+            spec,
+            ip,
+            user_agent,
+        )
+        BUILDS_REJECTED.labels(reason=reason, spec=spec, user_agent=user_agent).inc()
+
     async def prepare(self):
         super().prepare()
 
         # check Accept header to make sure it's a real EventSource request
         accept_header = self.request.headers.get("Accept", "")
-        accept = {s.strip().lower() for s in accept_header.split(";")}
+        accept = {s.strip().lower() for s in accept_header.split(",")}
+
+        user_agent = self.request.headers.get("User-Agent", "")
+        block_build_user_agents = self.settings.get("block_build_user_agents", [])
+        for pattern in block_build_user_agents:
+            if pattern.match(user_agent):
+                self._record_rejected_build(
+                    reason="user_agent", msg=f"user agent matching {pattern}"
+                )
+                raise HTTPError(403, "Bots not allowed")
 
         if "text/event-stream" not in accept:
-            app_log.warning(
-                "Bad accept header: %s, missing text/event-stream", accept_header
+            self._record_rejected_build(
+                reason="accept_header", msg=f"Accept={accept_header!r}"
             )
             raise HTTPError(400, "Missing Accept header: text/event-stream")
 
@@ -286,8 +334,7 @@ class BuildHandler(BaseHandler):
                 repo, ref, etc.)
 
         """
-        prefix = "/build/" + provider_prefix
-        spec = self.get_spec_from_request(prefix)
+        _, spec = self.get_spec_from_request()
 
         # verify the build token and rate limit
         build_token = self.get_argument("build_token", None)
@@ -315,6 +362,7 @@ class BuildHandler(BaseHandler):
             return
 
         if provider.is_banned():
+            self._record_rejected_build(reason="banned_repo")
             await self.emit(
                 {
                     "phase": "failed",

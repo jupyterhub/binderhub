@@ -115,7 +115,7 @@ async def test_build_check_accept(app):
         stream=True,
     )
     # even though we raised 400, the EventStream actually gets 200
-    assert r.status_code == 200
+    assert r.status_code == 400
     events = []
     async for line in async_requests.iter_lines(r):
         line = line.decode("utf8", "replace")
@@ -251,7 +251,7 @@ async def test_build_only_fail(
         params={"build_only": build_only_query_param},
         headers={"Accept": "text/event-stream"},
     )
-    r.raise_for_status()
+    assert r.status_code == 400
     failed_events = 0
     async for line in async_requests.iter_lines(r):
         line = line.decode("utf8", "replace")
