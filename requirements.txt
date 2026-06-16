@@ -5,7 +5,7 @@ jsonschema
 jupyterhub
 kubernetes
 prometheus_client
-pyjwt>=2
+pyjwt>=2.13.0
 python-json-logger
 ruamel.yaml
 tornado>=5.1
