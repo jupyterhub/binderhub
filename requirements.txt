@@ -8,5 +8,5 @@ prometheus_client
 pyjwt>=2
 python-json-logger
 ruamel.yaml
-tornado>=5.1
+tornado>=6.5.7
 traitlets
