@@ -22,7 +22,7 @@ jobs:
   diff-rendered-templates:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
