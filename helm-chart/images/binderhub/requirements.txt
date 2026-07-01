@@ -4,7 +4,7 @@
 #
 #    Use the "Run workflow" button at https://github.com/jupyterhub/binderhub/actions/workflows/watch-dependencies.yaml
 #
-alembic==1.18.4
+alembic==1.18.5
     # via jupyterhub
 annotated-types==0.7.0
     # via pydantic
@@ -14,7 +14,7 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-certifi==2026.4.22
+certifi==2026.6.17
     # via
     #   kubernetes
     #   requests
@@ -24,7 +24,7 @@ cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.7
     # via requests
-cryptography==48.0.0
+cryptography==49.0.0
     # via
     #   certipy
     #   google-auth
@@ -34,25 +34,25 @@ escapism==1.1.0
     # via -r requirements.txt
 fqdn==1.5.1
     # via jsonschema
-google-api-core==2.30.3
+google-api-core==2.31.0
     # via
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
-google-auth==2.52.0
+google-auth==2.55.1
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-core
     #   google-cloud-logging
     #   kubernetes
-google-cloud-appengine-logging==1.9.0
+google-cloud-appengine-logging==1.10.0
     # via google-cloud-logging
-google-cloud-audit-log==0.5.0
+google-cloud-audit-log==0.6.0
     # via google-cloud-logging
 google-cloud-core==2.6.0
     # via google-cloud-logging
-google-cloud-logging==3.15.0
+google-cloud-logging==3.16.0
     # via -r helm-chart/images/binderhub/requirements.in
 googleapis-common-protos==1.75.0
     # via
@@ -60,11 +60,11 @@ googleapis-common-protos==1.75.0
     #   google-cloud-audit-log
     #   grpc-google-iam-v1
     #   grpcio-status
-greenlet==3.5.0
+greenlet==3.5.3
     # via sqlalchemy
 grpc-google-iam-v1==0.14.4
     # via google-cloud-logging
-grpcio==1.80.0
+grpcio==1.81.1
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -72,15 +72,13 @@ grpcio==1.80.0
     #   googleapis-common-protos
     #   grpc-google-iam-v1
     #   grpcio-status
-grpcio-status==1.80.0
+grpcio-status==1.81.1
     # via google-api-core
-idna==3.14
+idna==3.18
     # via
     #   jsonschema
     #   jupyterhub
     #   requests
-importlib-metadata==8.7.1
-    # via opentelemetry-api
 isoduration==20.11.0
     # via jsonschema
 jinja2==3.1.6
@@ -97,7 +95,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 jupyter-events==0.12.1
     # via jupyterhub
-jupyterhub==5.4.6
+jupyterhub==5.5.0
     # via
     #   -r helm-chart/images/binderhub/requirements.in
     #   -r requirements.txt
@@ -117,7 +115,7 @@ oauthlib==3.3.1
     # via
     #   jupyterhub
     #   requests-oauthlib
-opentelemetry-api==1.41.1
+opentelemetry-api==1.43.0
     # via google-cloud-logging
 packaging==26.2
     # via
@@ -134,7 +132,7 @@ proto-plus==1.28.0
     #   google-api-core
     #   google-cloud-appengine-logging
     #   google-cloud-logging
-protobuf==6.33.6
+protobuf==7.35.1
     # via
     #   google-api-core
     #   google-cloud-appengine-logging
@@ -150,13 +148,13 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycparser==3.0
     # via cffi
-pycurl==7.46.0
+pycurl==7.47.0
     # via -r helm-chart/images/binderhub/requirements.in
 pydantic==2.13.4
     # via jupyterhub
 pydantic-core==2.46.4
     # via pydantic
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via -r requirements.txt
 python-dateutil==2.9.0.post0
     # via
@@ -176,7 +174,7 @@ referencing==0.37.0
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-requests==2.33.1
+requests==2.34.2
     # via
     #   docker
     #   google-api-core
@@ -195,7 +193,7 @@ rfc3986-validator==0.1.1
     #   jupyter-events
 rfc3987-syntax==1.1.0
     # via jsonschema
-rpds-py==0.30.0
+rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
@@ -206,15 +204,15 @@ six==1.17.0
     #   kubernetes
     #   python-dateutil
     #   rfc3339-validator
-sqlalchemy==2.0.49
+sqlalchemy==2.0.51
     # via
     #   alembic
     #   jupyterhub
-tornado==6.5.5
+tornado==6.5.7
     # via
     #   -r requirements.txt
     #   jupyterhub
-traitlets==5.15.0
+traitlets==5.15.1
     # via
     #   -r requirements.txt
     #   jupyter-events
@@ -243,8 +241,6 @@ webcolors==25.10.0
     # via jsonschema
 websocket-client==1.9.0
     # via kubernetes
-zipp==3.23.1
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==82.0.1
