@@ -39,7 +39,7 @@ class UIHandler(BaseHandler):
             "binderVersion": binder_version,
         }
         self.render_template(
-            "page.html",
+            self.settings["template_file"],
             page_config=self.page_config,
             extra_footer_scripts=self.settings["extra_footer_scripts"],
             extra_header_html=self.settings["extra_header_html"],
