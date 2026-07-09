@@ -168,7 +168,15 @@ async def test_get_token():
     test_handle = {"username": username, "password": password}
     app = Application(
         [
-            (r"/token", MockTokenHandler, {"test_handle": test_handle}),
+            (
+                r"/token",
+                MockTokenHandler,
+                {
+                    "test_handle": test_handle,
+                    "service": "service.1",
+                    "scope": "scope.2",
+                },
+            ),
         ]
     )
     ip = "127.0.0.1"
@@ -190,6 +198,49 @@ async def test_get_token():
         httpclient.AsyncHTTPClient(),
         f"http://{ip}:{port}/token",
         "service.1",
+        "scope.2",
+    )
+    assert token == test_handle["token"]
+
+
+async def test_get_token_with_config_supplied_service():
+    # regression coverage for https://github.com/jupyterhub/binderhub/issues/1620
+
+    username = "user"
+    password = "pass"
+    test_handle = {"username": username, "password": password}
+    app = Application(
+        [
+            (
+                r"/token",
+                MockTokenHandler,
+                {
+                    "test_handle": test_handle,
+                    "service": "service.1",
+                    "scope": "scope.2",
+                },
+            ),
+        ]
+    )
+    ip = "127.0.0.1"
+    port = randint(10000, 65535)
+    app.listen(port, ip)
+
+    registry = DockerRegistry(
+        url="https://example.org", username=username, password=password
+    )
+
+    assert registry.url == "https://example.org"
+    assert registry.auth_config_url == "https://example.org"
+    # token_url should be unset, since it should be determined by the caller from a
+    # WWW-Authenticate header
+    assert registry.token_url == ""
+    assert registry.username == username
+    assert registry.password == password
+    token = await registry._get_token(
+        httpclient.AsyncHTTPClient(),
+        f"http://{ip}:{port}/token?service=service.1",
+        None,
         "scope.2",
     )
     assert token == test_handle["token"]
@@ -229,7 +280,7 @@ async def test_get_image_manifest(tmpdir, token_url_known):
             f,
         )
     if token_url_known:
-        token_url = url + "/token"
+        token_url = url + "/token?service=container_registry"
     else:
         token_url = ""
     registry = DockerRegistry(
