@@ -553,6 +553,28 @@ class BuildHandler(BaseHandler):
         else:
             build.push_secret = ""
 
+        # Restore the documented templating of the appendix.
+        #
+        # BuildExecutor.appendix is documented as "a Python string template"
+        # formatted with binder_url / repo_url (see BinderHub.appendix), and
+        # examples/appendix/binderhub_config.py still relies on it:
+        #     ENV BINDER_URL={binder_url}
+        #     ENV REPO_URL={repo_url}
+        #
+        # The formatting was commented out when Build parameters moved to
+        # traitlets (#1518) and the commented line was later deleted as dead
+        # code (451059c4, "Remove hardcoded appendix value"), so since then the
+        # placeholders have been passed to repo2docker verbatim and baked into
+        # built images literally.
+        if build.appendix:
+            build.appendix = build.appendix.format(
+                binder_url=self.binder_launch_host + self.binder_request,
+                persistent_binder_url=self.binder_launch_host
+                + self.binder_persistent_request,
+                repo_url=repo_url,
+                ref_url=self.ref_url,
+            )
+
         self.build = build
 
         with BUILDS_INPROGRESS.track_inprogress():
