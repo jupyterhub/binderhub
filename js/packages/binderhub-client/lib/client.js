@@ -160,9 +160,9 @@ export class BinderRepository {
             });
             return;
           }
-          if (
-            !(error.name === "EventStreamClose" || error.name === "AbortError")
-          ) {
+          if (!(
+            error.name === "EventStreamClose" || error.name === "AbortError"
+          )) {
             // errors _other_ than EventStreamClose get displayed
             queue.push({
               phase: "failed",
