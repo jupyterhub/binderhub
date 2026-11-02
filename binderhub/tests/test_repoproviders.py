@@ -1,6 +1,6 @@
 import re
 from unittest import TestCase
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import pytest
 from tornado.ioloop import IOLoop
@@ -415,6 +415,26 @@ def test_github_missing_ref():
     )
     ref = IOLoop().run_sync(provider.get_resolved_ref)
     assert ref is None
+
+
+async def test_github_ref_is_url_encoded(monkeypatch):
+    """An attacker-controlled ref must not inject extra GitHub API path segments."""
+    ref = "HEAD/../../../../owner/private/contents/README.md"
+    provider = GitHubRepoProvider(spec=f"user/repo/{ref}")
+
+    captured = {}
+
+    async def fake_request(api_url, etag=None):
+        captured["url"] = api_url
+        return None  # short-circuit before any network call
+
+    monkeypatch.setattr(provider, "github_api_request", fake_request)
+    await provider.get_resolved_ref()
+
+    path = urlparse(captured["url"]).path
+    # the ref's slashes are encoded, so the ".." cannot climb out of /commits/
+    assert path == f"/repos/user/repo/commits/{quote(ref, safe='')}"
+    assert "/../" not in path
 
 
 class TestSpecErrorHandling(TestCase):
