@@ -798,7 +798,7 @@ class BuildHandler(BaseHandler):
                     repo_url=self.repo_url,
                     extra_args=extra_args,
                     event_callback=handle_progress_event,
-                    launch_timeout=launcher.launch_timeout * (2 ** i),
+                    launch_timeout=launcher.launch_timeout * (2**i),
                 )
             except Exception as e:
                 duration = time.perf_counter() - launch_starttime
