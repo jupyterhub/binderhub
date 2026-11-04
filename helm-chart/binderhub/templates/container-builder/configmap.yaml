@@ -1,0 +1,36 @@
+{{- if ne .Values.imageBuilderType "host" -}}
+{{- $builderName := .Values.imageBuilderType -}}
+{{- $builder := index .Values $builderName -}}
+{{- $daemonset := $builder.daemonset -}}
+{{- $hostSocketPath := printf "%s/%s" $builder.hostSocketDir $builder.hostSocketName }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: builder-start-script
+  labels:
+    app: binder
+    component: image-builder
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  start.sh: |
+    #!/bin/sh
+    set -eu
+
+    if [ -d "{{ $hostSocketPath }}" ]; then
+      echo "Removing incorrect socket directory {{ $hostSocketPath }}";
+      rmdir "{{ $hostSocketPath }}";
+    fi
+
+    # `set --` sets $1...$n args https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+    {{ if eq $builderName "dind" }}
+      set -- dockerd --storage-driver={{ $builder.storageDriver }} -H unix://{{ $hostSocketPath }}
+    {{ else if eq $builderName "pink" }}
+      set -- podman system service --time=0 unix://{{ $hostSocketPath }}
+    {{ end }}
+    {{ range $daemonset.extraArgs }}
+      set -- "$@" {{ . | quote }}
+    {{ end }}
+    exec "$@"
+{{- end }}
