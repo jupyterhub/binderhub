@@ -553,6 +553,16 @@ class BuildHandler(BaseHandler):
         else:
             build.push_secret = ""
 
+        # appendix is a string template
+        if build.appendix:
+            build.appendix = build.appendix.format(
+                binder_url=self.binder_launch_host + self.binder_request,
+                persistent_binder_url=self.binder_launch_host
+                + self.binder_persistent_request,
+                repo_url=repo_url,
+                ref_url=self.ref_url,
+            )
+
         self.build = build
 
         with BUILDS_INPROGRESS.track_inprogress():
