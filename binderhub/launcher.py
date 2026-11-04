@@ -176,7 +176,10 @@ class Launcher(LoggingConfigurable):
         repo_url="",
         extra_args=None,
         event_callback=None,
+        launch_timeout=None,
     ):
+        if launch_timeout is None:
+            launch_timeout = self.launch_timeout
         """Launch a server for a given image
 
         - creates a temporary user on the Hub if authentication is not enabled
@@ -315,7 +318,7 @@ class Launcher(LoggingConfigurable):
                 streaming_callback=lambda chunk: asyncio.ensure_future(
                     handle_chunk(chunk)
                 ),
-                request_timeout=self.launch_timeout,
+                request_timeout=launch_timeout,
             )
             try:
                 await gen.with_timeout(
