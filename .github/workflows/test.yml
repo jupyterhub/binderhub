@@ -417,7 +417,7 @@ jobs:
         id: setup-python
         with:
           # Set this to the oldest Python version supported by BinderHub
-          python-version: "3.10"
+          python-version: "3.12"
           cache: pip
           cache-dependency-path: "**/*requirements.txt"
 
