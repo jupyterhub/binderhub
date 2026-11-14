@@ -20,7 +20,7 @@ on:
 
 jobs:
   diff-rendered-templates:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.15"
 
       - name: Install helm diff plugin, update local chart dependencies
         run: |

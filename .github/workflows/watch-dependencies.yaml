@@ -26,7 +26,7 @@ jobs:
   update-image-dependencies:
     # Don't run this job on forks
     if: github.repository == 'jupyterhub/binderhub'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
 
     strategy:
       fail-fast: false
@@ -70,10 +70,34 @@ jobs:
         # version numbers of format x.y.z included in a pattern with an optional
         # prefix and suffix, like the tags "v4.5.0" (v prefix) and "23.0.4-dind"
         # (-dind suffix).
+        # Bug in jq 1.8.1 https://github.com/jqlang/jq/pull/3415:
+        #   `| rtrimstr("${{ matrix.tag_suffix }}")` should return the input if
+        #   tag_suffix is empty but instead it returns "" so we need to use a
+        #   conditional until jq is upgraded to 1.8.2+ in the runner image
         run: |
           latest_tag=$(
               docker run --rm quay.io/skopeo/stable list-tags docker://${{ matrix.registry }}/${{ matrix.repository }} \
-            | jq -r '[.Tags[] | select(. | match("^${{ matrix.tag_prefix }}\\d+\\.\\d+\\.\\d+${{ matrix.tag_suffix }}$") | .string)] | sort_by(split(".") | map(ltrimstr("${{ matrix.tag_prefix }}") | rtrimstr("${{ matrix.tag_suffix }}") | tonumber)) | last'
+            | jq -r '
+              [
+                .Tags[]
+                | select(
+                  .
+                  | test("^${{ matrix.tag_prefix }}\\d+\\.\\d+\\.\\d+${{ matrix.tag_suffix }}$")
+                )
+              ]
+              | sort_by(
+                split(".")
+                | map(
+                  ltrimstr("${{ matrix.tag_prefix }}")
+                  | if "${{ matrix.tag_suffix }}" == "" then
+                      .
+                    else
+                      rtrimstr("${{ matrix.tag_suffix }}")
+                    end
+                  | tonumber
+                )
+              )
+              | last'
           )
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
