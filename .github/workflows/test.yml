@@ -150,6 +150,7 @@ jobs:
         with:
           node-version: "26"
           cache: npm
+          cache-dependency-path: "**/package*.json"
 
       - name: Run webpack to build static assets
         run: |
@@ -402,6 +403,7 @@ jobs:
         with:
           node-version: "26"
           cache: npm
+          cache-dependency-path: "**/package*.json"
 
       - uses: actions/setup-python@v7
         id: setup-python
