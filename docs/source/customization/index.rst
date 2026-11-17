@@ -9,7 +9,7 @@ best-practices in debugging issues.
    :maxdepth: 2
    :caption: Customization and deployment
 
-   ../customizing
+   ../customizing.md
    ../debug
    ../authentication
    ../https
