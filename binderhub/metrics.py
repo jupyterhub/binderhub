@@ -7,6 +7,9 @@ class MetricsHandler(BaseHandler):
     # demote logging of 200 responses to debug-level
     log_success_debug = True
 
+    # allow banned launch sources to check metrics
+    skip_check_request_ip = True
+
     async def get(self):
         self.set_header("Content-Type", CONTENT_TYPE_LATEST)
         self.write(generate_latest(REGISTRY))
