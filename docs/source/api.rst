@@ -63,6 +63,35 @@ This reports the version of BinderHub and the services it needs to run.
 
 This reports which :doc:`repository providers </reference/repoproviders>` are enabled.
 
+Launch URL Parameters
+---------------------
+
+BinderHub supports special URL parameters to open files or specific Jupyter interfaces directly after launch:
+
+- **filepath**: Opens a specific file or notebook immediately.
+
+  Example:
+
+  .. code-block:: text
+
+     https://mybinder.org/v2/gh/USERNAME/REPO/BRANCH?filepath=notebook.ipynb
+
+- **urlpath**: Opens a specific Jupyter interface.
+
+  Examples:
+
+  - Open JupyterLab with a notebook:
+
+    .. code-block:: text
+
+       ?urlpath=lab/tree/notebook.ipynb
+
+  - Open a terminal directly:
+
+    .. code-block:: text
+
+       ?urlpath=/terminals/1
+
 Events
 ------
 
