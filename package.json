@@ -20,12 +20,12 @@
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-react": "^7.26.3",
     "@types/react": "^19.0.0",
+    "@happy-dom/jest-environment": "^20.8.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "configurable-http-proxy": "^4.6.2",
     "@types/jest": "^29.5.5",
-    "@whatwg-node/fetch": "^0.9.17",
     "autoprefixer": "^10.4.19",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.2",
@@ -57,7 +57,7 @@
     "test": "jest"
   },
   "jest": {
-    "testEnvironment": "jsdom",
+    "testEnvironment": "@happy-dom/jest-environment",
     "collectCoverage": true,
     "coverageReporters": [
       "text",
