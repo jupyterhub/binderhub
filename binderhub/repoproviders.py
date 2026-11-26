@@ -1054,11 +1054,13 @@ class GitHubRepoProvider(RepoProvider):
         if hasattr(self, "resolved_ref"):
             return self.resolved_ref
 
+        # Encode the ref (safe="" so its slashes can't inject extra path
+        # segments) to prevent traversal, see GHSA-q276-fxp7-xhx3.
         api_url = "{api_base_path}/repos/{user}/{repo}/commits/{ref}".format(
             api_base_path=self.api_base_path.format(hostname=self.hostname),
             user=self.user,
             repo=self.repo,
-            ref=self.unresolved_ref,
+            ref=urllib.parse.quote(self.unresolved_ref, safe=""),
         )
         self.log.debug("Fetching %s", api_url)
         cached = self.cache.get(api_url)
